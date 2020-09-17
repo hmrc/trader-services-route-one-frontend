@@ -1,0 +1,12 @@
+What's inside?
+==
+
+Stateful frontend microservice seed build with:
+
+* [playframework 2.6](https://www.playframework.com/documentation/2.6.x/Home)
+* [bootstrap-play](https://github.com/hmrc/bootstrap-play)
+* [play-fsm](https://github.com/hmrc/play-fsm)
+* [play-frontend-govuk](https://github.com/hmrc/play-frontend-govuk)
+* [mongodb](https://www.mongodb.com)
+
+

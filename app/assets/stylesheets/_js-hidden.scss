@@ -1,0 +1,6 @@
+.js-hidden {
+    display: none;
+}
+.js-enabled .js-hidden {
+    display: block;
+}

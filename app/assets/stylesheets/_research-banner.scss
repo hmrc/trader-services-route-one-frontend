@@ -1,0 +1,61 @@
+@mixin print {
+  @media only print {
+    @content;
+  }
+}
+
+.ssp-research-banner {
+
+  display: none;
+  background-color: $govuk-brand-colour;
+  padding: 1em 1em 1em 1em;
+
+  @include print {
+    display: none;
+  }
+
+  &--heading {
+    color: govuk-colour("white");
+    font-weight: 700;
+  }
+
+  &--content {
+    width: 100%;
+    margin-bottom: 1em;
+
+    @include govuk-media-query($from: desktop) {
+      display: inline-block;
+      width: 80%;
+      margin-bottom: 0;
+    }
+  }
+
+  &--invitation {
+    color: govuk-colour("white");
+  }
+
+  &--link {
+    color: govuk-colour("white");
+
+    &:link {
+      color: govuk-colour("white") !important;
+    }
+
+    &:focus {
+      color: $govuk-text-colour !important;
+    }
+
+    &:visited {
+      color: govuk-colour("white");
+    }
+  }
+
+  &--close-link {
+    @include govuk-media-query($from: desktop) {
+      width: 20%;
+      float: right;
+      text-align: right;
+    }
+  }
+
+}

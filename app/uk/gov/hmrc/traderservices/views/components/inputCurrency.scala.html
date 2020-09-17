@@ -1,0 +1,89 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.html.components.{toClasses => govukToClasses}
+
+@this(govukErrorMessage: govukErrorMessage, govukHint: govukHint, govukLabel: govukLabel)
+
+@(form: Form[_],
+        id: String,
+        name: String,
+        label: Option[String] = None,
+        isPageHeading: Boolean = false,
+        hint: Option[Html] = None,
+        classes: Option[String] = None,
+        labelClasses: Option[String] = None
+)(implicit messages: Messages)
+
+<div class="@govukToClasses("govuk-form-group", if(form(id).hasErrors) "govuk-form-group--error" else "")">
+
+    @if(label.isDefined){
+        @govukLabel(Label(
+        forAttr = Some(id),
+        isPageHeading = isPageHeading,
+        classes = if(isPageHeading) "govuk-label--xl " + labelClasses.fold("")(cls => cls) else labelClasses.fold("")(cls => cls),
+        content = Text(messages(label.get))
+        ))
+    }
+
+    @divSnippet
+</div>
+
+@hintSnippet(describedBy: String) = @{
+    hint.fold((describedBy, HtmlFormat.empty)) { hint =>
+        val hintId = s"$id-hint"
+        val describedBy1 = s"$describedBy $hintId"
+        val hintHtml =
+            govukHint(Hint(
+                id = Some(hintId),
+                content = HtmlContent(hint)
+            ))
+        (describedBy1, hintHtml)
+    }
+}
+
+@errorMessageSnippet(describedBy: String) = @{
+    form(id).error.fold((describedBy, HtmlFormat.empty)) { errorMessage =>
+        val errorId = s"$id-error"
+        val describedBy1 = s"$describedBy $errorId"
+        val errorMessageHtml =
+            govukErrorMessage(ErrorMessage(
+                id = Some(errorId),
+                content = Text(messages(errorMessage.message, errorMessage.args:_*))
+            ))
+        (describedBy1, errorMessageHtml)
+    }
+}
+
+@inputSnippet(describedBy: String) = {
+@defining {
+    id="@id" name="@name" type="text" inputmode="decimal" @form(s"$id").value.map { value => value="@value" }@if(describedBy.nonEmpty) { aria-describedby="@describedBy.trim"}
+} { attrs =>
+        <div class="govuk-currency-input govuk-body">
+            <div class="hmrc-currency-input__wrapper">
+                <span class="hmrc-currency-input__unit" aria-hidden="true">&pound;</span>
+                <input class="@govukToClasses("govuk-input", classes.fold("")(x => x), if(form(id).hasErrors) "govuk-input--error" else "")" @attrs>
+            </div>
+        </div>
+    }
+}
+
+@divSnippet = @{
+    val (describedBy1, hintHtml) = hintSnippet("")
+    val (describedBy2, errorMessageHtml) = errorMessageSnippet(describedBy1)
+    val inputHtml = inputSnippet(describedBy2)
+    HtmlFormat.fill(collection.immutable.Seq(hintHtml, errorMessageHtml, inputHtml))
+}

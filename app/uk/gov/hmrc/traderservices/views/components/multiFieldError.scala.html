@@ -1,0 +1,33 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this()
+
+@(form: Form[_],
+    id: String,
+    fields: Html
+)(implicit messages: Messages)
+
+<div class=@Html(s"${if(form("").hasErrors) {"govuk-form-group--error"} else ""}") id=@id>
+  @if(form("").hasErrors) {
+    <span id=@Html(s"$id-multiField-error-message") class="govuk-error-message">
+        <span class="govuk-visually-hidden">Error:</span> @Html(messages(if(form("").hasErrors) form("").errors.map(_.message).head else""))
+    </span>
+  }
+
+  @fields
+
+</div>

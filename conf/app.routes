@@ -1,6 +1,14 @@
 # microservice specific routes
 
-->         /govuk-frontend          govuk.Routes
-->         /hmrc-frontend           hmrcfrontend.Routes
-GET        /hello-world             uk.gov.hmrc.traderservicesrouteonefrontend.controllers.HelloWorldController.helloWorld
-GET        /assets/*file            controllers.Assets.versioned(path = "/public", file: Asset)
+->         /govuk-frontend                              govuk.Routes
+->         /hmrc-frontend                               hmrcfrontend.Routes
+
+GET        /                                           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
+
+GET        /accessibility-statement                    @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
+
+GET        /sign-out                                    @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
+GET        /sign-out-no-survey                          @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
+
+GET        /language/:lang                              @uk.gov.hmrc.traderservices.controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET        /assets/*file                                controllers.Assets.versioned(path="/public", file: Asset)

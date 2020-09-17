@@ -1,0 +1,16 @@
+// fixes for zooming font size issue
+.govuk-panel {
+	padding: 10px 0;
+
+	@include govuk-media-query($from: tablet) {
+		padding: 35px;
+	}
+}
+
+.govuk-panel__title {
+	font-size: 1.5rem;
+
+	@include govuk-media-query($from: tablet) {
+		font-size: 3rem;
+	}
+}
