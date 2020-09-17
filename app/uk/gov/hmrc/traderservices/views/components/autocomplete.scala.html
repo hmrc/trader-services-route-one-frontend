@@ -1,0 +1,64 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(govukInput: GovukInput)
+
+@(
+        form: Form[_],
+        id: String,
+        name: String,
+        label: String,
+        isPageHeading: Boolean,
+        autocompleteOptions: Seq[String],
+        headingMessageArgs: Seq[String] = Seq(),
+        hint: Option[Html] = None
+)(implicit messages: Messages)
+
+
+<div class="govuk-form-group @if(form.hasErrors){govuk-form-group--error}">
+
+    @if(isPageHeading) {
+        <h1 class="govuk-label-wrapper">
+            <label class="govuk-label govuk-label--xl" for=@name>
+                @messages(label, headingMessageArgs: _*)
+            </label>
+        </h1>
+    } else {
+        <label class="govuk-label" for=@id>
+            @messages(label, headingMessageArgs: _*)
+        </label>
+    }
+
+    @hint.map { hint =>
+        <span id="@id-hint" class="govuk-hint">@hint</span>
+    }
+
+    @if(form.hasErrors) {
+        <span id="@id-error" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            @messages(form.errors.head.message)
+        </span>
+    }
+
+    <div class="govuk-body">
+        <select id="value" class="govuk-select">
+            @autocompleteOptions.map { value =>
+                <option value="@value" @if(form.value.contains(value)){selected="selected"}>@value</option>
+            }
+        </select>
+    </div>
+</div>
+

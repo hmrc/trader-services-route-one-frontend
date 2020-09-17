@@ -1,0 +1,7 @@
+.ssp-language-toggle {
+  margin-top: 0.5em;
+
+  @include govuk-media-query($from: desktop) {
+    float: right;
+  }
+}

@@ -1,0 +1,18 @@
+.govuk-percentage-input {
+
+  &__inner {
+    position: relative;
+
+    &__unit {
+      position: absolute;
+      bottom: 2px;
+      right: 7px;
+      font-weight: bold;
+      font-size: 30px;
+    }
+
+    &__input {
+      padding-right: 30px;
+    }
+  }
+}

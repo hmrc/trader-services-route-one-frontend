@@ -2,6 +2,8 @@
 
 !.gitignore
 !.scalafmt.conf
+!.description
+
 .cache
 /.classpath
 db
@@ -18,7 +20,7 @@ lib
 lib_managed
 log
 logs
-modules
+/modules
 /out
 precompiled
 /.project
@@ -33,3 +35,5 @@ test-result
 tmp
 .idea_modules
 bin
+.metals/
+.vscode/

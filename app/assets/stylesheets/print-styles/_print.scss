@@ -1,0 +1,13 @@
+* {
+	font-family: sans-serif;
+}
+
+/* Hide unecessary elements */
+.govuk-skip-link,
+header,
+footer,
+.govuk-link,
+.govuk-phase-banner,
+.print-document-header {
+	display: none;
+}

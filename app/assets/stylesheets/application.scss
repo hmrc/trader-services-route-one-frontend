@@ -1,5 +1,31 @@
-$govuk-assets-path: "/trader-services-route-one-frontend/assets/lib/govuk-frontend/govuk/assets/";
-$hmrc-assets-path: "/trader-services-route-one-frontend/assets/lib/hmrc-frontend/hmrc/";
-
+$govuk-assets-path: "/trader-services/assets/lib/govuk-frontend/govuk/assets/";
 @import "lib/govuk-frontend/govuk/all";
+$hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 @import "lib/hmrc-frontend/hmrc/all";
+
+@import "js-hidden";
+@import "timeout-dialog";
+@import "autocomplete";
+@import "currency-input";
+@import "percentage-input";
+@import "task-list";
+@import "summary-list";
+@import "print-preview";
+@import "panel";
+@import "language-toggle";
+@import "research-banner";
+@import "responsive-table";
+
+.app-\!-previous-claims-status-width {
+    width: 30.5% !important;
+}
+
+.app-\!-previous-claims-action-width {
+    width: 25% !important;
+}
+
+.govuk-button + .govuk-button--secondary {
+	@include govuk-media-query($from: tablet) {
+		margin-left: 10px;
+	}
+}
