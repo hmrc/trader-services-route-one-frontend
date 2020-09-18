@@ -38,10 +38,10 @@ trait TraderServicesFrontendJourneyService[RequestContext] extends PersistentJou
 trait TraderServicesFrontendJourneyServiceWithHeaderCarrier extends TraderServicesFrontendJourneyService[HeaderCarrier]
 
 @Singleton
-case class MongoDBCachedTraderServicesFrontendJourneyService @Inject()(
+case class MongoDBCachedTraderServicesFrontendJourneyService @Inject() (
   cacheMongoRepository: CacheMongoRepository,
-  applicationCrypto: ApplicationCrypto)
-    extends MongoDBCachedJourneyService[HeaderCarrier] with TraderServicesFrontendJourneyServiceWithHeaderCarrier {
+  applicationCrypto: ApplicationCrypto
+) extends MongoDBCachedJourneyService[HeaderCarrier] with TraderServicesFrontendJourneyServiceWithHeaderCarrier {
 
   override val stateFormats: Format[model.State] =
     TraderServicesFrontendJourneyStateFormats.formats

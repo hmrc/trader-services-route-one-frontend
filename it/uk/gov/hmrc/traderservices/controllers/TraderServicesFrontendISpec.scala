@@ -25,7 +25,7 @@ class TraderServicesFrontendISpec
     "GET /trader-services/" should {
       "show the start page" in {
         implicit val journeyId: JourneyId = JourneyId()
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber","foo"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/").get())
 
@@ -38,7 +38,7 @@ class TraderServicesFrontendISpec
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber","foo"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/foo").get())
 
@@ -61,8 +61,8 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
   case class JourneyId(value: String = UUID.randomUUID().toString)
 
   // define test service capable of manipulating journey state
-  lazy val journey = new TestJourneyService[JourneyId] with TraderServicesFrontendJourneyService[JourneyId]
-  with MongoDBCachedJourneyService[JourneyId] {
+  lazy val journey = new TestJourneyService[JourneyId]
+    with TraderServicesFrontendJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
     override lazy val cacheMongoRepository = app.injector.instanceOf[CacheMongoRepository]
     override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
@@ -82,6 +82,8 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
         play.api.http.HeaderNames.COOKIE -> Cookies.encodeCookieHeader(
           Seq(
             sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
-          )))
+          )
+        )
+      )
 
 }

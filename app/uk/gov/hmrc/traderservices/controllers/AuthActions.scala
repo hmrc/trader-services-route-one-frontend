@@ -34,13 +34,13 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
   def toSubscriptionJourney(continueUrl: String): Result
 
-  protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(body: String => Future[Result])(
-    implicit request: Request[A],
-    hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Result] =
+  protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(
+    body: String => Future[Result]
+  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(
       Enrolment(serviceName)
-        and AuthProviders(GovernmentGateway))
+        and AuthProviders(GovernmentGateway)
+    )
       .retrieve(authorisedEnrolments) { enrolments =>
         val id = for {
           enrolment  <- enrolments.getEnrolment(serviceName)
@@ -48,8 +48,9 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
         } yield identifier.value
 
         id.map(body)
-          .getOrElse(throw new IllegalStateException(
-            s"Cannot find identifier key $identifierKey for service name $serviceName!"))
+          .getOrElse(
+            throw new IllegalStateException(s"Cannot find identifier key $identifierKey for service name $serviceName!")
+          )
       }
       .recover(handleFailure)
 
@@ -64,11 +65,9 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       toGGLogin(continueUrl)
   }
 
-  protected def authorisedWithStrideGroup[A](authorisedStrideGroup: String)(body: String => Future[Result])(
-    implicit
-    request: Request[A],
-    hc: HeaderCarrier,
-    ec: ExecutionContext): Future[Result] = {
+  protected def authorisedWithStrideGroup[A](authorisedStrideGroup: String)(
+    body: String => Future[Result]
+  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
     val authPredicate =
       if (authorisedStrideGroup == "ANY") AuthProviders(PrivilegedApplication)
       else Enrolment(authorisedStrideGroup) and AuthProviders(PrivilegedApplication)

@@ -12,7 +12,9 @@ trait AuthStubs {
         .willReturn(
           aResponse()
             .withStatus(401)
-            .withHeader("WWW-Authenticate", s"""MDTP detail="$mdtpDetail"""")))
+            .withHeader("WWW-Authenticate", s"""MDTP detail="$mdtpDetail"""")
+        )
+    )
     this
   }
 
@@ -22,36 +24,44 @@ trait AuthStubs {
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(1)
-        .withRequestBody(equalToJson(
-          s"""
-             |{
-             |  "authorise": [
-             |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
-             |    { "authProviders": ["GovernmentGateway"] }
-             |  ],
-             |  "retrieve":["authorisedEnrolments"]
-             |}
+        .withRequestBody(
+          equalToJson(
+            s"""
+               |{
+               |  "authorise": [
+               |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
+               |    { "authProviders": ["GovernmentGateway"] }
+               |  ],
+               |  "retrieve":["authorisedEnrolments"]
+               |}
            """.stripMargin,
-          true,
-          true
-        ))
-        .willReturn(aResponse()
-          .withStatus(200)
-          .withBody(s"""
-                       |{
-                       |"authorisedEnrolments": [
-                       |  { "key":"${enrolment.serviceName}", "identifiers": [
-                       |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
-                       |  ]}
-                       |]}
-          """.stripMargin)))
+            true,
+            true
+          )
+        )
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withBody(s"""
+                         |{
+                         |"authorisedEnrolments": [
+                         |  { "key":"${enrolment.serviceName}", "identifiers": [
+                         |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
+                         |  ]}
+                         |]}
+          """.stripMargin)
+        )
+    )
 
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(2)
-        .willReturn(aResponse()
-          .withStatus(401)
-          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")))
+        .willReturn(
+          aResponse()
+            .withStatus(401)
+            .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
+        )
+    )
     this
   }
 
@@ -59,47 +69,55 @@ trait AuthStubs {
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(1)
-        .withRequestBody(equalToJson(
-          s"""
-             |{
-             |  "authorise": [
-             |    {
-             |      "identifiers": [],
-             |      "state": "Activated",
-             |      "enrolment": "$strideGroup"
-             |    },
-             |    {
-             |      "authProviders": [
-             |        "PrivilegedApplication"
-             |      ]
-             |    }
-             |  ],
-             |  "retrieve": ["optionalCredentials","allEnrolments"]
-             |}
+        .withRequestBody(
+          equalToJson(
+            s"""
+               |{
+               |  "authorise": [
+               |    {
+               |      "identifiers": [],
+               |      "state": "Activated",
+               |      "enrolment": "$strideGroup"
+               |    },
+               |    {
+               |      "authProviders": [
+               |        "PrivilegedApplication"
+               |      ]
+               |    }
+               |  ],
+               |  "retrieve": ["optionalCredentials","allEnrolments"]
+               |}
            """.stripMargin,
-          true,
-          true
-        ))
-        .willReturn(aResponse()
-          .withStatus(200)
-          .withBody(s"""
-                       |{
-                       |  "optionalCredentials":{
-                       |    "providerId": "$strideUserId",
-                       |    "providerType": "PrivilegedApplication"
-                       |  },
-                       |  "allEnrolments":[
-                       |    {"key":"$strideGroup"}
-                       |  ]
-                       |}
-       """.stripMargin)))
+            true,
+            true
+          )
+        )
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+            .withBody(s"""
+                         |{
+                         |  "optionalCredentials":{
+                         |    "providerId": "$strideUserId",
+                         |    "providerType": "PrivilegedApplication"
+                         |  },
+                         |  "allEnrolments":[
+                         |    {"key":"$strideGroup"}
+                         |  ]
+                         |}
+       """.stripMargin)
+        )
+    )
 
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(2)
-        .willReturn(aResponse()
-          .withStatus(401)
-          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")))
+        .willReturn(
+          aResponse()
+            .withStatus(401)
+            .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
+        )
+    )
     this
   }
 

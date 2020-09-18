@@ -59,7 +59,7 @@ trait AppConfig {
 
 }
 
-class AppConfigImpl @Inject()(config: ServicesConfig) extends AppConfig {
+class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   val host: String = config.getString("host")
 

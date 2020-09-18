@@ -30,8 +30,9 @@ trait InMemoryStore[S, C] {
   def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[S]] =
     Future.successful(state.get)
 
-  def save(newState: S)(implicit requestContext: C, ec: ExecutionContext): Future[S] = Future {
-    state.set(Some(newState))
-    newState
-  }
+  def save(newState: S)(implicit requestContext: C, ec: ExecutionContext): Future[S] =
+    Future {
+      state.set(Some(newState))
+      newState
+    }
 }

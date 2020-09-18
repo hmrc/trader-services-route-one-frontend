@@ -51,7 +51,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ErrorHandler @Inject()(
+class ErrorHandler @Inject() (
   val env: Environment,
   val messagesApi: MessagesApi,
   val auditConnector: AuditConnector,
@@ -81,9 +81,9 @@ class ErrorHandler @Inject()(
     }
   }
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(
-    implicit
-    request: Request[_]) =
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
+    request: Request[_]
+  ) =
     new ErrorTemplate(govUkWrapper, h1)(pageTitle, heading, message)
 
   def externalErrorTemplate()(implicit request: Request[_]) =
@@ -137,9 +137,9 @@ trait ErrorAuditing extends HttpAuditEvent {
     )
   }
 
-  def auditClientError(request: RequestHeader, statusCode: Int, message: String)(
-    implicit
-    ec: ExecutionContext): Unit = {
+  def auditClientError(request: RequestHeader, statusCode: Int, message: String)(implicit
+    ec: ExecutionContext
+  ): Unit = {
     import play.api.http.Status._
     statusCode match {
       case NOT_FOUND =>

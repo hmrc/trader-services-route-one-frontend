@@ -37,7 +37,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.Success
 
 @Singleton
-class TraderServicesFrontendController @Inject()(
+class TraderServicesFrontendController @Inject() (
   appConfig: AppConfig,
   override val messagesApi: MessagesApi,
   traderServicesApiConnector: TraderServicesApiConnector,
@@ -66,7 +66,8 @@ class TraderServicesFrontendController @Inject()(
       appConfig.subscriptionJourneyUrl,
       Map(
         "continue" -> Seq(continueUrl)
-      ))
+      )
+    )
 
   // GET /
   val showStart: Action[AnyContent] =
@@ -82,10 +83,11 @@ class TraderServicesFrontendController @Inject()(
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
     */
-  override def getCallFor(state: State)(implicit request: Request[_]): Call = state match {
-    case Start =>
-      routes.TraderServicesFrontendController.showStart()
-  }
+  override def getCallFor(state: State)(implicit request: Request[_]): Call =
+    state match {
+      case Start =>
+        routes.TraderServicesFrontendController.showStart()
+    }
 
   import uk.gov.hmrc.play.fsm.OptionalFormOps._
 
@@ -93,13 +95,15 @@ class TraderServicesFrontendController @Inject()(
     * Function from the `State` to the `Result`,
     * used by play-fsm internally to render the actual content.
     */
-  override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
-    implicit request: Request[_]): Result = state match {
+  override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
 
-    case Start =>
-      Ok(startView())
+      case Start =>
+        Ok(startView())
 
-  }
+    }
 
   override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
     appendJourneyId(super.hc)
@@ -120,5 +124,6 @@ object TraderServicesFrontendController {
       "givenName"   -> trimmedName.verifying(validName("givenName", 1)),
       "familyName"  -> trimmedName.verifying(validName("familyName", 2)),
       "dateOfBirth" -> dateOfBirthMapping
-    )(TraderServicesModel.apply)(TraderServicesModel.unapply))
+    )(TraderServicesModel.apply)(TraderServicesModel.unapply)
+  )
 }

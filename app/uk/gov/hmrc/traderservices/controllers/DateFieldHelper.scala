@@ -60,11 +60,12 @@ object DateFieldHelper {
       (year == maxDateIncl.getYear && month < maxDateIncl.getMonthValue) ||
       toInt(day) <= maxDateIncl.getDayOfMonth)
 
-  def isValidDayOfTheMonth(day: Int, month: Int, year: Int): Boolean = month match {
-    case 4 | 6 | 9 | 11 => isInRange(day, 1, 30)
-    case 2              => isInRange(day, 1, if (isLeapYear(year)) 29 else 28)
-    case _              => isInRange(day, 1, 31)
-  }
+  def isValidDayOfTheMonth(day: Int, month: Int, year: Int): Boolean =
+    month match {
+      case 4 | 6 | 9 | 11 => isInRange(day, 1, 30)
+      case 2              => isInRange(day, 1, if (isLeapYear(year)) 29 else 28)
+      case _              => isInRange(day, 1, 31)
+    }
 
   def isLeapYear(year: Int): Boolean =
     (year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0)
@@ -96,7 +97,8 @@ object DateFieldHelper {
   val validDobDateFormat: Constraint[String] =
     ValidateHelper
       .validateField("error.dateOfBirth.required", "error.dateOfBirth.invalid-format")(date =>
-        validateDate(date, LocalDate.now(), allowWildcard = false))
+        validateDate(date, LocalDate.now(), allowWildcard = false)
+      )
 
   def dateFieldsMapping(constraintDate: Constraint[String]): Mapping[String] =
     mapping(

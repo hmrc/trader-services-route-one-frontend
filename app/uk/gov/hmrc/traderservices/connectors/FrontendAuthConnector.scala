@@ -22,7 +22,7 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http.HttpPost
 
 @Singleton
-class FrontendAuthConnector @Inject()(appConfig: AppConfig, val http: HttpPost) extends PlayAuthConnector {
+class FrontendAuthConnector @Inject() (appConfig: AppConfig, val http: HttpPost) extends PlayAuthConnector {
 
   override val serviceUrl: String = appConfig.authBaseUrl
 }

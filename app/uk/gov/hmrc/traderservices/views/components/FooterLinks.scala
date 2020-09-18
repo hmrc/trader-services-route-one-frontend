@@ -28,25 +28,29 @@ object FooterLinks {
   val privacy = "https://www.gov.uk/help/privacy-notice"
   val cookies = "https://www.gov.uk/help/cookies"
 
-  def cookieLink(implicit messages: Messages) = FooterItem(
-    Some(messages("footer.cookies")),
-    Some(cookies)
-  )
+  def cookieLink(implicit messages: Messages) =
+    FooterItem(
+      Some(messages("footer.cookies")),
+      Some(cookies)
+    )
 
-  def privacyLink(implicit messages: Messages) = FooterItem(
-    Some(messages("footer.privacy")),
-    Some(privacy)
-  )
+  def privacyLink(implicit messages: Messages) =
+    FooterItem(
+      Some(messages("footer.privacy")),
+      Some(privacy)
+    )
 
-  def termsConditionsLink(implicit messages: Messages) = FooterItem(
-    Some(messages("footer.termsConditions")),
-    Some(termsConditions)
-  )
+  def termsConditionsLink(implicit messages: Messages) =
+    FooterItem(
+      Some(messages("footer.termsConditions")),
+      Some(termsConditions)
+    )
 
-  def govukHelpLink(implicit messages: Messages) = FooterItem(
-    Some(messages("footer.govukHelp")),
-    Some(govukHelp)
-  )
+  def govukHelpLink(implicit messages: Messages) =
+    FooterItem(
+      Some(messages("footer.govukHelp")),
+      Some(govukHelp)
+    )
 
   def accessibilityStatement(implicit messages: Messages, request: Request[_]) =
     FooterItem(
@@ -54,11 +58,12 @@ object FooterLinks {
       Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage().url)
     )
 
-  def items(implicit messages: Messages, request: Request[_]) = Seq(
-    cookieLink,
-    accessibilityStatement,
-    privacyLink,
-    termsConditionsLink,
-    govukHelpLink
-  )
+  def items(implicit messages: Messages, request: Request[_]) =
+    Seq(
+      cookieLink,
+      accessibilityStatement,
+      privacyLink,
+      termsConditionsLink,
+      govukHelpLink
+    )
 }

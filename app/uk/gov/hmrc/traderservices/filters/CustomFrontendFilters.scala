@@ -20,9 +20,10 @@ import javax.inject.Inject
 import play.http.DefaultHttpFilters
 import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 
-class CustomFrontendFilters @Inject()(
+class CustomFrontendFilters @Inject() (
   frontendFilters: FrontendFilters,
   auditFilter: AuditFilter
 ) extends DefaultHttpFilters(
       (frontendFilters.filters
-        .filterNot(_.getClass.getSimpleName.contains("AuditFilter")) :+ auditFilter): _*)
+        .filterNot(_.getClass.getSimpleName.contains("AuditFilter")) :+ auditFilter): _*
+    )

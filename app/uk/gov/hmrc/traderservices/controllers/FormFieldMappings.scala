@@ -29,7 +29,8 @@ object FormFieldMappings {
 
   def validNino(
     nonEmptyFailure: String = "error.nino.required",
-    invalidFailure: String = "error.nino.invalid-format"): Constraint[String] =
+    invalidFailure: String = "error.nino.invalid-format"
+  ): Constraint[String] =
     ValidateHelper.validateField(nonEmptyFailure, invalidFailure)(nino => Nino.isValid(nino))
 
   val maxNameLen = 64
@@ -45,8 +46,10 @@ object FormFieldMappings {
       nonEmpty(fieldName)(fieldValue) match {
         case i @ Invalid(_) => i
         case Valid =>
-          if (fieldValue.length >= minLenInc && fieldValue.forall(
-                ch => Character.isLetter(ch) || allowedNameCharacters.contains(ch)))
+          if (
+            fieldValue.length >= minLenInc && fieldValue
+              .forall(ch => Character.isLetter(ch) || allowedNameCharacters.contains(ch))
+          )
             Valid
           else
             Invalid(ValidationError(s"error.$fieldName.invalid-format"))

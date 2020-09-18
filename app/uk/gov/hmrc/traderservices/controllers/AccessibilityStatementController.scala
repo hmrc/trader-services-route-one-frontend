@@ -24,10 +24,10 @@ import uk.gov.hmrc.traderservices.views.html.AccessibilityStatementView
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 @Singleton
-class AccessibilityStatementController @Inject()(
+class AccessibilityStatementController @Inject() (
   controllerComponents: MessagesControllerComponents,
-  accessibilityStatementView: AccessibilityStatementView)
-    extends FrontendController(controllerComponents) {
+  accessibilityStatementView: AccessibilityStatementView
+) extends FrontendController(controllerComponents) {
 
   val showPage: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(accessibilityStatementView()))

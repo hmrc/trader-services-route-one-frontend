@@ -14,15 +14,17 @@ trait InMemoryJourneyService[RequestContext] extends PersistentJourneyService[Re
 
   private val state = new AtomicReference[Option[StateAndBreadcrumbs]](None)
 
-  override protected def fetch(
-    implicit requestContext: RequestContext,
-    ec: ExecutionContext): Future[Option[(model.State, List[model.State])]] = Future.successful(
-    state.get
-  )
+  override protected def fetch(implicit
+    requestContext: RequestContext,
+    ec: ExecutionContext
+  ): Future[Option[(model.State, List[model.State])]] =
+    Future.successful(
+      state.get
+    )
 
-  override protected def save(s: (model.State, List[model.State]))(
-    implicit requestContext: RequestContext,
-    ec: ExecutionContext): Future[(model.State, List[model.State])] =
+  override protected def save(
+    s: (model.State, List[model.State])
+  )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[(model.State, List[model.State])] =
     Future {
       state.set(Some(s))
       s

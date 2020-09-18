@@ -27,7 +27,8 @@ class TraderServicesFormSpec extends UnitSpec {
     nino = Nino("RJ301829A"),
     givenName = "Jan",
     familyName = "Kowalski",
-    dateOfBirth = "1970-01-31")
+    dateOfBirth = "1970-01-31"
+  )
 
   val formInput = Map(
     "dateOfBirth.year"  -> "1970",
@@ -35,7 +36,8 @@ class TraderServicesFormSpec extends UnitSpec {
     "dateOfBirth.day"   -> "31",
     "familyName"        -> "Kowalski",
     "givenName"         -> "Jan",
-    "nino"              -> "RJ301829A")
+    "nino"              -> "RJ301829A"
+  )
 
   "StatusCheckByNinoRequestForm" should {
 

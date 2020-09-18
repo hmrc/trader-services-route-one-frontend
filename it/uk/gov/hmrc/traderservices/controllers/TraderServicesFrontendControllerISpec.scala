@@ -24,7 +24,7 @@ class TraderServicesFrontendControllerISpec
     "GET /" should {
 
       "redirect to the start page" in {
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber","foo"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = controller.showStart(fakeRequest)
         status(result) shouldBe 200
         journey.get shouldBe Some((Start, Nil))
@@ -52,7 +52,8 @@ trait TraderServicesFrontendControllerISpecSetup extends AppISpec {
     appBuilder
       .overrides(
         bind(classOf[TraderServicesFrontendJourneyServiceWithHeaderCarrier])
-          .to(classOf[TestInMemoryTraderServicesFrontendJourneyService]))
+          .to(classOf[TestInMemoryTraderServicesFrontendJourneyService])
+      )
       .build()
 
   lazy val controller: TraderServicesFrontendController =

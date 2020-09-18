@@ -116,7 +116,8 @@ trait TraderServicesStubs extends JourneyTestData {
             .withStatus(httpResponseCode)
             .withHeader("Content-Type", "application/json")
             .withBody(responseBody)
-        ))
+        )
+    )
 
   def givenSomeApiErrorStub(httpResponseCode: Int, requestBody: String): StubMapping =
     stubFor(
@@ -127,6 +128,7 @@ trait TraderServicesStubs extends JourneyTestData {
         .willReturn(
           aResponse()
             .withStatus(httpResponseCode)
-        ))
+        )
+    )
 
 }

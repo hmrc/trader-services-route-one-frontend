@@ -51,10 +51,11 @@ trait SessionCache[T, C] {
 
   implicit def toFuture[A](a: A): Future[A] = Future.successful(a)
 
-  private def get(
-    implicit reads: Reads[T],
+  private def get(implicit
+    reads: Reads[T],
     requestContext: C,
-    ec: ExecutionContext): Future[Either[String, Option[T]]] =
+    ec: ExecutionContext
+  ): Future[Either[String, Option[T]]] =
     getSessionId match {
       case Some(sessionId) ⇒
         cacheRepository
@@ -85,17 +86,17 @@ trait SessionCache[T, C] {
     }
 
   private def store(
-    newSession: T)(implicit writes: Writes[T], requestContext: C, ec: ExecutionContext): Future[Either[String, Unit]] =
+    newSession: T
+  )(implicit writes: Writes[T], requestContext: C, ec: ExecutionContext): Future[Either[String, Unit]] =
     getSessionId match {
       case Some(sessionId) ⇒
         cacheRepository
           .createOrUpdate(Id(sessionId), sessionName, Json.toJson(newSession))
           .map[Either[String, Unit]] { dbUpdate ⇒
-            if (dbUpdate.writeResult.inError) {
+            if (dbUpdate.writeResult.inError)
               Left(dbUpdate.writeResult.errmsg.getOrElse("unknown error during inserting session data in mongo"))
-            } else {
+            else
               Right(())
-            }
           }
           .recover {
             case e ⇒
@@ -112,11 +113,10 @@ trait SessionCache[T, C] {
         cacheRepository
           .removeById(Id(sessionId))
           .map[Either[String, Unit]] { dbUpdate ⇒
-            if (dbUpdate.writeErrors.nonEmpty) {
+            if (dbUpdate.writeErrors.nonEmpty)
               Left(dbUpdate.writeErrors.map(_.errmsg).mkString(","))
-            } else {
+            else
               Right(())
-            }
           }
           .recover {
             case e ⇒

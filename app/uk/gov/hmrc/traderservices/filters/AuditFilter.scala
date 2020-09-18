@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendAuditFilter
 
 import scala.concurrent.ExecutionContext
 
-class AuditFilter @Inject()(
+class AuditFilter @Inject() (
   controllerConfigs: ControllerConfigs,
   override val auditConnector: AuditConnector,
   httpAuditEvent: HttpAuditEvent,
@@ -43,7 +43,8 @@ class AuditFilter @Inject()(
     eventType: String,
     transactionName: String,
     request: RequestHeader,
-    detail: Map[String, String])(implicit hc: HeaderCarrier): DataEvent =
+    detail: Map[String, String]
+  )(implicit hc: HeaderCarrier): DataEvent =
     httpAuditEvent
       .dataEvent(eventType, transactionName, request, detail.updated("authId", hc.userId.map(_.value).getOrElse("-")))
 

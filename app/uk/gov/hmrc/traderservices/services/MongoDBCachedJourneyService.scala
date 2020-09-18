@@ -55,18 +55,19 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       getJourneyId(requestContext)
   }
 
-  override protected def fetch(
-    implicit requestContext: RequestContext,
-    ec: ExecutionContext): Future[Option[StateAndBreadcrumbs]] =
+  override protected def fetch(implicit
+    requestContext: RequestContext,
+    ec: ExecutionContext
+  ): Future[Option[StateAndBreadcrumbs]] =
     cache.fetch
       .map(_.map { protectedEntry =>
         val entry = protectedEntry.decryptedValue
         (entry.state, entry.breadcrumbs)
       })
 
-  override protected def save(state: StateAndBreadcrumbs)(
-    implicit requestContext: RequestContext,
-    ec: ExecutionContext): Future[StateAndBreadcrumbs] = {
+  override protected def save(
+    state: StateAndBreadcrumbs
+  )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] = {
     val entry = PersistentState(state._1, state._2)
     val protectedEntry = Protected(entry)
     cache

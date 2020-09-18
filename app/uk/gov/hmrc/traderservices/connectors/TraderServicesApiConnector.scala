@@ -32,7 +32,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TraderServicesApiConnector @Inject()(appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
+class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
     extends HttpAPIMonitor {
 
   val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
@@ -42,14 +42,15 @@ class TraderServicesApiConnector @Inject()(appConfig: AppConfig, http: HttpGet w
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  def someApi(request: TraderServicesApiRequest)(
-    implicit hc: HeaderCarrier,
-    ec: ExecutionContext): Future[TraderServicesApiResponse] =
+  def someApi(
+    request: TraderServicesApiRequest
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesApiResponse] =
     monitor(s"ConsumedAPI-trader-services-some-api-POST") {
       http
         .POST[TraderServicesApiRequest, TraderServicesApiResponse](
           new URL(baseUrl + someApiPath).toExternalForm,
-          request)(
+          request
+        )(
           implicitly[Writes[TraderServicesApiRequest]],
           implicitly[HttpReads[TraderServicesApiResponse]],
           hc.withExtraHeaders(HEADER_X_CORRELATION_ID -> UUID.randomUUID().toString),

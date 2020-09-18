@@ -20,9 +20,10 @@ import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 object ValidateHelper {
 
-  def nonEmpty(failure: String): Constraint[String] = Constraint[String] { fieldValue: String =>
-    if (fieldValue.trim.isEmpty) Invalid(ValidationError(failure)) else Valid
-  }
+  def nonEmpty(failure: String): Constraint[String] =
+    Constraint[String] { fieldValue: String =>
+      if (fieldValue.trim.isEmpty) Invalid(ValidationError(failure)) else Valid
+    }
 
   def validateField(emptyFailure: String, invalidFailure: String)(condition: String => Boolean): Constraint[String] =
     Constraint[String] { fieldValue: String =>
