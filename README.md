@@ -1,6 +1,9 @@
 # Trader Services Frontend
 
-Web application.
+Frontend microservice exposing Trader Portal UI.
+
+Features:
+- Route1 (NCH1) digital form with documents upload
 
 ## Running the tests
 
@@ -12,7 +15,7 @@ Web application.
 
 ## Running the app locally
 
-    sm --start TRADER_SERVICES_SUITE
+    sm --start TRADER_SERVICES_ALL
     sm --stop TRADER_SERVICES_FRONTEND 
     sbt run
 
