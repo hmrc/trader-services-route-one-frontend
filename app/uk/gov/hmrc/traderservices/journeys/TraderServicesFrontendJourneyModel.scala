@@ -41,8 +41,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     import State._
 
     def start(user: String) =
-      Transition {
-        case _ => goto(Start)
+      Transition { case _ =>
+        goto(Start)
       }
   }
 

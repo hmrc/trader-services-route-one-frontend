@@ -57,8 +57,8 @@ object DateFieldHelper {
     else
       isValidDayOfTheMonth(toInt(day), month, year) &&
       (year < maxDateIncl.getYear ||
-      (year == maxDateIncl.getYear && month < maxDateIncl.getMonthValue) ||
-      toInt(day) <= maxDateIncl.getDayOfMonth)
+        (year == maxDateIncl.getYear && month < maxDateIncl.getMonthValue) ||
+        toInt(day) <= maxDateIncl.getDayOfMonth)
 
   def isValidDayOfTheMonth(day: Int, month: Int, year: Int): Boolean =
     month match {
@@ -83,15 +83,14 @@ object DateFieldHelper {
 
   def removeWildcard(s: String): String = if (s.toUpperCase == "XX") "" else s
 
-  val formatDateFromFields: (String, String, String) => String = {
-    case (y, m, d) =>
-      if (y.isEmpty && m.isEmpty && d.isEmpty) ""
-      else {
-        val year = if (y.isEmpty) "" else if (y.length == 2) "19" + y else y
-        val month = if (m.isEmpty) "XX" else if (m.length == 1) "0" + m else m
-        val day = if (d.isEmpty) "XX" else if (d.length == 1) "0" + d else d
-        s"$year-$month-$day"
-      }
+  val formatDateFromFields: (String, String, String) => String = { case (y, m, d) =>
+    if (y.isEmpty && m.isEmpty && d.isEmpty) ""
+    else {
+      val year = if (y.isEmpty) "" else if (y.length == 2) "19" + y else y
+      val month = if (m.isEmpty) "XX" else if (m.length == 1) "0" + m else m
+      val day = if (d.isEmpty) "XX" else if (d.length == 1) "0" + d else d
+      s"$year-$month-$day"
+    }
   }
 
   val validDobDateFormat: Constraint[String] =

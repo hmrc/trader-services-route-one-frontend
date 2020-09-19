@@ -20,11 +20,11 @@ trait TraderServicesStubs extends JourneyTestData {
 
   def requestBodyOfSomeApi(startDate: String, endDate: String): String =
     s"""{
-       |  "dateOfBirth": "2001-01-31",
-       |  "familyName": "Jane",
-       |  "givenName": "Doe",
-       |  "nino": "RJ301829A"
-       |}""".stripMargin
+      |  "dateOfBirth": "2001-01-31",
+      |  "familyName": "Jane",
+      |  "givenName": "Doe",
+      |  "nino": "RJ301829A"
+      |}""".stripMargin
 
   val invalidNinoRequestBody: String =
     """{
@@ -36,9 +36,9 @@ trait TraderServicesStubs extends JourneyTestData {
 
   val someApiValidResponseBody: String =
     s"""{
-       |  "correlationId": "$correlationId",
-       |  "result": "Dummy"
-       |}""".stripMargin
+      |  "correlationId": "$correlationId",
+      |  "result": "Dummy"
+      |}""".stripMargin
 
   def givenSomeApiRequestSucceeds(): StubMapping =
     givenSomeApiStub(200, validRequestOfSomeApi(), someApiValidResponseBody)
@@ -47,11 +47,11 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
-         |  "error": {
-         |    "errCode": "ERR_REQUEST_INVALID"
-         |  }
-         |}""".stripMargin
+        |  "correlationId": "$correlationId",
+        |  "error": {
+        |    "errCode": "ERR_REQUEST_INVALID"
+        |  }
+        |}""".stripMargin
 
     givenSomeApiStub(400, validRequestOfSomeApi(), errorResponseBody)
   }
@@ -60,11 +60,11 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
-         |  "error": {
-         |    "errCode": "ERR_NOT_FOUND"
-         |  }
-         |}""".stripMargin
+        |  "correlationId": "$correlationId",
+        |  "error": {
+        |    "errCode": "ERR_NOT_FOUND"
+        |  }
+        |}""".stripMargin
 
     givenSomeApiStub(404, validRequestOfSomeApi(), errorResponseBody)
   }
@@ -73,11 +73,11 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
-         |  "error": {
-         |    "errCode": "ERR_CONFLICT"
-         |  }
-         |}""".stripMargin
+        |  "correlationId": "$correlationId",
+        |  "error": {
+        |    "errCode": "ERR_CONFLICT"
+        |  }
+        |}""".stripMargin
 
     givenSomeApiStub(409, validRequestOfSomeApi(), errorResponseBody)
   }
@@ -89,17 +89,17 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
-         |  "error": {
-         |    "errCode": "ERR_VALIDATION",
-         |    "fields": [
-         |      {
-         |        "code": "ERR_INVALID_DOB",
-         |        "name": "dateOfBirth"
-         |      }
-         |    ]
-         |  }
-         |}""".stripMargin
+        |  "correlationId": "$correlationId",
+        |  "error": {
+        |    "errCode": "ERR_VALIDATION",
+        |    "fields": [
+        |      {
+        |        "code": "ERR_INVALID_DOB",
+        |        "name": "dateOfBirth"
+        |      }
+        |    ]
+        |  }
+        |}""".stripMargin
 
     givenSomeApiStub(400, validRequestOfSomeApi(), errorResponseBody)
 

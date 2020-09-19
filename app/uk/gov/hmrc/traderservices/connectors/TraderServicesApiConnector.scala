@@ -64,8 +64,8 @@ class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet 
           case UpstreamErrorResponse.Upstream4xxResponse(e) if e.statusCode == 409 =>
             Json.parse(extractResponseBody(e.message, "Response body: '")).as[TraderServicesApiResponse]
         }
-        .recoverWith {
-          case e: Throwable => Future.failed(TraderServicesProxyError(e))
+        .recoverWith { case e: Throwable =>
+          Future.failed(TraderServicesProxyError(e))
         }
     }
 

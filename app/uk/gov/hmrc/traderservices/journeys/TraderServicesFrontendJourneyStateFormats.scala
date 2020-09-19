@@ -23,8 +23,8 @@ import uk.gov.hmrc.play.fsm.JsonStateFormats
 
 object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State] {
 
-  override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case _ => JsNull
+  override val serializeStateProperties: PartialFunction[State, JsValue] = { case _ =>
+    JsNull
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
