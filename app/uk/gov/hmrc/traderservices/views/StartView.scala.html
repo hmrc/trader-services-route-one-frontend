@@ -15,13 +15,10 @@
  *@
 
 @this(
-    govukLayout: templates.GovukLayoutWrapper,
+    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
     formHelper: FormWithCSRF,
-    button: components.button,
     pageHeading: components.pageHeading,
-    p: components.p,
-    bullets: components.bullets,
-    strong: components.strong,
+    html: uk.gov.hmrc.traderservices.views.components.html,
     govukWarningText: components.warningText,
     appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 )
@@ -30,5 +27,47 @@
 
 @govukLayout(pageTitle = Some(messages("view.start.title"))) {
 
+    @html.h1(messages("view.start.heading"))
 
+    @html.h2(messages("view.start.route-one"))
+
+    @html.ul(
+        messages("view.start.route-one.bullets.1"),
+        messages("view.start.route-one.bullets.2"),
+        messages("view.start.route-one.bullets.3")
+    )
+
+    @html.p {
+        @html.a("/trader-services/route-one", messages("view.start.route-one.link.text"))
+    }
+
+    @html.h2(messages("view.start.reclaim"))
+
+    @html.p {
+        @messages("view.start.reclaim.description")
+    }
+
+    @html.p {
+        @html.a("/trader-services/reclaim", messages("view.start.reclaim.link.text"))
+    }
+
+    @html.h2(messages("view.start.underpaid"))
+
+    @html.p{
+        @messages("view.start.underpaid.description")
+    }
+
+    @html.p {
+        @html.a("/trader-services/underpayment", messages("view.start.underpaid.link.text"))
+    }
+
+    @html.h2(messages("view.start.tor"))
+
+    @html.p{
+        @messages("view.start.tor.description")
+    }
+
+    @html.p {
+        @html.a("/trader-services/transfer-of-residence", messages("view.start.tor.link.text"))
+    }
 }

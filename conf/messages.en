@@ -55,9 +55,6 @@ error.month.invalid-format=Enter a month
 button.continue=Continue
 button.submit=Submit
 
-# Start view
-view.start.title=Hello World!
-
 # Global errors
 external.error.500.title=Service unavailable
 external.error.500.heading=Sorry, the service is unavailable
@@ -140,3 +137,21 @@ researchBanner.heading = Help improve GOV.UK
 researchBanner.inviteLink = Help improve digital services by joining the HMRC user panel (opens in a new window)
 researchBanner.closeLink = No thanks
 
+# Landing Page
+# ----------------------------------------------------------
+view.start.title=Use trader services
+view.start.heading=Trader services
+view.start.route-one=Upload documents for pre-clearance checks (routes 1, 2, 3, 6)
+view.start.route-one.bullets.1=Upload documents for new, hold and cancellation consignment
+view.start.route-one.bullets.2=Upload documents for exports C1602, C1602, C1603
+view.start.route-one.bullets.3=Amend an existing submission - add more files or change details
+view.start.route-one.link.text=Start a route 1 pre-clearance check submission
+view.start.reclaim=Reclaim duty you''ve overpaid
+view.start.reclaim.description=Description of service
+view.start.reclaim.link.text=Reclaim now
+view.start.underpaid=Tell us you have underpaid
+view.start.underpaid.description=Description of service
+view.start.underpaid.link.text=Underpayment
+view.start.tor=Transfer of residence
+view.start.tor.description=Description of service
+view.start.tor.link.text=link
