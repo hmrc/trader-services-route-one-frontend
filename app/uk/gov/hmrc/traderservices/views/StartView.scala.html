@@ -37,39 +37,37 @@
         messages("view.start.route-one.bullets.3")
     )
 
-    @html.a("/trader-services/route-one", messages("view.start.route-one.link.text"))
-
-    <br><br>
+    @html.p {
+        @html.a("/trader-services/route-one", messages("view.start.route-one.link.text"))
+    }
 
     @html.h2(messages("view.start.reclaim"))
 
-    @html.p{
-        @html.p{
-            @messages("view.start.reclaim.description")
-        }
-        @html.a("/trader-services/reclaim", messages("view.start.reclaim.link.text"))
+    @html.p {
+        @messages("view.start.reclaim.description")
     }
 
-    <br>
+    @html.p {
+        @html.a("/trader-services/reclaim", messages("view.start.reclaim.link.text"))
+    }
 
     @html.h2(messages("view.start.underpaid"))
 
     @html.p{
-        @html.p{
-            @messages("view.start.underpaid.description")
-        }
-        @html.a("/trader-services/underpayment", messages("view.start.underpaid.link.text"))
+        @messages("view.start.underpaid.description")
     }
 
-    <br>
+    @html.p {
+        @html.a("/trader-services/underpayment", messages("view.start.underpaid.link.text"))
+    }
 
     @html.h2(messages("view.start.tor"))
 
     @html.p{
-        @html.p{
-            @messages("view.start.tor.description")
-        }
-        @html.a("/trader-services/transfer-of-residence", messages("view.start.tor.link.text"))
+        @messages("view.start.tor.description")
     }
 
+    @html.p {
+        @html.a("/trader-services/transfer-of-residence", messages("view.start.tor.link.text"))
+    }
 }
