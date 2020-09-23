@@ -18,7 +18,6 @@ package uk.gov.hmrc.traderservices.journey
 
 import java.time.LocalDate
 
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{State, Transition, TransitionNotAllowed}
@@ -43,6 +42,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "stay at Start when start" in {
         given(Start) when start(eoriNumber) should thenGo(Start)
       }
+
+      "goto EnterConsignmentDetails when enterConsignmentDetails" in {
+        given(Start) when enterConsignmentDetails(eoriNumber) should thenGo(EnterConsignmentDetails(None))
+      }
+    }
+
+    "at state EnterConsignmentDetails" should {
+
+      "goto WorkInProgressDeadEnd when submittedConsignmentDetails" in {
+        given(EnterConsignmentDetails(None)) when submittedConsignmentDetails(eoriNumber)(
+          consignmentDetails
+        ) should thenGo(WorkInProgressDeadEnd)
+      }
+
     }
 
   }
@@ -68,5 +81,7 @@ trait TestData {
 
   val eoriNumber = "foo"
   val correlationId = "123"
+
+  val consignmentDetails = ConsignmentDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
 
 }
