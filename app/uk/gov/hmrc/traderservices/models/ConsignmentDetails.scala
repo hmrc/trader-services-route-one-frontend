@@ -14,37 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.journeys
+package uk.gov.hmrc.traderservices.models
 
-import java.time.{LocalDate, ZoneId}
+import java.time.LocalDate
 
-import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.play.fsm.JourneyModel
+import play.api.libs.json.{Format, Json}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+case class ConsignmentDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate)
 
-object TraderServicesFrontendJourneyModel extends JourneyModel {
+object ConsignmentDetails {
+  implicit val formats: Format[ConsignmentDetails] = Json.format[ConsignmentDetails]
 
-  sealed trait State
-  sealed trait IsError
-
-  override val root: State = State.Start
-
-  object State {
-
-    case object Start extends State
-
-  }
-
-  object Transitions {
-    import State._
-
-    def start(user: String) =
-      Transition {
-        case _ =>
-          goto(Start)
-      }
-  }
-
+  val mandatoryFields: Set[String] =
+    Set("epu", "entryNumber", "entryDate")
 }

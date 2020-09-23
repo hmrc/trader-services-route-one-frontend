@@ -17,48 +17,27 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 import play.api.data.Forms.{mapping, of}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
-import play.api.data.validation.Constraint
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 import scala.annotation.tailrec
 import scala.util.Try
 
 object DateFieldHelper {
 
-  def validateDate(value: String, maxDateIncl: => LocalDate, allowWildcard: Boolean): Boolean = {
-    val parts = value.split("-")
-    parts.size == 3 && {
+  def isValidYear(year: String) = year.matches("""^\d\d\d\d$""")
 
-      val year = parts(0)
-      val month = parts(1)
-      val day = parts(2)
+  def isValidMonth(month: String) = isInRange(toInt(month), 1, 12)
 
-      isValidYear(year, maxDateIncl) &&
-      isValidMonth(month, day, toInt(year), maxDateIncl, allowWildcard) &&
-      isValidDay(day, toInt(month), toInt(year), maxDateIncl, allowWildcard)
-    }
+  def isValidDay(day: String, month: String, year: String) = {
+    val invalidYear = year.isEmpty || year.exists(c => !c.isDigit)
+    val invalidMonth = month.isEmpty || month.exists(c => !c.isDigit)
+    isValidDayOfTheMonth(toInt(day), if (invalidMonth) 1 else month.toInt, if (invalidYear) 2000 else year.toInt)
   }
-
-  def isValidYear(year: String, maxDateIncl: LocalDate) =
-    year.matches("""^\d\d\d\d$""") && toInt(year) >= 1900 &&
-      toInt(year) <= maxDateIncl.getYear
-
-  def isValidMonth(month: String, day: String, year: => Int, maxDateIncl: LocalDate, allowWildcard: Boolean) =
-    if (allowWildcard && month.contains("X") && day == "XX") month == "XX"
-    else
-      isInRange(toInt(month), 1, 12) &&
-      (year < maxDateIncl.getYear || toInt(month) <= maxDateIncl.getMonthValue)
-
-  def isValidDay(day: String, month: => Int, year: => Int, maxDateIncl: LocalDate, allowWildcard: Boolean) =
-    if (allowWildcard && day.contains("X")) day == "XX"
-    else
-      isValidDayOfTheMonth(toInt(day), month, year) &&
-      (year < maxDateIncl.getYear ||
-        (year == maxDateIncl.getYear && month < maxDateIncl.getMonthValue) ||
-        toInt(day) <= maxDateIncl.getDayOfMonth)
 
   def isValidDayOfTheMonth(day: Int, month: Int, year: Int): Boolean =
     month match {
@@ -72,38 +51,76 @@ object DateFieldHelper {
 
   @tailrec
   def toInt(s: String): Int =
-    if (s.startsWith("0")) toInt(s.drop(1)) else Try(s.toInt).toOption.getOrElse(-1)
+    if (s.startsWith("0")) toInt(s.drop(1))
+    else Try(s.toInt).toOption.getOrElse(-1)
 
-  def isInRange(value: Int, minInc: Int, maxInc: Int): Boolean = value >= minInc && value <= maxInc
+  def isInRange(value: Int, minInc: Int, maxInc: Int): Boolean =
+    value >= minInc && value <= maxInc
 
-  def parseDateIntoFields(date: String): Option[(String, String, String)] = {
+  def concatDate(fields: (String, String, String)): String =
+    s"${fields._1}-${fields._2}-${fields._3}"
+
+  def splitDate(date: String): (String, String, String) = {
     val ydm: Array[String] = date.split('-') ++ Array("", "")
-    Some((ydm(0), removeWildcard(ydm(1)), removeWildcard(ydm(2))))
+    (ydm(0), ydm(1), ydm(2))
   }
 
-  def removeWildcard(s: String): String = if (s.toUpperCase == "XX") "" else s
+  val normalizeDateFields: (String, String, String) => (String, String, String) = {
+    case (y, m, d) =>
+      if (y.isEmpty && m.isEmpty && d.isEmpty) (y, m, d)
+      else {
+        val year = if (y.isEmpty) "" else if (y.length == 2) "20" + y else y
+        val month = if (m.isEmpty) "" else if (m.length == 1) "0" + m else m
+        val day = if (d.isEmpty) "" else if (d.length == 1) "0" + d else d
+        (year, month, day)
+      }
+  }
 
-  val formatDateFromFields: (String, String, String) => String = { case (y, m, d) =>
-    if (y.isEmpty && m.isEmpty && d.isEmpty) ""
-    else {
-      val year = if (y.isEmpty) "" else if (y.length == 2) "19" + y else y
-      val month = if (m.isEmpty) "XX" else if (m.length == 1) "0" + m else m
-      val day = if (d.isEmpty) "XX" else if (d.length == 1) "0" + d else d
-      s"$year-$month-$day"
+  def validDateFields(fieldName: String): Constraint[(String, String, String)] =
+    Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
+      case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty => Invalid(ValidationError(s"error.$fieldName.required"))
+      case (y, m, d) =>
+        val errors = Seq(
+          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.required-year"))
+          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-year-digits"))
+          else if (isValidYear(y)) None
+          else Some(ValidationError(s"error.$fieldName.invalid-year-value")),
+          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.required-month"))
+          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-month-digits"))
+          else if (isValidMonth(m)) None
+          else Some(ValidationError(s"error.$fieldName.invalid-month-value")),
+          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.required-day"))
+          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-day-digits"))
+          else if (isValidDay(d, m, y)) None
+          else Some(ValidationError(s"error.$fieldName.invalid-day-value"))
+        ).collect { case Some(e) => e }
+
+        if (errors.isEmpty) Valid else Invalid(errors)
     }
-  }
 
-  val validDobDateFormat: Constraint[String] =
-    ValidateHelper
-      .validateField("error.dateOfBirth.required", "error.dateOfBirth.invalid-format")(date =>
-        validateDate(date, LocalDate.now(), allowWildcard = false)
-      )
-
-  def dateFieldsMapping(constraintDate: Constraint[String]): Mapping[String] =
+  def dateFieldsMapping(fieldName: String): Mapping[LocalDate] =
     mapping(
       "year"  -> of[String].transform[String](_.trim, identity),
-      "month" -> of[String].transform[String](_.trim.toUpperCase, identity),
-      "day"   -> of[String].transform[String](_.trim.toUpperCase, identity)
-    )(formatDateFromFields)(parseDateIntoFields).verifying(constraintDate)
+      "month" -> of[String].transform[String](_.trim, identity),
+      "day"   -> of[String].transform[String](_.trim, identity)
+    )(normalizeDateFields)(a => Option(a))
+      .verifying(validDateFields(fieldName))
+      .transform[String](concatDate, splitDate)
+      .transform[LocalDate](
+        LocalDate.parse(_, DateTimeFormatter.ISO_LOCAL_DATE),
+        DateTimeFormatter.ISO_LOCAL_DATE.format
+      )
+
+  def dateIsBefore(fieldName: String, errorType: String, withOffset: LocalDate => LocalDate): Constraint[LocalDate] =
+    Constraint[LocalDate](s"constraint.$fieldName.$errorType")(date =>
+      if (date.isBefore(withOffset(LocalDate.now()))) Valid
+      else Invalid(ValidationError(s"error.$fieldName.$errorType"))
+    )
+
+  def dateIsAfter(fieldName: String, errorType: String, withOffset: LocalDate => LocalDate): Constraint[LocalDate] =
+    Constraint[LocalDate](s"constraint.$fieldName.$errorType")(date =>
+      if (date.isAfter(withOffset(LocalDate.now()))) Valid
+      else Invalid(ValidationError(s"error.$fieldName.$errorType"))
+    )
 
 }

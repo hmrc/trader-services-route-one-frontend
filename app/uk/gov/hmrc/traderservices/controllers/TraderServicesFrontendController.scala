@@ -23,10 +23,9 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.TraderServicesModel
+import uk.gov.hmrc.traderservices.models.{ConsignmentDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
@@ -116,14 +115,12 @@ object TraderServicesFrontendController {
 
   import FormFieldMappings._
 
-  val TraderServicesForm = Form[TraderServicesModel](
+  val ConsignmentDetailsForm = Form[ConsignmentDetails](
     mapping(
-      "nino" -> uppercaseNormalizedText
-        .verifying(validNino())
-        .transform(Nino.apply, (n: Nino) => n.toString),
-      "givenName"   -> trimmedName.verifying(validName("givenName", 1)),
-      "familyName"  -> trimmedName.verifying(validName("familyName", 2)),
-      "dateOfBirth" -> dateOfBirthMapping
-    )(TraderServicesModel.apply)(TraderServicesModel.unapply)
+      "epu"         -> epuMapping,
+      "entryNumber" -> entryNumberMapping,
+      "entryDate"   -> entryDateMapping
+    )(ConsignmentDetails.apply)(ConsignmentDetails.unapply)
   )
+
 }

@@ -75,8 +75,9 @@ trait SessionCache[T, C] {
               }
             case None => Right(None)
           }
-          .recover { case e ⇒
-            Left(e.getMessage)
+          .recover {
+            case e ⇒
+              Left(e.getMessage)
           }
 
       case None ⇒
@@ -97,8 +98,9 @@ trait SessionCache[T, C] {
             else
               Right(())
           }
-          .recover { case e ⇒
-            Left(e.getMessage)
+          .recover {
+            case e ⇒
+              Left(e.getMessage)
           }
 
       case None ⇒
@@ -116,8 +118,9 @@ trait SessionCache[T, C] {
             else
               Right(())
           }
-          .recover { case e ⇒
-            Left(e.getMessage)
+          .recover {
+            case e ⇒
+              Left(e.getMessage)
           }
 
       case None ⇒

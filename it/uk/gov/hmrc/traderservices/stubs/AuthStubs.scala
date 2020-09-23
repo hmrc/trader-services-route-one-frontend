@@ -27,13 +27,13 @@ trait AuthStubs {
         .withRequestBody(
           equalToJson(
             s"""
-              |{
-              |  "authorise": [
-              |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
-              |    { "authProviders": ["GovernmentGateway"] }
-              |  ],
-              |  "retrieve":["authorisedEnrolments"]
-              |}
+               |{
+               |  "authorise": [
+               |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
+               |    { "authProviders": ["GovernmentGateway"] }
+               |  ],
+               |  "retrieve":["authorisedEnrolments"]
+               |}
            """.stripMargin,
             true,
             true
@@ -43,12 +43,12 @@ trait AuthStubs {
           aResponse()
             .withStatus(200)
             .withBody(s"""
-              |{
-              |"authorisedEnrolments": [
-              |  { "key":"${enrolment.serviceName}", "identifiers": [
-              |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
-              |  ]}
-              |]}
+                         |{
+                         |"authorisedEnrolments": [
+                         |  { "key":"${enrolment.serviceName}", "identifiers": [
+                         |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
+                         |  ]}
+                         |]}
           """.stripMargin)
         )
     )
@@ -72,21 +72,21 @@ trait AuthStubs {
         .withRequestBody(
           equalToJson(
             s"""
-              |{
-              |  "authorise": [
-              |    {
-              |      "identifiers": [],
-              |      "state": "Activated",
-              |      "enrolment": "$strideGroup"
-              |    },
-              |    {
-              |      "authProviders": [
-              |        "PrivilegedApplication"
-              |      ]
-              |    }
-              |  ],
-              |  "retrieve": ["optionalCredentials","allEnrolments"]
-              |}
+               |{
+               |  "authorise": [
+               |    {
+               |      "identifiers": [],
+               |      "state": "Activated",
+               |      "enrolment": "$strideGroup"
+               |    },
+               |    {
+               |      "authProviders": [
+               |        "PrivilegedApplication"
+               |      ]
+               |    }
+               |  ],
+               |  "retrieve": ["optionalCredentials","allEnrolments"]
+               |}
            """.stripMargin,
             true,
             true
@@ -96,15 +96,15 @@ trait AuthStubs {
           aResponse()
             .withStatus(200)
             .withBody(s"""
-              |{
-              |  "optionalCredentials":{
-              |    "providerId": "$strideUserId",
-              |    "providerType": "PrivilegedApplication"
-              |  },
-              |  "allEnrolments":[
-              |    {"key":"$strideGroup"}
-              |  ]
-              |}
+                         |{
+                         |  "optionalCredentials":{
+                         |    "providerId": "$strideUserId",
+                         |    "providerType": "PrivilegedApplication"
+                         |  },
+                         |  "allEnrolments":[
+                         |    {"key":"$strideGroup"}
+                         |  ]
+                         |}
        """.stripMargin)
         )
     )

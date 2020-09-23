@@ -16,45 +16,20 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import java.time.LocalDate
+
 import play.api.data.Forms.of
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.domain.Nino
-import uk.gov.hmrc.traderservices.controllers.DateFieldHelper._
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber}
+
+import scala.util.Try
 
 object FormFieldMappings {
 
-  def dateOfBirthMapping: Mapping[String] = dateFieldsMapping(validDobDateFormat)
-
-  def validNino(
-    nonEmptyFailure: String = "error.nino.required",
-    invalidFailure: String = "error.nino.invalid-format"
-  ): Constraint[String] =
-    ValidateHelper.validateField(nonEmptyFailure, invalidFailure)(nino => Nino.isValid(nino))
-
-  val maxNameLen = 64
-
   val normalizedText: Mapping[String] = of[String].transform(_.replaceAll("\\s", ""), identity)
   val uppercaseNormalizedText: Mapping[String] = normalizedText.transform(_.toUpperCase, identity)
-  val trimmedName: Mapping[String] = of[String].transform[String](_.trim.take(maxNameLen), identity)
-
-  val allowedNameCharacters: Set[Char] = Set('-', '\'', ' ')
-
-  def validName(fieldName: String, minLenInc: Int): Constraint[String] =
-    Constraint[String] { fieldValue: String =>
-      nonEmpty(fieldName)(fieldValue) match {
-        case i @ Invalid(_) => i
-        case Valid =>
-          if (
-            fieldValue.length >= minLenInc && fieldValue
-              .forall(ch => Character.isLetter(ch) || allowedNameCharacters.contains(ch))
-          )
-            Valid
-          else
-            Invalid(ValidationError(s"error.$fieldName.invalid-format"))
-      }
-    }
 
   def nonEmpty(fieldName: String): Constraint[String] =
     Constraint[String]("constraint.required") { s =>
@@ -62,4 +37,71 @@ object FormFieldMappings {
         .filter(!_.trim.isEmpty)
         .fold[ValidationResult](Invalid(ValidationError(s"error.$fieldName.required")))(_ => Valid)
     }
+
+  def haveLength(fieldName: String, expectedLength: Int): Constraint[String] =
+    Constraint[String]("constraint.length") { s =>
+      Option(s)
+        .filter(_.length == expectedLength)
+        .fold[ValidationResult](Invalid(ValidationError(s"error.$fieldName.invalid-length")))(_ => Valid)
+    }
+
+  def constraint[A](fieldName: String, errorType: String, predicate: A => Boolean): Constraint[A] =
+    Constraint[A](s"constraint.$fieldName.$errorType") { s =>
+      Option(s)
+        .filter(predicate)
+        .fold[ValidationResult](Invalid(ValidationError(s"error.$fieldName.$errorType")))(_ => Valid)
+    }
+
+  def first[A](cs: Constraint[A]*): Constraint[A] =
+    Constraint[A](s"constraints.sequence.${cs.map(_.name).mkString(".")}") { s =>
+      cs.foldLeft[ValidationResult](Valid) { (r, c) =>
+        r match {
+          case Valid => c.apply(s)
+          case r     => r
+        }
+      }
+    }
+
+  def all[A](cs: Constraint[A]*): Constraint[A] =
+    Constraint[A](s"constraints.sequence.${cs.map(_.name).mkString(".")}") { s =>
+      cs.foldLeft[ValidationResult](Valid) { (r, c) =>
+        r match {
+          case Valid => c.apply(s)
+          case r @ Invalid(e1) =>
+            c.apply(s) match {
+              case Valid       => r
+              case Invalid(e2) => Invalid(e1 ++ e2)
+            }
+        }
+      }
+    }
+
+  val epuMapping: Mapping[EPU] = uppercaseNormalizedText
+    .verifying(
+      first(
+        nonEmpty("epu"),
+        all(haveLength("epu", 3), constraint[String]("epu", "invalid-only-digits", _.forall(_.isDigit))),
+        constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, _ <= 700))
+      )
+    )
+    .transform(EPU.apply, _.value)
+
+  val entryNumberMapping: Mapping[EntryNumber] = uppercaseNormalizedText
+    .verifying(
+      first(
+        nonEmpty("entryNumber"),
+        all(
+          haveLength("entryNumber", 7),
+          constraint[String]("entryNumber", "invalid-only-digits-and-letters", _.forall(_.isLetterOrDigit)),
+          constraint[String]("entryNumber", "invalid-ends-with-letter", _.lastOption.forall(_.isLetter)),
+          constraint[String]("entryNumber", "invalid-letter-wrong-position", _.drop(1).dropRight(1).forall(_.isDigit))
+        )
+      )
+    )
+    .transform(EntryNumber.apply, _.value)
+
+  val entryDateMapping: Mapping[LocalDate] = DateFieldHelper
+    .dateFieldsMapping("entryDate")
+    .verifying(DateFieldHelper.dateIsBefore("entryDate", "invalid-value-future", _.plusDays(1)))
+    .verifying(DateFieldHelper.dateIsAfter("entryDate", "invalid-value-past", _.minusMonths(6)))
 }

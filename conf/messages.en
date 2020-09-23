@@ -155,3 +155,27 @@ view.start.underpaid.link.text=Underpayment
 view.start.tor=Transfer of residence
 view.start.tor.description=Description of service
 view.start.tor.link.text=link
+
+# Consignment Details Page
+# ----------------------------------------------------------
+error.epu.required=Enter an EPU number
+error.epu.invalid-length=EPU number must be 3 characters
+error.epu.invalid-only-digits=EPU number must only contain numbers 0 to 9
+error.epu.invalid-number=EPU number must be 700 or less
+error.entryNumber.required=Enter an entry number
+error.entryNumber.invalid-length=Entry number must be 7 characters
+error.entryNumber.invalid-only-digits-and-letters=Entry number must only contain numbers 0 to 9 and letters 
+error.entryNumber.invalid-ends-with-letter=Entry number must have a letter at the end
+error.entryNumber.invalid-letter-wrong-position=Entry number must have letters before and after the number only
+error.entryDate.required=Enter the entry date
+error.entryDate.required-year=Entry date must include a year
+error.entryDate.required-month=Entry date must include a month
+error.entryDate.required-day=Entry date must include a day
+error.entryDate.invalid-year-value=Entry date must be a real date
+error.entryDate.invalid-month-value=Entry date must be a real date
+error.entryDate.invalid-day-value=Entry date must be a real date
+error.entryDate.invalid-year-digits=Entry date must only contain numbers 0 to 9
+error.entryDate.invalid-month-digits=Entry date must only contain numbers 0 to 9
+error.entryDate.invalid-day-digits=Entry date must only contain numbers 0 to 9
+error.entryDate.invalid-value-future=Entry date must be today or in the past
+error.entryDate.invalid-value-past=Entry date must be within the past 6 months
