@@ -84,7 +84,7 @@ object FormFieldMappings {
         constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, _ <= 700))
       )
     )
-    .transform(EPU.apply, _.value)
+    .transform(s => EPU(s.toInt), _.value.toString)
 
   val entryNumberMapping: Mapping[EntryNumber] = uppercaseNormalizedText
     .verifying(
@@ -93,8 +93,12 @@ object FormFieldMappings {
         all(
           haveLength("entryNumber", 7),
           constraint[String]("entryNumber", "invalid-only-digits-and-letters", _.forall(_.isLetterOrDigit)),
-          constraint[String]("entryNumber", "invalid-ends-with-letter", _.lastOption.forall(_.isLetter)),
-          constraint[String]("entryNumber", "invalid-letter-wrong-position", _.drop(1).dropRight(1).forall(_.isDigit))
+          constraint[String](
+            "entryNumber",
+            "invalid-ends-with-letter",
+            s => s.lastOption.forall(_.isLetter) || s.drop(6).headOption.forall(_.isLetter)
+          ),
+          constraint[String]("entryNumber", "invalid-letter-wrong-position", _.slice(1, 6).forall(_.isDigit))
         )
       )
     )

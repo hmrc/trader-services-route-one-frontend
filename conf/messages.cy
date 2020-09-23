@@ -140,3 +140,10 @@ researchBanner.heading = Helpwch i wella gwasanaethau CThEM
 researchBanner.inviteLink = Helpwch i wella gwasanaethau digidol drwy ymuno â phanel defnyddwyr CThEM (yn agor ffenestr newydd)
 researchBanner.closeLink =  Dim diolch
 
+# Common form messages
+# ----------------------------------------------------------
+error.browser.title.prefix  = Gwall:
+error.summary.title=Mae problem wedi codi
+date.day  = Diwrnod
+date.month  = Mis
+date.year  = Blwyddyn

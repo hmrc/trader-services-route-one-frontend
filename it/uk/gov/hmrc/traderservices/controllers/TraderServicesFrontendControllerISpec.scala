@@ -22,12 +22,40 @@ class TraderServicesFrontendControllerISpec
   "TraderServicesFrontendController" when {
 
     "GET /" should {
-
-      "redirect to the start page" in {
+      "show the start page" in {
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = controller.showStart(fakeRequest)
         status(result) shouldBe 200
         journey.get shouldBe Some((Start, Nil))
+      }
+    }
+
+    "GET /route-one" should {
+      "show the enter consignment page" in {
+        journey.set(Start, Nil)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val result = controller.showEnterConsignmentDetails(fakeRequest)
+        status(result) shouldBe 200
+        journey.get shouldBe Some((EnterConsignmentDetails(None), List(Start)))
+      }
+    }
+
+    "POST /route-one/consignment-details" should {
+      "submit the lookup query and redirect to the status found if request details pass validation" in {
+        journey.set(EnterConsignmentDetails(None), List(Start))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val request = fakeRequest
+          .withFormUrlEncodedBody(
+            "entryDate.year"  -> "2020",
+            "entryDate.month" -> "09",
+            "entryDate.day"   -> "23",
+            "epu"             -> "235",
+            "entryNumber"     -> "111111X"
+          )
+        val result = controller.submitConsignmentDetails(request)
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some("/trader-services/work-in-progress")
+        journey.get shouldBe Some((WorkInProgressDeadEnd, List(EnterConsignmentDetails(None), Start)))
       }
     }
   }

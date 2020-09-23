@@ -26,7 +26,7 @@ import uk.gov.hmrc.traderservices.support.FormMatchers
 class ConsignmentDetailsFormSpec extends UnitSpec with FormMatchers {
 
   val formOutput = ConsignmentDetails(
-    epu = EPU("123"),
+    epu = EPU(123),
     entryNumber = EntryNumber("000000Z"),
     entryDate = LocalDate.parse("2020-08-31")
   )
@@ -72,7 +72,10 @@ class ConsignmentDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when EntryNumber is invalid" in {
       val input = formInput.updated("entryNumber", "00000Z")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryNumber", "error.entryNumber.invalid-length"))
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("entryNumber", "error.entryNumber.invalid-length"),
+        FormError("entryNumber", "error.entryNumber.invalid-letter-wrong-position")
+      )
     }
 
     "report an error when entryDate.year is missing" in {

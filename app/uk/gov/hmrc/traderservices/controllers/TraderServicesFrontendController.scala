@@ -20,17 +20,16 @@ import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Results.Redirect
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{ConsignmentDetails}
-import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
-import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
+import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
+import uk.gov.hmrc.traderservices.models.ConsignmentDetails
+import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.Success
@@ -44,7 +43,7 @@ class TraderServicesFrontendController @Inject() (
   val env: Environment,
   override val journeyService: TraderServicesFrontendJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
-  startView: uk.gov.hmrc.traderservices.views.html.StartView
+  views: uk.gov.hmrc.traderservices.views.Views
 )(implicit val config: Configuration, ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
@@ -56,7 +55,7 @@ class TraderServicesFrontendController @Inject() (
     authorisedWithStrideGroup(appConfig.authorisedStrideGroup)
   }
 
-  val AsEnrolledUser: WithAuthorised[String] = { implicit request =>
+  val AsUser: WithAuthorised[String] = { implicit request =>
     authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
   }
 
@@ -71,11 +70,23 @@ class TraderServicesFrontendController @Inject() (
   // GET /
   val showStart: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorised(AsEnrolledUser)(Transitions.start)(display)
+      whenAuthorised(AsUser)(Transitions.start)(display)
         .andThen {
           // reset navigation history
           case Success(_) => journeyService.cleanBreadcrumbs()
         }
+    }
+
+  // GET /route-one
+  val showEnterConsignmentDetails: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorised(AsUser)(Transitions.enterConsignmentDetails)(display)
+    }
+
+  // POST /route-one/consignment-details
+  val submitConsignmentDetails: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ConsignmentDetailsForm)(Transitions.submittedConsignmentDetails)
     }
 
   /**
@@ -86,6 +97,13 @@ class TraderServicesFrontendController @Inject() (
     state match {
       case Start =>
         routes.TraderServicesFrontendController.showStart()
+
+      case _: EnterConsignmentDetails =>
+        routes.TraderServicesFrontendController.showEnterConsignmentDetails()
+
+      case WorkInProgressDeadEnd =>
+        Call("GET", "/trader-services/work-in-progress")
+
     }
 
   import uk.gov.hmrc.play.fsm.OptionalFormOps._
@@ -100,7 +118,21 @@ class TraderServicesFrontendController @Inject() (
     state match {
 
       case Start =>
-        Ok(startView())
+        Ok(views.startView())
+
+      case EnterConsignmentDetails(consignmentDetailsOpt) =>
+        Ok(
+          views.consignmentDetailsEntryView(
+            formWithErrors.or(
+              consignmentDetailsOpt
+                .map(query => ConsignmentDetailsForm.fill(query))
+                .getOrElse(ConsignmentDetailsForm)
+            ),
+            routes.TraderServicesFrontendController.submitConsignmentDetails()
+          )
+        )
+
+      case WorkInProgressDeadEnd => NotImplemented
 
     }
 

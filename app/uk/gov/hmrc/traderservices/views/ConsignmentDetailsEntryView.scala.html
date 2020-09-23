@@ -1,0 +1,71 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.models.ConsignmentDetails
+
+@this(
+    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+    forms: uk.gov.hmrc.traderservices.views.components.forms,
+    html: uk.gov.hmrc.traderservices.views.components.html
+)
+
+@(form: Form[ConsignmentDetails], postAction: Call)(implicit request: Request[_], messages: Messages)
+
+@govukLayout(pageTitle = Some(messages("view.consignment-details.title"))) {
+
+    @forms.errorSummary(form.errors)
+
+    @html.h1(messages("view.consignment-details.heading"))
+
+    @html.p {
+     @messages("view.consignment-details.description")
+    }
+
+    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+
+         @forms.inputText(
+             form = form,
+             id = "epu",
+             name = "epu",
+             label = "form.consignment-details.epu",
+             isPageHeading = false,
+             classes = Some("govuk-input--width-3")
+         )
+
+        @forms.inputText(
+            form = form,
+            id = "entryNumber",
+            name = "entryNumber",
+            label = "form.consignment-details.entryNumber",
+            isPageHeading = false,
+            classes = Some("govuk-input--width-10")
+        )
+
+        @forms.inputDate(
+            form = form,
+            id = "entryDate",
+            legendContent = "form.consignment-details.entryDate",
+            legendClasses = "govuk-label--s",
+            legendAsPageHeading = false,
+            hintText = None,
+            attributesDay = Map("aria-label" -> "Day of entry date"),
+            attributesMonth = Map("aria-label" -> "Month of entry date"),
+            attributesYear = Map("aria-label" -> "Year of entry date")
+        )
+
+        @html.button("form.consignment-details.continue")
+ }
+}

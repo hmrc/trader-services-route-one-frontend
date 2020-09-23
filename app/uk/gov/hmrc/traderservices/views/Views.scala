@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.models
+package uk.gov.hmrc.traderservices.views
 
-import play.api.libs.json.Format
+import javax.inject.{Inject, Singleton}
+import uk.gov.hmrc.traderservices.views.html._
 
-case class EPU(value: Int)
-
-object EPU {
-  implicit val formats: Format[EPU] =
-    SimpleStringFormat[EPU](s => EPU(s.toInt), _.value.toString)
-}
+@Singleton
+class Views @Inject() (val startView: StartView, val consignmentDetailsEntryView: ConsignmentDetailsEntryView)

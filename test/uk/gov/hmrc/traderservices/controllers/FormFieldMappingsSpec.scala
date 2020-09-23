@@ -28,7 +28,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
   "FormFieldMappings" should {
 
     "validate EPU" in {
-      epuMapping.bind(Map("" -> "123")) shouldBe Right(EPU("123"))
+      epuMapping.bind(Map("" -> "123")) shouldBe Right(EPU(123))
       epuMapping.bind(Map("" -> "")) should haveOnlyError[EPU]("error.epu.required")
       epuMapping.bind(Map("" -> "1")) should haveOnlyError[EPU]("error.epu.invalid-length")
       epuMapping.bind(Map("" -> "12")) should haveOnlyError[EPU]("error.epu.invalid-length")
@@ -45,27 +45,28 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       entryNumberMapping.bind(Map("" -> "000000Z")) shouldBe Right(EntryNumber("000000Z"))
       entryNumberMapping.bind(Map("" -> "A00000Z")) shouldBe Right(EntryNumber("A00000Z"))
       entryNumberMapping.bind(Map("" -> "")) should haveOnlyError[EntryNumber]("error.entryNumber.required")
-      entryNumberMapping.bind(Map("" -> "00000Z")) should haveOnlyError[EntryNumber]("error.entryNumber.invalid-length")
-      entryNumberMapping.bind(Map("" -> "0000Z")) should haveOnlyError[EntryNumber]("error.entryNumber.invalid-length")
-      entryNumberMapping.bind(Map("" -> "00000")) should haveOnlyErrors[EntryNumber](
+      entryNumberMapping.bind(Map("" -> "00000Z")) should haveOnlyErrors[EntryNumber](
         "error.entryNumber.invalid-length",
-        "error.entryNumber.invalid-ends-with-letter"
+        "error.entryNumber.invalid-letter-wrong-position"
+      )
+      entryNumberMapping.bind(Map("" -> "0000Z")) should haveOnlyErrors[EntryNumber](
+        "error.entryNumber.invalid-length",
+        "error.entryNumber.invalid-letter-wrong-position"
+      )
+      entryNumberMapping.bind(Map("" -> "00000")) should haveOnlyErrors[EntryNumber](
+        "error.entryNumber.invalid-length"
       )
       entryNumberMapping.bind(Map("" -> "0")) should haveOnlyErrors[EntryNumber](
-        "error.entryNumber.invalid-length",
-        "error.entryNumber.invalid-ends-with-letter"
+        "error.entryNumber.invalid-length"
       )
       entryNumberMapping.bind(Map("" -> "Z")) should haveOnlyError[EntryNumber]("error.entryNumber.invalid-length")
       entryNumberMapping.bind(Map("" -> "+")) should haveOnlyErrors[EntryNumber](
         "error.entryNumber.invalid-length",
-        "error.entryNumber.invalid-only-digits-and-letters",
-        "error.entryNumber.invalid-ends-with-letter"
+        "error.entryNumber.invalid-only-digits-and-letters"
       )
       entryNumberMapping.bind(Map("" -> "000000Z+")) should haveOnlyErrors[EntryNumber](
         "error.entryNumber.invalid-only-digits-and-letters",
-        "error.entryNumber.invalid-length",
-        "error.entryNumber.invalid-ends-with-letter",
-        "error.entryNumber.invalid-letter-wrong-position"
+        "error.entryNumber.invalid-length"
       )
       entryNumberMapping.bind(Map("" -> "000+000Z")) should haveOnlyErrors[EntryNumber](
         "error.entryNumber.invalid-only-digits-and-letters",

@@ -35,6 +35,41 @@ class TraderServicesFrontendISpec
       }
     }
 
+    "GET /trader-services/route-one" should {
+      "show the enter consignment details page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(Start)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/route-one").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.consignment-details.title"))
+        journey.getState shouldBe EnterConsignmentDetails(None)
+      }
+    }
+
+    "POST /route-one/consignment-details" should {
+      "submit the form and go next page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(EnterConsignmentDetails(None))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "entryDate.year"  -> "2020",
+          "entryDate.month" -> "09",
+          "entryDate.day"   -> "23",
+          "epu"             -> "235",
+          "entryNumber"     -> "111111X"
+        )
+
+        val result = await(request("/route-one/consignment-details").post(payload))
+
+        result.status shouldBe 404
+        journey.getState shouldBe WorkInProgressDeadEnd
+      }
+    }
+
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
