@@ -58,7 +58,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedConsignmentDetails(user: String)(consignmentDetails: ConsignmentDetails) =
       Transition {
-        case _ =>
+        case EnterConsignmentDetails(_) =>
           goto(WorkInProgressDeadEnd)
       }
   }

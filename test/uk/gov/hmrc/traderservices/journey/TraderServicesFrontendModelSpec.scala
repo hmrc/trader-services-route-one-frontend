@@ -46,6 +46,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto EnterConsignmentDetails when enterConsignmentDetails" in {
         given(Start) when enterConsignmentDetails(eoriNumber) should thenGo(EnterConsignmentDetails(None))
       }
+
+      "raise exception if any other transition requested" in {
+        an[TransitionNotAllowed] shouldBe thrownBy {
+          given(Start) when submittedConsignmentDetails(eoriNumber)(
+            consignmentDetails
+          )
+        }
+      }
     }
 
     "at state EnterConsignmentDetails" should {
