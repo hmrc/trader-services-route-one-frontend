@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+sealed trait ExportGoodsPriority
 
-object SimpleStringFormat {
+object ExportGoodsPriority extends EnumerationFormats[ExportGoodsPriority] {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  case object None extends ExportGoodsPriority
+  case object LiveAnimals extends ExportGoodsPriority
+  case object HumanRemains extends ExportGoodsPriority
+  case object ExplosivesOrFireworks extends ExportGoodsPriority
+  case object HighValueArt extends ExportGoodsPriority
+  case object ClassADrugs extends ExportGoodsPriority
 
+  val values = Set(None, LiveAnimals, HumanRemains, ExplosivesOrFireworks, HighValueArt, ClassADrugs)
 }

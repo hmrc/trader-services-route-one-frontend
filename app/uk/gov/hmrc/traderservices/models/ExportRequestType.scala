@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+sealed trait ExportRequestType
 
-object SimpleStringFormat {
+object ExportRequestType extends EnumerationFormats[ExportRequestType] {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  case object New extends ExportRequestType
+  case object Cancellation extends ExportRequestType
+  case object Hold extends ExportRequestType
+  case object C1601 extends ExportRequestType
+  case object C1602 extends ExportRequestType
+  case object C1603 extends ExportRequestType
+  case object WithdrawalOrReturn extends ExportRequestType
 
+  val values = Set(New, Cancellation, Hold, C1601, C1602, C1603, WithdrawalOrReturn)
 }

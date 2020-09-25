@@ -16,17 +16,14 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+sealed trait ImportRequestType
 
-object SimpleStringFormat {
+object ImportRequestType extends EnumerationFormats[ImportRequestType] {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  case object New extends ImportRequestType
+  case object Cancellation extends ImportRequestType
+  case object Hold extends ImportRequestType
+  case object ALVS extends ImportRequestType
 
+  val values: Set[ImportRequestType] = Set(New, Cancellation, Hold, ALVS)
 }
