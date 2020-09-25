@@ -20,12 +20,12 @@ import java.time.LocalDate
 
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.traderservices.models.{ConsignmentDetails, EPU, EntryNumber}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 
-class ConsignmentDetailsFormSpec extends UnitSpec with FormMatchers {
+class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
 
-  val formOutput = ConsignmentDetails(
+  val formOutput = DeclarationDetails(
     epu = EPU(123),
     entryNumber = EntryNumber("000000Z"),
     entryDate = LocalDate.parse("2020-08-31")
@@ -39,11 +39,11 @@ class ConsignmentDetailsFormSpec extends UnitSpec with FormMatchers {
     "entryDate.day"   -> "31"
   )
 
-  "ConsignmentDetailsForm" should {
+  "DeclarationDetailsForm" should {
 
-    val form = TraderServicesFrontendController.ConsignmentDetailsForm
+    val form = TraderServicesFrontendController.DeclarationDetailsForm
 
-    "bind some input fields and return ConsignmentDetails and fill it back" in {
+    "bind some input fields and return DeclarationDetails and fill it back" in {
       form.bind(formInput).value shouldBe Some(formOutput)
       form.fill(formOutput).data shouldBe formInput
     }

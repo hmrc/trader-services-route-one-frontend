@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.ConsignmentDetails
+import uk.gov.hmrc.traderservices.models.DeclarationDetails
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -77,16 +77,16 @@ class TraderServicesFrontendController @Inject() (
         }
     }
 
-  // GET /route-one
-  val showEnterConsignmentDetails: Action[AnyContent] =
+  // GET /pre-clearance
+  val showEnterDeclarationDetails: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorised(AsUser)(Transitions.enterConsignmentDetails)(display)
+      whenAuthorised(AsUser)(Transitions.enterDeclarationDetails)(display)
     }
 
-  // POST /route-one/consignment-details
-  val submitConsignmentDetails: Action[AnyContent] =
+  // POST /pre-clearance/declaration-details
+  val submitDeclarationDetails: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ConsignmentDetailsForm)(Transitions.submittedConsignmentDetails)
+      whenAuthorisedWithForm(AsUser)(DeclarationDetailsForm)(Transitions.submittedDeclarationDetails)
     }
 
   /**
@@ -98,8 +98,8 @@ class TraderServicesFrontendController @Inject() (
       case Start =>
         routes.TraderServicesFrontendController.showStart()
 
-      case _: EnterConsignmentDetails =>
-        routes.TraderServicesFrontendController.showEnterConsignmentDetails()
+      case _: EnterDeclarationDetails =>
+        routes.TraderServicesFrontendController.showEnterDeclarationDetails()
 
       case WorkInProgressDeadEnd =>
         Call("GET", "/trader-services/work-in-progress")
@@ -120,15 +120,15 @@ class TraderServicesFrontendController @Inject() (
       case Start =>
         Ok(views.startView())
 
-      case EnterConsignmentDetails(consignmentDetailsOpt) =>
+      case EnterDeclarationDetails(declarationDetailsOpt) =>
         Ok(
-          views.consignmentDetailsEntryView(
+          views.declarationDetailsEntryView(
             formWithErrors.or(
-              consignmentDetailsOpt
-                .map(query => ConsignmentDetailsForm.fill(query))
-                .getOrElse(ConsignmentDetailsForm)
+              declarationDetailsOpt
+                .map(query => DeclarationDetailsForm.fill(query))
+                .getOrElse(DeclarationDetailsForm)
             ),
-            routes.TraderServicesFrontendController.submitConsignmentDetails()
+            routes.TraderServicesFrontendController.submitDeclarationDetails()
           )
         )
 
@@ -147,12 +147,12 @@ object TraderServicesFrontendController {
 
   import FormFieldMappings._
 
-  val ConsignmentDetailsForm = Form[ConsignmentDetails](
+  val DeclarationDetailsForm = Form[DeclarationDetails](
     mapping(
       "epu"         -> epuMapping,
       "entryNumber" -> entryNumberMapping,
       "entryDate"   -> entryDateMapping
-    )(ConsignmentDetails.apply)(ConsignmentDetails.unapply)
+    )(DeclarationDetails.apply)(DeclarationDetails.unapply)
   )
 
 }

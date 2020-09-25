@@ -43,24 +43,24 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(Start) when start(eoriNumber) should thenGo(Start)
       }
 
-      "goto EnterConsignmentDetails when enterConsignmentDetails" in {
-        given(Start) when enterConsignmentDetails(eoriNumber) should thenGo(EnterConsignmentDetails(None))
+      "goto EnterDeclarationDetails when enterDeclarationDetails" in {
+        given(Start) when enterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails(None))
       }
 
       "raise exception if any other transition requested" in {
         an[TransitionNotAllowed] shouldBe thrownBy {
-          given(Start) when submittedConsignmentDetails(eoriNumber)(
-            consignmentDetails
+          given(Start) when submittedDeclarationDetails(eoriNumber)(
+            declarationDetails
           )
         }
       }
     }
 
-    "at state EnterConsignmentDetails" should {
+    "at state EnterDeclarationDetails" should {
 
-      "goto WorkInProgressDeadEnd when submittedConsignmentDetails" in {
-        given(EnterConsignmentDetails(None)) when submittedConsignmentDetails(eoriNumber)(
-          consignmentDetails
+      "goto WorkInProgressDeadEnd when submittedDeclarationDetails" in {
+        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
+          declarationDetails
         ) should thenGo(WorkInProgressDeadEnd)
       }
 
@@ -90,6 +90,6 @@ trait TestData {
   val eoriNumber = "foo"
   val correlationId = "123"
 
-  val consignmentDetails = ConsignmentDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val declarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
 
 }

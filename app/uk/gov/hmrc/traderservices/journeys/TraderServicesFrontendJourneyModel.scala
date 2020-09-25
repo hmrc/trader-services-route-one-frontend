@@ -35,7 +35,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     case object Start extends State
 
-    case class EnterConsignmentDetails(consignmentDetailsOpt: Option[ConsignmentDetails]) extends State
+    case class EnterDeclarationDetails(declarationDetailsOpt: Option[DeclarationDetails]) extends State
 
     case object WorkInProgressDeadEnd extends State
 
@@ -50,15 +50,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           goto(Start)
       }
 
-    def enterConsignmentDetails(user: String) =
+    def enterDeclarationDetails(user: String) =
       Transition {
         case _ =>
-          goto(EnterConsignmentDetails(None))
+          goto(EnterDeclarationDetails(None))
       }
 
-    def submittedConsignmentDetails(user: String)(consignmentDetails: ConsignmentDetails) =
+    def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
       Transition {
-        case EnterConsignmentDetails(_) =>
+        case EnterDeclarationDetails(_) =>
           goto(WorkInProgressDeadEnd)
       }
   }
