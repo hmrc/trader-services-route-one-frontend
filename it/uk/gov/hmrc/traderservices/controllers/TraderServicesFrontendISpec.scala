@@ -35,24 +35,24 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "GET /trader-services/route-one" should {
-      "show the enter consignment details page" in {
+    "GET /trader-services/pre-clearance" should {
+      "show the enter declaration details page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/route-one").get())
+        val result = await(request("/pre-clearance").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.consignment-details.title"))
-        journey.getState shouldBe EnterConsignmentDetails(None)
+        result.body should include(htmlEscapedMessage("view.declaration-details.title"))
+        journey.getState shouldBe EnterDeclarationDetails(None)
       }
     }
 
-    "POST /route-one/consignment-details" should {
+    "POST /pre-clearance/declaration-details" should {
       "submit the form and go next page" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterConsignmentDetails(None))
+        journey.setState(EnterDeclarationDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -63,7 +63,7 @@ class TraderServicesFrontendISpec
           "entryNumber"     -> "111111X"
         )
 
-        val result = await(request("/route-one/consignment-details").post(payload))
+        val result = await(request("/pre-clearance/declaration-details").post(payload))
 
         result.status shouldBe 404
         journey.getState shouldBe WorkInProgressDeadEnd

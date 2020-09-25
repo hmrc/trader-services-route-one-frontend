@@ -30,19 +30,19 @@ class TraderServicesFrontendControllerISpec
       }
     }
 
-    "GET /route-one" should {
-      "show the enter consignment page" in {
+    "GET /pre-clearance" should {
+      "show the enter declaration page" in {
         journey.set(Start, Nil)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val result = controller.showEnterConsignmentDetails(fakeRequest)
+        val result = controller.showEnterDeclarationDetails(fakeRequest)
         status(result) shouldBe 200
-        journey.get shouldBe Some((EnterConsignmentDetails(None), List(Start)))
+        journey.get shouldBe Some((EnterDeclarationDetails(None), List(Start)))
       }
     }
 
-    "POST /route-one/consignment-details" should {
+    "POST /pre-clearance/declaration-details" should {
       "submit the lookup query and redirect to the status found if request details pass validation" in {
-        journey.set(EnterConsignmentDetails(None), List(Start))
+        journey.set(EnterDeclarationDetails(None), List(Start))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val request = fakeRequest
           .withFormUrlEncodedBody(
@@ -52,10 +52,10 @@ class TraderServicesFrontendControllerISpec
             "epu"             -> "235",
             "entryNumber"     -> "111111X"
           )
-        val result = controller.submitConsignmentDetails(request)
+        val result = controller.submitDeclarationDetails(request)
         status(result) shouldBe 303
         redirectLocation(result) shouldBe Some("/trader-services/work-in-progress")
-        journey.get shouldBe Some((WorkInProgressDeadEnd, List(EnterConsignmentDetails(None), Start)))
+        journey.get shouldBe Some((WorkInProgressDeadEnd, List(EnterDeclarationDetails(None), Start)))
       }
     }
   }

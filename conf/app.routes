@@ -3,11 +3,11 @@
 ->         /govuk-frontend                              govuk.Routes
 ->         /hmrc-frontend                               hmrcfrontend.Routes
 
-GET        /                                           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
-GET        /route-one                                  @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showEnterConsignmentDetails
-POST       /route-one/consignment-details              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitConsignmentDetails
+GET        /                                            @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
+GET        /pre-clearance                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showEnterDeclarationDetails
+POST       /pre-clearance/declaration-details           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitDeclarationDetails
 
-GET        /accessibility-statement                    @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
+GET        /accessibility-statement                     @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
 GET        /sign-out                                    @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
 GET        /sign-out-no-survey                          @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey

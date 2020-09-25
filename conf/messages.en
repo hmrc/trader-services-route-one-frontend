@@ -1,6 +1,6 @@
 service.name = Trader Services
 
-# Sitewide Messages
+# Site wide messages
 # ----------------------------------------------------------
 site.fullStop =.
 site.back = Back
@@ -156,18 +156,18 @@ view.start.tor=Transfer of residence
 view.start.tor.description=Description of service
 view.start.tor.link.text=link
 
-# Consignment Details Page
+# Declaration Details Page
 # ----------------------------------------------------------
-view.consignment-details.title=What are the consignment details?
-view.consignment-details.heading=What are the consignment details?
-view.consignment-details.description=You can find these on your declaration.
+view.declaration-details.title=What are the consignment details?
+view.declaration-details.heading=What are the consignment details?
+view.declaration-details.description=You can find these on your declaration.
 
 #Consignment Details Form
 # ----------------------------------------------------------
-form.consignment-details.epu=EPU
-form.consignment-details.entryNumber=Entry Number
-form.consignment-details.entryDate=Entry Date
-form.consignment-details.continue=Continue
+form.declaration-details.epu=EPU
+form.declaration-details.entryNumber=Entry Number
+form.declaration-details.entryDate=Entry Date
+form.declaration-details.continue=Continue
 error.epu.required=Enter an EPU number
 error.epu.invalid-length=EPU number must be 3 characters
 error.epu.invalid-only-digits=EPU number must only contain numbers 0 to 9

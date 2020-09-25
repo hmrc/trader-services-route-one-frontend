@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.ConsignmentDetails
+@import uk.gov.hmrc.traderservices.models.DeclarationDetails
 
 @this(
     govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
@@ -22,16 +22,16 @@
     html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[ConsignmentDetails], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[DeclarationDetails], postAction: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.consignment-details.title"))) {
+@govukLayout(pageTitle = Some(messages("view.declaration-details.title"))) {
 
     @forms.errorSummary(form.errors)
 
-    @html.h1(messages("view.consignment-details.heading"))
+    @html.h1(messages("view.declaration-details.heading"))
 
     @html.p {
-     @messages("view.consignment-details.description")
+     @messages("view.declaration-details.description")
     }
 
     @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
@@ -40,7 +40,7 @@
              form = form,
              id = "epu",
              name = "epu",
-             label = "form.consignment-details.epu",
+             label = "form.declaration-details.epu",
              isPageHeading = false,
              classes = Some("govuk-input--width-3")
          )
@@ -49,7 +49,7 @@
             form = form,
             id = "entryNumber",
             name = "entryNumber",
-            label = "form.consignment-details.entryNumber",
+            label = "form.declaration-details.entryNumber",
             isPageHeading = false,
             classes = Some("govuk-input--width-10")
         )
@@ -57,7 +57,7 @@
         @forms.inputDate(
             form = form,
             id = "entryDate",
-            legendContent = "form.consignment-details.entryDate",
+            legendContent = "form.declaration-details.entryDate",
             legendClasses = "govuk-label--s",
             legendAsPageHeading = false,
             hintText = None,
@@ -66,6 +66,6 @@
             attributesYear = Map("aria-label" -> "Year of entry date")
         )
 
-        @html.button("form.consignment-details.continue")
+        @html.button("form.declaration-details.continue")
  }
 }

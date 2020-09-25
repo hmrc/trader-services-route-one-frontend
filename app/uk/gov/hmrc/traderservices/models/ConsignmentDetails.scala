@@ -20,10 +20,10 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Format, Json}
 
-case class ConsignmentDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate)
+case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate)
 
-object ConsignmentDetails {
-  implicit val formats: Format[ConsignmentDetails] = Json.format[ConsignmentDetails]
+object DeclarationDetails {
+  implicit val formats: Format[DeclarationDetails] = Json.format[DeclarationDetails]
 
   val mandatoryFields: Set[String] =
     Set("epu", "entryNumber", "entryDate")
