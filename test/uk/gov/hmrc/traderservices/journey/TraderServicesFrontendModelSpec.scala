@@ -50,7 +50,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "raise exception if any other transition requested" in {
         an[TransitionNotAllowed] shouldBe thrownBy {
           given(Start) when submittedDeclarationDetails(eoriNumber)(
-            declarationDetails
+            exportDeclarationDetails
           )
         }
       }
@@ -58,9 +58,15 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
     "at state EnterDeclarationDetails" should {
 
-      "goto WorkInProgressDeadEnd when submittedDeclarationDetails" in {
+      "goto AnswerExportQuestions when submittedDeclarationDetails for export" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
-          declarationDetails
+          exportDeclarationDetails
+        ) should thenGo(AnswerExportQuestions(exportDeclarationDetails, None))
+      }
+
+      "goto WorkInProgressDeadEnd when submittedDeclarationDetails for import" in {
+        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
+          importDeclarationDetails
         ) should thenGo(WorkInProgressDeadEnd)
       }
 
@@ -90,6 +96,7 @@ trait TestData {
   val eoriNumber = "foo"
   val correlationId = "123"
 
-  val declarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
+  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
 
 }

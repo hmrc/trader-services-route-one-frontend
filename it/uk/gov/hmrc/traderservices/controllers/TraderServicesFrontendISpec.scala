@@ -1,5 +1,6 @@
 package uk.gov.hmrc.traderservices.controllers
 
+import java.time.LocalDate
 import java.util.UUID
 
 import play.api.Application
@@ -9,6 +10,7 @@ import play.api.mvc.{Cookies, Session, SessionCookieBaker}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
@@ -45,12 +47,38 @@ class TraderServicesFrontendISpec
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.declaration-details.title"))
+        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails(None)
       }
     }
 
     "POST /pre-clearance/declaration-details" should {
-      "submit the form and go next page" in {
+
+      "submit the form and go next page when entryNumber is for export" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(EnterDeclarationDetails(None))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "entryDate.year"  -> "2020",
+          "entryDate.month" -> "09",
+          "entryDate.day"   -> "23",
+          "epu"             -> "235",
+          "entryNumber"     -> "A11111X"
+        )
+
+        val result = await(request("/pre-clearance/declaration-details").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.heading"))
+        journey.getState shouldBe AnswerExportQuestions(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          None
+        )
+      }
+
+      "submit the form and go next page when entryNumber is for import" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
