@@ -20,14 +20,24 @@ import play.api.libs.json._
 
 /**
   * Helper trait providing JSON formatter based on the set of enum values.
-  * @tparam A
+  * Designed to be mixed in the companion object of the enum type and as typeclass.
+  * @tparam A enum type
   */
 trait EnumerationFormats[A] {
 
   /** Set of enum values recognized by the formatter. */
   val values: Set[A]
 
-  private lazy val valuesMap: Map[String, A] = values.map(v => (normalize(v.getClass.getSimpleName), v)).toMap
+  private lazy val valuesMap: Map[String, A] =
+    values.map(value => (normalize(value.getClass.getSimpleName), value)).toMap
+
+  /** Checks if given string is a valid enum key. */
+  lazy val isValidKey: String => Boolean = valuesMap.keySet.contains
+
+  /** Optionally returns string key for a given enum value, if recognized or None */
+  def keyOf(value: A): Option[String] =
+    Option(normalize(value.getClass.getSimpleName))
+      .filter(isValidKey)
 
   /** Optionally returns enum for a given key, if exists or None */
   def valueOf(key: String): Option[A] = valuesMap.get(key)
@@ -39,17 +49,20 @@ trait EnumerationFormats[A] {
           .map(JsSuccess.apply(_))
           .getOrElse(JsError(s"Unsupported enum key $key, should be one of ${valuesMap.keys.mkString(",")}"))
 
-      case json => JsError(s"Expected json string but got ${normalize(json.getClass.getSimpleName)}")
+      case json => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
     },
-    Writes.apply(entity =>
-      if (values.contains(entity)) JsString(normalize(entity.getClass.getSimpleName))
-      else
-        throw new IllegalStateException(
-          s"Unsupported enum value $entity, should be one of ${valuesMap.values.mkString(",")}"
-        )
-    )
+    Writes.apply(
+      value =>
+        keyOf(value)
+          .map(JsString.apply)
+          .getOrElse(throw new IllegalStateException(
+            s"Unsupported enum value $value, should be one of ${valuesMap.values.mkString(",")}"
+          )))
   )
 
   private def normalize(name: String): String = if (name.endsWith("$")) name.dropRight(1) else name
+
+  /** Instance of a typeclass declaration */
+  implicit val enumerationFormats: EnumerationFormats[A] = this
 
 }
