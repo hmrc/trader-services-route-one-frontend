@@ -31,8 +31,10 @@ trait EnumerationFormats[A] {
   private lazy val valuesMap: Map[String, A] =
     values.map(value => (normalize(value.getClass.getSimpleName), value)).toMap
 
+  lazy val keys: Set[String] = valuesMap.keySet
+
   /** Checks if given string is a valid enum key. */
-  lazy val isValidKey: String => Boolean = valuesMap.keySet.contains
+  lazy val isValidKey: String => Boolean = keys.contains
 
   /** Optionally returns string key for a given enum value, if recognized or None */
   def keyOf(value: A): Option[String] =
@@ -47,7 +49,7 @@ trait EnumerationFormats[A] {
       case JsString(key) =>
         valueOf(key)
           .map(JsSuccess.apply(_))
-          .getOrElse(JsError(s"Unsupported enum key $key, should be one of ${valuesMap.keys.mkString(",")}"))
+          .getOrElse(JsError(s"Unsupported enum key $key, should be one of ${keys.mkString(",")}"))
 
       case json => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
     },
@@ -56,7 +58,7 @@ trait EnumerationFormats[A] {
         keyOf(value)
           .map(JsString.apply)
           .getOrElse(throw new IllegalStateException(
-            s"Unsupported enum value $value, should be one of ${valuesMap.values.mkString(",")}"
+            s"Unsupported enum value $value, should be one of ${values.mkString(",")}"
           )))
   )
 
