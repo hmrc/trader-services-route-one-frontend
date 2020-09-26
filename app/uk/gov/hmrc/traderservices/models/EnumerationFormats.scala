@@ -31,7 +31,7 @@ trait EnumerationFormats[A] {
   private lazy val valuesMap: Map[String, A] =
     values.map(value => (normalize(value.getClass.getSimpleName), value)).toMap
 
-  lazy val keys: Set[String] = valuesMap.keySet
+  lazy val keys: Set[String] = values.map(value => normalize(value.getClass.getSimpleName))
 
   /** Checks if given string is a valid enum key. */
   lazy val isValidKey: String => Boolean = keys.contains
@@ -53,13 +53,15 @@ trait EnumerationFormats[A] {
 
       case json => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
     },
-    Writes.apply(
-      value =>
-        keyOf(value)
-          .map(JsString.apply)
-          .getOrElse(throw new IllegalStateException(
+    Writes.apply(value =>
+      keyOf(value)
+        .map(JsString.apply)
+        .getOrElse(
+          throw new IllegalStateException(
             s"Unsupported enum value $value, should be one of ${values.mkString(",")}"
-          )))
+          )
+        )
+    )
   )
 
   private def normalize(name: String): String = if (name.endsWith("$")) name.dropRight(1) else name
