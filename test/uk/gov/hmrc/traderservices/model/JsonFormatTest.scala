@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.models
+package uk.gov.hmrc.traderservices.model
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+import org.scalatest.Assertion
+import org.scalatest.Matchers._
+import play.api.libs.json.{Format, Json}
 
-object SimpleStringFormat {
+class JsonFormatTest[A: Format]() {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  case class TestEntity(entity: A)
+  implicit val testFormat: Format[TestEntity] = Json.format[TestEntity]
+
+  def validateJsonFormat(value: String, entity: A): Assertion = {
+    val json = s"""{"entity":"$value"}"""
+    Json.parse(json).as[TestEntity].entity shouldBe entity
+    Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json
+  }
 
 }

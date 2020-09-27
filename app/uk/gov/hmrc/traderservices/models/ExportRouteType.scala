@@ -16,17 +16,16 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+sealed trait ExportRouteType
 
-object SimpleStringFormat {
+object ExportRouteType extends EnumerationFormats[ExportRouteType] {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  case object Route1 extends ExportRouteType
+  case object Route1Cap extends ExportRouteType
+  case object Route2 extends ExportRouteType
+  case object Route3 extends ExportRouteType
+  case object Route6 extends ExportRouteType
+  case object Hold extends ExportRouteType
 
+  val values = Set(Route1, Route1Cap, Route2, Route3, Route6)
 }

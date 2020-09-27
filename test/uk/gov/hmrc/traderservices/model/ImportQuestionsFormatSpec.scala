@@ -14,19 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.models
+package uk.gov.hmrc.traderservices.model
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.models._
 
-object SimpleStringFormat {
+class ImportQuestionsFormatSpec extends UnitSpec {
 
-  def apply[A](fromString: String => A, toString: A => String): Format[A] =
-    Format(
-      Reads {
-        case JsString(value) => JsSuccess(fromString(value))
-        case json            => JsError(s"Expected json string but got ${json.getClass.getSimpleName}")
-      },
-      Writes.apply(entity => JsString(toString(entity)))
-    )
+  "ImportQuestionsFormats" should {
 
+    "serialize and deserialize ImportRequestType" in new JsonFormatTest[ImportRequestType] {
+
+      validateJsonFormat("New", ImportRequestType.New)
+      validateJsonFormat("Cancellation", ImportRequestType.Cancellation)
+      validateJsonFormat("Hold", ImportRequestType.Hold)
+      validateJsonFormat("ALVS", ImportRequestType.ALVS)
+    }
+
+  }
 }
