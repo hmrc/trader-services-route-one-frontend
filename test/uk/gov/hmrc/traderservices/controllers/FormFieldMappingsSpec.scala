@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportRequestType, ExportRouteType, ExportGoodsPriority}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportGoodsPriority, ExportRequestType, ExportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
@@ -174,6 +174,9 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       requestTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRequestType](
         "error.requestType.invalid-option"
       )
+      requestTypeMapping.bind(Map()) should haveOnlyError[ExportRequestType](
+        "error.requestType.required"
+      )
     }
 
     "validate export routeType" in {
@@ -182,8 +185,12 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       routeTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ExportRouteType.Route2)
       routeTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ExportRouteType.Route3)
       routeTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ExportRouteType.Route6)
+      routeTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ExportRouteType.Hold)
       routeTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRouteType](
         "error.routeType.invalid-option"
+      )
+      routeTypeMapping.bind(Map()) should haveOnlyError[ExportRouteType](
+        "error.routeType.required"
       )
     }
 
@@ -193,9 +200,14 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       goodPriorityMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportGoodsPriority.HumanRemains)
       goodPriorityMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportGoodsPriority.HighValueArt)
       goodPriorityMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportGoodsPriority.ClassADrugs)
-      goodPriorityMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(ExportGoodsPriority.ExplosivesOrFireworks)
+      goodPriorityMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
+        ExportGoodsPriority.ExplosivesOrFireworks
+      )
       goodPriorityMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportGoodsPriority](
         "error.goodsPriority.invalid-option"
+      )
+      goodPriorityMapping.bind(Map()) should haveOnlyError[ExportGoodsPriority](
+        "error.goodsPriority.required"
       )
     }
   }
