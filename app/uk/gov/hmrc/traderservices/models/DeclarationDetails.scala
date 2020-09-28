@@ -24,7 +24,8 @@ case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: Loc
 
   val isExportDeclaration: Boolean =
     entryNumber.value.headOption.forall(_.isLetter) && entryNumber.value.lastOption.forall(_.isLetter)
-  val isImportDeclaration: Boolean = entryNumber.value.lastOption.forall(_.isLetter)
+  val isImportDeclaration: Boolean =
+    entryNumber.value.headOption.forall(_.isDigit) && entryNumber.value.lastOption.forall(_.isLetter)
 }
 
 object DeclarationDetails {
