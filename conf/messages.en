@@ -209,6 +209,16 @@ view.import-questions.routeType=Which route is this?
 view.import-questions.goodsPriority=Does the consignment contain any priority goods?
 view.import-questions.transportationType=What type of freight transportation is being used?
 
+# Import Questions View
+# ----------------------------------------------------------
+view.import-questions.title=Tell us about your imports
+view.import-questions.heading=Tell us about your imports
+view.import-questions.description=
+view.import-questions.requestType=What type of request is this?
+view.import-questions.routeType=Which route is this?
+view.import-questions.goodsPriority=Does the consignment contain any priority goods?
+view.import-questions.freightType=What type of freight transportation is being used?
+
 # Export Questions Form
 # ----------------------------------------------------------
 form.export-questions.requestType.New=New
@@ -255,6 +265,30 @@ form.import-questions.goodsPriority.HumanRemains=Yes - human remains
 form.import-questions.goodsPriority.ExplosivesOrFireworks=Yes - explosives or fireworks
 form.import-questions.goodsPriority.HighValueArt=Yes - high value art
 form.import-questions.goodsPriority.ClassADrugs=Yes - class A drugs
+form.import-questions.continue=Continue
+error.transportationType.required=Tell us what type of freight transportation is being used
+
+# Import Questions Form
+# ----------------------------------------------------------
+form.import-questions.requestType.New=New
+form.import-questions.requestType.Cancellation=Cancellation
+form.import-questions.requestType.Hold=Hold (for pre-lodged requests)
+form.import-questions.requestType.ALVS=Automatic Licence Verification System (ALVS)
+form.import-questions.routeType.Route1=Route 1
+form.import-questions.routeType.Route1Cap=Route CAP
+form.import-questions.routeType.Route2=Route 2
+form.import-questions.routeType.Route3=Route 3
+form.import-questions.routeType.Route6=Route 6
+form.import-questions.routeType.Hold=Hold
+form.import-questions.goodsPriority.None=No
+form.import-questions.goodsPriority.LiveAnimals=Yes - live animals
+form.import-questions.goodsPriority.HumanRemains=Yes - human remains
+form.import-questions.goodsPriority.ExplosivesOrFireworks=Yes - explosives or fireworks
+form.import-questions.goodsPriority.HighValueArt=Yes - high value art
+form.import-questions.goodsPriority.ClassADrugs=Yes - class A drugs
+form.import-questions.freightType.Maritime=Maritime
+form.import-questions.freightType.Air=Air
+form.import-questions.freightType.RORO=Road, rail or roll-on, roll-off (RORO)
 form.import-questions.continue=Continue
 error.transportationType.required=Tell us what type of freight transportation is being used
 
