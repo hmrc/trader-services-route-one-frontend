@@ -171,6 +171,9 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       requestTypeMapping.bind(Map("" -> "C1602")) shouldBe Right(ExportRequestType.C1602)
       requestTypeMapping.bind(Map("" -> "C1603")) shouldBe Right(ExportRequestType.C1603)
       requestTypeMapping.bind(Map("" -> "WithdrawalOrReturn")) shouldBe Right(ExportRequestType.WithdrawalOrReturn)
+      requestTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRequestType](
+        "error.requestType.invalid-option"
+      )
     }
 
     "validate export routeType" in {
@@ -179,6 +182,9 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       routeTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ExportRouteType.Route2)
       routeTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ExportRouteType.Route3)
       routeTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ExportRouteType.Route6)
+      routeTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRouteType](
+        "error.routeType.invalid-option"
+      )
     }
 
     "validate export goodsPriority" in {
@@ -188,6 +194,9 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       goodPriorityMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportGoodsPriority.HighValueArt)
       goodPriorityMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportGoodsPriority.ClassADrugs)
       goodPriorityMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(ExportGoodsPriority.ExplosivesOrFireworks)
+      goodPriorityMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportGoodsPriority](
+        "error.goodsPriority.invalid-option"
+      )
     }
   }
 
