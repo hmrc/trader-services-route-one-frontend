@@ -76,12 +76,16 @@ trait SessionCache[T, C] {
             case None => Right(None)
           }
           .recover {
+            case JsResultException(_) =>
+              Left(
+                "Encountered issue with de-serialising JSON state from cache. Check if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
+              )
             case e ⇒
               Left(e.getMessage)
           }
 
       case None ⇒
-        Logger.warn("no sessionId found in the HeaderCarrier to query mongo")
+        Logger(getClass).warn("no sessionId found in the HeaderCarrier to query mongo")
         Right(None)
     }
 

@@ -162,7 +162,7 @@ view.declaration-details.title=What are the consignment details?
 view.declaration-details.heading=What are the consignment details?
 view.declaration-details.description=You can find these on your declaration.
 
-#Consignment Details Form
+# Declaration Details Form
 # ----------------------------------------------------------
 form.declaration-details.epu=EPU
 form.declaration-details.entryNumber=Entry Number
@@ -189,6 +189,40 @@ error.entryDate.invalid-month-digits=Entry date must only contain numbers 0 to 9
 error.entryDate.invalid-day-digits=Entry date must only contain numbers 0 to 9
 error.entryDate.invalid-value-future=Entry date must be today or in the past
 error.entryDate.invalid-value-past=Entry date must be within the past 6 months
+
+# Export Questions View
+# ----------------------------------------------------------
+view.export-questions.title=Tell us about your exports
+view.export-questions.heading=Tell us about your exports
+view.export-questions.description=
+view.export-questions.requestType=What type of request is this?
+view.export-questions.routeType=Which route is this?
+view.export-questions.goodsPriority=Does the consignment contains any priority goods?
+
+# Export Questions Form
+# ----------------------------------------------------------
+form.export-questions.requestType.New=New
+form.export-questions.requestType.Hold=Hold
+form.export-questions.requestType.C1601=C1601
+form.export-questions.requestType.C1603=C1603
+form.export-questions.requestType.C1602=C1602
+form.export-questions.requestType.Cancellation=Cancellation
+form.export-questions.requestType.WithdrawalOrReturn=Withdrawal or return of goods
+form.export-questions.routeType.Route1=Route 1
+form.export-questions.routeType.Route1Cap=Route CAP
+form.export-questions.routeType.Route2=Route 2
+form.export-questions.routeType.Route3=Route 3
+form.export-questions.routeType.Route6=Route 6
+form.export-questions.goodsPriority.None=No
+form.export-questions.goodsPriority.LiveAnimals=Yes - live animals
+form.export-questions.goodsPriority.HumanRemains=Yes - human remains
+form.export-questions.goodsPriority.ExplosivesOrFireworks=Yes - explosives or fireworks
+form.export-questions.goodsPriority.HighValueArt=Yes - high value art
+form.export-questions.goodsPriority.ClassADrugs=Yes - class A drugs
+form.export-questions.continue=Continue
+error.requestType.required=Tell us what is the type of request
+error.routeType.required=Tell us which route
+error.goodsPriority.required=Tell us if your consignment contains any priority goods
 
 # Common form messages
 # ----------------------------------------------------------

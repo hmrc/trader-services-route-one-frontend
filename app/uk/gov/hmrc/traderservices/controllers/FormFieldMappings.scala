@@ -18,11 +18,11 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
 
-import play.api.data.Forms.of
+import play.api.data.Forms.{of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportGoodsPriority, ExportRequestType, ExportRouteType}
 
 import scala.util.Try
 
@@ -108,4 +108,18 @@ object FormFieldMappings {
     .dateFieldsMapping("entryDate")
     .verifying(DateFieldHelper.dateIsBefore("entryDate", "invalid-value-future", _.plusDays(1)))
     .verifying(DateFieldHelper.dateIsAfter("entryDate", "invalid-value-past", _.minusMonths(6)))
+
+  def enumMapping[A: EnumerationFormats](fieldName: String): Mapping[A] =
+    optional(text)
+      .verifying(constraint[Option[String]](fieldName, "required", _.isDefined))
+      .transform[String](_.get, Option.apply)
+      .verifying(constraint(fieldName, "invalid-option", implicitly[EnumerationFormats[A]].isValidKey))
+      .transform(implicitly[EnumerationFormats[A]].valueOf(_).get, implicitly[EnumerationFormats[A]].keyOf(_).get)
+
+  val requestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("requestType")
+
+  val routeTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("routeType")
+
+  val goodPriorityMapping: Mapping[ExportGoodsPriority] = enumMapping[ExportGoodsPriority]("goodsPriority")
+
 }

@@ -24,15 +24,18 @@ import uk.gov.hmrc.play.fsm.JsonStateFormats
 object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State] {
 
   val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
+  val answerExportQuestionsFormat = Json.format[AnswerExportQuestions]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterDeclarationDetails => enterDeclarationDetailsFormat.writes(s)
+    case s: AnswerExportQuestions   => answerExportQuestionsFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
       case "Start"                   => JsSuccess(Start)
       case "EnterDeclarationDetails" => enterDeclarationDetailsFormat.reads(properties)
+      case "AnswerExportQuestions"   => answerExportQuestionsFormat.reads(properties)
       case "WorkInProgressDeadEnd"   => JsSuccess(WorkInProgressDeadEnd)
       case _                         => JsError(s"Unknown state name $stateName")
     }

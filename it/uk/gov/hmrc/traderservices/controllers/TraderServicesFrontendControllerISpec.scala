@@ -1,10 +1,12 @@
 package uk.gov.hmrc.traderservices.controllers
 
+import java.time.LocalDate
+
 import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.{Start}
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.Start
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
@@ -41,7 +43,33 @@ class TraderServicesFrontendControllerISpec
     }
 
     "POST /pre-clearance/declaration-details" should {
-      "submit the lookup query and redirect to the status found if request details pass validation" in {
+
+      "submit the declaration details and redirect to the export-questions if request details pass validation and entry number is for export" in {
+        journey.set(EnterDeclarationDetails(None), List(Start))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val request = fakeRequest
+          .withFormUrlEncodedBody(
+            "entryDate.year"  -> "2020",
+            "entryDate.month" -> "09",
+            "entryDate.day"   -> "23",
+            "epu"             -> "235",
+            "entryNumber"     -> "A11111X"
+          )
+        val result = controller.submitDeclarationDetails(request)
+        status(result) shouldBe 303
+        redirectLocation(result) shouldBe Some("/trader-services/pre-clearance/export-questions")
+        journey.get shouldBe Some(
+          (
+            AnswerExportQuestions(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              None
+            ),
+            List(EnterDeclarationDetails(None), Start)
+          )
+        )
+      }
+
+      "submit the declaration details and redirect to the work-in-progress if request details pass validation and entry number is for import" in {
         journey.set(EnterDeclarationDetails(None), List(Start))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val request = fakeRequest

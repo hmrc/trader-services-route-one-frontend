@@ -17,27 +17,30 @@
 @this(govukRadios: GovukRadios)
 
 @(      form: Form[_],
+        idPrefix: String,
+        name: String,
         legend: String,
         items: Seq[RadioItem],
         legendAsHeading: Boolean = true,
         hint: Option[Html] = None,
-        classes: String = "govuk-fieldset__legend--xl",
+        legendClasses: String = "govuk-fieldset__legend--xl",
         inline: Boolean = false
 )(implicit messages: Messages)
 
 @govukRadios(Radios(
     classes = s"${if(inline){"govuk-radios--inline"}}",
-    name = "value",
+    idPrefix = Some(idPrefix),
+    name = name,
     fieldset = Some(Fieldset(
         legend = Some(Legend(
             content = Text(messages(legend)),
             isPageHeading = legendAsHeading,
-            classes = classes
+            classes = legendClasses
         ))
     )),
     hint = hint.map { hint => Hint(
         content = HtmlContent(hint)
     )},
     items = items,
-    errorMessage = form("value").error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+    errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
 ))

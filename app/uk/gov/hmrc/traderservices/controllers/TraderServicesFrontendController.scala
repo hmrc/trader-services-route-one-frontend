@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.DeclarationDetails
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportQuestions}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -89,6 +89,18 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(DeclarationDetailsForm)(Transitions.submittedDeclarationDetails)
     }
 
+  // GET /pre-clearance/export-questions
+  val showAnswerExportQuestions: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestions =>
+    }
+
+  // POST /pre-clearance/export-questions
+  val submitExportQuestionsAnswers: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportQuestionsForm)(Transitions.submittedExportQuestionsAnswers)
+    }
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -100,6 +112,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: EnterDeclarationDetails =>
         routes.TraderServicesFrontendController.showEnterDeclarationDetails()
+
+      case _: AnswerExportQuestions =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestions()
 
       case WorkInProgressDeadEnd =>
         Call("GET", "/trader-services/work-in-progress")
@@ -132,6 +147,18 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerExportQuestions(_, exportQuestionsOpt) =>
+        Ok(
+          views.exportQuestionsView(
+            formWithErrors.or(
+              exportQuestionsOpt
+                .map(query => ExportQuestionsForm.fill(query))
+                .getOrElse(ExportQuestionsForm)
+            ),
+            routes.TraderServicesFrontendController.submitExportQuestionsAnswers()
+          )
+        )
+
       case WorkInProgressDeadEnd => NotImplemented
 
     }
@@ -153,6 +180,14 @@ object TraderServicesFrontendController {
       "entryNumber" -> entryNumberMapping,
       "entryDate"   -> entryDateMapping
     )(DeclarationDetails.apply)(DeclarationDetails.unapply)
+  )
+
+  val ExportQuestionsForm = Form[ExportQuestions](
+    mapping(
+      "requestType"   -> requestTypeMapping,
+      "routeType"     -> routeTypeMapping,
+      "goodsPriority" -> goodPriorityMapping
+    )(ExportQuestions.apply)(ExportQuestions.unapply)
   )
 
 }
