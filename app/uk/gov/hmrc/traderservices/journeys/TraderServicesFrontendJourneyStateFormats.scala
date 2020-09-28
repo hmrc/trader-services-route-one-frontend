@@ -25,10 +25,12 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
 
   val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
   val answerExportQuestionsFormat = Json.format[AnswerExportQuestions]
+  val answerImportQuestionsFormat = Json.format[AnswerImportQuestions]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterDeclarationDetails => enterDeclarationDetailsFormat.writes(s)
     case s: AnswerExportQuestions   => answerExportQuestionsFormat.writes(s)
+    case s: AnswerImportQuestions   => answerImportQuestionsFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
@@ -36,6 +38,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "Start"                   => JsSuccess(Start)
       case "EnterDeclarationDetails" => enterDeclarationDetailsFormat.reads(properties)
       case "AnswerExportQuestions"   => answerExportQuestionsFormat.reads(properties)
+      case "AnswerImportQuestions"   => answerImportQuestionsFormat.reads(properties)
       case "WorkInProgressDeadEnd"   => JsSuccess(WorkInProgressDeadEnd)
       case _                         => JsError(s"Unknown state name $stateName")
     }
