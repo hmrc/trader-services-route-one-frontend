@@ -71,6 +71,17 @@
       legendClasses = "govuk-fieldset__legend--s"
     )
 
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "freightType",
+      name = "freightType",
+      items = context.importFreightTypeItems(form),
+      inline = false,
+      legend = messages("view.import-questions.freightType"),
+      legendAsHeading = false,
+      legendClasses = "govuk-fieldset__legend--s"
+    )
+
     @html.button("form.import-questions.continue")
   }
 }
