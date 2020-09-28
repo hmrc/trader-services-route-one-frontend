@@ -197,12 +197,12 @@ view.export-questions.heading=Tell us about your exports
 view.export-questions.description=
 view.export-questions.requestType=What type of request is this?
 view.export-questions.routeType=Which route is this?
-view.export-questions.goodsPriority=Does the consignment contains any priority goods?
+view.export-questions.goodsPriority=Does the consignment contain any priority goods?
 
 # Export Questions Form
 # ----------------------------------------------------------
 form.export-questions.requestType.New=New
-form.export-questions.requestType.Hold=Hold
+form.export-questions.requestType.Hold=Hold (for pre-lodged requests)
 form.export-questions.requestType.C1601=C1601
 form.export-questions.requestType.C1603=C1603
 form.export-questions.requestType.C1602=C1602
@@ -213,6 +213,7 @@ form.export-questions.routeType.Route1Cap=Route CAP
 form.export-questions.routeType.Route2=Route 2
 form.export-questions.routeType.Route3=Route 3
 form.export-questions.routeType.Route6=Route 6
+form.export-questions.routeType.Hold=Hold
 form.export-questions.goodsPriority.None=No
 form.export-questions.goodsPriority.LiveAnimals=Yes - live animals
 form.export-questions.goodsPriority.HumanRemains=Yes - human remains
@@ -222,7 +223,7 @@ form.export-questions.goodsPriority.ClassADrugs=Yes - class A drugs
 form.export-questions.continue=Continue
 error.requestType.required=Tell us what is the type of request
 error.routeType.required=Tell us which route
-error.goodsPriority.required=Tell us if your consignment contains any priority goods
+error.goodsPriority.required=Select yes if the consigment contains priority goods
 
 # Common form messages
 # ----------------------------------------------------------

@@ -27,5 +27,5 @@ object ExportRouteType extends EnumerationFormats[ExportRouteType] {
   case object Route6 extends ExportRouteType
   case object Hold extends ExportRouteType
 
-  val values = Set(Route1, Route1Cap, Route2, Route3, Route6)
+  val values = Set(Route1, Route1Cap, Route2, Route3, Route6, Hold)
 }
