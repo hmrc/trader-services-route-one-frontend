@@ -101,6 +101,18 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ExportQuestionsForm)(Transitions.submittedExportQuestionsAnswers)
     }
 
+  // GET /pre-clearance/export-questions
+  val showAnswerImportQuestions: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestions =>
+    }
+
+  // POST /pre-clearance/export-questions
+  val submitImportQuestionsAnswers: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportQuestionsForm)(Transitions.submittedExportQuestionsAnswers)
+    }
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
