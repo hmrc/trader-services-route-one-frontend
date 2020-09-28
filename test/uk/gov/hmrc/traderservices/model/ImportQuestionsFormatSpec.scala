@@ -25,11 +25,45 @@ class ImportQuestionsFormatSpec extends UnitSpec {
 
     "serialize and deserialize ImportRequestType" in new JsonFormatTest[ImportRequestType] {
 
+      ImportRequestType.values.size shouldBe 4
+
       validateJsonFormat("New", ImportRequestType.New)
       validateJsonFormat("Cancellation", ImportRequestType.Cancellation)
       validateJsonFormat("Hold", ImportRequestType.Hold)
       validateJsonFormat("ALVS", ImportRequestType.ALVS)
     }
 
+    "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType] {
+
+      ImportRouteType.values.size shouldBe 6
+
+      validateJsonFormat("Route1", ImportRouteType.Route1)
+      validateJsonFormat("Route1Cap", ImportRouteType.Route1Cap)
+      validateJsonFormat("Route2", ImportRouteType.Route2)
+      validateJsonFormat("Route3", ImportRouteType.Route3)
+      validateJsonFormat("Route6", ImportRouteType.Route6)
+      validateJsonFormat("Hold", ImportRouteType.Hold)
+    }
+
+    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportGoodsPriority] {
+
+      ImportGoodsPriority.values.size shouldBe 6
+
+      validateJsonFormat("None", ImportGoodsPriority.None)
+      validateJsonFormat("LiveAnimals", ImportGoodsPriority.LiveAnimals)
+      validateJsonFormat("HumanRemains", ImportGoodsPriority.HumanRemains)
+      validateJsonFormat("ExplosivesOrFireworks", ImportGoodsPriority.ExplosivesOrFireworks)
+      validateJsonFormat("HighValueArt", ImportGoodsPriority.HighValueArt)
+      validateJsonFormat("ClassADrugs", ImportGoodsPriority.ClassADrugs)
+    }
+
+    "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType] {
+
+      ImportFreightType.values.size shouldBe 3
+
+      validateJsonFormat("Air", ImportFreightType.Air)
+      validateJsonFormat("Maritime", ImportFreightType.Maritime)
+      validateJsonFormat("RORO", ImportFreightType.RORO)
+    }
   }
 }
