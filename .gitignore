@@ -37,3 +37,4 @@ tmp
 bin
 .metals/
 .vscode/
+project/metals.sbt

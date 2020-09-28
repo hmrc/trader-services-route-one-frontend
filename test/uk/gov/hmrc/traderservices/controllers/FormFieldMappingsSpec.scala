@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportRequestType, ExportRouteType, ExportGoodsPriority}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
@@ -161,6 +161,33 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       entryDateMapping.bind(Map("year" -> "1970", "month" -> "01", "day" -> "01")) should haveOnlyError[LocalDate](
         "error.entryDate.invalid-value-past"
       )
+    }
+
+    "validate export requestType" in {
+      requestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ExportRequestType.New)
+      requestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ExportRequestType.Cancellation)
+      requestTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ExportRequestType.Hold)
+      requestTypeMapping.bind(Map("" -> "C1601")) shouldBe Right(ExportRequestType.C1601)
+      requestTypeMapping.bind(Map("" -> "C1602")) shouldBe Right(ExportRequestType.C1602)
+      requestTypeMapping.bind(Map("" -> "C1603")) shouldBe Right(ExportRequestType.C1603)
+      requestTypeMapping.bind(Map("" -> "WithdrawalOrReturn")) shouldBe Right(ExportRequestType.WithdrawalOrReturn)
+    }
+
+    "validate export routeType" in {
+      routeTypeMapping.bind(Map("" -> "Route1")) shouldBe Right(ExportRouteType.Route1)
+      routeTypeMapping.bind(Map("" -> "Route1Cap")) shouldBe Right(ExportRouteType.Route1Cap)
+      routeTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ExportRouteType.Route2)
+      routeTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ExportRouteType.Route3)
+      routeTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ExportRouteType.Route6)
+    }
+
+    "validate export goodsPriority" in {
+      goodPriorityMapping.bind(Map("" -> "None")) shouldBe Right(ExportGoodsPriority.None)
+      goodPriorityMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportGoodsPriority.LiveAnimals)
+      goodPriorityMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportGoodsPriority.HumanRemains)
+      goodPriorityMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportGoodsPriority.HighValueArt)
+      goodPriorityMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportGoodsPriority.ClassADrugs)
+      goodPriorityMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(ExportGoodsPriority.ExplosivesOrFireworks)
     }
   }
 
