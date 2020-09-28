@@ -11,7 +11,7 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   override val authorisedStrideGroup: String = "TBC"
 
   override val host: String = wireMockBaseUrl
-  override val gtmContainer: Option[String] = Some("main")
+  override val gtmContainerId: Option[String] = None
   override val contactHost: String = wireMockBaseUrl
   override val contactFormServiceIdentifier: String = "dummy"
   override val exitSurveyUrl: String = wireMockBaseUrl
