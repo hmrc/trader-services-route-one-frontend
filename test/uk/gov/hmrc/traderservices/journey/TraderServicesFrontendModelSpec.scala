@@ -68,12 +68,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           importDeclarationDetails
         ) should thenGo(AnswerImportQuestions(importDeclarationDetails, None))
       }
-
-      "goto WorkInProgressDeadEnd when submittedDeclarationDetails for invalid" in {
-        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
-          invalidDeclarationDetails
-        ) should thenGo(WorkInProgressDeadEnd)
-      }
     }
   }
 
