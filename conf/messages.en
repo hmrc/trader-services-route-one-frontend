@@ -213,6 +213,7 @@ form.export-questions.routeType.Route1Cap=Route CAP
 form.export-questions.routeType.Route2=Route 2
 form.export-questions.routeType.Route3=Route 3
 form.export-questions.routeType.Route6=Route 6
+form.export-questions.routeType.Hold=Hold
 form.export-questions.goodsPriority.None=No
 form.export-questions.goodsPriority.LiveAnimals=Yes - live animals
 form.export-questions.goodsPriority.HumanRemains=Yes - human remains
