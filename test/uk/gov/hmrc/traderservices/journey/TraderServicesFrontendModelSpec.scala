@@ -18,16 +18,15 @@ package uk.gov.hmrc.traderservices.journey
 
 import java.time.LocalDate
 
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -67,11 +66,15 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto WorkInProgressDeadEnd when submittedDeclarationDetails for import" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
-        ) should thenGo(WorkInProgressDeadEnd)
+        ) should thenGo(AnswerImportQuestions(importDeclarationDetails, None))
       }
 
+      "goto WorkInProgressDeadEnd when submittedDeclarationDetails for invalid" in {
+        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
+          invalidDeclarationDetails
+        ) should thenGo(WorkInProgressDeadEnd)
+      }
     }
-
   }
 
   case class given(initialState: State)
@@ -98,5 +101,6 @@ trait TestData {
 
   val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
   val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
 
 }
