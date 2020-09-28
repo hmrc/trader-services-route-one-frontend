@@ -42,6 +42,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsOpt: Option[ExportQuestions]
     ) extends State
 
+    case class AnswerImportQuestions(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: Option[ImportQuestions]
+    ) extends State
+
     case object WorkInProgressDeadEnd extends State
 
   }
@@ -71,6 +76,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswers(user: String)(exportQuestions: ExportQuestions) =
       Transition {
         case AnswerExportQuestions(declarationDetails, _) =>
+          goto(WorkInProgressDeadEnd)
+      }
+
+    def submittedImportQuestionsAnswers(user: String)(importQuestions: ImportQuestions) =
+      Transition {
+        case AnswerImportQuestions(declarationDetails, _) =>
           goto(WorkInProgressDeadEnd)
       }
   }
