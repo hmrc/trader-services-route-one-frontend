@@ -31,5 +31,30 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("ALVS", ImportRequestType.ALVS)
     }
 
+    "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType] {
+
+      validateJsonFormat("Route1", ImportRouteType.Route1)
+      validateJsonFormat("Route1Cap", ImportRouteType.Route1Cap)
+      validateJsonFormat("Route2", ImportRouteType.Route2)
+      validateJsonFormat("Route3", ImportRouteType.Route3)
+      validateJsonFormat("Route6", ImportRouteType.Route6)
+    }
+
+    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportGoodsPriority] {
+
+      validateJsonFormat("None", ImportGoodsPriority.None)
+      validateJsonFormat("LiveAnimals", ImportGoodsPriority.LiveAnimals)
+      validateJsonFormat("HumanRemains", ImportGoodsPriority.HumanRemains)
+      validateJsonFormat("ExplosivesOrFireworks", ImportGoodsPriority.ExplosivesOrFireworks)
+      validateJsonFormat("HighValueArt", ImportGoodsPriority.HighValueArt)
+      validateJsonFormat("ClassADrugs", ImportGoodsPriority.ClassADrugs)
+    }
+
+    "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType] {
+
+      validateJsonFormat("Air", ImportFreightType.Air)
+      validateJsonFormat("Maritime", ImportFreightType.Maritime)
+      validateJsonFormat("RORO", ImportFreightType.RORO)
+    }
   }
 }
