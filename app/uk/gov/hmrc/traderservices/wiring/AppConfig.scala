@@ -42,7 +42,7 @@ trait AppConfig {
     "cymraeg" -> Lang("cy")
   )
 
-  val gtmContainer: Option[String]
+  val gtmContainerId: Option[String]
 
   def routeToSwitchLanguage: String => Call =
     (lang: String) => uk.gov.hmrc.traderservices.controllers.routes.LanguageSwitchController.switchToLanguage(lang)
@@ -79,12 +79,7 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
 
-  val gtmContainer: Option[String] = (Try {
-    config.getString("gtm.container")
-  } map {
-    case "main"         => Some("GTM-NDJKHWK")
-    case "transitional" => Some("GTM-TSFTCWZ")
-  }) getOrElse None
+  val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
 
   val contactHost: String = config.getString("contact-frontend.host")
   val contactFormServiceIdentifier: String = config.getString("feedback-frontend.formIdentifier")

@@ -70,7 +70,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case EnterDeclarationDetails(_) =>
           if (declarationDetails.isExportDeclaration) goto(AnswerExportQuestions(declarationDetails, None))
-          else goto(WorkInProgressDeadEnd)
+          else goto(AnswerImportQuestions(declarationDetails, None))
       }
 
     def submittedExportQuestionsAnswers(user: String)(exportQuestions: ExportQuestions) =

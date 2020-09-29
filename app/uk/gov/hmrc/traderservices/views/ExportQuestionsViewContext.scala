@@ -50,7 +50,8 @@ class ExportQuestionsViewContext extends RadioItemsHelper {
         ExportRouteType.Route1Cap,
         ExportRouteType.Route2,
         ExportRouteType.Route3,
-        ExportRouteType.Route6
+        ExportRouteType.Route6,
+        ExportRouteType.Hold
       ),
       form
     )

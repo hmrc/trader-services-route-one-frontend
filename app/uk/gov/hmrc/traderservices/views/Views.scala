@@ -23,5 +23,6 @@ import uk.gov.hmrc.traderservices.views.html._
 class Views @Inject() (
   val startView: StartView,
   val declarationDetailsEntryView: DeclarationDetailsEntryView,
-  val exportQuestionsView: ExportQuestionsView
+  val exportQuestionsView: ExportQuestionsView,
+  val importQuestionsView: ImportQuestionsView
 )
