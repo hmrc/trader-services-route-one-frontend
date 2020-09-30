@@ -90,9 +90,9 @@ a11yStatement.p2.start = This service is part of the wider GOV.UK website. There
 a11yStatement.p2.link = accessibility statement
 a11yStatement.p2.end = for the main GOV.UK website.
 a11yStatement.p3 = This page only contains information about the Trader Services service, available at
-a11yStatement.p3.link = www.tax.service.gov.uk/coronavirus-statutory-sick-pay
+a11yStatement.p3.link = www.tax.service.gov.uk/coronavirus-statusecuritiesy-sick-pay
 a11yStatement.usingThisService.h2 = Using this service
-a11yStatement.usingThisService.p1 = This service will reimburse small and medium employers Statutory Sick Pay that has already been paid to employees who have been off work because of coronavirus (COVID-19)
+a11yStatement.usingThisService.p1 = This service will reimburse small and medium employers Statusecuritiesy Sick Pay that has already been paid to employees who have been off work because of coronavirus (COVID-19)
 a11yStatement.usingThisService.p2 = This service is run by HM Revenue and Customs (HMRC). We want as many people as possible to be able to use this service. This means you should be able to:
 a11yStatement.usingThisService.bullet1 = change colours, contrast levels and fonts
 a11yStatement.usingThisService.bullet2 = zoom in up to 300% without the text spilling off the screen
@@ -110,7 +110,7 @@ a11yStatement.reporting.h2 = Reporting accessibility problems with this service
 a11yStatement.reporting.p1 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, report the
 a11yStatement.reporting.p1.link = accessibility problem
 a11yStatement.complaints.h2 = What to do if you are not happy with how we respond to your complaint
-a11yStatement.complaints.p1.start = The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint,
+a11yStatement.complaints.p1.start = The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Secsecurities Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint,
 a11yStatement.complaints.p1.link1 = contact the Equality Advisory and Support Service (EASS)
 a11yStatement.complaints.p1.middle = or the
 a11yStatement.complaints.p1.link2 = Equality Commission for Northern Ireland (ECNI)
@@ -121,7 +121,7 @@ a11yStatement.contact.p2 = We can provide a British Sign Language (BSL) interpre
 a11yStatement.contact.p3 = Find out how to
 a11yStatement.contact.p3.link = contact us
 a11yStatement.technical.h2 = Technical information about this service’s accessibility
-a11yStatement.technical.p1 = HMRC is committed to making this service accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
+a11yStatement.technical.p1 = HMRC is committed to making this service accessible, in accordance with the Public Secsecurities Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
 a11yStatement.technical.p2 = This service is fully compliant with the
 a11yStatement.technical.p2.link = Web Content Accessibility Guidelines version 2.1 AA standard
 a11yStatement.testing.h2 = How we tested this service
@@ -141,25 +141,28 @@ researchBanner.closeLink = No thanks
 # ----------------------------------------------------------
 view.start.title=Use trader services
 view.start.heading=Trader services
-view.start.route-one=Upload documents for pre-clearance checks (routes 1, 2, 3, 6)
-view.start.route-one.bullets.1=Upload documents for new, hold and cancellation consignment
-view.start.route-one.bullets.2=Upload documents for exports C1602, C1602, C1603
-view.start.route-one.bullets.3=Amend an existing submission - add more files or change details
-view.start.route-one.link.text=Start a route 1 pre-clearance check submission
-view.start.reclaim=Reclaim duty you''ve overpaid
-view.start.reclaim.description=Description of service
-view.start.reclaim.link.text=Reclaim now
-view.start.underpaid=Tell us you have underpaid
-view.start.underpaid.description=Description of service
-view.start.underpaid.link.text=Underpayment
-view.start.tor=Transfer of residence
-view.start.tor.description=Description of service
-view.start.tor.link.text=link
+view.start.pre-clearance.heading=Pre Clearance
+view.start.pre-clearance.description.1=Submit supporting documentation for a Route 1 declaration
+view.start.pre-clearance.description.2=Also use this for route 1-CAP, route 2, route 3, route 6, C1601, C1602, C1603.
+view.start.pre-clearance.link.text=Start a pre-clearance case
+view.start.pre-clearance-update.description=Add extra documents/info to an existing case. Text to explain that this can be used when we have requested information from them, as well as when they want.
+view.start.pre-clearance-update.link.text=Add documents or information
+view.start.pre-clearance-status.description=Check the status of a case
+view.start.pre-clearance-status.link.text=Check status
+view.start.overpayments.heading=Overpayments
+view.start.overpayments.description=Apply for a repayment/remission of import duty - (Form C285)
+view.start.overpayments.link.text=Apply for a refund
+view.start.underpayments.heading=Underpayments
+view.start.underpayments.description=Make a voluntary disclosure of underpayments arising on the import of goods - (Form C2001)
+view.start.underpayments.link.text=Disclose an underpayment
+view.start.securities.heading=Securities
+view.start.securities.description=Apply for a refund of Customs duty paid on deposit and Quota refunds
+view.start.securities.link.text=Apply for refund
 
 # Declaration Details Page
 # ----------------------------------------------------------
-view.declaration-details.title=What are the consignment details?
-view.declaration-details.heading=What are the consignment details?
+view.declaration-details.title=What are the declaration details?
+view.declaration-details.heading=What are the declaration details?
 view.declaration-details.description=You can find these on your declaration.
 
 # Declaration Details Form
@@ -197,7 +200,7 @@ view.export-questions.heading=Tell us about your exports
 view.export-questions.description=
 view.export-questions.requestType=What type of request is this?
 view.export-questions.routeType=Which route is this?
-view.export-questions.goodsPriority=Does the consignment contain any priority goods?
+view.export-questions.goodsPriority=Does the declaration contain any priority goods?
 
 # Import Questions View
 # ----------------------------------------------------------
