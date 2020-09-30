@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportQuestions}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportQuestions, ImportQuestions}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -101,6 +101,18 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ExportQuestionsForm)(Transitions.submittedExportQuestionsAnswers)
     }
 
+  // GET /pre-clearance/import-questions
+  val showAnswerImportQuestions: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestions =>
+    }
+
+  // POST /pre-clearance/import-questions
+  val submitImportQuestionsAnswers: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportQuestionsForm)(Transitions.submittedImportQuestionsAnswers)
+    }
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -115,6 +127,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: AnswerExportQuestions =>
         routes.TraderServicesFrontendController.showAnswerExportQuestions()
+
+      case _: AnswerImportQuestions =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestions()
 
       case WorkInProgressDeadEnd =>
         Call("GET", "/trader-services/work-in-progress")
@@ -159,6 +174,18 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerImportQuestions(_, importQuestionsOpt) =>
+        Ok(
+          views.importQuestionsView(
+            formWithErrors.or(
+              importQuestionsOpt
+                .map(query => ImportQuestionsForm.fill(query))
+                .getOrElse(ImportQuestionsForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsAnswers()
+          )
+        )
+
       case WorkInProgressDeadEnd => NotImplemented
 
     }
@@ -190,4 +217,12 @@ object TraderServicesFrontendController {
     )(ExportQuestions.apply)(ExportQuestions.unapply)
   )
 
+  val ImportQuestionsForm = Form[ImportQuestions](
+    mapping(
+      "requestType"   -> importRequestTypeMapping,
+      "routeType"     -> importRouteTypeMapping,
+      "goodsPriority" -> importGoodPriorityMapping,
+      "freightType"   -> freightTypeMapping
+    )(ImportQuestions.apply)(ImportQuestions.unapply)
+  )
 }

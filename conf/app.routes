@@ -8,6 +8,8 @@ GET        /pre-clearance                               @uk.gov.hmrc.traderservi
 POST       /pre-clearance/declaration-details           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitDeclarationDetails
 GET        /pre-clearance/export-questions              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestions
 POST       /pre-clearance/export-questions              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsAnswers
+GET        /pre-clearance/import-questions              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestions
+POST       /pre-clearance/import-questions              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsAnswers
 
 GET        /accessibility-statement                     @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 

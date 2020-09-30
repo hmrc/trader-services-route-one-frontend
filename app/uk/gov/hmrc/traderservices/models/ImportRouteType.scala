@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+sealed trait ImportRouteType
 
-@Singleton
-class Views @Inject() (
-  val startView: StartView,
-  val declarationDetailsEntryView: DeclarationDetailsEntryView,
-  val exportQuestionsView: ExportQuestionsView,
-  val importQuestionsView: ImportQuestionsView
-)
+object ImportRouteType extends EnumerationFormats[ImportRouteType] {
+
+  case object Route1 extends ImportRouteType
+  case object Route1Cap extends ImportRouteType
+  case object Route2 extends ImportRouteType
+  case object Route3 extends ImportRouteType
+  case object Route6 extends ImportRouteType
+  case object Hold extends ImportRouteType
+
+  val values = Set(Route1, Route1Cap, Route2, Route3, Route6, Hold)
+}

@@ -22,7 +22,10 @@ import play.api.libs.json.{Format, Json}
 
 case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate) {
 
-  val isExportDeclaration: Boolean = entryNumber.value.headOption.forall(_.isLetter)
+  val isExportDeclaration: Boolean =
+    entryNumber.value.headOption.forall(_.isLetter) && entryNumber.value.lastOption.forall(_.isLetter)
+  val isImportDeclaration: Boolean =
+    entryNumber.value.headOption.forall(_.isDigit) && entryNumber.value.lastOption.forall(_.isLetter)
 }
 
 object DeclarationDetails {

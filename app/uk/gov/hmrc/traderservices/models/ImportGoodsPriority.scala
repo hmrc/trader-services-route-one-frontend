@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+sealed trait ImportGoodsPriority
 
-@Singleton
-class Views @Inject() (
-  val startView: StartView,
-  val declarationDetailsEntryView: DeclarationDetailsEntryView,
-  val exportQuestionsView: ExportQuestionsView,
-  val importQuestionsView: ImportQuestionsView
-)
+object ImportGoodsPriority extends EnumerationFormats[ImportGoodsPriority] {
+
+  case object None extends ImportGoodsPriority
+  case object LiveAnimals extends ImportGoodsPriority
+  case object HumanRemains extends ImportGoodsPriority
+  case object ExplosivesOrFireworks extends ImportGoodsPriority
+  case object HighValueArt extends ImportGoodsPriority
+  case object ClassADrugs extends ImportGoodsPriority
+
+  val values = Set(None, LiveAnimals, HumanRemains, ExplosivesOrFireworks, HighValueArt, ClassADrugs)
+}

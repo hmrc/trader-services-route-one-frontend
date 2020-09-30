@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+import play.api.libs.json.{Format, Json}
 
-@Singleton
-class Views @Inject() (
-  val startView: StartView,
-  val declarationDetailsEntryView: DeclarationDetailsEntryView,
-  val exportQuestionsView: ExportQuestionsView,
-  val importQuestionsView: ImportQuestionsView
+case class ImportQuestions(
+  requestType: ImportRequestType,
+  routeType: ImportRouteType,
+  goodsPriority: ImportGoodsPriority,
+  freightType: ImportFreightType
 )
+
+object ImportQuestions {
+  implicit val formats: Format[ImportQuestions] = Json.format[ImportQuestions]
+}
