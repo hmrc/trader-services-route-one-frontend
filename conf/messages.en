@@ -200,7 +200,7 @@ view.export-questions.heading=Tell us about your exports
 view.export-questions.description=
 view.export-questions.requestType=What type of request is this?
 view.export-questions.routeType=Which route is this?
-view.export-questions.goodsPriority=Does the declaration contain any priority goods?
+view.export-questions.goodsPriority=Does the consigment contain any priority goods?
 
 # Import Questions View
 # ----------------------------------------------------------
