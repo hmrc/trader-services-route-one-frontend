@@ -93,8 +93,11 @@ class TraderServicesFrontendISpec
 
         val result = await(request("/pre-clearance/declaration-details").post(payload))
 
-        result.status shouldBe 404
-        journey.getState shouldBe WorkInProgressDeadEnd
+        result.status shouldBe 200
+        journey.getState shouldBe AnswerImportQuestions(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          None
+        )
       }
     }
 

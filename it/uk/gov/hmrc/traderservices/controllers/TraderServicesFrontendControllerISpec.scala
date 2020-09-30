@@ -6,15 +6,13 @@ import play.api.Application
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.Start
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{AppISpec, InMemoryJourneyService, TestJourneyService}
-import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 
 class TraderServicesFrontendControllerISpec
     extends TraderServicesFrontendControllerISpecSetup with TraderServicesStubs with JourneyStateHelpers {
@@ -69,7 +67,7 @@ class TraderServicesFrontendControllerISpec
         )
       }
 
-      "submit the declaration details and redirect to the work-in-progress if request details pass validation and entry number is for import" in {
+      "submit the declaration details and redirect to the import-questions if request details pass validation and entry number is for import" in {
         journey.set(EnterDeclarationDetails(None), List(Start))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val request = fakeRequest
@@ -82,8 +80,16 @@ class TraderServicesFrontendControllerISpec
           )
         val result = controller.submitDeclarationDetails(request)
         status(result) shouldBe 303
-        redirectLocation(result) shouldBe Some("/trader-services/work-in-progress")
-        journey.get shouldBe Some((WorkInProgressDeadEnd, List(EnterDeclarationDetails(None), Start)))
+        redirectLocation(result) shouldBe Some("/trader-services/pre-clearance/import-questions")
+        journey.get shouldBe Some(
+          (
+            AnswerImportQuestions(
+              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              None
+            ),
+            List(EnterDeclarationDetails(None), Start)
+          )
+        )
       }
     }
   }
