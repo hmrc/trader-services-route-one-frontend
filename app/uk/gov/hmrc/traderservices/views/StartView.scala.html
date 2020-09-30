@@ -15,55 +15,73 @@
  *@
 
 @this(
-    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-    html: uk.gov.hmrc.traderservices.views.components.html
+govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(preClearanceCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.start.title"))) {
 
-    @html.h1(messages("view.start.heading"))
+@html.h1(messages("view.start.heading"))
 
-    @html.h2(messages("view.start.route-one"))
+@html.h2(messages("view.start.pre-clearance.heading"))
 
-    @html.ul(
-        messages("view.start.route-one.bullets.1"),
-        messages("view.start.route-one.bullets.2"),
-        messages("view.start.route-one.bullets.3")
-    )
+@html.p {
+@messages("view.start.pre-clearance.description.1")
+}
 
-    @html.p {
-        @html.a("/trader-services/pre-clearance", messages("view.start.route-one.link.text"))
-    }
+@html.p {
+@messages("view.start.pre-clearance.description.2")
+}
 
-    @html.h2(messages("view.start.reclaim"))
+@html.p {
+@html.a(preClearanceCall.url, messages("view.start.pre-clearance.link.text"))
+}
 
-    @html.p {
-        @messages("view.start.reclaim.description")
-    }
+@html.p {
+@messages("view.start.pre-clearance-update.description")
+}
 
-    @html.p {
-        @html.a("/trader-services/reclaim", messages("view.start.reclaim.link.text"))
-    }
+@html.p {
+@html.a("/trader-services/pre-clearance/update-case", messages("view.start.pre-clearance-update.link.text"))
+}
 
-    @html.h2(messages("view.start.underpaid"))
+@html.p {
+@messages("view.start.pre-clearance-status.description")
+}
 
-    @html.p{
-        @messages("view.start.underpaid.description")
-    }
+@html.p {
+@html.a("/trader-services/pre-clearance/case-status", messages("view.start.pre-clearance-status.link.text"))
+}
 
-    @html.p {
-        @html.a("/trader-services/underpayment", messages("view.start.underpaid.link.text"))
-    }
+@html.h2(messages("view.start.overpayments.heading"))
 
-    @html.h2(messages("view.start.tor"))
+@html.p {
+@messages("view.start.overpayments.description")
+}
 
-    @html.p{
-        @messages("view.start.tor.description")
-    }
+@html.p {
+@html.a("/trader-services/overpayments", messages("view.start.overpayments.link.text"))
+}
 
-    @html.p {
-        @html.a("/trader-services/transfer-of-residence", messages("view.start.tor.link.text"))
-    }
+@html.h2(messages("view.start.underpayments.heading"))
+
+@html.p{
+@messages("view.start.underpayments.description")
+}
+
+@html.p {
+@html.a("/trader-services/underpayments", messages("view.start.underpayments.link.text"))
+}
+
+@html.h2(messages("view.start.securities.heading"))
+
+@html.p{
+@messages("view.start.securities.description")
+}
+
+@html.p {
+@html.a("/trader-services/securities", messages("view.start.securities.link.text"))
+}
 }

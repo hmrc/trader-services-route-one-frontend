@@ -141,25 +141,28 @@ researchBanner.closeLink = No thanks
 # ----------------------------------------------------------
 view.start.title=Use trader services
 view.start.heading=Trader services
-view.start.route-one=Upload documents for pre-clearance checks (routes 1, 2, 3, 6)
-view.start.route-one.bullets.1=Upload documents for new, hold and cancellation consignment
-view.start.route-one.bullets.2=Upload documents for exports C1602, C1602, C1603
-view.start.route-one.bullets.3=Amend an existing submission - add more files or change details
-view.start.route-one.link.text=Start a route 1 pre-clearance check submission
-view.start.reclaim=Reclaim duty you''ve overpaid
-view.start.reclaim.description=Description of service
-view.start.reclaim.link.text=Reclaim now
-view.start.underpaid=Tell us you have underpaid
-view.start.underpaid.description=Description of service
-view.start.underpaid.link.text=Underpayment
-view.start.tor=Transfer of residence
-view.start.tor.description=Description of service
-view.start.tor.link.text=link
+view.start.pre-clearance.heading=Pre Clearance
+view.start.pre-clearance.description.1=Submit supporting documentation for a Route 1 declaration
+view.start.pre-clearance.description.2=Also use this for route 1-CAP, route 2, route 3, route 6, C1601, C1602, C1603.
+view.start.pre-clearance.link.text=Start a pre-clearance case
+view.start.pre-clearance-update.description=Add extra documents/info to an existing case. Text to explain that this can be used when we have requested information from them, as well as when they want.
+view.start.pre-clearance-update.link.text=Add documents or information
+view.start.pre-clearance-status.description=Check the status of a case
+view.start.pre-clearance-status.link.text=Check status
+view.start.overpayments.heading=Overpayments
+view.start.overpayments.description=Apply for a repayment/remission of import duty - (Form C285)
+view.start.overpayments.link.text=Apply for a refund
+view.start.underpayments.heading=Underpayments
+view.start.underpayments.description=Make a voluntary disclosure of underpayments arising on the import of goods - (Form C2001)
+view.start.underpayments.link.text=Disclose an underpayment
+view.start.securities.heading=Securities
+view.start.securities.description=Apply for a refund of Customs duty paid on deposit and Quota refunds
+view.start.securities.link.text=Apply for refund
 
 # Declaration Details Page
 # ----------------------------------------------------------
-view.declaration-details.title=What are the consignment details?
-view.declaration-details.heading=What are the consignment details?
+view.declaration-details.title=What are the declaration details?
+view.declaration-details.heading=What are the declaration details?
 view.declaration-details.description=You can find these on your declaration.
 
 # Declaration Details Form
@@ -233,7 +236,7 @@ form.export-questions.goodsPriority.ClassADrugs=Yes - class A drugs
 form.export-questions.continue=Continue
 error.requestType.required=Tell us what is the type of request
 error.routeType.required=Tell us which route
-error.goodsPriority.required=Select yes if the consigment contains priority goods
+error.goodsPriority.required=Select yes if the consignment contains priority goods
 
 # Import Questions Form
 # ----------------------------------------------------------
