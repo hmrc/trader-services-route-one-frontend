@@ -148,7 +148,7 @@ class TraderServicesFrontendController @Inject() (
     state match {
 
       case Start =>
-        Ok(views.startView())
+        Ok(views.startView(routes.TraderServicesFrontendController.showEnterDeclarationDetails()))
 
       case EnterDeclarationDetails(declarationDetailsOpt) =>
         Ok(

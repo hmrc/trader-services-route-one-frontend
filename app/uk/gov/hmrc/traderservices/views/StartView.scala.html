@@ -19,7 +19,7 @@ govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
 html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(preClearanceCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.start.title"))) {
 
@@ -36,7 +36,7 @@ html: uk.gov.hmrc.traderservices.views.components.html
 }
 
 @html.p {
-@html.a("/trader-services/pre-clearance", messages("view.start.pre-clearance.link.text"))
+@html.a(preClearanceCall.url, messages("view.start.pre-clearance.link.text"))
 }
 
 @html.p {
