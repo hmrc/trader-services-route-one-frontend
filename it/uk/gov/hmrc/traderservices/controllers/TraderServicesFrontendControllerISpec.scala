@@ -82,8 +82,16 @@ class TraderServicesFrontendControllerISpec
           )
         val result = controller.submitDeclarationDetails(request)
         status(result) shouldBe 303
-        redirectLocation(result) shouldBe Some("/trader-services/work-in-progress")
-        journey.get shouldBe Some((WorkInProgressDeadEnd, List(EnterDeclarationDetails(None), Start)))
+        redirectLocation(result) shouldBe Some("/trader-services/pre-clearance/import-questions")
+        journey.get shouldBe Some(
+          (
+            AnswerImportQuestions(
+              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              None
+            ),
+            List(EnterDeclarationDetails(None), Start)
+          )
+        )
       }
     }
   }
