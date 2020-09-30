@@ -200,7 +200,7 @@ view.export-questions.heading=Tell us about your exports
 view.export-questions.description=
 view.export-questions.requestType=What type of request is this?
 view.export-questions.routeType=Which route is this?
-view.export-questions.goodsPriority=Does the consigment contain any priority goods?
+view.export-questions.goodsPriority=Does the consignment contain any priority goods?
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -236,7 +236,7 @@ form.export-questions.goodsPriority.ClassADrugs=Yes - class A drugs
 form.export-questions.continue=Continue
 error.requestType.required=Tell us what is the type of request
 error.routeType.required=Tell us which route
-error.goodsPriority.required=Select yes if the consigment contains priority goods
+error.goodsPriority.required=Select yes if the consignment contains priority goods
 
 # Import Questions Form
 # ----------------------------------------------------------
