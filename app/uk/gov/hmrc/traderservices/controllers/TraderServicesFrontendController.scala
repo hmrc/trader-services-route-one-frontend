@@ -27,12 +27,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportQuestions, ImportQuestions}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportGoodsPriority, ExportQuestions, ExportRequestType, ExportRouteType, ImportQuestions}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.Success
+import uk.gov.hmrc.traderservices.models.ExportGoodsPriority
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -89,16 +90,16 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(DeclarationDetailsForm)(Transitions.submittedDeclarationDetails)
     }
 
-  // GET /pre-clearance/export-questions
-  val showAnswerExportQuestions: Action[AnyContent] =
+  // GET /pre-clearance/export-questions/request-type
+  val showAnswerExportQuestionsRequestType: Action[AnyContent] =
     actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestions =>
+      case _: AnswerExportQuestionsRequestType =>
     }
 
-  // POST /pre-clearance/export-questions
-  val submitExportQuestionsAnswers: Action[AnyContent] =
+  // POST /pre-clearance/export-questions/request-type
+  val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportQuestionsForm)(Transitions.submittedExportQuestionsAnswers)
+      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswersRequestType)
     }
 
   // GET /pre-clearance/import-questions
@@ -125,8 +126,8 @@ class TraderServicesFrontendController @Inject() (
       case _: EnterDeclarationDetails =>
         routes.TraderServicesFrontendController.showEnterDeclarationDetails()
 
-      case _: AnswerExportQuestions =>
-        routes.TraderServicesFrontendController.showAnswerExportQuestions()
+      case _: AnswerExportQuestionsRequestType =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsRequestType()
 
       case _: AnswerImportQuestions =>
         routes.TraderServicesFrontendController.showAnswerImportQuestions()
@@ -162,13 +163,13 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerExportQuestions(_, exportQuestionsOpt) =>
+      case AnswerExportQuestionsRequestType(_, exportQuestions) =>
         Ok(
-          views.exportQuestionsView(
+          views.exportQuestionsRequestTypeView(
             formWithErrors.or(
-              exportQuestionsOpt
-                .map(query => ExportQuestionsForm.fill(query))
-                .getOrElse(ExportQuestionsForm)
+              exportQuestions.requestType
+                .map(query => ExportRequestTypeForm.fill(query))
+                .getOrElse(ExportRequestTypeForm)
             ),
             routes.TraderServicesFrontendController.submitExportQuestionsAnswers()
           )
@@ -209,12 +210,16 @@ object TraderServicesFrontendController {
     )(DeclarationDetails.apply)(DeclarationDetails.unapply)
   )
 
-  val ExportQuestionsForm = Form[ExportQuestions](
-    mapping(
-      "requestType"   -> requestTypeMapping,
-      "routeType"     -> routeTypeMapping,
-      "goodsPriority" -> goodPriorityMapping
-    )(ExportQuestions.apply)(ExportQuestions.unapply)
+  val ExportRequestTypeForm = Form[ExportRequestType](
+    requestTypeMapping
+  )
+
+  val ExportRouteTypeForm = Form[ExportRouteType](
+    routeTypeMapping
+  )
+
+  val ExportGoodsPriorityForm = Form[ExportGoodsPriority](
+    goodPriorityMapping
   )
 
   val ImportQuestionsForm = Form[ImportQuestions](
