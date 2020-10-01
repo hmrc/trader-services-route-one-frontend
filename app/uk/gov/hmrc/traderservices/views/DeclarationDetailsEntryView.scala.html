@@ -17,55 +17,55 @@
 @import uk.gov.hmrc.traderservices.models.DeclarationDetails
 
 @this(
-    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-    forms: uk.gov.hmrc.traderservices.views.components.forms,
-    html: uk.gov.hmrc.traderservices.views.components.html
+govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+forms: uk.gov.hmrc.traderservices.views.components.forms,
+html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[DeclarationDetails], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[DeclarationDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.declaration-details.title"))) {
+@govukLayout(pageTitle = Some(messages("view.declaration-details.title")), backLink = Some(backLink.url)) {
 
-    @forms.errorSummary(form.errors)
+@forms.errorSummary(form.errors)
 
-    @html.h1(messages("view.declaration-details.heading"))
+@html.h1(messages("view.declaration-details.heading"))
 
-    @html.p {
-     @messages("view.declaration-details.description")
-    }
+@html.p {
+@messages("view.declaration-details.description")
+}
 
-    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-         @forms.inputText(
-             form = form,
-             id = "epu",
-             name = "epu",
-             label = "form.declaration-details.epu",
-             isPageHeading = false,
-             classes = Some("govuk-input--width-3")
-         )
+@forms.inputText(
+form = form,
+id = "epu",
+name = "epu",
+label = "form.declaration-details.epu",
+isPageHeading = false,
+classes = Some("govuk-input--width-3")
+)
 
-        @forms.inputText(
-            form = form,
-            id = "entryNumber",
-            name = "entryNumber",
-            label = "form.declaration-details.entryNumber",
-            isPageHeading = false,
-            classes = Some("govuk-input--width-10")
-        )
+@forms.inputText(
+form = form,
+id = "entryNumber",
+name = "entryNumber",
+label = "form.declaration-details.entryNumber",
+isPageHeading = false,
+classes = Some("govuk-input--width-10")
+)
 
-        @forms.inputDate(
-            form = form,
-            id = "entryDate",
-            legendContent = "form.declaration-details.entryDate",
-            legendClasses = "govuk-label--s",
-            legendAsPageHeading = false,
-            hintText = None,
-            attributesDay = Map("aria-label" -> "Day of entry date"),
-            attributesMonth = Map("aria-label" -> "Month of entry date"),
-            attributesYear = Map("aria-label" -> "Year of entry date")
-        )
+@forms.inputDate(
+form = form,
+id = "entryDate",
+legendContent = "form.declaration-details.entryDate",
+legendClasses = "govuk-label--s",
+legendAsPageHeading = false,
+hintText = None,
+attributesDay = Map("aria-label" -> "Day of entry date"),
+attributesMonth = Map("aria-label" -> "Month of entry date"),
+attributesYear = Map("aria-label" -> "Year of entry date")
+)
 
-        @html.button("form.declaration-details.continue")
- }
+@html.button("form.declaration-details.continue")
+}
 }

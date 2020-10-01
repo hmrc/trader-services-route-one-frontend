@@ -24,9 +24,9 @@ html: uk.gov.hmrc.traderservices.views.components.html,
 context: ExportQuestionsViewContext
 )
 
-@(form: Form[ExportFreightType], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ExportFreightType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.export-questions.freightType.title"))) {
+@govukLayout(pageTitle = Some(messages("view.export-questions.freightType.title")), backLink = Some(backLink.url)) {
 
 @forms.errorSummary(form.errors)
 
