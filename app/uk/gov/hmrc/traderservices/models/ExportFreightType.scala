@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+sealed trait ExportFreightType
 
-@Singleton
-class Views @Inject() (
-  val startView: StartView,
-  val declarationDetailsEntryView: DeclarationDetailsEntryView,
-  val exportQuestionsRequestTypeView: ExportQuestionsRequestTypeView,
-  val exportQuestionsRouteTypeView: ExportQuestionsRouteTypeView,
-  val exportQuestionsGoodsPriorityView: ExportQuestionsGoodsPriorityView,
-  val exportQuestionsFreightTypeView: ExportQuestionsFreightTypeView,
-  val importQuestionsView: ImportQuestionsView
-)
+object ExportFreightType extends EnumerationFormats[ExportFreightType] {
+
+  case object Maritime extends ExportFreightType
+  case object Air extends ExportFreightType
+  //Road, Rail or Roll on Roll off
+  case object RORO extends ExportFreightType
+
+  val values = Set(Maritime, Air, RORO)
+}

@@ -60,7 +60,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto AnswerExportQuestions when submittedDeclarationDetails for export" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
-        ) should thenGo(AnswerExportQuestions(exportDeclarationDetails, None))
+        ) should thenGo(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions()))
       }
 
       "goto WorkInProgressDeadEnd when submittedDeclarationDetails for import" in {

@@ -24,22 +24,31 @@ import uk.gov.hmrc.play.fsm.JsonStateFormats
 object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State] {
 
   val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
-  val answerExportQuestionsFormat = Json.format[AnswerExportQuestions]
   val answerImportQuestionsFormat = Json.format[AnswerImportQuestions]
+  val answerExportQuestionsRequestTypeFormat = Json.format[AnswerExportQuestionsRequestType]
+  val answerExportQuestionsRouteTypeFormat = Json.format[AnswerExportQuestionsRouteType]
+  val answerExportQuestionsGoodsPriorityFormat = Json.format[AnswerExportQuestionsGoodsPriority]
+  val answerExportQuestionsFreightTypeFormat = Json.format[AnswerExportQuestionsFreightType]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case s: EnterDeclarationDetails => enterDeclarationDetailsFormat.writes(s)
-    case s: AnswerExportQuestions   => answerExportQuestionsFormat.writes(s)
-    case s: AnswerImportQuestions   => answerImportQuestionsFormat.writes(s)
+    case s: EnterDeclarationDetails            => enterDeclarationDetailsFormat.writes(s)
+    case s: AnswerExportQuestionsRequestType   => answerExportQuestionsRequestTypeFormat.writes(s)
+    case s: AnswerExportQuestionsRouteType     => answerExportQuestionsRouteTypeFormat.writes(s)
+    case s: AnswerExportQuestionsGoodsPriority => answerExportQuestionsGoodsPriorityFormat.writes(s)
+    case s: AnswerExportQuestionsFreightType   => answerExportQuestionsFreightTypeFormat.writes(s)
+    case s: AnswerImportQuestions              => answerImportQuestionsFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
-      case "Start"                   => JsSuccess(Start)
-      case "EnterDeclarationDetails" => enterDeclarationDetailsFormat.reads(properties)
-      case "AnswerExportQuestions"   => answerExportQuestionsFormat.reads(properties)
-      case "AnswerImportQuestions"   => answerImportQuestionsFormat.reads(properties)
-      case "WorkInProgressDeadEnd"   => JsSuccess(WorkInProgressDeadEnd)
-      case _                         => JsError(s"Unknown state name $stateName")
+      case "Start"                              => JsSuccess(Start)
+      case "EnterDeclarationDetails"            => enterDeclarationDetailsFormat.reads(properties)
+      case "AnswerExportQuestionsRequestType"   => answerExportQuestionsRequestTypeFormat.reads(properties)
+      case "AnswerExportQuestionsRouteType"     => answerExportQuestionsRouteTypeFormat.reads(properties)
+      case "AnswerExportQuestionsGoodsPriority" => answerExportQuestionsGoodsPriorityFormat.reads(properties)
+      case "AnswerExportQuestionsFreightType"   => answerExportQuestionsFreightTypeFormat.reads(properties)
+      case "AnswerImportQuestions"              => answerImportQuestionsFormat.reads(properties)
+      case "WorkInProgressDeadEnd"              => JsSuccess(WorkInProgressDeadEnd)
+      case _                                    => JsError(s"Unknown state name $stateName")
     }
 }

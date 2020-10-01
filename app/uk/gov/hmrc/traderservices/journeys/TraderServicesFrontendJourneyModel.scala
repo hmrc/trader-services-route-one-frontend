@@ -52,6 +52,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State
 
+    case class AnswerExportQuestionsFreightType(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State
+
     case class AnswerImportQuestions(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: Option[ImportQuestions]

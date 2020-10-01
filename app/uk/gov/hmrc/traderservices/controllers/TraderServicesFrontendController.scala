@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportGoodsPriority, ExportQuestions, ExportRequestType, ExportRouteType, ImportQuestions}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportGoodsPriority, ExportQuestions, ExportRequestType, ExportRouteType, ImportQuestions}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -114,6 +114,8 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ImportQuestionsForm)(Transitions.submittedImportQuestionsAnswers)
     }
 
+  val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -129,11 +131,20 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsRequestType =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsRequestType()
 
+      case _: AnswerExportQuestionsRouteType =>
+        workInProgresDeadEndCall
+
+      case _: AnswerExportQuestionsGoodsPriority =>
+        workInProgresDeadEndCall
+
+      case _: AnswerExportQuestionsFreightType =>
+        workInProgresDeadEndCall
+
       case _: AnswerImportQuestions =>
         routes.TraderServicesFrontendController.showAnswerImportQuestions()
 
       case WorkInProgressDeadEnd =>
-        Call("GET", "/trader-services/work-in-progress")
+        workInProgresDeadEndCall
 
     }
 
@@ -171,7 +182,43 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportRequestTypeForm.fill(query))
                 .getOrElse(ExportRequestTypeForm)
             ),
-            routes.TraderServicesFrontendController.submitExportQuestionsAnswers()
+            routes.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer()
+          )
+        )
+
+      case AnswerExportQuestionsRouteType(_, exportQuestions) =>
+        Ok(
+          views.exportQuestionsRouteTypeView(
+            formWithErrors.or(
+              exportQuestions.routeType
+                .map(query => ExportRouteTypeForm.fill(query))
+                .getOrElse(ExportRouteTypeForm)
+            ),
+            workInProgresDeadEndCall
+          )
+        )
+
+      case AnswerExportQuestionsGoodsPriority(_, exportQuestions) =>
+        Ok(
+          views.exportQuestionsGoodsPriorityView(
+            formWithErrors.or(
+              exportQuestions.goodsPriority
+                .map(query => ExportGoodsPriorityForm.fill(query))
+                .getOrElse(ExportGoodsPriorityForm)
+            ),
+            workInProgresDeadEndCall
+          )
+        )
+
+      case AnswerExportQuestionsFreightType(_, exportQuestions) =>
+        Ok(
+          views.exportQuestionsFreightTypeView(
+            formWithErrors.or(
+              exportQuestions.freightType
+                .map(query => ExportFreightTypeForm.fill(query))
+                .getOrElse(ExportFreightTypeForm)
+            ),
+            workInProgresDeadEndCall
           )
         )
 
@@ -211,22 +258,26 @@ object TraderServicesFrontendController {
   )
 
   val ExportRequestTypeForm = Form[ExportRequestType](
-    requestTypeMapping
+    mapping("requestType" -> exportRequestTypeMapping)(identity)(Option.apply)
   )
 
   val ExportRouteTypeForm = Form[ExportRouteType](
-    routeTypeMapping
+    mapping("routeType" -> exportRouteTypeMapping)(identity)(Option.apply)
   )
 
   val ExportGoodsPriorityForm = Form[ExportGoodsPriority](
-    goodPriorityMapping
+    mapping("goodsPriority" -> exportGoodsPriorityMapping)(identity)(Option.apply)
+  )
+
+  val ExportFreightTypeForm = Form[ExportFreightType](
+    mapping("freightType" -> exportFreightTypeMapping)(identity)(Option.apply)
   )
 
   val ImportQuestionsForm = Form[ImportQuestions](
     mapping(
       "requestType"   -> importRequestTypeMapping,
       "routeType"     -> importRouteTypeMapping,
-      "goodsPriority" -> importGoodPriorityMapping,
+      "goodsPriority" -> importGoodsPriorityMapping,
       "freightType"   -> freightTypeMapping
     )(ImportQuestions.apply)(ImportQuestions.unapply)
   )

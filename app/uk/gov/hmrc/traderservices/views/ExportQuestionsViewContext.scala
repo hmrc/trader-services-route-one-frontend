@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.traderservices.models.{ExportGoodsPriority, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType}
 
 @Singleton
 class ExportQuestionsViewContext extends RadioItemsHelper {
@@ -67,6 +67,18 @@ class ExportQuestionsViewContext extends RadioItemsHelper {
         ExportGoodsPriority.ExplosivesOrFireworks,
         ExportGoodsPriority.HighValueArt,
         ExportGoodsPriority.ClassADrugs
+      ),
+      form
+    )
+
+  def exportFreightTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+    radioItems[ExportFreightType](
+      "export-questions",
+      "freightType",
+      Seq(
+        ExportFreightType.Maritime,
+        ExportFreightType.Air,
+        ExportFreightType.RORO
       ),
       form
     )

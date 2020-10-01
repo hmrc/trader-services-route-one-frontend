@@ -55,12 +55,12 @@ class TraderServicesFrontendControllerISpec
           )
         val result = controller.submitDeclarationDetails(request)
         status(result) shouldBe 303
-        redirectLocation(result) shouldBe Some("/trader-services/pre-clearance/export-questions")
+        redirectLocation(result) shouldBe Some("/trader-services/pre-clearance/export-questions/request-type")
         journey.get shouldBe Some(
           (
-            AnswerExportQuestions(
+            AnswerExportQuestionsRequestType(
               DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-              None
+              ExportQuestions()
             ),
             List(EnterDeclarationDetails(None), Start)
           )
