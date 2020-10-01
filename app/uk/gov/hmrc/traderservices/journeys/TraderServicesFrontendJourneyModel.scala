@@ -37,30 +37,34 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     case class EnterDeclarationDetails(declarationDetailsOpt: Option[DeclarationDetails]) extends State
 
+    trait StateWithDeclarationDetails extends State {
+      def declarationDetails: DeclarationDetails
+    }
+
     case class AnswerExportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State
+    ) extends StateWithDeclarationDetails
 
     case class AnswerExportQuestionsRouteType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State
+    ) extends StateWithDeclarationDetails
 
     case class AnswerExportQuestionsGoodsPriority(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State
+    ) extends StateWithDeclarationDetails
 
     case class AnswerExportQuestionsFreightType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State
+    ) extends StateWithDeclarationDetails
 
     case class AnswerImportQuestions(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: Option[ImportQuestions]
-    ) extends State
+    ) extends StateWithDeclarationDetails
 
     case object WorkInProgressDeadEnd extends State
 
@@ -77,6 +81,9 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def enterDeclarationDetails(user: String) =
       Transition {
+        case s: StateWithDeclarationDetails =>
+          goto(EnterDeclarationDetails(Some(s.declarationDetails)))
+
         case _ =>
           goto(EnterDeclarationDetails(None))
       }
