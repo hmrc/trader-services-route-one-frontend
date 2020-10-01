@@ -23,64 +23,19 @@ import uk.gov.hmrc.traderservices.support.FormMatchers
 import uk.gov.hmrc.traderservices.models.ExportRequestType
 import uk.gov.hmrc.traderservices.models.ExportRouteType
 import uk.gov.hmrc.traderservices.models.ExportGoodsPriority
+import uk.gov.hmrc.traderservices.models.ExportFreightType
 
 class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
 
-  val formOutput = ExportQuestions(
-    requestType = ExportRequestType.New,
-    routeType = ExportRouteType.Hold,
-    goodsPriority = ExportGoodsPriority.None
-  )
+  "Export questions forms" should {
 
-  val formInput = Map(
-    "requestType"   -> "New",
-    "routeType"     -> "Hold",
-    "goodsPriority" -> "None"
-  )
+    val form = TraderServicesFrontendController.ExportRequestTypeForm
 
-  "ExportQuestionsForm" should {
-
-    val form = TraderServicesFrontendController.ExportQuestionsForm
-
-    "bind some input fields and return ExportQuestionsForm and fill it back" in {
+    "bind some requestType and return ExportRequestType and fill it back" in {
+      val formInput = Map("requestType" -> "New")
+      val formOutput = ExportRequestType.New
       form.bind(formInput).value shouldBe Some(formOutput)
       form.fill(formOutput).data shouldBe formInput
-    }
-
-    "report an error when requestType is missing" in {
-      val input = formInput.-("requestType")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("requestType", "error.requestType.required"))
-    }
-
-    "report an error when requestType is invalid" in {
-      val input = formInput.updated("requestType", "FooBar")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("requestType", "error.requestType.invalid-option"))
-    }
-
-    "report an error when routeType is missing" in {
-      val input = formInput.-("routeType")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("routeType", "error.routeType.required"))
-    }
-
-    "report an error when routeType is invalid" in {
-      val input = formInput.updated("routeType", "FooBar")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("routeType", "error.routeType.invalid-option"))
-    }
-
-    "report an error when goodsPriority is missing" in {
-      val input = formInput.-("goodsPriority")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("goodsPriority", "error.goodsPriority.required"))
-    }
-
-    "report an error when goodsPriority is invalid" in {
-      val input = formInput.updated("goodsPriority", "FooBar")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("goodsPriority", "error.goodsPriority.invalid-option"))
     }
 
   }

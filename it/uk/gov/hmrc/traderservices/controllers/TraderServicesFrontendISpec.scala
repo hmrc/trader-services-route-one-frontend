@@ -16,6 +16,7 @@ import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.traderservices.models.ExportQuestions
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -70,11 +71,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/declaration-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.heading"))
-        journey.getState shouldBe AnswerExportQuestions(
+        result.body should include(htmlEscapedMessage("view.export-questions.requestType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsRequestType(
           DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          None
+          ExportQuestions()
         )
       }
 

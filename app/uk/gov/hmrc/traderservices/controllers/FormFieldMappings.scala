@@ -22,7 +22,7 @@ import play.api.data.Forms.{of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportGoodsPriority, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
 
 import scala.util.Try
 
@@ -116,17 +116,19 @@ object FormFieldMappings {
       .verifying(constraint(fieldName, "invalid-option", implicitly[EnumerationFormats[A]].isValidKey))
       .transform(implicitly[EnumerationFormats[A]].valueOf(_).get, implicitly[EnumerationFormats[A]].keyOf(_).get)
 
-  val requestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("requestType")
+  val exportRequestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("exportRequestType")
 
   val importRequestTypeMapping: Mapping[ImportRequestType] = enumMapping[ImportRequestType]("requestType")
 
-  val routeTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("routeType")
+  val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
   val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("routeType")
 
-  val goodPriorityMapping: Mapping[ExportGoodsPriority] = enumMapping[ExportGoodsPriority]("goodsPriority")
+  val exportGoodsPriorityMapping: Mapping[ExportGoodsPriority] = enumMapping[ExportGoodsPriority]("exportGoodsPriority")
 
-  val importGoodPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("goodsPriority")
+  val importGoodsPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("goodsPriority")
+
+  val exportFreightTypeMapping: Mapping[ExportFreightType] = enumMapping[ExportFreightType]("exportFreightType")
 
   val freightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("freightType")
 

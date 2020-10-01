@@ -37,9 +37,24 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     case class EnterDeclarationDetails(declarationDetailsOpt: Option[DeclarationDetails]) extends State
 
-    case class AnswerExportQuestions(
+    case class AnswerExportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
-      exportQuestionsOpt: Option[ExportQuestions]
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State
+
+    case class AnswerExportQuestionsRouteType(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State
+
+    case class AnswerExportQuestionsGoodsPriority(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State
+
+    case class AnswerExportQuestionsFreightType(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
     ) extends State
 
     case class AnswerImportQuestions(
@@ -69,14 +84,20 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
       Transition {
         case EnterDeclarationDetails(_) =>
-          if (declarationDetails.isExportDeclaration) goto(AnswerExportQuestions(declarationDetails, None))
+          if (declarationDetails.isExportDeclaration)
+            goto(AnswerExportQuestionsRequestType(declarationDetails, ExportQuestions()))
           else goto(AnswerImportQuestions(declarationDetails, None))
       }
 
-    def submittedExportQuestionsAnswers(user: String)(exportQuestions: ExportQuestions) =
+    def submittedExportQuestionsAnswersRequestType(user: String)(exportRequestType: ExportRequestType) =
       Transition {
-        case AnswerExportQuestions(declarationDetails, _) =>
-          goto(WorkInProgressDeadEnd)
+        case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
+          goto(
+            AnswerExportQuestionsRouteType(
+              declarationDetails,
+              exportQuestions.copy(requestType = Some(exportRequestType))
+            )
+          )
       }
 
     def submittedImportQuestionsAnswers(user: String)(importQuestions: ImportQuestions) =
