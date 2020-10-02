@@ -32,10 +32,10 @@ class ExportQuestionsViewContext extends RadioItemsHelper {
       Seq(
         ExportRequestType.New,
         ExportRequestType.Cancellation,
-        ExportRequestType.Hold,
         ExportRequestType.C1601,
         ExportRequestType.C1602,
         ExportRequestType.C1603,
+        ExportRequestType.Hold,
         ExportRequestType.WithdrawalOrReturn
       ),
       form

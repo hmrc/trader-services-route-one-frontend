@@ -33,8 +33,8 @@ researchBanner: components.researchBanner,
 appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 )
 
-@(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Boolean =
-true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+@(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
+None)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @head = {
 @gtmHeadSnippet()
@@ -63,8 +63,9 @@ true)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 @phaseBanner("alpha")
 @hmrcBanner(Banner(if(messages.lang.code == "cy") {Cy} else {En}))
 
-@if(backLink == true) {
-@govukBackLink(BackLink(href = "#", content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
+@if(backLink.isDefined) {
+@govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" ->
+"back-link")))
 }
 
 @languageSelection(
