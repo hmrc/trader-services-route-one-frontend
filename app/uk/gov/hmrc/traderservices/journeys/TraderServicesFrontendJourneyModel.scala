@@ -37,34 +37,34 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     case class EnterDeclarationDetails(declarationDetailsOpt: Option[DeclarationDetails]) extends State
 
-    trait StateWithDeclarationDetails extends State {
+    trait HasDeclarationDetails {
       def declarationDetails: DeclarationDetails
     }
 
     case class AnswerExportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends StateWithDeclarationDetails
+    ) extends State with HasDeclarationDetails
 
     case class AnswerExportQuestionsRouteType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends StateWithDeclarationDetails
+    ) extends State with HasDeclarationDetails
 
     case class AnswerExportQuestionsGoodsPriority(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends StateWithDeclarationDetails
+    ) extends State with HasDeclarationDetails
 
     case class AnswerExportQuestionsFreightType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends StateWithDeclarationDetails
+    ) extends State with HasDeclarationDetails
 
     case class AnswerImportQuestions(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: Option[ImportQuestions]
-    ) extends StateWithDeclarationDetails
+    ) extends State with HasDeclarationDetails
 
     case object WorkInProgressDeadEnd extends State
 
@@ -81,7 +81,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def enterDeclarationDetails(user: String) =
       Transition {
-        case s: StateWithDeclarationDetails =>
+        case s: HasDeclarationDetails =>
           goto(EnterDeclarationDetails(Some(s.declarationDetails)))
 
         case _ =>
@@ -96,15 +96,38 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           else goto(AnswerImportQuestions(declarationDetails, None))
       }
 
-    def submittedExportQuestionsAnswersRequestType(user: String)(exportRequestType: ExportRequestType) =
+    def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
       Transition {
         case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
-          goto(
-            AnswerExportQuestionsRouteType(
-              declarationDetails,
-              exportQuestions.copy(requestType = Some(exportRequestType))
+          if (exportRequestType == ExportRequestType.Hold)
+            goto(
+              AnswerExportQuestionsGoodsPriority(
+                declarationDetails,
+                exportQuestions.copy(requestType = Some(exportRequestType))
+              )
             )
-          )
+          else
+            goto(
+              AnswerExportQuestionsRouteType(
+                declarationDetails,
+                exportQuestions.copy(requestType = Some(exportRequestType))
+              )
+            )
+      }
+
+    def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
+      Transition {
+        case _ => goto(WorkInProgressDeadEnd)
+      }
+
+    def submittedExportQuestionsAnswerGoodsPriority(user: String)(exportGoodsPriority: ExportGoodsPriority) =
+      Transition {
+        case _ => goto(WorkInProgressDeadEnd)
+      }
+
+    def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
+      Transition {
+        case _ => goto(WorkInProgressDeadEnd)
       }
 
     def submittedImportQuestionsAnswers(user: String)(importQuestions: ImportQuestions) =
