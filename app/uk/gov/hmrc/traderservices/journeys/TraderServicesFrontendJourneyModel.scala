@@ -57,9 +57,24 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State
 
-    case class AnswerImportQuestions(
+    case class AnswerImportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
-      importQuestionsOpt: Option[ImportQuestions]
+      importQuestionsOpt: ImportQuestions
+    ) extends State
+
+    case class AnswerImportQuestionsRouteType(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State
+
+    case class AnswerImportQuestionsGoodsPriority(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State
+
+    case class AnswerImportQuestionsFreightType(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
     ) extends State
 
     case object WorkInProgressDeadEnd extends State
@@ -86,7 +101,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case EnterDeclarationDetails(_) =>
           if (declarationDetails.isExportDeclaration)
             goto(AnswerExportQuestionsRequestType(declarationDetails, ExportQuestions()))
-          else goto(AnswerImportQuestions(declarationDetails, None))
+          else goto(AnswerImportQuestionsRequestType(declarationDetails, ImportQuestions()))
       }
 
     def submittedExportQuestionsAnswersRequestType(user: String)(exportRequestType: ExportRequestType) =
@@ -100,10 +115,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           )
       }
 
-    def submittedImportQuestionsAnswers(user: String)(importQuestions: ImportQuestions) =
+    def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
-        case AnswerImportQuestions(declarationDetails, _) =>
-          goto(WorkInProgressDeadEnd)
+        case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsRouteType(
+              declarationDetails,
+              importQuestions.copy(requestType = Some(importRequestType))
+            )
+          )
       }
   }
 

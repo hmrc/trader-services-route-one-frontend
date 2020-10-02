@@ -19,10 +19,10 @@ package uk.gov.hmrc.traderservices.models
 import play.api.libs.json.{Format, Json}
 
 case class ImportQuestions(
-  requestType: ImportRequestType,
-  routeType: ImportRouteType,
-  goodsPriority: ImportGoodsPriority,
-  freightType: ImportFreightType
+  requestType: Option[ImportRequestType] = None,
+  routeType: Option[ImportRouteType] = None,
+  goodsPriority: Option[ImportGoodsPriority] = None,
+  freightType: Option[ImportFreightType] = None
 )
 
 object ImportQuestions {
