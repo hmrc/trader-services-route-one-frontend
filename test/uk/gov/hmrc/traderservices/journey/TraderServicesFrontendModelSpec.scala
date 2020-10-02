@@ -54,14 +54,22 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state EnterDeclarationDetails" should {
+<<<<<<< HEAD
 
       "goto AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
+=======
+      "go to AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
+>>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
         ) should thenGo(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions()))
       }
 
+<<<<<<< HEAD
       "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
+=======
+      "go to AnswerImportQuestions when submittedDeclarationDetails for import" in {
+>>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
@@ -89,13 +97,18 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
           ExportRequestType.Hold
         ) should thenGo(
+<<<<<<< HEAD
           AnswerExportQuestionsHasPriorityGoods(
+=======
+          AnswerExportQuestionsGoodsPriority(
+>>>>>>> [DOR-62][A0] export question for request type
             exportDeclarationDetails,
             ExportQuestions(requestType = Some(ExportRequestType.Hold))
           )
         )
       }
     }
+<<<<<<< HEAD
 
     "at state AnswerExportQuestionsRouteType" should {
       for (routeType <- ExportRouteType.values)
@@ -225,6 +238,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
     }
+=======
+>>>>>>> [DOR-62][A0] export question for request type
   }
 
   case class given(initialState: State)
