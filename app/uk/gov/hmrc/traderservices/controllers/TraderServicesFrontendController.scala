@@ -99,7 +99,7 @@ class TraderServicesFrontendController @Inject() (
   // POST /pre-clearance/export-questions/request-type
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswersRequestType)
+      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswerRequestType)
     }
 
   // GET /pre-clearance/import-questions
