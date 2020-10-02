@@ -37,13 +37,13 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "GET /trader-services/pre-clearance" should {
+    "GET /trader-services/pre-clearance/declaration-details" should {
       "show the enter declaration details page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance").get())
+        val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.declaration-details.title"))
@@ -54,7 +54,7 @@ class TraderServicesFrontendISpec
 
     "POST /pre-clearance/declaration-details" should {
 
-      "submit the form and go next page when entryNumber is for export" in {
+      "submit the form and ask next for requestType when entryNumber is for export" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))

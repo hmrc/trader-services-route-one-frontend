@@ -197,7 +197,16 @@ error.entryDate.invalid-value-past=Entry date must be within the past 6 months
 # ----------------------------------------------------------
 view.export-questions.requestType.title=What type of export request is this?
 view.export-questions.requestType.heading=What type of export request is this?
+view.export-questions.routeType.title=Which route is this declaration for?
+view.export-questions.routeType.heading=Which route is this declaration for?
+view.export-questions.goodsPriority.title=Which type of priority goods are you moving?
+view.export-questions.goodsPriority.heading=Which type of priority goods are you moving?
+view.export-questions.freightType.title=Which type of transport are you using?
+view.export-questions.freightType.heading=Which type of transport are you using?
 error.exportRequestType.required=Select the type of export request
+error.exportRouteType.required=Select the route
+error.exportGoodsPriority.required=Select the type of priority goods
+error.exportFreightType.required=Select the type of transport you''re using
 view.export-questions.routeType=Which route is this?
 view.export-questions.goodsPriority=Does the consignment contain any priority goods?
 

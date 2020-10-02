@@ -35,14 +35,12 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
   implicit val dummyContext: DummyContext = DummyContext()
 
   "TraderServicesFrontendModel" when {
-
     "at state Start" should {
-
       "stay at Start when start" in {
         given(Start) when start(eoriNumber) should thenGo(Start)
       }
 
-      "goto EnterDeclarationDetails when enterDeclarationDetails" in {
+      "go to EnterDeclarationDetails when enterDeclarationDetails" in {
         given(Start) when enterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails(None))
       }
 
@@ -56,17 +54,54 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state EnterDeclarationDetails" should {
+<<<<<<< HEAD
 
       "goto AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
+=======
+      "go to AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
+>>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
         ) should thenGo(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions()))
       }
 
+<<<<<<< HEAD
       "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
+=======
+      "go to AnswerImportQuestions when submittedDeclarationDetails for import" in {
+>>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
+      }
+    }
+
+    "at state AnswerExportQuestionsRequestType" should {
+      for (requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.Hold))
+        s"go to AnswerExportQuestionsRouteType when submitted requestType of ${ExportRequestType.keyOf(requestType).get}" in {
+          given(
+            AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions())
+          ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+            requestType
+          ) should thenGo(
+            AnswerExportQuestionsRouteType(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(requestType))
+            )
+          )
+        }
+
+      "go to AnswerExportQuestionsGoodsPriority when submitted requestType of Hold" in {
+        given(
+          AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions())
+        ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+          ExportRequestType.Hold
+        ) should thenGo(
+          AnswerExportQuestionsGoodsPriority(
+            exportDeclarationDetails,
+            ExportQuestions(requestType = Some(ExportRequestType.Hold))
+          )
+        )
       }
     }
   }
