@@ -98,7 +98,7 @@ class TraderServicesFrontendController @Inject() (
   // POST /pre-clearance/export-questions/request-type
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswersRequestType)
+      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswerRequestType)
     }
 
   // GET /pre-clearance/import-questions
@@ -172,7 +172,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => DeclarationDetailsForm.fill(query))
                 .getOrElse(DeclarationDetailsForm)
             ),
-            routes.TraderServicesFrontendController.submitDeclarationDetails()
+            routes.TraderServicesFrontendController.submitDeclarationDetails(),
+            backLinkFor(breadcrumbs)
           )
         )
 
@@ -184,7 +185,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportRequestTypeForm.fill(query))
                 .getOrElse(ExportRequestTypeForm)
             ),
-            routes.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer()
+            routes.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer(),
+            backLinkFor(breadcrumbs)
           )
         )
 
@@ -196,7 +198,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportRouteTypeForm.fill(query))
                 .getOrElse(ExportRouteTypeForm)
             ),
-            workInProgresDeadEndCall
+            workInProgresDeadEndCall,
+            backLinkFor(breadcrumbs)
           )
         )
 
@@ -208,7 +211,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportGoodsPriorityForm.fill(query))
                 .getOrElse(ExportGoodsPriorityForm)
             ),
-            workInProgresDeadEndCall
+            workInProgresDeadEndCall,
+            backLinkFor(breadcrumbs)
           )
         )
 
@@ -220,7 +224,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportFreightTypeForm.fill(query))
                 .getOrElse(ExportFreightTypeForm)
             ),
-            workInProgresDeadEndCall
+            workInProgresDeadEndCall,
+            backLinkFor(breadcrumbs)
           )
         )
 

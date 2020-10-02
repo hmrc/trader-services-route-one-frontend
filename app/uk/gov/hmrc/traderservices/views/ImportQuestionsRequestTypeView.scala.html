@@ -14,19 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.ExportRouteType
-@import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.models.ImportRequestType
+@import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
 govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
 forms: uk.gov.hmrc.traderservices.views.components.forms,
 html: uk.gov.hmrc.traderservices.views.components.html,
-context: ExportQuestionsViewContext
+context: ImportQuestionsViewContext
 )
 
-@(form: Form[ExportRouteType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportRequestType], postAction: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.export-questions.routeType.title")), backLink = Some(backLink.url)) {
+@govukLayout(pageTitle = Some(messages("view.import-questions.requestType.title"))) {
 
 @forms.errorSummary(form.errors)
 
@@ -34,15 +34,15 @@ context: ExportQuestionsViewContext
 
 @forms.inputRadio(
 form = form,
-idPrefix = "routeType",
-name = "routeType",
-items = context.exportRouteTypeItems(form),
+idPrefix = "requestType",
+name = "requestType",
+items = context.importRequestTypeItems(form),
 inline = false,
-legend = messages("view.export-questions.routeType.heading"),
+legend = messages("view.import-questions.requestType.heading"),
 legendAsHeading = true,
 legendClasses = "govuk-fieldset__legend--xl"
 )
 
-@html.button("form.export-questions.continue")
+@html.button("form.import-questions.continue")
 }
 }
