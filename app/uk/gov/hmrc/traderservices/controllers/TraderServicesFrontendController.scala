@@ -27,13 +27,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportGoodsPriority, ExportQuestions, ExportRequestType, ExportRouteType, ImportQuestions}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.Success
-import uk.gov.hmrc.traderservices.models.ExportGoodsPriority
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -103,15 +102,15 @@ class TraderServicesFrontendController @Inject() (
     }
 
   // GET /pre-clearance/import-questions
-  val showAnswerImportQuestions: Action[AnyContent] =
+  val showAnswerImportQuestionsRequestType: Action[AnyContent] =
     actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestions =>
+      case _: AnswerImportQuestionsRequestType =>
     }
 
   // POST /pre-clearance/import-questions
-  val submitImportQuestionsAnswers: Action[AnyContent] =
+  val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportQuestionsForm)(Transitions.submittedImportQuestionsAnswers)
+      whenAuthorisedWithForm(AsUser)(ImportRequestTypeForm)(Transitions.submittedImportQuestionsAnswersRequestType)
     }
 
   val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
@@ -140,10 +139,13 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsFreightType =>
         workInProgresDeadEndCall
 
-      case _: AnswerImportQuestions =>
-        routes.TraderServicesFrontendController.showAnswerImportQuestions()
+      case _: AnswerImportQuestionsRequestType =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsRequestType()
 
       case WorkInProgressDeadEnd =>
+        workInProgresDeadEndCall
+
+      case _ =>
         workInProgresDeadEndCall
 
     }
@@ -222,15 +224,51 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerImportQuestions(_, importQuestionsOpt) =>
+      case AnswerImportQuestionsRequestType(_, importQuestions) =>
         Ok(
-          views.importQuestionsView(
+          views.importQuestionsRequestTypeView(
             formWithErrors.or(
-              importQuestionsOpt
-                .map(query => ImportQuestionsForm.fill(query))
-                .getOrElse(ImportQuestionsForm)
+              importQuestions.requestType
+                .map(query => ImportRequestTypeForm.fill(query))
+                .getOrElse(ImportRequestTypeForm)
             ),
-            routes.TraderServicesFrontendController.submitImportQuestionsAnswers()
+            routes.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer()
+          )
+        )
+
+      case AnswerImportQuestionsRouteType(_, importQuestions) =>
+        Ok(
+          views.importQuestionsRouteTypeView(
+            formWithErrors.or(
+              importQuestions.routeType
+                .map(query => ImportRouteTypeForm.fill(query))
+                .getOrElse(ImportRouteTypeForm)
+            ),
+            workInProgresDeadEndCall
+          )
+        )
+
+      case AnswerImportQuestionsGoodsPriority(_, importQuestions) =>
+        Ok(
+          views.importQuestionsGoodsPriorityView(
+            formWithErrors.or(
+              importQuestions.goodsPriority
+                .map(query => ImportGoodsPriorityForm.fill(query))
+                .getOrElse(ImportGoodsPriorityForm)
+            ),
+            workInProgresDeadEndCall
+          )
+        )
+
+      case AnswerImportQuestionsFreightType(_, importQuestions) =>
+        Ok(
+          views.importQuestionsFreightTypeView(
+            formWithErrors.or(
+              importQuestions.freightType
+                .map(query => ImportFreightTypeForm.fill(query))
+                .getOrElse(ImportFreightTypeForm)
+            ),
+            workInProgresDeadEndCall
           )
         )
 
@@ -273,12 +311,19 @@ object TraderServicesFrontendController {
     mapping("freightType" -> exportFreightTypeMapping)(identity)(Option.apply)
   )
 
-  val ImportQuestionsForm = Form[ImportQuestions](
-    mapping(
-      "requestType"   -> importRequestTypeMapping,
-      "routeType"     -> importRouteTypeMapping,
-      "goodsPriority" -> importGoodsPriorityMapping,
-      "freightType"   -> freightTypeMapping
-    )(ImportQuestions.apply)(ImportQuestions.unapply)
+  val ImportRequestTypeForm = Form[ImportRequestType](
+    mapping("requestType" -> importRequestTypeMapping)(identity)(Option.apply)
+  )
+
+  val ImportRouteTypeForm = Form[ImportRouteType](
+    mapping("routeType" -> importRouteTypeMapping)(identity)(Option.apply)
+  )
+
+  val ImportGoodsPriorityForm = Form[ImportGoodsPriority](
+    mapping("goodsPriority" -> importGoodsPriorityMapping)(identity)(Option.apply)
+  )
+
+  val ImportFreightTypeForm = Form[ImportFreightType](
+    mapping("freightType" -> importFreightTypeMapping)(identity)(Option.apply)
   )
 }

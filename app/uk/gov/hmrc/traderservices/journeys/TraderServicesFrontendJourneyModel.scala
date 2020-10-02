@@ -16,13 +16,8 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
-import java.time.{LocalDate, ZoneId}
-
-import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.fsm.JourneyModel
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.models._
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 

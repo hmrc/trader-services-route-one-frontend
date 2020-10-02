@@ -10,13 +10,12 @@ import play.api.mvc.{Cookies, Session, SessionCookieBaker}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.traderservices.models.ExportQuestions
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -95,9 +94,9 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/declaration-details").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AnswerImportQuestions(
+        journey.getState shouldBe AnswerImportQuestionsRequestType(
           DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          None
+          ImportQuestions()
         )
       }
     }
