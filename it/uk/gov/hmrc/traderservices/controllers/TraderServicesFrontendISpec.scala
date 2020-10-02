@@ -8,7 +8,8 @@ import play.api.libs.json.Format
 import play.api.libs.ws.WSClient
 import play.api.mvc.{Cookies, Session, SessionCookieBaker}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
 import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
@@ -16,6 +17,7 @@ import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.traderservices.models.ExportRequestType
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -37,13 +39,13 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "GET /trader-services/pre-clearance" should {
+    "GET /trader-services/pre-clearance/declaration-details" should {
       "show the enter declaration details page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance").get())
+        val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.declaration-details.title"))
@@ -54,7 +56,7 @@ class TraderServicesFrontendISpec
 
     "POST /pre-clearance/declaration-details" should {
 
-      "submit the form and go next page when entryNumber is for export" in {
+      "submit the form and ask next for requestType when entryNumber is for export" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -101,6 +103,78 @@ class TraderServicesFrontendISpec
       }
     }
 
+    "GET /pre-clearance/export-questions/request-type" should {
+      "show the export request type question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsRequestType(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/request-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.requestType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsRequestType(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions()
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/request-type" should {
+
+      "submit the form and ask next for routeType if not Hold" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsRequestType(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("requestType" -> "New")
+
+        val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.routeType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsRouteType(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(requestType = Some(ExportRequestType.New))
+        )
+      }
+
+      "submit the form and ask next for goodsPriority if Hold" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsRequestType(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("requestType" -> "Hold")
+
+        val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.goodsPriority.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.goodsPriority.heading"))
+        journey.getState shouldBe AnswerExportQuestionsGoodsPriority(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(requestType = Some(ExportRequestType.Hold))
+        )
+      }
+    }
+
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
@@ -123,6 +197,7 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
+  lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
 
   case class JourneyId(value: String = UUID.randomUUID().toString)
 
@@ -141,15 +216,18 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
 
   val baseUrl: String = s"http://localhost:$port/trader-services"
 
-  def request(path: String)(implicit journeyId: JourneyId) =
+  def request(path: String)(implicit journeyId: JourneyId) = {
+    val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+
     wsClient
       .url(s"$baseUrl$path")
       .withHttpHeaders(
         play.api.http.HeaderNames.COOKIE -> Cookies.encodeCookieHeader(
           Seq(
-            sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+            sessionCookie.copy(value = sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
           )
         )
       )
+  }
 
 }

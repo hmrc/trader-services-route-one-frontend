@@ -77,7 +77,7 @@ class TraderServicesFrontendController @Inject() (
         }
     }
 
-  // GET /pre-clearance
+  // GET /pre-clearance/declaration-details
   val showEnterDeclarationDetails: Action[AnyContent] =
     action { implicit request =>
       whenAuthorised(AsUser)(Transitions.enterDeclarationDetails)(display)
@@ -99,6 +99,42 @@ class TraderServicesFrontendController @Inject() (
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
       whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswerRequestType)
+    }
+
+  // GET /pre-clearance/export-questions/route-type
+  val showAnswerExportQuestionsRouteType: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsRouteType =>
+    }
+
+  // POST /pre-clearance/export-questions/route-type
+  val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportRouteTypeForm)(Transitions.submittedExportQuestionsAnswerRouteType)
+    }
+
+  // GET /pre-clearance/export-questions/priority-goods
+  val showAnswerExportQuestionsGoodsPriority: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsGoodsPriority =>
+    }
+
+  // POST /pre-clearance/export-questions/priority-goods
+  val submitExportQuestionsGoodsPriorityAnswer: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportGoodsPriorityForm)(Transitions.submittedExportQuestionsAnswerGoodsPriority)
+    }
+
+  // GET /pre-clearance/export-questions/transport-type
+  val showAnswerExportQuestionsFreightType: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsFreightType =>
+    }
+
+  // POST /pre-clearance/export-questions/transport-type
+  val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportFreightTypeForm)(Transitions.submittedExportQuestionsAnswerFreightType)
     }
 
   // GET /pre-clearance/import-questions
@@ -131,13 +167,13 @@ class TraderServicesFrontendController @Inject() (
         routes.TraderServicesFrontendController.showAnswerExportQuestionsRequestType()
 
       case _: AnswerExportQuestionsRouteType =>
-        workInProgresDeadEndCall
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsRouteType()
 
       case _: AnswerExportQuestionsGoodsPriority =>
-        workInProgresDeadEndCall
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsGoodsPriority()
 
       case _: AnswerExportQuestionsFreightType =>
-        workInProgresDeadEndCall
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsFreightType()
 
       case _: AnswerImportQuestionsRequestType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsRequestType()

@@ -20,24 +20,67 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Format, JsResultException, Json}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.{Start}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 class TraderServicesFrontendFormatSpec extends UnitSpec {
 
   implicit val formats: Format[State] = TraderServicesFrontendJourneyStateFormats.formats
 
   "TraderServicesFrontendJourneyStateFormats" should {
-    "serialize and deserialize state" when {
-      "Start" in {
-        val state = Start
+    "serialize and deserialize state" in new JsonFormatTest[State](info) {
+      validateJsonFormat("""{"state":"Start"}""", State.Start)
+      validateJsonFormat(
+        """{"state":"EnterDeclarationDetails","properties":{"declarationDetailsOpt":{"epu":"123","entryNumber":"100000Z","entryDate":"2000-01-01"}}}""",
+        State.EnterDeclarationDetails(
+          Some(DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2000-01-01")))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsRequestType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{}}}""",
+        State.AnswerExportQuestionsRequestType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions()
+        )
+      )
 
-        val json = Json.parse("""{"state":"Start"}""")
-        Json.toJson(state) shouldBe json
-        json.as[State] shouldBe state
-      }
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsRouteType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New"}}}""",
+        State.AnswerExportQuestionsRouteType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(requestType = Some(ExportRequestType.New))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsGoodsPriority","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}""",
+        State.AnswerExportQuestionsGoodsPriority(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","goodsPriority":"LiveAnimals"}}}""",
+        State.AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route1),
+            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"Hold","goodsPriority":"LiveAnimals"}}}""",
+        State.AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.Hold),
+            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+          )
+        )
+      )
 
     }
 
