@@ -1,49 +1,46 @@
 @*
- * Copyright 2020 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
-
+* Copyright 2020 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 @import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ExportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ExportQuestionsViewContext
 )
 
 @(form: Form[ExportPriorityGoods], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.export-questions.whichPriorityGoods.title")), backLink =
-Some(backLink.url)){
+        Some(backLink.url)) {
 
-@forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
-form = form,
-idPrefix = "priorityGoods",
-name = "priorityGoods",
-items = context.exportPriorityGoodsItems(form),
-inline = false,
-legend = messages("view.export-questions.whichPriorityGoods.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "priorityGoods",
+      name = "priorityGoods",
+      items = context.exportPriorityGoodsItems(form),
+      inline = false,
+      legend = messages("view.export-questions.whichPriorityGoods.heading")
+    )
 
-@html.button("form.export-questions.continue")
-}
+    @html.button("form.export-questions.continue")
+  }
 }

@@ -18,31 +18,29 @@
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ImportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ImportQuestionsViewContext
 )
 
 @(form: Form[ImportGoodsPriority], postAction: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.import-questions.goodsPriority.title"))) {
 
-@forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
-form = form,
-idPrefix = "goodsPriority",
-name = "goodsPriority",
-items = context.importGoodsPriorityItems(form),
-inline = false,
-legend = messages("view.import-questions.goodsPriority.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "goodsPriority",
+      name = "goodsPriority",
+      items = context.importGoodsPriorityItems(form),
+      inline = false,
+      legend = messages("view.import-questions.goodsPriority.heading")
+    )
 
-@html.button("form.import-questions.continue")
-}
+    @html.button("form.import-questions.continue")
+  }
 }
