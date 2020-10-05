@@ -151,7 +151,7 @@ class TraderServicesFrontendISpec
         )
       }
 
-      "submit the form and ask next for goodsPriority if Hold" in {
+      "submit the form and, if Hold, ask next does the consignment has any priority goods" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRequestType(
@@ -166,9 +166,9 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.goodsPriority.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.goodsPriority.heading"))
-        journey.getState shouldBe AnswerExportQuestionsGoodsPriority(
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
           ExportQuestions(requestType = Some(ExportRequestType.Hold))
         )

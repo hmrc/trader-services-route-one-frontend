@@ -89,7 +89,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
           ExportRequestType.Hold
         ) should thenGo(
-          AnswerExportQuestionsGoodsPriority(
+          AnswerExportQuestionsHasPriorityGoods(
             exportDeclarationDetails,
             ExportQuestions(requestType = Some(ExportRequestType.Hold))
           )

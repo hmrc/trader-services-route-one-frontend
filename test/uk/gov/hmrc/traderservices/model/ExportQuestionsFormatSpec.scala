@@ -42,13 +42,12 @@ class ExportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("Route6", ExportRouteType.Route6)
     }
 
-    "serialize and deserialize ExportGoodsPriority" in new JsonFormatTest[ExportGoodsPriority](info) {
-      validateJsonFormat("None", ExportGoodsPriority.None)
-      validateJsonFormat("LiveAnimals", ExportGoodsPriority.LiveAnimals)
-      validateJsonFormat("HumanRemains", ExportGoodsPriority.HumanRemains)
-      validateJsonFormat("ExplosivesOrFireworks", ExportGoodsPriority.ExplosivesOrFireworks)
-      validateJsonFormat("HighValueArt", ExportGoodsPriority.HighValueArt)
-      validateJsonFormat("ClassADrugs", ExportGoodsPriority.ClassADrugs)
+    "serialize and deserialize ExportPriorityGoods" in new JsonFormatTest[ExportPriorityGoods](info) {
+      validateJsonFormat("LiveAnimals", ExportPriorityGoods.LiveAnimals)
+      validateJsonFormat("HumanRemains", ExportPriorityGoods.HumanRemains)
+      validateJsonFormat("ExplosivesOrFireworks", ExportPriorityGoods.ExplosivesOrFireworks)
+      validateJsonFormat("HighValueArt", ExportPriorityGoods.HighValueArt)
+      validateJsonFormat("ClassADrugs", ExportPriorityGoods.ClassADrugs)
     }
 
   }

@@ -1,26 +1,28 @@
 # microservice specific routes
 
-->         /govuk-frontend                                  govuk.Routes
-->         /hmrc-frontend                                   hmrcfrontend.Routes
+->         /govuk-frontend                                          govuk.Routes
+->         /hmrc-frontend                                           hmrcfrontend.Routes
 
-GET        /                                                @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
-GET        /pre-clearance/declaration-details               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showEnterDeclarationDetails
-POST       /pre-clearance/declaration-details               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitDeclarationDetails
-GET        /pre-clearance/export-questions/request-type     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRequestType
-POST       /pre-clearance/export-questions/request-type     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer
-GET        /pre-clearance/export-questions/route-type       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRouteType
-POST       /pre-clearance/export-questions/route-type       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer
-GET        /pre-clearance/export-questions/priority-goods   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsGoodsPriority
-POST       /pre-clearance/export-questions/priority-goods   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsGoodsPriorityAnswer
-GET        /pre-clearance/export-questions/transport-type   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsFreightType
-POST       /pre-clearance/export-questions/transport-type   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer
-GET        /pre-clearance/import-questions/request-type     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRequestType
-POST       /pre-clearance/import-questions/request-type     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer
+GET        /                                                        @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
+GET        /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showEnterDeclarationDetails
+POST       /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitDeclarationDetails
+GET        /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRequestType
+POST       /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer
+GET        /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRouteType
+POST       /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer
+GET        /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsHasPriorityGoods
+POST       /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsHasPriorityGoodsAnswer
+GET        /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsWhichPriorityGoods
+POST       /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer
+GET        /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsFreightType
+POST       /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer
+GET        /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRequestType
+POST       /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer
 
-GET        /accessibility-statement                         @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
+GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
-GET        /sign-out                                        @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
-GET        /sign-out-no-survey                              @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
+GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
+GET        /sign-out-no-survey                                      @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
 
-GET        /language/:lang                                  @uk.gov.hmrc.traderservices.controllers.LanguageSwitchController.switchToLanguage(lang: String)
-GET        /assets/*file                                    controllers.Assets.versioned(path="/public", file: Asset)
+GET        /language/:lang                                          @uk.gov.hmrc.traderservices.controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET        /assets/*file                                            controllers.Assets.versioned(path="/public", file: Asset)

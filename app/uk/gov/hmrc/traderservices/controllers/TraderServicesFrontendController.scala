@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -113,16 +113,32 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ExportRouteTypeForm)(Transitions.submittedExportQuestionsAnswerRouteType)
     }
 
-  // GET /pre-clearance/export-questions/priority-goods
-  val showAnswerExportQuestionsGoodsPriority: Action[AnyContent] =
+  // GET /pre-clearance/export-questions/has-priority-goods
+  val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
     actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsGoodsPriority =>
+      case _: AnswerExportQuestionsHasPriorityGoods =>
     }
 
-  // POST /pre-clearance/export-questions/priority-goods
-  val submitExportQuestionsGoodsPriorityAnswer: Action[AnyContent] =
+  // POST /pre-clearance/export-questions/has-priority-goods
+  val submitExportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
     action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportGoodsPriorityForm)(Transitions.submittedExportQuestionsAnswerGoodsPriority)
+      whenAuthorisedWithForm(AsUser)(ExportHasPriorityGoodsForm)(
+        Transitions.submittedExportQuestionsAnswerHasPriorityGoods
+      )
+    }
+
+  // GET /pre-clearance/export-questions/which-priority-goods
+  val showAnswerExportQuestionsWhichPriorityGoods: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsWhichPriorityGoods =>
+    }
+
+  // POST /pre-clearance/export-questions/which-priority-goods
+  val submitExportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportPriorityGoodsForm)(
+        Transitions.submittedExportQuestionsAnswerWhichPriorityGoods
+      )
     }
 
   // GET /pre-clearance/export-questions/transport-type
@@ -169,8 +185,11 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsRouteType =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsRouteType()
 
-      case _: AnswerExportQuestionsGoodsPriority =>
-        routes.TraderServicesFrontendController.showAnswerExportQuestionsGoodsPriority()
+      case _: AnswerExportQuestionsHasPriorityGoods =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsHasPriorityGoods()
+
+      case _: AnswerExportQuestionsWhichPriorityGoods =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsWhichPriorityGoods()
 
       case _: AnswerExportQuestionsFreightType =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsFreightType()
@@ -234,20 +253,33 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportRouteTypeForm.fill(query))
                 .getOrElse(ExportRouteTypeForm)
             ),
-            workInProgresDeadEndCall,
+            routes.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsGoodsPriority(_, exportQuestions) =>
+      case AnswerExportQuestionsHasPriorityGoods(_, exportQuestions) =>
         Ok(
-          views.exportQuestionsGoodsPriorityView(
+          views.exportQuestionsHasPriorityGoodsView(
             formWithErrors.or(
-              exportQuestions.goodsPriority
-                .map(query => ExportGoodsPriorityForm.fill(query))
-                .getOrElse(ExportGoodsPriorityForm)
+              exportQuestions.priorityGoods
+                .map(query => ExportHasPriorityGoodsForm.fill(true))
+                .getOrElse(ExportHasPriorityGoodsForm)
             ),
-            workInProgresDeadEndCall,
+            routes.TraderServicesFrontendController.submitExportQuestionsHasPriorityGoodsAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
+      case AnswerExportQuestionsWhichPriorityGoods(_, exportQuestions) =>
+        Ok(
+          views.exportQuestionsWhichPriorityGoodsView(
+            formWithErrors.or(
+              exportQuestions.priorityGoods
+                .map(query => ExportPriorityGoodsForm.fill(query))
+                .getOrElse(ExportPriorityGoodsForm)
+            ),
+            routes.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
@@ -260,7 +292,7 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ExportFreightTypeForm.fill(query))
                 .getOrElse(ExportFreightTypeForm)
             ),
-            workInProgresDeadEndCall,
+            routes.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
@@ -344,8 +376,12 @@ object TraderServicesFrontendController {
     mapping("routeType" -> exportRouteTypeMapping)(identity)(Option.apply)
   )
 
-  val ExportGoodsPriorityForm = Form[ExportGoodsPriority](
-    mapping("goodsPriority" -> exportGoodsPriorityMapping)(identity)(Option.apply)
+  val ExportHasPriorityGoodsForm = Form[Boolean](
+    mapping("hasPriorityGoods" -> exportHasPriorityGoodsMapping)(identity)(Option.apply)
+  )
+
+  val ExportPriorityGoodsForm = Form[ExportPriorityGoods](
+    mapping("priorityGoods" -> exportPriorityGoodsMapping)(identity)(Option.apply)
   )
 
   val ExportFreightTypeForm = Form[ExportFreightType](

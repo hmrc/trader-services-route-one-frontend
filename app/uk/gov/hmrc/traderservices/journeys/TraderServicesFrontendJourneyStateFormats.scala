@@ -26,7 +26,8 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
   val answerExportQuestionsRequestTypeFormat = Json.format[AnswerExportQuestionsRequestType]
   val answerExportQuestionsRouteTypeFormat = Json.format[AnswerExportQuestionsRouteType]
-  val answerExportQuestionsGoodsPriorityFormat = Json.format[AnswerExportQuestionsGoodsPriority]
+  val answerExportQuestionsHasPriorityGoodsFormat = Json.format[AnswerExportQuestionsHasPriorityGoods]
+  val answerExportQuestionsWhichPriorityGoodsFormat = Json.format[AnswerExportQuestionsWhichPriorityGoods]
   val answerExportQuestionsFreightTypeFormat = Json.format[AnswerExportQuestionsFreightType]
   val answerImportQuestionsRequestTypeFormat = Json.format[AnswerImportQuestionsRequestType]
   val answerImportQuestionsRouteTypeFormat = Json.format[AnswerImportQuestionsRouteType]
@@ -34,30 +35,32 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerImportQuestionsFreightTypeFormat = Json.format[AnswerImportQuestionsFreightType]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case s: EnterDeclarationDetails            => enterDeclarationDetailsFormat.writes(s)
-    case s: AnswerExportQuestionsRequestType   => answerExportQuestionsRequestTypeFormat.writes(s)
-    case s: AnswerExportQuestionsRouteType     => answerExportQuestionsRouteTypeFormat.writes(s)
-    case s: AnswerExportQuestionsGoodsPriority => answerExportQuestionsGoodsPriorityFormat.writes(s)
-    case s: AnswerExportQuestionsFreightType   => answerExportQuestionsFreightTypeFormat.writes(s)
-    case s: AnswerImportQuestionsRequestType   => answerImportQuestionsRequestTypeFormat.writes(s)
-    case s: AnswerImportQuestionsRouteType     => answerImportQuestionsRouteTypeFormat.writes(s)
-    case s: AnswerImportQuestionsGoodsPriority => answerImportQuestionsGoodsPriorityFormat.writes(s)
-    case s: AnswerImportQuestionsFreightType   => answerImportQuestionsFreightTypeFormat.writes(s)
+    case s: EnterDeclarationDetails                 => enterDeclarationDetailsFormat.writes(s)
+    case s: AnswerExportQuestionsRequestType        => answerExportQuestionsRequestTypeFormat.writes(s)
+    case s: AnswerExportQuestionsRouteType          => answerExportQuestionsRouteTypeFormat.writes(s)
+    case s: AnswerExportQuestionsHasPriorityGoods   => answerExportQuestionsHasPriorityGoodsFormat.writes(s)
+    case s: AnswerExportQuestionsWhichPriorityGoods => answerExportQuestionsWhichPriorityGoodsFormat.writes(s)
+    case s: AnswerExportQuestionsFreightType        => answerExportQuestionsFreightTypeFormat.writes(s)
+    case s: AnswerImportQuestionsRequestType        => answerImportQuestionsRequestTypeFormat.writes(s)
+    case s: AnswerImportQuestionsRouteType          => answerImportQuestionsRouteTypeFormat.writes(s)
+    case s: AnswerImportQuestionsGoodsPriority      => answerImportQuestionsGoodsPriorityFormat.writes(s)
+    case s: AnswerImportQuestionsFreightType        => answerImportQuestionsFreightTypeFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
-      case "Start"                              => JsSuccess(Start)
-      case "EnterDeclarationDetails"            => enterDeclarationDetailsFormat.reads(properties)
-      case "AnswerExportQuestionsRequestType"   => answerExportQuestionsRequestTypeFormat.reads(properties)
-      case "AnswerExportQuestionsRouteType"     => answerExportQuestionsRouteTypeFormat.reads(properties)
-      case "AnswerExportQuestionsGoodsPriority" => answerExportQuestionsGoodsPriorityFormat.reads(properties)
-      case "AnswerExportQuestionsFreightType"   => answerExportQuestionsFreightTypeFormat.reads(properties)
-      case "AnswerImportQuestionsRequestType"   => answerImportQuestionsRequestTypeFormat.reads(properties)
-      case "AnswerImportQuestionsRouteType"     => answerImportQuestionsRouteTypeFormat.reads(properties)
-      case "AnswerImportQuestionsGoodsPriority" => answerImportQuestionsGoodsPriorityFormat.reads(properties)
-      case "AnswerImportQuestionsFreightType"   => answerImportQuestionsFreightTypeFormat.reads(properties)
-      case "WorkInProgressDeadEnd"              => JsSuccess(WorkInProgressDeadEnd)
-      case _                                    => JsError(s"Unknown state name $stateName")
+      case "Start"                                   => JsSuccess(Start)
+      case "EnterDeclarationDetails"                 => enterDeclarationDetailsFormat.reads(properties)
+      case "AnswerExportQuestionsRequestType"        => answerExportQuestionsRequestTypeFormat.reads(properties)
+      case "AnswerExportQuestionsRouteType"          => answerExportQuestionsRouteTypeFormat.reads(properties)
+      case "AnswerExportQuestionsHasPriorityGoods"   => answerExportQuestionsHasPriorityGoodsFormat.reads(properties)
+      case "AnswerExportQuestionsWhichPriorityGoods" => answerExportQuestionsWhichPriorityGoodsFormat.reads(properties)
+      case "AnswerExportQuestionsFreightType"        => answerExportQuestionsFreightTypeFormat.reads(properties)
+      case "AnswerImportQuestionsRequestType"        => answerImportQuestionsRequestTypeFormat.reads(properties)
+      case "AnswerImportQuestionsRouteType"          => answerImportQuestionsRouteTypeFormat.reads(properties)
+      case "AnswerImportQuestionsGoodsPriority"      => answerImportQuestionsGoodsPriorityFormat.reads(properties)
+      case "AnswerImportQuestionsFreightType"        => answerImportQuestionsFreightTypeFormat.reads(properties)
+      case "WorkInProgressDeadEnd"                   => JsSuccess(WorkInProgressDeadEnd)
+      case _                                         => JsError(s"Unknown state name $stateName")
     }
 }

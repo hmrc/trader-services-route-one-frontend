@@ -199,16 +199,12 @@ view.export-questions.requestType.title=What type of export request is this?
 view.export-questions.requestType.heading=What type of export request is this?
 view.export-questions.routeType.title=Which route is this declaration for?
 view.export-questions.routeType.heading=Which route is this declaration for?
-view.export-questions.goodsPriority.title=Which type of priority goods are you moving?
-view.export-questions.goodsPriority.heading=Which type of priority goods are you moving?
+view.export-questions.hasPriorityGoods.title=Are you moving any priority goods?
+view.export-questions.hasPriorityGoods.heading=Are you moving any priority goods?
+view.export-questions.whichPriorityGoods.title=Which type of priority goods are you moving?
+view.export-questions.whichPriorityGoods.heading=Which type of priority goods are you moving?
 view.export-questions.freightType.title=Which type of transport are you using?
 view.export-questions.freightType.heading=Which type of transport are you using?
-error.exportRequestType.required=Select the type of export request
-error.exportRouteType.required=Select the route
-error.exportGoodsPriority.required=Select the type of priority goods
-error.exportFreightType.required=Select the type of transport you''re using
-view.export-questions.routeType=Which route is this?
-view.export-questions.goodsPriority=Does the consignment contain any priority goods?
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -235,15 +231,22 @@ form.export-questions.routeType.Route2=Route 2
 form.export-questions.routeType.Route3=Route 3
 form.export-questions.routeType.Route6=Route 6
 form.export-questions.routeType.Hold=Hold
-form.export-questions.goodsPriority.None=No
-form.export-questions.goodsPriority.LiveAnimals=Yes - live animals
-form.export-questions.goodsPriority.HumanRemains=Yes - human remains
-form.export-questions.goodsPriority.ExplosivesOrFireworks=Yes - explosives or fireworks
-form.export-questions.goodsPriority.HighValueArt=Yes - high value art
-form.export-questions.goodsPriority.ClassADrugs=Yes - class A drugs
+form.export-questions.hasPriorityGoods.yes=Yes
+form.export-questions.hasPriorityGoods.no=No
+form.export-questions.priorityGoods.LiveAnimals=Live animals
+form.export-questions.priorityGoods.HumanRemains=Human remains
+form.export-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
+form.export-questions.priorityGoods.HighValueArt=High value art
+form.export-questions.priorityGoods.ClassADrugs=Class A drugs
+form.export-questions.freightType.Maritime=Maritime
+form.export-questions.freightType.Air=Air
+form.export-questions.freightType.RORO=Road, rail or roll-on, roll-off (RORO)
 form.export-questions.continue=Continue
-error.routeType.required=Tell us which route
-error.goodsPriority.required=Select yes if the consignment contains priority goods
+error.exportRequestType.required=Select the type of export request
+error.exportRouteType.required=Select the route
+error.exportHasPriorityGoods.required=Select yes if you''re moving priority goods
+error.exportPriorityGoods.required=Select the type of priority goods
+error.exportFreightType.required=Select the type of transport you''re using
 
 # Import Questions Form
 # ----------------------------------------------------------

@@ -18,11 +18,11 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
 
-import play.api.data.Forms.{of, optional, text}
+import play.api.data.Forms.{boolean, of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
 
 import scala.util.Try
 
@@ -116,6 +116,11 @@ object FormFieldMappings {
       .verifying(constraint(fieldName, "invalid-option", implicitly[EnumerationFormats[A]].isValidKey))
       .transform(implicitly[EnumerationFormats[A]].valueOf(_).get, implicitly[EnumerationFormats[A]].keyOf(_).get)
 
+  def booleanMapping(fieldName: String, trueValue: String, falseValue: String): Mapping[Boolean] =
+    optional(text)
+      .verifying(constraint[Option[String]](fieldName, "required", _.exists(s => s == trueValue || s == falseValue)))
+      .transform[Boolean](_.contains(trueValue), b => if (b) Some(trueValue) else Some(falseValue))
+
   val exportRequestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("exportRequestType")
 
   val importRequestTypeMapping: Mapping[ImportRequestType] = enumMapping[ImportRequestType]("requestType")
@@ -124,7 +129,9 @@ object FormFieldMappings {
 
   val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("routeType")
 
-  val exportGoodsPriorityMapping: Mapping[ExportGoodsPriority] = enumMapping[ExportGoodsPriority]("exportGoodsPriority")
+  val exportHasPriorityGoodsMapping: Mapping[Boolean] = booleanMapping("exportHasPriorityGoods", "yes", "no")
+
+  val exportPriorityGoodsMapping: Mapping[ExportPriorityGoods] = enumMapping[ExportPriorityGoods]("exportPriorityGoods")
 
   val importGoodsPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("goodsPriority")
 
