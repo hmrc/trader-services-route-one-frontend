@@ -18,13 +18,13 @@ package uk.gov.hmrc.traderservices.model
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 class ExportQuestionsFormatSpec extends UnitSpec {
 
   "ExportQuestionsFormats" should {
 
-    "serialize and deserialize ExportRequestType" in new JsonFormatTest[ExportRequestType] {
-
+    "serialize and deserialize ExportRequestType" in new JsonFormatTest[ExportRequestType](info) {
       validateJsonFormat("New", ExportRequestType.New)
       validateJsonFormat("Cancellation", ExportRequestType.Cancellation)
       validateJsonFormat("Hold", ExportRequestType.Hold)
@@ -34,8 +34,7 @@ class ExportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("WithdrawalOrReturn", ExportRequestType.WithdrawalOrReturn)
     }
 
-    "serialize and deserialize ExportRouteType" in new JsonFormatTest[ExportRouteType] {
-
+    "serialize and deserialize ExportRouteType" in new JsonFormatTest[ExportRouteType](info) {
       validateJsonFormat("Route1", ExportRouteType.Route1)
       validateJsonFormat("Route1Cap", ExportRouteType.Route1Cap)
       validateJsonFormat("Route2", ExportRouteType.Route2)
@@ -43,8 +42,7 @@ class ExportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("Route6", ExportRouteType.Route6)
     }
 
-    "serialize and deserialize ExportGoodsPriority" in new JsonFormatTest[ExportGoodsPriority] {
-
+    "serialize and deserialize ExportGoodsPriority" in new JsonFormatTest[ExportGoodsPriority](info) {
       validateJsonFormat("None", ExportGoodsPriority.None)
       validateJsonFormat("LiveAnimals", ExportGoodsPriority.LiveAnimals)
       validateJsonFormat("HumanRemains", ExportGoodsPriority.HumanRemains)

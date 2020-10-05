@@ -18,12 +18,13 @@ package uk.gov.hmrc.traderservices.model
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 class ImportQuestionsFormatSpec extends UnitSpec {
 
   "ImportQuestionsFormats" should {
 
-    "serialize and deserialize ImportRequestType" in new JsonFormatTest[ImportRequestType] {
+    "serialize and deserialize ImportRequestType" in new JsonFormatTest[ImportRequestType](info) {
 
       ImportRequestType.values.size shouldBe 4
 
@@ -33,7 +34,7 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("ALVS", ImportRequestType.ALVS)
     }
 
-    "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType] {
+    "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType](info) {
 
       ImportRouteType.values.size shouldBe 6
 
@@ -45,7 +46,7 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("Hold", ImportRouteType.Hold)
     }
 
-    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportGoodsPriority] {
+    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportGoodsPriority](info) {
 
       ImportGoodsPriority.values.size shouldBe 6
 
@@ -57,7 +58,7 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("ClassADrugs", ImportGoodsPriority.ClassADrugs)
     }
 
-    "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType] {
+    "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType](info) {
 
       ImportFreightType.values.size shouldBe 3
 
