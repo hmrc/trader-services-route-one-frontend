@@ -54,22 +54,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state EnterDeclarationDetails" should {
-<<<<<<< HEAD
 
       "goto AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
-=======
-      "go to AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
->>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
         ) should thenGo(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions()))
       }
 
-<<<<<<< HEAD
       "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
-=======
-      "go to AnswerImportQuestions when submittedDeclarationDetails for import" in {
->>>>>>> [DOR-62][A0] export question for request type
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
