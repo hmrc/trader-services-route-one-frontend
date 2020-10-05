@@ -153,3 +153,4 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
   }
 
 }
+
