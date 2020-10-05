@@ -45,6 +45,41 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           ExportQuestions()
         )
       )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsRouteType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New"}}}""",
+        State.AnswerExportQuestionsRouteType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(requestType = Some(ExportRequestType.New))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsGoodsPriority","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}""",
+        State.AnswerExportQuestionsGoodsPriority(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","goodsPriority":"LiveAnimals"}}}""",
+        State.AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route1),
+            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"Hold","goodsPriority":"LiveAnimals"}}}""",
+        State.AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.Hold),
+            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+          )
+        )
+      )
     }
 
     "throw an exception when unknown state" in {
