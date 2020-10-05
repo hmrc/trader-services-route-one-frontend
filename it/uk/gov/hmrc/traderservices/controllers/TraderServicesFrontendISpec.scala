@@ -444,7 +444,6 @@ class TraderServicesFrontendISpec
         )
       }
     }
-
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
