@@ -14,21 +14,33 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.model
+package uk.gov.hmrc.traderservices.support
 
 import org.scalatest.Assertion
 import org.scalatest.Matchers._
 import play.api.libs.json.{Format, Json}
+import org.scalatest.Informer
 
-class JsonFormatTest[A: Format]() {
+abstract class JsonFormatTest[A: Format](info: Informer) {
 
   case class TestEntity(entity: A)
   implicit val testFormat: Format[TestEntity] = Json.format[TestEntity]
 
   def validateJsonFormat(value: String, entity: A): Assertion = {
-    val json = s"""{"entity":"$value"}"""
+    info(nameOf(entity))
+    val json = s"""{"entity":${if (value.startsWith("{")) value else s""""$value""""}}"""
     Json.parse(json).as[TestEntity].entity shouldBe entity
     Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json
+  }
+
+  val localPackagePrefix = "class uk.gov.hmrc.traderservices."
+
+  def nameOf(entity: A): String = {
+    val s = entity.getClass.toString.replace("$", ".")
+    val s1 = if (s.endsWith(".")) s.dropRight(1) else s
+    if (s1.startsWith(localPackagePrefix)) s1.drop(localPackagePrefix.length)
+    else s1
+
   }
 
 }

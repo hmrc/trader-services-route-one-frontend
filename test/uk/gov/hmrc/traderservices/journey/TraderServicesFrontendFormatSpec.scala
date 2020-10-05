@@ -20,25 +20,31 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Format, JsResultException, Json}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.{Start}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 class TraderServicesFrontendFormatSpec extends UnitSpec {
 
   implicit val formats: Format[State] = TraderServicesFrontendJourneyStateFormats.formats
 
   "TraderServicesFrontendJourneyStateFormats" should {
-    "serialize and deserialize state" when {
-      "Start" in {
-        val state = Start
-
-        val json = Json.parse("""{"state":"Start"}""")
-        Json.toJson(state) shouldBe json
-        json.as[State] shouldBe state
-      }
-
+    "serialize and deserialize state" in new JsonFormatTest[State](info) {
+      validateJsonFormat("""{"state":"Start"}""", State.Start)
+      validateJsonFormat(
+        """{"state":"EnterDeclarationDetails","properties":{"declarationDetailsOpt":{"epu":"123","entryNumber":"100000Z","entryDate":"2000-01-01"}}}""",
+        State.EnterDeclarationDetails(
+          Some(DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2000-01-01")))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsRequestType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{}}}""",
+        State.AnswerExportQuestionsRequestType(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions()
+        )
+      )
     }
 
     "throw an exception when unknown state" in {
