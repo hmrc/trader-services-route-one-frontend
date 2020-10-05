@@ -16,13 +16,8 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
-import java.time.{LocalDate, ZoneId}
-
-import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.fsm.JourneyModel
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.models._
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -61,9 +56,24 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerImportQuestions(
+    case class AnswerImportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
-      importQuestionsOpt: Option[ImportQuestions]
+      importQuestionsOpt: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerImportQuestionsRouteType(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerImportQuestionsGoodsPriority(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerImportQuestionsFreightType(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
     case object WorkInProgressDeadEnd extends State
@@ -93,7 +103,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case EnterDeclarationDetails(_) =>
           if (declarationDetails.isExportDeclaration)
             goto(AnswerExportQuestionsRequestType(declarationDetails, ExportQuestions()))
-          else goto(AnswerImportQuestions(declarationDetails, None))
+          else goto(AnswerImportQuestionsRequestType(declarationDetails, ImportQuestions()))
       }
 
     def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
@@ -130,10 +140,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case _ => goto(WorkInProgressDeadEnd)
       }
 
-    def submittedImportQuestionsAnswers(user: String)(importQuestions: ImportQuestions) =
+    def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
-        case AnswerImportQuestions(declarationDetails, _) =>
-          goto(WorkInProgressDeadEnd)
+        case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsRouteType(
+              declarationDetails,
+              importQuestions.copy(requestType = Some(importRequestType))
+            )
+          )
       }
   }
 

@@ -130,6 +130,6 @@ object FormFieldMappings {
 
   val exportFreightTypeMapping: Mapping[ExportFreightType] = enumMapping[ExportFreightType]("exportFreightType")
 
-  val freightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("freightType")
+  val importFreightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("freightType")
 
 }

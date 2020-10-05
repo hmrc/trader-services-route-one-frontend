@@ -27,5 +27,8 @@ class Views @Inject() (
   val exportQuestionsRouteTypeView: ExportQuestionsRouteTypeView,
   val exportQuestionsGoodsPriorityView: ExportQuestionsGoodsPriorityView,
   val exportQuestionsFreightTypeView: ExportQuestionsFreightTypeView,
-  val importQuestionsView: ImportQuestionsView
+  val importQuestionsRequestTypeView: ImportQuestionsRequestTypeView,
+  val importQuestionsRouteTypeView: ImportQuestionsRouteTypeView,
+  val importQuestionsGoodsPriorityView: ImportQuestionsGoodsPriorityView,
+  val importQuestionsFreightTypeView: ImportQuestionsFreightTypeView
 )
