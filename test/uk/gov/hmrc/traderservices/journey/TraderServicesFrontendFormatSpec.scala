@@ -45,7 +45,6 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           ExportQuestions()
         )
       )
-
       validateJsonFormat(
         """{"state":"AnswerExportQuestionsRouteType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New"}}}""",
         State.AnswerExportQuestionsRouteType(
@@ -81,7 +80,6 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           )
         )
       )
-
     }
 
     "throw an exception when unknown state" in {
