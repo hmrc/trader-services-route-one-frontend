@@ -144,6 +144,28 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerExportQuestionsWhichPriorityGoods" should {
+      "go to AnswerExportQuestionsFreightType when submittedExportQuestionsAnswerWhichPriorityGoods" in {
+        given(
+          AnswerExportQuestionsWhichPriorityGoods(
+            exportDeclarationDetails,
+            ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
+          )
+        ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+          ExportPriorityGoods.ExplosivesOrFireworks
+        ) should thenGo(
+          AnswerExportQuestionsFreightType(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+            )
+          )
+        )
+      }
+    }
   }
 
   case class given(initialState: State)
