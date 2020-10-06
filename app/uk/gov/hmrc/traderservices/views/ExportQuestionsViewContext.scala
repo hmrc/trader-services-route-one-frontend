@@ -23,7 +23,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 
 @Singleton
 class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelper {
@@ -59,29 +58,34 @@ class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelp
       form
     )
 
+  val exportPriorityGoodsList = Seq(
+    ExportPriorityGoods.ClassADrugs,
+    ExportPriorityGoods.ExplosivesOrFireworks,
+    ExportPriorityGoods.HighValueArt,
+    ExportPriorityGoods.HumanRemains,
+    ExportPriorityGoods.LiveAnimals
+  )
+
   def exportPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ExportPriorityGoods](
       "export-questions",
       "priorityGoods",
-      Seq(
-        ExportPriorityGoods.ClassADrugs,
-        ExportPriorityGoods.ExplosivesOrFireworks,
-        ExportPriorityGoods.HighValueArt,
-        ExportPriorityGoods.HumanRemains,
-        ExportPriorityGoods.LiveAnimals
-      ),
+      exportPriorityGoodsList,
       form
     )
 
-  def exportHasPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[CheckboxItem] =
+  def exportPriorityGoodsMessageKeys(messagePrefix: String): Seq[String] =
+    exportPriorityGoodsList.map(key => s"$messagePrefix.$key")
+
+  def exportHasPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     Seq(
-      CheckboxItem(
-        value = "yes",
+      RadioItem(
+        value = Some("yes"),
         content = Text(messages(s"form.export-questions.hasPriorityGoods.yes")),
         checked = form("hasPriorityGoods").value.contains("yes")
       ),
-      CheckboxItem(
-        value = "no",
+      RadioItem(
+        value = Some("no"),
         content = Text(messages(s"form.export-questions.hasPriorityGoods.no")),
         checked = form("hasPriorityGoods").value.contains("no")
       )

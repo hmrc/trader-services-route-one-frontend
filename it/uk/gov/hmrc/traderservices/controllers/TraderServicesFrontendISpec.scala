@@ -225,6 +225,77 @@ class TraderServicesFrontendISpec
       }
     }
 
+    "GET /pre-clearance/export-questions/has-priority-goods" should {
+      "show the export has priority goods page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsHasPriorityGoods(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/has-priority-goods").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/has-priority-goods" should {
+      "submit YES choice and ask next for which priority goods" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsHasPriorityGoods(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("hasPriorityGoods" -> "yes")
+
+        val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+        )
+      }
+
+      "submit NO choice and ask next for transport type" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsHasPriorityGoods(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("hasPriorityGoods" -> "no")
+
+        val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+        )
+      }
+    }
+
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
