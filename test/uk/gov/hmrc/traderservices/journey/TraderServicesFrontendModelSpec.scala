@@ -166,6 +166,59 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerExportQuestionsFreightType" should {
+      for (freightType <- Seq(ExportFreightType.RORO, ExportFreightType.Air))
+        s"go to AnswerExportQuestionsContactInfo when submittedExportQuestionsAnswerFreightType with ${ExportFreightType.keyOf(freightType).get} option" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerExportQuestionsContactInfo(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                freightType = Some(freightType)
+              )
+            )
+          )
+        }
+
+      "go to AnswerExportQuestionsVesselInfo when submittedExportQuestionsAnswerFreightType with Maritime option" in {
+        given(
+          AnswerExportQuestionsFreightType(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+            )
+          )
+        ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ExportFreightType.Maritime
+        ) should thenGo(
+          AnswerExportQuestionsVesselInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+              freightType = Some(ExportFreightType.Maritime)
+            )
+          )
+        )
+      }
+    }
   }
 
   case class given(initialState: State)

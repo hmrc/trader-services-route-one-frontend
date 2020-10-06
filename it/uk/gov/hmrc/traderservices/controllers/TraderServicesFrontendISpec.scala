@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.traderservices.models.ExportRequestType
 import uk.gov.hmrc.traderservices.models.ExportRouteType
 import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
+import uk.gov.hmrc.traderservices.models.ExportFreightType
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -344,6 +345,101 @@ class TraderServicesFrontendISpec
             requestType = Some(ExportRequestType.C1603),
             routeType = Some(ExportRouteType.Route3),
             priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+          )
+        )
+      }
+    }
+
+    "GET /pre-clearance/export-questions/transport-type" should {
+      "show the export transport type page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsFreightType(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/transport-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1603),
+            routeType = Some(ExportRouteType.Route6),
+            priorityGoods = Some(ExportPriorityGoods.HighValueArt)
+          )
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/transport-type" should {
+      "submit selected RORO transport type and ask next for contact details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsFreightType(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "RORO")
+
+        val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
+
+        result.status shouldBe 501
+
+        journey.getState shouldBe AnswerExportQuestionsContactInfo(
+          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1603),
+            routeType = Some(ExportRouteType.Route3),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO)
+          )
+        )
+      }
+
+      "submit selected Maritime transport type and ask next for vessel details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsFreightType(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "Maritime")
+
+        val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
+
+        result.status shouldBe 501
+
+        journey.getState shouldBe AnswerExportQuestionsVesselInfo(
+          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1603),
+            routeType = Some(ExportRouteType.Route3),
+            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+            freightType = Some(ExportFreightType.Maritime)
           )
         )
       }

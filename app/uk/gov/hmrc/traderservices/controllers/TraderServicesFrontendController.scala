@@ -59,6 +59,9 @@ class TraderServicesFrontendController @Inject() (
     authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
   }
 
+  /** Dummy action to use when developing with loose-ends. */
+  private val actionNotYetImplemented = Action(NotImplemented)
+
   def toSubscriptionJourney(continueUrl: String): Result =
     Redirect(
       appConfig.subscriptionJourneyUrl,
@@ -153,6 +156,22 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ExportFreightTypeForm)(Transitions.submittedExportQuestionsAnswerFreightType)
     }
 
+  // GET /pre-clearance/export-questions/vessel-info
+  val showAnswerExportQuestionsVesselInfo: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/export-questions/vessel-info
+  val submitExportQuestionsVesselInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/export-questions/contact-info
+  val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/export-questions/contact-info
+  val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
   // GET /pre-clearance/import-questions
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
     actionShowStateWhenAuthorised(AsUser) {
@@ -194,11 +213,14 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsFreightType =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsFreightType()
 
+      case _: AnswerExportQuestionsVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsVesselInfo()
+
+      case _: AnswerExportQuestionsContactInfo =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo()
+
       case _: AnswerImportQuestionsRequestType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsRequestType()
-
-      case WorkInProgressDeadEnd =>
-        workInProgresDeadEndCall
 
       case _ =>
         workInProgresDeadEndCall
@@ -345,7 +367,7 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case WorkInProgressDeadEnd => NotImplemented
+      case _ => NotImplemented
 
     }
 

@@ -29,6 +29,8 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerExportQuestionsHasPriorityGoodsFormat = Json.format[AnswerExportQuestionsHasPriorityGoods]
   val answerExportQuestionsWhichPriorityGoodsFormat = Json.format[AnswerExportQuestionsWhichPriorityGoods]
   val answerExportQuestionsFreightTypeFormat = Json.format[AnswerExportQuestionsFreightType]
+  val answerExportQuestionsVesselInfoFormat = Json.format[AnswerExportQuestionsVesselInfo]
+  val answerExportQuestionsContactInfoFormat = Json.format[AnswerExportQuestionsContactInfo]
   val answerImportQuestionsRequestTypeFormat = Json.format[AnswerImportQuestionsRequestType]
   val answerImportQuestionsRouteTypeFormat = Json.format[AnswerImportQuestionsRouteType]
   val answerImportQuestionsGoodsPriorityFormat = Json.format[AnswerImportQuestionsGoodsPriority]
@@ -41,6 +43,8 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: AnswerExportQuestionsHasPriorityGoods   => answerExportQuestionsHasPriorityGoodsFormat.writes(s)
     case s: AnswerExportQuestionsWhichPriorityGoods => answerExportQuestionsWhichPriorityGoodsFormat.writes(s)
     case s: AnswerExportQuestionsFreightType        => answerExportQuestionsFreightTypeFormat.writes(s)
+    case s: AnswerExportQuestionsVesselInfo         => answerExportQuestionsVesselInfoFormat.writes(s)
+    case s: AnswerExportQuestionsContactInfo        => answerExportQuestionsContactInfoFormat.writes(s)
     case s: AnswerImportQuestionsRequestType        => answerImportQuestionsRequestTypeFormat.writes(s)
     case s: AnswerImportQuestionsRouteType          => answerImportQuestionsRouteTypeFormat.writes(s)
     case s: AnswerImportQuestionsGoodsPriority      => answerImportQuestionsGoodsPriorityFormat.writes(s)
@@ -56,6 +60,8 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "AnswerExportQuestionsHasPriorityGoods"   => answerExportQuestionsHasPriorityGoodsFormat.reads(properties)
       case "AnswerExportQuestionsWhichPriorityGoods" => answerExportQuestionsWhichPriorityGoodsFormat.reads(properties)
       case "AnswerExportQuestionsFreightType"        => answerExportQuestionsFreightTypeFormat.reads(properties)
+      case "AnswerExportQuestionsVesselInfo"         => answerExportQuestionsVesselInfoFormat.reads(properties)
+      case "AnswerExportQuestionsContactInfo"        => answerExportQuestionsContactInfoFormat.reads(properties)
       case "AnswerImportQuestionsRequestType"        => answerImportQuestionsRequestTypeFormat.reads(properties)
       case "AnswerImportQuestionsRouteType"          => answerImportQuestionsRouteTypeFormat.reads(properties)
       case "AnswerImportQuestionsGoodsPriority"      => answerImportQuestionsGoodsPriorityFormat.reads(properties)
