@@ -413,13 +413,13 @@ class TraderServicesFrontendISpec
         )
       }
 
-      "submit selected Maritime transport type and ask next for vessel details" in {
+      "submit selected Air transport type and ask next for vessel details" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsFreightType(
             DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1603),
+              requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
             )
@@ -427,7 +427,7 @@ class TraderServicesFrontendISpec
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("freightType" -> "Maritime")
+        val payload = Map("freightType" -> "Air")
 
         val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
 
@@ -436,10 +436,10 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsVesselInfo(
           DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1603),
+            requestType = Some(ExportRequestType.C1601),
             routeType = Some(ExportRouteType.Route3),
             priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-            freightType = Some(ExportFreightType.Maritime)
+            freightType = Some(ExportFreightType.Air)
           )
         )
       }

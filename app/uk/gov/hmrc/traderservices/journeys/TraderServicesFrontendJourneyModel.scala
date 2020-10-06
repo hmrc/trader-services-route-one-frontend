@@ -174,7 +174,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
       Transition {
         case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
-          if (exportFreightType == ExportFreightType.Maritime)
+          if (exportQuestions.requestType.contains(ExportRequestType.C1601))
             goto(
               AnswerExportQuestionsVesselInfo(
                 declarationDetails,
