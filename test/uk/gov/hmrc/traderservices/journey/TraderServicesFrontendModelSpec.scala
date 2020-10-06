@@ -166,6 +166,65 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerExportQuestionsFreightType" should {
+      for (
+        freightType <- ExportFreightType.values;
+        requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.C1601)
+      )
+        s"go to AnswerExportQuestionsContactInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerExportQuestionsContactInfo(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                freightType = Some(freightType)
+              )
+            )
+          )
+        }
+
+      for (freightType <- ExportFreightType.values)
+        s"go to AnswerExportQuestionsVesselInfo when submittedExportQuestionsAnswerFreightType and requestType==C1601, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerExportQuestionsVesselInfo(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                freightType = Some(freightType)
+              )
+            )
+          )
+        }
+    }
   }
 
   case class given(initialState: State)

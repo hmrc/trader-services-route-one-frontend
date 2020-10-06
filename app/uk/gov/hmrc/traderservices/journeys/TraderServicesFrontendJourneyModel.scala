@@ -61,6 +61,16 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
 
+    case class AnswerExportQuestionsVesselInfo(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerExportQuestionsContactInfo(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State with HasDeclarationDetails
+
     case class AnswerImportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: ImportQuestions
@@ -163,7 +173,21 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
       Transition {
-        case _ => goto(WorkInProgressDeadEnd)
+        case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
+          if (exportQuestions.requestType.contains(ExportRequestType.C1601))
+            goto(
+              AnswerExportQuestionsVesselInfo(
+                declarationDetails,
+                exportQuestions.copy(freightType = Some(exportFreightType))
+              )
+            )
+          else
+            goto(
+              AnswerExportQuestionsContactInfo(
+                declarationDetails,
+                exportQuestions.copy(freightType = Some(exportFreightType))
+              )
+            )
       }
 
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =

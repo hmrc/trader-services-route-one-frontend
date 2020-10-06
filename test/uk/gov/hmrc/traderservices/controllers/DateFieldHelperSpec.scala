@@ -29,24 +29,24 @@ class DateFieldHelperSpec extends UnitSpec {
   "DateFieldHelper" should {
 
     "format date from fields" in {
-      normalizeDateFields("", "", "") shouldBe ("", "", "")
-      normalizeDateFields("2019", "", "") shouldBe ("2019", "", "")
-      normalizeDateFields("19", "1", "") shouldBe ("2019", "01", "")
-      normalizeDateFields("", "05", "7") shouldBe ("", "05", "07")
-      normalizeDateFields("8", "05", "7") shouldBe ("8", "05", "07")
-      normalizeDateFields("208", "05", "17") shouldBe ("208", "05", "17")
+      normalizeDateFields("", "", "") shouldBe (("", "", ""))
+      normalizeDateFields("2019", "", "") shouldBe (("2019", "", ""))
+      normalizeDateFields("19", "1", "") shouldBe (("2019", "01", ""))
+      normalizeDateFields("", "05", "7") shouldBe (("", "05", "07"))
+      normalizeDateFields("8", "05", "7") shouldBe (("8", "05", "07"))
+      normalizeDateFields("208", "05", "17") shouldBe (("208", "05", "17"))
     }
 
     "split date into fields" in {
-      splitDate("2019-01-17") shouldBe ("2019", "01", "17")
-      splitDate("2019") shouldBe ("2019", "", "")
-      splitDate("2019-01") shouldBe ("2019", "01", "")
-      splitDate("2019-01-XX") shouldBe ("2019", "01", "XX")
-      splitDate("2019-XX-XX") shouldBe ("2019", "XX", "XX")
-      splitDate("2019-XX-31") shouldBe ("2019", "XX", "31")
-      splitDate("foo") shouldBe ("foo", "", "")
-      splitDate("2019-foo-bar") shouldBe ("2019", "foo", "bar")
-      splitDate("") shouldBe ("", "", "")
+      splitDate("2019-01-17") shouldBe (("2019", "01", "17"))
+      splitDate("2019") shouldBe (("2019", "", ""))
+      splitDate("2019-01") shouldBe (("2019", "01", ""))
+      splitDate("2019-01-XX") shouldBe (("2019", "01", "XX"))
+      splitDate("2019-XX-XX") shouldBe (("2019", "XX", "XX"))
+      splitDate("2019-XX-31") shouldBe (("2019", "XX", "31"))
+      splitDate("foo") shouldBe (("foo", "", ""))
+      splitDate("2019-foo-bar") shouldBe (("2019", "foo", "bar"))
+      splitDate("") shouldBe (("", "", ""))
     }
 
     "concat fields into a date" in {

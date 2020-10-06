@@ -16,6 +16,11 @@ GET        /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc
 POST       /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer
 GET        /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsFreightType
 POST       /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer
+GET        /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsVesselInfo
+POST       /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsVesselInfoAnswer
+GET        /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo
+POST       /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer
+
 GET        /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRequestType
 POST       /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer
 
