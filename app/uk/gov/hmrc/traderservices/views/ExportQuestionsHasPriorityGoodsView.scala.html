@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.ExportGoodsPriority
+@import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 
 @this(
@@ -24,21 +24,21 @@ html: uk.gov.hmrc.traderservices.views.components.html,
 context: ExportQuestionsViewContext
 )
 
-@(form: Form[ExportGoodsPriority], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.export-questions.goodsPriority.title")), backLink = Some(backLink.url)) {
+@govukLayout(pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")), backLink =
+Some(backLink.url)) {
 
 @forms.errorSummary(form.errors)
 
 @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
+@forms.inputCheckboxes(
 form = form,
-idPrefix = "goodsPriority",
-name = "goodsPriority",
-items = context.exportGoodsPriorityItems(form),
-inline = false,
-legend = messages("view.export-questions.goodsPriority.heading"),
+idPrefix = "hasPriorityGoods",
+name = "hasPriorityGoods",
+items = context.exportHasPriorityGoodsItems(form),
+legend = messages("view.export-questions.hasPriorityGoods.heading"),
 legendAsHeading = true,
 legendClasses = "govuk-fieldset__legend--xl"
 )

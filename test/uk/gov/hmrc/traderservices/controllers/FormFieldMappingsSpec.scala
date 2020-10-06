@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportGoodsPriority, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportPriorityGoods, ExportRequestType, ExportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
@@ -196,20 +196,25 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
     }
 
-    "validate export goodsPriority" in {
-      exportGoodsPriorityMapping.bind(Map("" -> "None")) shouldBe Right(ExportGoodsPriority.None)
-      exportGoodsPriorityMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportGoodsPriority.LiveAnimals)
-      exportGoodsPriorityMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportGoodsPriority.HumanRemains)
-      exportGoodsPriorityMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportGoodsPriority.HighValueArt)
-      exportGoodsPriorityMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportGoodsPriority.ClassADrugs)
-      exportGoodsPriorityMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
-        ExportGoodsPriority.ExplosivesOrFireworks
+    "validate export hasPriorityGoods" in {
+      exportHasPriorityGoodsMapping.bind(Map("" -> "yes")) shouldBe Right(true)
+      exportHasPriorityGoodsMapping.bind(Map("" -> "no")) shouldBe Right(false)
+      exportHasPriorityGoodsMapping.bind(Map()) should haveOnlyError[Boolean]("error.exportHasPriorityGoods.required")
+    }
+
+    "validate export priorityGoods" in {
+      exportPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportPriorityGoods.LiveAnimals)
+      exportPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportPriorityGoods.HumanRemains)
+      exportPriorityGoodsMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportPriorityGoods.HighValueArt)
+      exportPriorityGoodsMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportPriorityGoods.ClassADrugs)
+      exportPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
+        ExportPriorityGoods.ExplosivesOrFireworks
       )
-      exportGoodsPriorityMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportGoodsPriority](
-        "error.exportGoodsPriority.invalid-option"
+      exportPriorityGoodsMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportPriorityGoods](
+        "error.exportPriorityGoods.invalid-option"
       )
-      exportGoodsPriorityMapping.bind(Map()) should haveOnlyError[ExportGoodsPriority](
-        "error.exportGoodsPriority.required"
+      exportPriorityGoodsMapping.bind(Map()) should haveOnlyError[ExportPriorityGoods](
+        "error.exportPriorityGoods.required"
       )
     }
   }

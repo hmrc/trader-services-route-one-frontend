@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.traderservices.models
 
-sealed trait ExportGoodsPriority
+sealed trait ExportPriorityGoods
 
-object ExportGoodsPriority extends EnumerationFormats[ExportGoodsPriority] {
+object ExportPriorityGoods extends EnumerationFormats[ExportPriorityGoods] {
 
-  case object None extends ExportGoodsPriority
-  case object LiveAnimals extends ExportGoodsPriority
-  case object HumanRemains extends ExportGoodsPriority
-  case object ExplosivesOrFireworks extends ExportGoodsPriority
-  case object HighValueArt extends ExportGoodsPriority
-  case object ClassADrugs extends ExportGoodsPriority
+  case object LiveAnimals extends ExportPriorityGoods
+  case object HumanRemains extends ExportPriorityGoods
+  case object ExplosivesOrFireworks extends ExportPriorityGoods
+  case object HighValueArt extends ExportPriorityGoods
+  case object ClassADrugs extends ExportPriorityGoods
 
-  val values = Set(None, LiveAnimals, HumanRemains, ExplosivesOrFireworks, HighValueArt, ClassADrugs)
+  val values = Set(LiveAnimals, HumanRemains, ExplosivesOrFireworks, HighValueArt, ClassADrugs)
 }

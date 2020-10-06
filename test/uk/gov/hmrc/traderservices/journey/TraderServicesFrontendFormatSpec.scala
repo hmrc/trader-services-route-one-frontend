@@ -53,30 +53,30 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsGoodsPriority","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}""",
-        State.AnswerExportQuestionsGoodsPriority(
+        """{"state":"AnswerExportQuestionsWhichPriorityGoods","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}""",
+        State.AnswerExportQuestionsWhichPriorityGoods(
           DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","goodsPriority":"LiveAnimals"}}}""",
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","priorityGoods":"LiveAnimals"}}}""",
         State.AnswerExportQuestionsFreightType(
           DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
             requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route1),
-            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"Hold","goodsPriority":"LiveAnimals"}}}""",
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals"}}}""",
         State.AnswerExportQuestionsFreightType(
           DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
             requestType = Some(ExportRequestType.Hold),
-            goodsPriority = Some(ExportGoodsPriority.LiveAnimals)
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
           )
         )
       )

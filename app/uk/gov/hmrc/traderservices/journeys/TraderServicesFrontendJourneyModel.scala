@@ -46,7 +46,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerExportQuestionsGoodsPriority(
+    case class AnswerExportQuestionsHasPriorityGoods(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerExportQuestionsWhichPriorityGoods(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
@@ -111,7 +116,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
           if (exportRequestType == ExportRequestType.Hold)
             goto(
-              AnswerExportQuestionsGoodsPriority(
+              AnswerExportQuestionsHasPriorityGoods(
                 declarationDetails,
                 exportQuestions.copy(requestType = Some(exportRequestType))
               )
@@ -127,12 +132,28 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
       Transition {
-        case _ => goto(WorkInProgressDeadEnd)
+        case AnswerExportQuestionsRouteType(declarationDetails, exportQuestions) =>
+          goto(
+            AnswerExportQuestionsHasPriorityGoods(
+              declarationDetails,
+              exportQuestions.copy(routeType = Some(exportRouteType))
+            )
+          )
       }
 
-    def submittedExportQuestionsAnswerGoodsPriority(user: String)(exportGoodsPriority: ExportGoodsPriority) =
+    def submittedExportQuestionsAnswerHasPriorityGoods(user: String)(exportHasPriorityGoods: Boolean) =
       Transition {
-        case _ => goto(WorkInProgressDeadEnd)
+        case AnswerExportQuestionsHasPriorityGoods(declarationDetails, exportQuestions) =>
+          if (exportHasPriorityGoods)
+            goto(AnswerExportQuestionsWhichPriorityGoods(declarationDetails, exportQuestions))
+          else
+            goto(AnswerExportQuestionsFreightType(declarationDetails, exportQuestions))
+      }
+
+    def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
+      Transition {
+        case AnswerExportQuestionsWhichPriorityGoods(declarationDetails, exportQuestions) =>
+          goto(AnswerExportQuestionsFreightType(declarationDetails, exportQuestions))
       }
 
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =

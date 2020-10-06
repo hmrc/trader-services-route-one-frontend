@@ -20,10 +20,13 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportGoodsPriority, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
 
 @Singleton
-class ExportQuestionsViewContext extends RadioItemsHelper {
+class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelper {
 
   def exportRequestTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ExportRequestType](
@@ -56,19 +59,32 @@ class ExportQuestionsViewContext extends RadioItemsHelper {
       form
     )
 
-  def exportGoodsPriorityItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
-    radioItems[ExportGoodsPriority](
+  def exportPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+    radioItems[ExportPriorityGoods](
       "export-questions",
-      "goodsPriority",
+      "priorityGoods",
       Seq(
-        ExportGoodsPriority.None,
-        ExportGoodsPriority.LiveAnimals,
-        ExportGoodsPriority.HumanRemains,
-        ExportGoodsPriority.ExplosivesOrFireworks,
-        ExportGoodsPriority.HighValueArt,
-        ExportGoodsPriority.ClassADrugs
+        ExportPriorityGoods.ClassADrugs,
+        ExportPriorityGoods.ExplosivesOrFireworks,
+        ExportPriorityGoods.HighValueArt,
+        ExportPriorityGoods.HumanRemains,
+        ExportPriorityGoods.LiveAnimals
       ),
       form
+    )
+
+  def exportHasPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[CheckboxItem] =
+    Seq(
+      CheckboxItem(
+        value = "yes",
+        content = Text(messages(s"form.export-questions.hasPriorityGoods.yes")),
+        checked = form("hasPriorityGoods").value.contains("yes")
+      ),
+      CheckboxItem(
+        value = "no",
+        content = Text(messages(s"form.export-questions.hasPriorityGoods.no")),
+        checked = form("hasPriorityGoods").value.contains("no")
+      )
     )
 
   def exportFreightTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =

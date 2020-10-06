@@ -18,11 +18,11 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.traderservices.models.{ExportGoodsPriority, ExportQuestions, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.models.{ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 import uk.gov.hmrc.traderservices.models.ExportRequestType
 import uk.gov.hmrc.traderservices.models.ExportRouteType
-import uk.gov.hmrc.traderservices.models.ExportGoodsPriority
+import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 import uk.gov.hmrc.traderservices.models.ExportFreightType
 
 class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
