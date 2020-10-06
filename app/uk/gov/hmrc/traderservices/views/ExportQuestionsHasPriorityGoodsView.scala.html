@@ -18,31 +18,41 @@
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ExportQuestionsViewContext
+    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+    forms: uk.gov.hmrc.traderservices.views.components.forms,
+    html: uk.gov.hmrc.traderservices.views.components.html,
+    context: ExportQuestionsViewContext
 )
 
 @(form: Form[Boolean], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")), backLink =
-Some(backLink.url)) {
+@govukLayout(
+    pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")), 
+    backLink = Some(backLink.url)) {
 
-@forms.errorSummary(form.errors)
+    @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputCheckboxes(
-form = form,
-idPrefix = "hasPriorityGoods",
-name = "hasPriorityGoods",
-items = context.exportHasPriorityGoodsItems(form),
-legend = messages("view.export-questions.hasPriorityGoods.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)
+        @forms.fieldset(
+            legend = messages("view.export-questions.hasPriorityGoods.heading")
+        ) {
 
-@html.button("form.export-questions.continue")
-}
+            @html.p {
+                @messages("view.export-questions.hasPriorityGoods.description")
+                @html.p {
+                    @html.ul(context.exportPriorityGoodsMessageKeys("view.export-questions.hasPriorityGoods.list"):_*)
+                }
+            }
+
+            @forms.inputRadio(
+                form = form,
+                idPrefix = "hasPriorityGoods",
+                name = "hasPriorityGoods",
+                items = context.exportHasPriorityGoodsItems(form)
+            )
+
+            @html.button("form.export-questions.continue")
+        }
+    }
 }

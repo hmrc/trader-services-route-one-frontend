@@ -19,8 +19,8 @@
 @(      form: Form[_],
         idPrefix: String,
         name: String,
-        legend: String,
         items: Seq[RadioItem],
+        legend: Option[String] = None,
         legendAsHeading: Boolean = true,
         hint: Option[Html] = None,
         legendClasses: String = "govuk-fieldset__legend--l",
@@ -31,9 +31,9 @@
     classes = s"${if(inline){"govuk-radios--inline"}}",
     idPrefix = Some(idPrefix),
     name = name,
-    fieldset = Some(Fieldset(
+    fieldset = legend.map(messageKey => Fieldset(
         legend = Some(Legend(
-            content = Text(messages(legend)),
+            content = Text(messages(messageKey)),
             isPageHeading = legendAsHeading,
             classes = legendClasses
         ))
