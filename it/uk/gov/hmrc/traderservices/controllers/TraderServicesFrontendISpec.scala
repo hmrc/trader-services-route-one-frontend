@@ -19,6 +19,7 @@ import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.traderservices.models.ExportRequestType
 import uk.gov.hmrc.traderservices.models.ExportRouteType
+import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -292,6 +293,58 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
           ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+        )
+      }
+    }
+
+    "GET /pre-clearance/export-questions/which-priority-goods" should {
+      "show the export which priority goods page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsWhichPriorityGoods(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/which-priority-goods").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/which-priority-goods" should {
+      "submit selected priority goods and ask next for transport type" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsWhichPriorityGoods(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("priorityGoods" -> "LiveAnimals")
+
+        val result = await(request("/pre-clearance/export-questions/which-priority-goods").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        journey.getState shouldBe AnswerExportQuestionsFreightType(
+          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1603),
+            routeType = Some(ExportRouteType.Route3),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+          )
         )
       }
     }

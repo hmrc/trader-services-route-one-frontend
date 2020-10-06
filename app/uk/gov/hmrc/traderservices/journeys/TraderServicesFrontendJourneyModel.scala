@@ -153,7 +153,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
       Transition {
         case AnswerExportQuestionsWhichPriorityGoods(declarationDetails, exportQuestions) =>
-          goto(AnswerExportQuestionsFreightType(declarationDetails, exportQuestions))
+          goto(
+            AnswerExportQuestionsFreightType(
+              declarationDetails,
+              exportQuestions.copy(priorityGoods = Some(exportPriorityGoods))
+            )
+          )
       }
 
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
