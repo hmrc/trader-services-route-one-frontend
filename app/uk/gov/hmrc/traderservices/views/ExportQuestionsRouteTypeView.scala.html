@@ -18,31 +18,29 @@
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ExportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ExportQuestionsViewContext
 )
 
 @(form: Form[ExportRouteType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.export-questions.routeType.title")), backLink = Some(backLink.url)) {
 
-@forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
-form = form,
-idPrefix = "routeType",
-name = "routeType",
-items = context.exportRouteTypeItems(form),
-inline = false,
-legend = messages("view.export-questions.routeType.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "routeType",
+      name = "routeType",
+      items = context.exportRouteTypeItems(form),
+      inline = false,
+      legend = messages("view.export-questions.routeType.heading")
+    )
 
-@html.button("form.export-questions.continue")
-}
+    @html.button("form.export-questions.continue")
+  }
 }

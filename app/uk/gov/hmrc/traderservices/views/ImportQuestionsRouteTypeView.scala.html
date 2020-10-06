@@ -18,31 +18,29 @@
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ImportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ImportQuestionsViewContext
 )
 
 @(form: Form[ImportRouteType], postAction: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.import-questions.routeType.title"))) {
 
-@forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
-form = form,
-idPrefix = "routeType",
-name = "routeType",
-items = context.importRouteTypeItems(form),
-inline = false,
-legend = messages("view.import-questions.routeType.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)t
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "routeType",
+      name = "routeType",
+      items = context.importRouteTypeItems(form),
+      inline = false,
+      legend = messages("view.import-questions.routeType.heading")
+    )
 
-@html.button("form.import-questions.continue")
-}
+    @html.button("form.import-questions.continue")
+  }
 }

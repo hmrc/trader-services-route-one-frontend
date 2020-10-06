@@ -18,31 +18,29 @@
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
-govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-forms: uk.gov.hmrc.traderservices.views.components.forms,
-html: uk.gov.hmrc.traderservices.views.components.html,
-context: ImportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ImportQuestionsViewContext
 )
 
 @(form: Form[ImportFreightType], postAction: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.import-questions.freightType.title"))) {
 
-@forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-@forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-@forms.inputRadio(
-form = form,
-idPrefix = "freightType",
-name = "freightType",
-items = context.importFreightTypeItems(form),
-inline = false,
-legend = messages("view.import-questions.freightType.heading"),
-legendAsHeading = true,
-legendClasses = "govuk-fieldset__legend--xl"
-)
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "freightType",
+      name = "freightType",
+      items = context.importFreightTypeItems(form),
+      inline = false,
+      legend = messages("view.import-questions.freightType.heading")
+    )
 
-@html.button("form.import-questions.continue")
-}
+    @html.button("form.import-questions.continue")
+  }
 }
