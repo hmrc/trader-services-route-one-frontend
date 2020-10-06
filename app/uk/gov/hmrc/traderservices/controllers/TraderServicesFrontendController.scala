@@ -250,7 +250,7 @@ class TraderServicesFrontendController @Inject() (
                 .getOrElse(DeclarationDetailsForm)
             ),
             routes.TraderServicesFrontendController.submitDeclarationDetails(),
-            backLinkFor(breadcrumbs)
+            routes.TraderServicesFrontendController.showStart()
           )
         )
 
