@@ -96,6 +96,25 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerExportQuestionsRouteType" should {
+      for (routeType <- ExportRouteType.values)
+        s"go to AnswerExportQuestionsHasPriorityGoods when submitted routeType of ${ExportRouteType.keyOf(routeType).get}" in {
+          given(
+            AnswerExportQuestionsRouteType(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.New))
+            )
+          ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
+            routeType
+          ) should thenGo(
+            AnswerExportQuestionsHasPriorityGoods(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(routeType))
+            )
+          )
+        }
+    }
   }
 
   case class given(initialState: State)
