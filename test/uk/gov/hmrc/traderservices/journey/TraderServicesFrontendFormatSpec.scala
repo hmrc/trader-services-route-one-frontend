@@ -98,6 +98,18 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           )
         )
       )
+      validateJsonFormat(
+        """{"state":"AnswerImportQuestionsFreightType","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","hasPriorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}""",
+        State.AnswerImportQuestionsFreightType(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            hasPriorityGoods = Some(ImportGoodsPriority.LiveAnimals),
+            hasALVS = Some(true),
+            freightType = Some(ImportFreightType.RORO)
+          )
+        )
+      )
     }
 
     "throw an exception when unknown state" in {

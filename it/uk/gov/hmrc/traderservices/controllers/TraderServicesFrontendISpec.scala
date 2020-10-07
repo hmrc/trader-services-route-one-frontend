@@ -23,6 +23,7 @@ import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 import uk.gov.hmrc.traderservices.models.ExportFreightType
 import uk.gov.hmrc.traderservices.models.ImportRequestType
 import uk.gov.hmrc.traderservices.models.ImportRouteType
+import uk.gov.hmrc.traderservices.models.ImportFreightType
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -498,6 +499,95 @@ class TraderServicesFrontendISpec
             )
           )
         }
+    }
+
+    "GET /pre-clearance/import-questions/transport-type" should {
+      "show the import transport type page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsFreightType(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/transport-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
+        journey.getState shouldBe AnswerImportQuestionsFreightType(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6)
+          )
+        )
+      }
+    }
+
+    "POST /pre-clearance/import-questions/transport-type" should {
+      "submit selected RORO transport type and ask next for contact details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsFreightType(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "RORO")
+
+        val result = await(request("/pre-clearance/import-questions/transport-type").post(payload))
+
+        result.status shouldBe 501
+
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
+          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route3),
+            freightType = Some(ImportFreightType.RORO)
+          )
+        )
+      }
+
+      "submit selected Maritime transport type and ask next for vessel details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsFreightType(
+            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "Maritime")
+
+        val result = await(request("/pre-clearance/import-questions/transport-type").post(payload))
+
+        result.status shouldBe 501
+
+        journey.getState shouldBe AnswerImportQuestionsVesselInfo(
+          DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route3),
+            freightType = Some(ImportFreightType.Maritime)
+          )
+        )
+      }
     }
 
     "GET /trader-services/foo" should {
