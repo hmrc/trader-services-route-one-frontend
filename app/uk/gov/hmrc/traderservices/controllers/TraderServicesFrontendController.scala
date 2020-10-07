@@ -399,7 +399,7 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerImportQuestionsGoodsPriority(_, importQuestions) =>
+      case AnswerImportQuestionsHasPriorityGoods(_, importQuestions) =>
         Ok(
           views.importQuestionsGoodsPriorityView(
             formWithErrors.or(

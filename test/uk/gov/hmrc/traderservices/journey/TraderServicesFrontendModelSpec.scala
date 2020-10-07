@@ -225,6 +225,35 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
     }
+
+    "at state AnswerImportQuestionsRequestType" should {
+      for (requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold))
+        s"go to AnswerImportQuestionsRequestType when submitted requestType of ${ImportRequestType.keyOf(requestType).get}" in {
+          given(
+            AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+          ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+            requestType
+          ) should thenGo(
+            AnswerImportQuestionsRouteType(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(requestType))
+            )
+          )
+        }
+
+      "go to AnswerImportQuestionsGoodsPriority when submitted requestType of Hold" in {
+        given(
+          AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+        ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+          ImportRequestType.Hold
+        ) should thenGo(
+          AnswerImportQuestionsHasPriorityGoods(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.Hold))
+          )
+        )
+      }
+    }
   }
 
   case class given(initialState: State)

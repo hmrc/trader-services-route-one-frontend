@@ -81,7 +81,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerImportQuestionsGoodsPriority(
+    case class AnswerImportQuestionsHasPriorityGoods(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
@@ -193,12 +193,20 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
         case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
-          goto(
-            AnswerImportQuestionsRouteType(
-              declarationDetails,
-              importQuestions.copy(requestType = Some(importRequestType))
+          if (importRequestType == ImportRequestType.Hold)
+            goto(
+              AnswerImportQuestionsHasPriorityGoods(
+                declarationDetails,
+                importQuestions.copy(requestType = Some(importRequestType))
+              )
             )
-          )
+          else
+            goto(
+              AnswerImportQuestionsRouteType(
+                declarationDetails,
+                importQuestions.copy(requestType = Some(importRequestType))
+              )
+            )
       }
   }
 
