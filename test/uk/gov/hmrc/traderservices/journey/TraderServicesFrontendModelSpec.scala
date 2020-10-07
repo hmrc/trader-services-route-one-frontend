@@ -254,6 +254,44 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerImportQuestionsALVS" should {
+      "go to AnswerImportQuestionsFreightType when selected YES" in {
+        given(
+          AnswerImportQuestionsALVS(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
+          AnswerImportQuestionsFreightType(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route1),
+              hasALVS = Some(true)
+            )
+          )
+        )
+      }
+
+      "go to AnswerImportQuestionsFreightType when selected NO" in {
+        given(
+          AnswerImportQuestionsALVS(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
+          AnswerImportQuestionsFreightType(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route1),
+              hasALVS = Some(false)
+            )
+          )
+        )
+      }
+    }
   }
 
   case class given(initialState: State)

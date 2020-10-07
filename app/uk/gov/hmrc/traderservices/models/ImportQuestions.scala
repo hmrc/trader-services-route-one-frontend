@@ -22,6 +22,7 @@ case class ImportQuestions(
   requestType: Option[ImportRequestType] = None,
   routeType: Option[ImportRouteType] = None,
   hasPriorityGoods: Option[ImportGoodsPriority] = None,
+  hasALVS: Option[Boolean] = None,
   freightType: Option[ImportFreightType] = None
 )
 

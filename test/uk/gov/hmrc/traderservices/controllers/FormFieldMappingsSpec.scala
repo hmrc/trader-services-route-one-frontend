@@ -217,6 +217,12 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.exportPriorityGoods.required"
       )
     }
+
+    "validate import hasALVS" in {
+      importHasALVSMapping.bind(Map("" -> "yes")) shouldBe Right(true)
+      importHasALVSMapping.bind(Map("" -> "no")) shouldBe Right(false)
+      importHasALVSMapping.bind(Map()) should haveOnlyError[Boolean]("error.importHasALVS.required")
+    }
   }
 
 }

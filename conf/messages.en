@@ -215,6 +215,8 @@ view.import-questions.requestType=What type of request is this?
 view.import-questions.routeType=Which route is this?
 view.import-questions.hasPriorityGoods=Does the consignment contain any priority goods?
 view.import-questions.freightType=What type of freight transportation is being used?
+view.import-questions.hasALVS.title=Do you use an Automatic Licence Verification System (ALVS)?
+view.import-questions.hasALVS.heading=Do you use an Automatic Licence Verification System (ALVS)?
 
 # Export Questions Form
 # ----------------------------------------------------------
@@ -272,6 +274,8 @@ form.import-questions.hasPriorityGoods.HumanRemains=Yes - human remains
 form.import-questions.hasPriorityGoods.ExplosivesOrFireworks=Yes - explosives or fireworks
 form.import-questions.hasPriorityGoods.HighValueArt=Yes - high value art
 form.import-questions.hasPriorityGoods.ClassADrugs=Yes - class A drugs
+form.import-questions.hasALVS.yes=Yes
+form.import-questions.hasALVS.no=No
 form.import-questions.freightType.Maritime=Maritime
 form.import-questions.freightType.Air=Air
 form.import-questions.freightType.RORO=Road, rail or roll-on, roll-off (RORO)
@@ -281,6 +285,8 @@ error.importRouteType.required=Select the route
 error.importHasPriorityGoods.required=Select yes if you''re moving priority goods
 error.importPriorityGoods.required=Select the type of priority goods
 error.importFreightType.required=Select the type of transport you''re using
+error.transportationType.required=Tell us what type of freight transportation is being used
+error.importHasALVS.required=Select yes if you''re using an Automatic License Verification System (ALVS) 
 
 # Common form messages
 # ----------------------------------------------------------

@@ -139,4 +139,6 @@ object FormFieldMappings {
 
   val importFreightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("importFreightType")
 
+  val importHasALVSMapping: Mapping[Boolean] = booleanMapping("importHasALVS", "yes", "no")
+
 }

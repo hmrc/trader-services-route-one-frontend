@@ -21,6 +21,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @Singleton
 class ImportQuestionsViewContext extends RadioItemsHelper {
@@ -77,5 +78,19 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
         ImportFreightType.RORO
       ),
       form
+    )
+
+  def importHasALVSItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+    Seq(
+      RadioItem(
+        value = Some("yes"),
+        content = Text(messages(s"form.import-questions.hasALVS.yes")),
+        checked = form("hasALVS").value.contains("yes")
+      ),
+      RadioItem(
+        value = Some("no"),
+        content = Text(messages(s"form.import-questions.hasALVS.no")),
+        checked = form("hasALVS").value.contains("no")
+      )
     )
 }

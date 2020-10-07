@@ -21,6 +21,8 @@ import uk.gov.hmrc.traderservices.models.ExportRequestType
 import uk.gov.hmrc.traderservices.models.ExportRouteType
 import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
 import uk.gov.hmrc.traderservices.models.ExportFreightType
+import uk.gov.hmrc.traderservices.models.ImportRequestType
+import uk.gov.hmrc.traderservices.models.ImportRouteType
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -444,6 +446,60 @@ class TraderServicesFrontendISpec
         )
       }
     }
+
+    "GET /pre-clearance/import-questions/automatic-licence-verification" should {
+      "show the import has ALVS page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsALVS(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/automatic-licence-verification").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
+        journey.getState shouldBe AnswerImportQuestionsALVS(
+          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+        )
+      }
+    }
+
+    "POST /pre-clearance/import-questions/automatic-licence-verification" should {
+      for (hasALVS <- Seq(true, false))
+        s"submit ${if (hasALVS) "YES" else "NO"} choice and ask next for transport type" in {
+          implicit val journeyId: JourneyId = JourneyId()
+          journey.setState(
+            AnswerImportQuestionsALVS(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+            )
+          )
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val payload = Map("hasALVS" -> { if (hasALVS) "yes" else "no" })
+
+          val result = await(request("/pre-clearance/import-questions/automatic-licence-verification").post(payload))
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
+          result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
+          journey.getState shouldBe AnswerImportQuestionsFreightType(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route2),
+              hasALVS = Some(hasALVS)
+            )
+          )
+        }
+    }
+
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
