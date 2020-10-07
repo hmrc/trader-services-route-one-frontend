@@ -32,8 +32,7 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
       Seq(
         ImportRequestType.New,
         ImportRequestType.Cancellation,
-        ImportRequestType.Hold,
-        ImportRequestType.ALVS
+        ImportRequestType.Hold
       ),
       form
     )

@@ -208,8 +208,8 @@ view.export-questions.freightType.heading=Which type of transport are you using?
 
 # Import Questions View
 # ----------------------------------------------------------
-view.import-questions.title=Tell us about your imports
-view.import-questions.heading=Tell us about your imports
+view.import-questions.requestType.title=What type of import request is this?
+view.import-questions.requestType.heading=What type of import request is this?
 view.import-questions.description=
 view.import-questions.requestType=What type of request is this?
 view.import-questions.routeType=Which route is this?
@@ -276,7 +276,11 @@ form.import-questions.freightType.Maritime=Maritime
 form.import-questions.freightType.Air=Air
 form.import-questions.freightType.RORO=Road, rail or roll-on, roll-off (RORO)
 form.import-questions.continue=Continue
-error.transportationType.required=Tell us what type of freight transportation is being used
+error.importRequestType.required=Select the type of import request
+error.importRouteType.required=Select the route
+error.importHasPriorityGoods.required=Select yes if you''re moving priority goods
+error.importPriorityGoods.required=Select the type of priority goods
+error.importFreightType.required=Select the type of transport you''re using
 
 # Common form messages
 # ----------------------------------------------------------
