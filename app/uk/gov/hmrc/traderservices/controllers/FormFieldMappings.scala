@@ -123,20 +123,20 @@ object FormFieldMappings {
 
   val exportRequestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("exportRequestType")
 
-  val importRequestTypeMapping: Mapping[ImportRequestType] = enumMapping[ImportRequestType]("requestType")
+  val importRequestTypeMapping: Mapping[ImportRequestType] = enumMapping[ImportRequestType]("importRequestType")
 
   val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
-  val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("routeType")
+  val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("importRouteType")
 
   val exportHasPriorityGoodsMapping: Mapping[Boolean] = booleanMapping("exportHasPriorityGoods", "yes", "no")
 
   val exportPriorityGoodsMapping: Mapping[ExportPriorityGoods] = enumMapping[ExportPriorityGoods]("exportPriorityGoods")
 
-  val importGoodsPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("goodsPriority")
+  val importGoodsPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("importGoodsPriority")
 
   val exportFreightTypeMapping: Mapping[ExportFreightType] = enumMapping[ExportFreightType]("exportFreightType")
 
-  val importFreightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("freightType")
+  val importFreightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("importFreightType")
 
 }

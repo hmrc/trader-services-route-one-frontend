@@ -399,11 +399,11 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerImportQuestionsGoodsPriority(_, importQuestions) =>
+      case AnswerImportQuestionsHasPriorityGoods(_, importQuestions) =>
         Ok(
           views.importQuestionsGoodsPriorityView(
             formWithErrors.or(
-              importQuestions.goodsPriority
+              importQuestions.hasPriorityGoods
                 .map(query => ImportGoodsPriorityForm.fill(query))
                 .getOrElse(ImportGoodsPriorityForm)
             ),
@@ -475,7 +475,7 @@ object TraderServicesFrontendController {
   )
 
   val ImportGoodsPriorityForm = Form[ImportGoodsPriority](
-    mapping("goodsPriority" -> importGoodsPriorityMapping)(identity)(Option.apply)
+    mapping("hasPriorityGoods" -> importGoodsPriorityMapping)(identity)(Option.apply)
   )
 
   val ImportFreightTypeForm = Form[ImportFreightType](

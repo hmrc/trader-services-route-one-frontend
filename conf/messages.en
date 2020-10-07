@@ -177,7 +177,7 @@ error.epu.invalid-only-digits=EPU number must only contain numbers 0 to 9
 error.epu.invalid-number=EPU number must be 700 or less
 error.entryNumber.required=Enter an entry number
 error.entryNumber.invalid-length=Entry number must be 7 characters
-error.entryNumber.invalid-only-digits-and-letters=Entry number must only contain numbers 0 to 9 and letters 
+error.entryNumber.invalid-only-digits-and-letters=Entry number must only contain numbers 0 to 9 and letters
 error.entryNumber.invalid-ends-with-letter=Entry number must have a letter at the end
 error.entryNumber.invalid-letter-wrong-position=Entry number must have letters before and after the number only
 error.entryDate.required=Enter the entry date
@@ -208,12 +208,12 @@ view.export-questions.freightType.heading=Which type of transport are you using?
 
 # Import Questions View
 # ----------------------------------------------------------
-view.import-questions.title=Tell us about your imports
-view.import-questions.heading=Tell us about your imports
+view.import-questions.requestType.title=What type of import request is this?
+view.import-questions.requestType.heading=What type of import request is this?
 view.import-questions.description=
 view.import-questions.requestType=What type of request is this?
 view.import-questions.routeType=Which route is this?
-view.import-questions.goodsPriority=Does the consignment contain any priority goods?
+view.import-questions.hasPriorityGoods=Does the consignment contain any priority goods?
 view.import-questions.freightType=What type of freight transportation is being used?
 
 # Export Questions Form
@@ -266,17 +266,21 @@ form.import-questions.routeType.Route2=Route 2
 form.import-questions.routeType.Route3=Route 3
 form.import-questions.routeType.Route6=Route 6
 form.import-questions.routeType.Hold=Hold
-form.import-questions.goodsPriority.None=No
-form.import-questions.goodsPriority.LiveAnimals=Yes - live animals
-form.import-questions.goodsPriority.HumanRemains=Yes - human remains
-form.import-questions.goodsPriority.ExplosivesOrFireworks=Yes - explosives or fireworks
-form.import-questions.goodsPriority.HighValueArt=Yes - high value art
-form.import-questions.goodsPriority.ClassADrugs=Yes - class A drugs
+form.import-questions.hasPriorityGoods.None=No
+form.import-questions.hasPriorityGoods.LiveAnimals=Yes - live animals
+form.import-questions.hasPriorityGoods.HumanRemains=Yes - human remains
+form.import-questions.hasPriorityGoods.ExplosivesOrFireworks=Yes - explosives or fireworks
+form.import-questions.hasPriorityGoods.HighValueArt=Yes - high value art
+form.import-questions.hasPriorityGoods.ClassADrugs=Yes - class A drugs
 form.import-questions.freightType.Maritime=Maritime
 form.import-questions.freightType.Air=Air
 form.import-questions.freightType.RORO=Road, rail or roll-on, roll-off (RORO)
 form.import-questions.continue=Continue
-error.transportationType.required=Tell us what type of freight transportation is being used
+error.importRequestType.required=Select the type of import request
+error.importRouteType.required=Select the route
+error.importHasPriorityGoods.required=Select yes if you''re moving priority goods
+error.importPriorityGoods.required=Select the type of priority goods
+error.importFreightType.required=Select the type of transport you''re using
 
 # Common form messages
 # ----------------------------------------------------------

@@ -444,7 +444,6 @@ class TraderServicesFrontendISpec
         )
       }
     }
-
     "GET /trader-services/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
@@ -457,6 +456,30 @@ class TraderServicesFrontendISpec
         journey.get shouldBe None
       }
     }
+
+    "GET /pre-clearance/import-questions/request-type" should {
+      "show the import request type question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsRequestType(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/request-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.requestType.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
+        journey.getState shouldBe AnswerImportQuestionsRequestType(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ImportQuestions()
+        )
+      }
+    }
+
   }
 
 }
