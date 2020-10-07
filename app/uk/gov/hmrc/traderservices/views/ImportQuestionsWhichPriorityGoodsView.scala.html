@@ -24,9 +24,10 @@
         context: ImportQuestionsViewContext
 )
 
-@(form: Form[ImportPriorityGoods], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportPriorityGoods], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.import-questions.hasPriorityGoods.title"))) {
+@govukLayout(pageTitle = Some(messages("view.import-questions.whichPriorityGoods.title")), backLink =
+        Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
 
@@ -34,11 +35,11 @@
 
     @forms.inputRadio(
       form = form,
-      idPrefix = "hasPriorityGoods",
-      name = "hasPriorityGoods",
+      idPrefix = "priorityGoods",
+      name = "priorityGoods",
       items = context.importPriorityGoodsItems(form),
       inline = false,
-      legend = Some("view.import-questions.hasPriorityGoods.heading")
+      legend = Some("view.import-questions.whichPriorityGoods.heading")
     )
 
     @html.button("form.import-questions.continue")
