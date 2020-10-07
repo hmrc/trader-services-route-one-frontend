@@ -21,7 +21,7 @@ import play.api.libs.json.{Format, Json}
 case class ImportQuestions(
   requestType: Option[ImportRequestType] = None,
   routeType: Option[ImportRouteType] = None,
-  hasPriorityGoods: Option[ImportGoodsPriority] = None,
+  priorityGoods: Option[ImportPriorityGoods] = None,
   hasALVS: Option[Boolean] = None,
   freightType: Option[ImportFreightType] = None
 )

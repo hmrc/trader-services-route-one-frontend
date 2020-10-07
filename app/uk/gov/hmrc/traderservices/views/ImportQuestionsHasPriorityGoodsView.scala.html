@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.ImportGoodsPriority
+@import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
@@ -24,7 +24,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(form: Form[ImportGoodsPriority], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportPriorityGoods], postAction: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.import-questions.hasPriorityGoods.title"))) {
 

@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -429,7 +429,7 @@ class TraderServicesFrontendController @Inject() (
         Ok(
           views.importQuestionsGoodsPriorityView(
             formWithErrors.or(
-              importQuestions.hasPriorityGoods
+              importQuestions.priorityGoods
                 .map(query => ImportGoodsPriorityForm.fill(query))
                 .getOrElse(ImportGoodsPriorityForm)
             ),
@@ -514,7 +514,7 @@ object TraderServicesFrontendController {
     mapping("routeType" -> importRouteTypeMapping)(identity)(Option.apply)
   )
 
-  val ImportGoodsPriorityForm = Form[ImportGoodsPriority](
+  val ImportGoodsPriorityForm = Form[ImportPriorityGoods](
     mapping("hasPriorityGoods" -> importGoodsPriorityMapping)(identity)(Option.apply)
   )
 

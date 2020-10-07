@@ -46,16 +46,16 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("Hold", ImportRouteType.Hold)
     }
 
-    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportGoodsPriority](info) {
+    "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportPriorityGoods](info) {
 
-      ImportGoodsPriority.values.size shouldBe 6
+      ImportPriorityGoods.values.size shouldBe 6
 
-      validateJsonFormat("None", ImportGoodsPriority.None)
-      validateJsonFormat("LiveAnimals", ImportGoodsPriority.LiveAnimals)
-      validateJsonFormat("HumanRemains", ImportGoodsPriority.HumanRemains)
-      validateJsonFormat("ExplosivesOrFireworks", ImportGoodsPriority.ExplosivesOrFireworks)
-      validateJsonFormat("HighValueArt", ImportGoodsPriority.HighValueArt)
-      validateJsonFormat("ClassADrugs", ImportGoodsPriority.ClassADrugs)
+      validateJsonFormat("None", ImportPriorityGoods.None)
+      validateJsonFormat("LiveAnimals", ImportPriorityGoods.LiveAnimals)
+      validateJsonFormat("HumanRemains", ImportPriorityGoods.HumanRemains)
+      validateJsonFormat("ExplosivesOrFireworks", ImportPriorityGoods.ExplosivesOrFireworks)
+      validateJsonFormat("HighValueArt", ImportPriorityGoods.HighValueArt)
+      validateJsonFormat("ClassADrugs", ImportPriorityGoods.ClassADrugs)
     }
 
     "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType](info) {

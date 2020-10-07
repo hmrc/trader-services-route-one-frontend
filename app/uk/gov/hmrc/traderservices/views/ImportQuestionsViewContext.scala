@@ -20,7 +20,7 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 
 @Singleton
@@ -54,16 +54,16 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
     )
 
   def importGoodsPriorityItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
-    radioItems[ImportGoodsPriority](
+    radioItems[ImportPriorityGoods](
       "import-questions",
       "hasPriorityGoods",
       Seq(
-        ImportGoodsPriority.None,
-        ImportGoodsPriority.LiveAnimals,
-        ImportGoodsPriority.HumanRemains,
-        ImportGoodsPriority.ExplosivesOrFireworks,
-        ImportGoodsPriority.HighValueArt,
-        ImportGoodsPriority.ClassADrugs
+        ImportPriorityGoods.None,
+        ImportPriorityGoods.LiveAnimals,
+        ImportPriorityGoods.HumanRemains,
+        ImportPriorityGoods.ExplosivesOrFireworks,
+        ImportPriorityGoods.HighValueArt,
+        ImportPriorityGoods.ClassADrugs
       ),
       form
     )
