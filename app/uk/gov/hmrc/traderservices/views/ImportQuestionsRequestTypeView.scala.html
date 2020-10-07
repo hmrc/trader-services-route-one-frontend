@@ -24,9 +24,11 @@
         context: ImportQuestionsViewContext
 )
 
-@(form: Form[ImportRequestType], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportRequestType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.import-questions.requestType.title"))) {
+@govukLayout(
+  pageTitle = Some(messages("view.import-questions.requestType.title")), 
+  backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
 
