@@ -92,6 +92,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
+    case class AnswerImportQuestionsWhichPriorityGoods(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
     case class AnswerImportQuestionsALVS(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: ImportQuestions
@@ -226,6 +231,17 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                 importQuestions.copy(requestType = Some(importRequestType))
               )
             )
+      }
+
+    def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
+      Transition {
+        case AnswerImportQuestionsWhichPriorityGoods(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsALVS(
+              declarationDetails,
+              importQuestions.copy(priorityGoods = Some(importPriorityGoods))
+            )
+          )
       }
 
     def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
