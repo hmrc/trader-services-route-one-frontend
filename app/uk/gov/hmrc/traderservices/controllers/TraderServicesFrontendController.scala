@@ -184,6 +184,62 @@ class TraderServicesFrontendController @Inject() (
       whenAuthorisedWithForm(AsUser)(ImportRequestTypeForm)(Transitions.submittedImportQuestionsAnswersRequestType)
     }
 
+  // GET /pre-clearance/import-questions/route-type
+  val showAnswerImportQuestionsRouteType: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/route-type
+  val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/has-priority-goods
+  val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/has-priority-goods
+  val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/which-priority-goods
+  val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/which-priority-goods
+  val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/automatic-licence-verification
+  val showAnswerImportQuestionsALVS: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/automatic-licence-verification
+  val submitImportQuestionsALVSAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/transport-type
+  val showAnswerImportQuestionsFreightType: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/transport-type
+  val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/vessel-info
+  val showAnswerImportQuestionsVesselInfo: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/vessel-info
+  val submitImportQuestionsVesselInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/contact-info
+  val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // POST /pre-clearance/import-questions/contact-info
+  val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
   val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
 
   /**
