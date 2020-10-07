@@ -161,15 +161,15 @@ view.start.securities.link.text=Apply for refund
 
 # Declaration Details Page
 # ----------------------------------------------------------
-view.declaration-details.title=What are the declaration details?
-view.declaration-details.heading=What are the declaration details?
+view.declaration-details.title=What are your declaration details?
+view.declaration-details.heading=What are your declaration details?
 view.declaration-details.description=You can find these on your declaration.
 
 # Declaration Details Form
 # ----------------------------------------------------------
-form.declaration-details.epu=EPU
-form.declaration-details.entryNumber=Entry Number
-form.declaration-details.entryDate=Entry Date
+form.declaration-details.epu=Entry Processing Unit (EPU) number
+form.declaration-details.entryNumber=Entry number
+form.declaration-details.entryDate=Date of entry
 form.declaration-details.continue=Continue
 error.epu.required=Enter an EPU number
 error.epu.invalid-length=EPU number must be 3 characters
