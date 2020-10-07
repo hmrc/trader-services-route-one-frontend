@@ -88,12 +88,12 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsALVS","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","goodsPriority":"LiveAnimals","hasALVS":true}}}""",
+        """{"state":"AnswerImportQuestionsALVS","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","hasPriorityGoods":"LiveAnimals","hasALVS":true}}}""",
         State.AnswerImportQuestionsALVS(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(
             requestType = Some(ImportRequestType.Hold),
-            goodsPriority = Some(ImportGoodsPriority.LiveAnimals),
+            hasPriorityGoods = Some(ImportGoodsPriority.LiveAnimals),
             hasALVS = Some(true)
           )
         )

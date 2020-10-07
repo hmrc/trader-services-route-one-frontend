@@ -259,12 +259,12 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected YES" in {
         given(
           AnswerImportQuestionsALVS(
-            exportDeclarationDetails,
+            importDeclarationDetails,
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsFreightType(
-            exportDeclarationDetails,
+            importDeclarationDetails,
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route1),
@@ -277,12 +277,12 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected NO" in {
         given(
           AnswerImportQuestionsALVS(
-            exportDeclarationDetails,
+            importDeclarationDetails,
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsFreightType(
-            exportDeclarationDetails,
+            importDeclarationDetails,
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route1),
