@@ -409,7 +409,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ImportRequestTypeForm.fill(query))
                 .getOrElse(ImportRequestTypeForm)
             ),
-            routes.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer()
+            routes.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer(),
+            backLinkFor(breadcrumbs)
           )
         )
 
