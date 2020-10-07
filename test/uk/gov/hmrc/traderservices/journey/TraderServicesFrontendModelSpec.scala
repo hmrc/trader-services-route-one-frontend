@@ -89,18 +89,13 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
           ExportRequestType.Hold
         ) should thenGo(
-<<<<<<< HEAD
           AnswerExportQuestionsHasPriorityGoods(
-=======
-          AnswerExportQuestionsGoodsPriority(
->>>>>>> [DOR-62][A0] export question for request type
             exportDeclarationDetails,
             ExportQuestions(requestType = Some(ExportRequestType.Hold))
           )
         )
       }
     }
-<<<<<<< HEAD
 
     "at state AnswerExportQuestionsRouteType" should {
       for (routeType <- ExportRouteType.values)
@@ -230,8 +225,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
     }
-=======
->>>>>>> [DOR-62][A0] export question for request type
   }
 
   case class given(initialState: State)
