@@ -292,6 +292,67 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerImportQuestionsFreightType" should {
+      for (
+        freightType <- ImportFreightType.values.filterNot(_ == ImportFreightType.Maritime);
+        requestType <- ImportRequestType.values
+      )
+        s"go to AnswerImportQuestionsContactInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ImportRouteType.Route3),
+                hasALVS = Some(false)
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsContactInfo(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ImportRouteType.Route3),
+                freightType = Some(freightType),
+                hasALVS = Some(false)
+              )
+            )
+          )
+        }
+
+      for (requestType <- ImportRequestType.values)
+        s"go to AnswerImportQuestionsContactInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=Maritime" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ImportRouteType.Route3),
+                hasALVS = Some(true)
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+            ImportFreightType.Maritime
+          ) should thenGo(
+            AnswerImportQuestionsVesselInfo(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(ImportRouteType.Route3),
+                freightType = Some(ImportFreightType.Maritime),
+                hasALVS = Some(true)
+              )
+            )
+          )
+        }
+    }
   }
 
   case class given(initialState: State)

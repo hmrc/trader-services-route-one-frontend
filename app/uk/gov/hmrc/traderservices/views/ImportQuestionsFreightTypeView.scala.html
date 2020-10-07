@@ -24,9 +24,11 @@
         context: ImportQuestionsViewContext
 )
 
-@(form: Form[ImportFreightType], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportFreightType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.import-questions.freightType.title"))) {
+@govukLayout(
+  pageTitle = Some(messages("view.import-questions.freightType.title")),
+  backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
 
@@ -34,8 +36,8 @@
 
     @forms.inputRadio(
       form = form,
-      idPrefix = "importFreightType",
-      name = "importFreightType",
+      idPrefix = "freightType",
+      name = "freightType",
       items = context.importFreightTypeItems(form),
       inline = false,
       legend = Some("view.import-questions.freightType.heading")

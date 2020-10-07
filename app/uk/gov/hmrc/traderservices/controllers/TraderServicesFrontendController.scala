@@ -233,7 +233,9 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportFreightTypeForm)(Transitions.submittedImportQuestionsAnswerFreightType)
+    }
 
   // GET /pre-clearance/import-questions/vessel-info
   val showAnswerImportQuestionsVesselInfo: Action[AnyContent] =
@@ -456,7 +458,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ImportFreightTypeForm.fill(query))
                 .getOrElse(ImportFreightTypeForm)
             ),
-            workInProgresDeadEndCall
+            routes.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer(),
+            backLinkFor(breadcrumbs)
           )
         )
 

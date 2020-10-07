@@ -235,6 +235,25 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             AnswerImportQuestionsFreightType(declarationDetails, importQuestions.copy(hasALVS = Some(importHasALVS)))
           )
       }
+
+    def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
+      Transition {
+        case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
+          if (importFreightType == ImportFreightType.Maritime)
+            goto(
+              AnswerImportQuestionsVesselInfo(
+                declarationDetails,
+                importQuestions.copy(freightType = Some(importFreightType))
+              )
+            )
+          else
+            goto(
+              AnswerImportQuestionsContactInfo(
+                declarationDetails,
+                importQuestions.copy(freightType = Some(importFreightType))
+              )
+            )
+      }
   }
 
 }
