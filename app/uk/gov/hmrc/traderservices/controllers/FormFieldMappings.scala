@@ -22,7 +22,7 @@ import play.api.data.Forms.{boolean, of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportGoodsPriority, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 
 import scala.util.Try
 
@@ -133,7 +133,7 @@ object FormFieldMappings {
 
   val exportPriorityGoodsMapping: Mapping[ExportPriorityGoods] = enumMapping[ExportPriorityGoods]("exportPriorityGoods")
 
-  val importGoodsPriorityMapping: Mapping[ImportGoodsPriority] = enumMapping[ImportGoodsPriority]("importGoodsPriority")
+  val importGoodsPriorityMapping: Mapping[ImportPriorityGoods] = enumMapping[ImportPriorityGoods]("importGoodsPriority")
 
   val exportFreightTypeMapping: Mapping[ExportFreightType] = enumMapping[ExportFreightType]("exportFreightType")
 
