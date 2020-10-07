@@ -53,17 +53,16 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
       form
     )
 
-  def importGoodsPriorityItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+  def importPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ImportPriorityGoods](
       "import-questions",
       "hasPriorityGoods",
       Seq(
-        ImportPriorityGoods.None,
-        ImportPriorityGoods.LiveAnimals,
-        ImportPriorityGoods.HumanRemains,
+        ImportPriorityGoods.ClassADrugs,
         ImportPriorityGoods.ExplosivesOrFireworks,
         ImportPriorityGoods.HighValueArt,
-        ImportPriorityGoods.ClassADrugs
+        ImportPriorityGoods.HumanRemains,
+        ImportPriorityGoods.LiveAnimals
       ),
       form
     )

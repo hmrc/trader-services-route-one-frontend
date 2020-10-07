@@ -48,9 +48,8 @@ class ImportQuestionsFormatSpec extends UnitSpec {
 
     "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportPriorityGoods](info) {
 
-      ImportPriorityGoods.values.size shouldBe 6
+      ImportPriorityGoods.values.size shouldBe 5
 
-      validateJsonFormat("None", ImportPriorityGoods.None)
       validateJsonFormat("LiveAnimals", ImportPriorityGoods.LiveAnimals)
       validateJsonFormat("HumanRemains", ImportPriorityGoods.HumanRemains)
       validateJsonFormat("ExplosivesOrFireworks", ImportPriorityGoods.ExplosivesOrFireworks)
