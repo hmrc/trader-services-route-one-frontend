@@ -458,12 +458,12 @@ class TraderServicesFrontendISpec
     }
 
     "GET /pre-clearance/import-questions/request-type" should {
-      "show the export request type question page" in {
+      "show the import request type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
-          AnswerExportQuestionsRequestType(
+          AnswerImportQuestionsRequestType(
             DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions()
+            ImportQuestions()
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -473,9 +473,9 @@ class TraderServicesFrontendISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.import-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
-        journey.getState shouldBe AnswerExportQuestionsRequestType(
+        journey.getState shouldBe AnswerImportQuestionsRequestType(
           DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions()
+          ImportQuestions()
         )
       }
     }
