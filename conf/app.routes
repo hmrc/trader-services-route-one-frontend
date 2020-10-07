@@ -23,6 +23,20 @@ POST       /pre-clearance/export-questions/contact-info             @uk.gov.hmrc
 
 GET        /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRequestType
 POST       /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer
+GET        /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRouteType
+POST       /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRouteTypeAnswer
+GET        /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsHasPriorityGoods
+POST       /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsHasPriorityGoodsAnswer
+GET        /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsWhichPriorityGoods
+POST       /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsWhichPriorityGoodsAnswer
+GET        /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsALVS
+POST       /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsALVSAnswer
+GET        /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsFreightType
+POST       /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer
+GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsVesselInfo
+POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsVesselInfoAnswer
+GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo
+POST       /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
