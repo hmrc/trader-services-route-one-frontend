@@ -36,6 +36,10 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       def declarationDetails: DeclarationDetails
     }
 
+    case object WorkInProgressDeadEnd extends State
+
+    // EXPORT QUESTIONS
+
     case class AnswerExportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
@@ -71,6 +75,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
 
+    // IMPORT QUESTIONS
+
     case class AnswerImportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: ImportQuestions
@@ -86,12 +92,25 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
+    case class AnswerImportQuestionsALVS(
+      declarationDetails: DeclarationDetails,
+      importQuestionsOpt: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
     case class AnswerImportQuestionsFreightType(
       declarationDetails: DeclarationDetails,
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
-    case object WorkInProgressDeadEnd extends State
+    case class AnswerImportQuestionsVesselInfo(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerImportQuestionsContactInfo(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ImportQuestions
+    ) extends State with HasDeclarationDetails
 
   }
 
@@ -207,6 +226,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                 importQuestions.copy(requestType = Some(importRequestType))
               )
             )
+      }
+
+    def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
+      Transition {
+        case AnswerImportQuestionsALVS(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsFreightType(declarationDetails, importQuestions.copy(hasALVS = Some(importHasALVS)))
+          )
       }
   }
 

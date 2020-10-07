@@ -70,6 +70,9 @@ class TraderServicesFrontendController @Inject() (
       )
     )
 
+  // Dummy URL to use when developing the journey
+  val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
+
   // GET /
   val showStart: Action[AnyContent] =
     action { implicit request =>
@@ -172,13 +175,13 @@ class TraderServicesFrontendController @Inject() (
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
     actionNotYetImplemented
 
-  // GET /pre-clearance/import-questions
+  // GET /pre-clearance/import-questions/request-type
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
     actionShowStateWhenAuthorised(AsUser) {
       case _: AnswerImportQuestionsRequestType =>
     }
 
-  // POST /pre-clearance/import-questions
+  // POST /pre-clearance/import-questions/request-type
   val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
     action { implicit request =>
       whenAuthorisedWithForm(AsUser)(ImportRequestTypeForm)(Transitions.submittedImportQuestionsAnswersRequestType)
@@ -210,15 +213,23 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/automatic-licence-verification
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsALVS =>
+    }
 
   // POST /pre-clearance/import-questions/automatic-licence-verification
   val submitImportQuestionsALVSAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportHasALVSForm)(
+        Transitions.submittedImportQuestionsAnswerHasALVS
+      )
+    }
 
   // GET /pre-clearance/import-questions/transport-type
   val showAnswerImportQuestionsFreightType: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsFreightType =>
+    }
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -239,8 +250,6 @@ class TraderServicesFrontendController @Inject() (
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
     actionNotYetImplemented
-
-  val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -277,6 +286,21 @@ class TraderServicesFrontendController @Inject() (
 
       case _: AnswerImportQuestionsRequestType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsRequestType()
+
+      case _: AnswerImportQuestionsRouteType =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsRouteType()
+
+      case _: AnswerImportQuestionsALVS =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsALVS()
+
+      case _: AnswerImportQuestionsFreightType =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsFreightType()
+
+      case _: AnswerImportQuestionsVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsVesselInfo()
+
+      case _: AnswerImportQuestionsContactInfo =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo()
 
       case _ =>
         workInProgresDeadEndCall
@@ -411,6 +435,19 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerImportQuestionsALVS(_, importQuestions) =>
+        Ok(
+          views.importQuestionsALVSView(
+            formWithErrors.or(
+              importQuestions.hasALVS
+                .map(query => ImportHasALVSForm.fill(true))
+                .getOrElse(ImportHasALVSForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsALVSAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case AnswerImportQuestionsFreightType(_, importQuestions) =>
         Ok(
           views.importQuestionsFreightTypeView(
@@ -480,5 +517,9 @@ object TraderServicesFrontendController {
 
   val ImportFreightTypeForm = Form[ImportFreightType](
     mapping("freightType" -> importFreightTypeMapping)(identity)(Option.apply)
+  )
+
+  val ImportHasALVSForm = Form[Boolean](
+    mapping("hasALVS" -> importHasALVSMapping)(identity)(Option.apply)
   )
 }
