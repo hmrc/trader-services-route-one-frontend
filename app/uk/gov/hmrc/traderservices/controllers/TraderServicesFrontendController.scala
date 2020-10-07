@@ -538,7 +538,7 @@ object TraderServicesFrontendController {
   )
 
   val ImportPriorityGoodsForm = Form[ImportPriorityGoods](
-    mapping("priorityGoods" -> importGoodsPriorityMapping)(identity)(Option.apply)
+    mapping("priorityGoods" -> importPriorityGoodsMapping)(identity)(Option.apply)
   )
 
   val ImportFreightTypeForm = Form[ImportFreightType](

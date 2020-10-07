@@ -454,7 +454,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
           )
         )
@@ -466,7 +466,7 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
         )
       }
@@ -477,7 +477,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
           )
         )
@@ -491,7 +491,7 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
-          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
           ImportQuestions(
             requestType = Some(ImportRequestType.New),
             routeType = Some(ImportRouteType.Route3),
@@ -506,7 +506,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsALVS(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            DeclarationDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
           )
         )
@@ -518,7 +518,7 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+          DeclarationDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
           ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
         )
       }
@@ -530,7 +530,7 @@ class TraderServicesFrontendISpec
           implicit val journeyId: JourneyId = JourneyId()
           journey.setState(
             AnswerImportQuestionsALVS(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
             )
           )
@@ -544,7 +544,7 @@ class TraderServicesFrontendISpec
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
           journey.getState shouldBe AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route2),
@@ -559,7 +559,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            DeclarationDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6)
@@ -574,7 +574,7 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
         journey.getState shouldBe AnswerImportQuestionsFreightType(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          DeclarationDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(
             requestType = Some(ImportRequestType.New),
             routeType = Some(ImportRouteType.Route6)
@@ -588,7 +588,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3)
@@ -604,7 +604,7 @@ class TraderServicesFrontendISpec
         result.status shouldBe 501
 
         journey.getState shouldBe AnswerImportQuestionsContactInfo(
-          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+          DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
           ImportQuestions(
             requestType = Some(ImportRequestType.New),
             routeType = Some(ImportRouteType.Route3),
