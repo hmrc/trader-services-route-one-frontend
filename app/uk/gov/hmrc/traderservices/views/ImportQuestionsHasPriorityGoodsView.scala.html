@@ -26,7 +26,7 @@
 
 @(form: Form[ImportGoodsPriority], postAction: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.import-questions.goodsPriority.title"))) {
+@govukLayout(pageTitle = Some(messages("view.import-questions.hasPriorityGoods.title"))) {
 
   @forms.errorSummary(form.errors)
 
@@ -34,11 +34,11 @@
 
     @forms.inputRadio(
       form = form,
-      idPrefix = "importGoodsPriority",
-      name = "importGoodsPriority",
+      idPrefix = "hasPriorityGoods",
+      name = "hasPriorityGoods",
       items = context.importGoodsPriorityItems(form),
       inline = false,
-      legend = Some("view.import-questions.goodsPriority.heading")
+      legend = Some("view.import-questions.hasPriorityGoods.heading")
     )
 
     @html.button("form.import-questions.continue")

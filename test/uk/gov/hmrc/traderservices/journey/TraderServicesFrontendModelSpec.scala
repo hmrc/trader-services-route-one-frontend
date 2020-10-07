@@ -241,7 +241,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      "go to AnswerImportQuestionsGoodsPriority when submitted requestType of Hold" in {
+      "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
         given(
           AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
         ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
