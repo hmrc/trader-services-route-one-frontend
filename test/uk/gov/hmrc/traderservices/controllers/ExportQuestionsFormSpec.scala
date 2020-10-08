@@ -70,7 +70,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
         form,
         "hasPriorityGoods",
         Map("hasPriorityGoods" -> "Foo"),
-        Seq("error.exportHasPriorityGoods.invalid-option")
+        Seq("error.exportHasPriorityGoods.required")
       )
     }
 

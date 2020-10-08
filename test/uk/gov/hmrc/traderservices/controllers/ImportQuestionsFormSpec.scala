@@ -57,10 +57,17 @@ class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(form, "routeType", Map("routeType" -> "Foo"), Seq("error.importRouteType.invalid-option"))
     }
 
-    "bind tes/no and return Boolean and fill it back" in {
+    "bind yes/no and return Boolean and fill it back" in {
       val form = TraderServicesFrontendController.ImportHasPriorityGoodsForm
       validate(form, Map("hasPriorityGoods" -> "yes"), true)
       validate(form, Map("hasPriorityGoods" -> "no"), false)
+      validate(form, "hasPriorityGoods", Map(), Seq("error.importHasPriorityGoods.required"))
+      validate(
+        form,
+        "hasPriorityGoods",
+        Map("hasPriorityGoods" -> "Foo"),
+        Seq("error.importHasPriorityGoods.required")
+      )
     }
 
     "bind some priorityGoods and return ImportPriorityGoods and fill it back" in {
