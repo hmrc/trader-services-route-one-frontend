@@ -210,9 +210,9 @@ view.export-questions.freightType.heading=Which type of transport are you using?
 # ----------------------------------------------------------
 view.import-questions.requestType.title=What type of import request is this?
 view.import-questions.requestType.heading=What type of import request is this?
-view.import-questions.description=
 view.import-questions.requestType=What type of request is this?
-view.import-questions.routeType=Which route is this?
+view.import-questions.routeType.title=Which route is this declaration for?
+view.import-questions.routeType.heading=Which route is this declaration for?
 view.import-questions.hasPriorityGoods.title=Are you moving any priority goods?
 view.import-questions.hasPriorityGoods.heading=Are you moving any priority goods?
 view.import-questions.whichPriorityGoods.title=Which type of priority goods are you moving?

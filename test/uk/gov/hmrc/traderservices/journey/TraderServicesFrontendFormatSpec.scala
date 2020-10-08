@@ -88,6 +88,32 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
+        """{"state":"AnswerImportQuestionsRequestType","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{}}}""",
+        State.AnswerImportQuestionsRequestType(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions()
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerImportQuestionsRouteType","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold"}}}""",
+        State.AnswerImportQuestionsRouteType(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerImportQuestionsHasPriorityGoods","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","routeType":"Route1Cap"}}}""",
+        State.AnswerImportQuestionsHasPriorityGoods(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            routeType = Some(ImportRouteType.Route1Cap)
+          )
+        )
+      )
+      validateJsonFormat(
         """{"state":"AnswerImportQuestionsWhichPriorityGoods","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","routeType":"Route1Cap","priorityGoods":"LiveAnimals"}}}""",
         State.AnswerImportQuestionsWhichPriorityGoods(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
