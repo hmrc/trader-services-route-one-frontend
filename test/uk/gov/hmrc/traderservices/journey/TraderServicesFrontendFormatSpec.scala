@@ -88,6 +88,17 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
+        """{"state":"AnswerImportQuestionsWhichPriorityGoods","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","routeType":"Route1Cap","priorityGoods":"LiveAnimals"}}}""",
+        State.AnswerImportQuestionsWhichPriorityGoods(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            routeType = Some(ImportRouteType.Route1Cap),
+            priorityGoods = Some(ImportPriorityGoods.LiveAnimals)
+          )
+        )
+      )
+      validateJsonFormat(
         """{"state":"AnswerImportQuestionsALVS","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsOpt":{"requestType":"Hold","priorityGoods":"LiveAnimals","hasALVS":true}}}""",
         State.AnswerImportQuestionsALVS(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),

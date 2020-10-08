@@ -205,11 +205,17 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/which-priority-goods
   val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsWhichPriorityGoods =>
+    }
 
   // POST /pre-clearance/import-questions/which-priority-goods
   val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportPriorityGoodsForm)(
+        Transitions.submittedImportQuestionsAnswerWhichPriorityGoods
+      )
+    }
 
   // GET /pre-clearance/import-questions/automatic-licence-verification
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
@@ -291,6 +297,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: AnswerImportQuestionsRouteType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsRouteType()
+
+      case _: AnswerImportQuestionsWhichPriorityGoods =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsWhichPriorityGoods()
 
       case _: AnswerImportQuestionsALVS =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsALVS()
@@ -431,10 +440,23 @@ class TraderServicesFrontendController @Inject() (
           views.importQuestionsGoodsPriorityView(
             formWithErrors.or(
               importQuestions.priorityGoods
-                .map(query => ImportGoodsPriorityForm.fill(query))
-                .getOrElse(ImportGoodsPriorityForm)
+                .map(query => ImportPriorityGoodsForm.fill(query))
+                .getOrElse(ImportPriorityGoodsForm)
             ),
             workInProgresDeadEndCall
+          )
+        )
+
+      case AnswerImportQuestionsWhichPriorityGoods(_, importQuestions) =>
+        Ok(
+          views.importQuestionsWhichPriorityGoodsView(
+            formWithErrors.or(
+              importQuestions.priorityGoods
+                .map(query => ImportPriorityGoodsForm.fill(query))
+                .getOrElse(ImportPriorityGoodsForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsWhichPriorityGoodsAnswer(),
+            backLinkFor(breadcrumbs)
           )
         )
 
@@ -515,8 +537,8 @@ object TraderServicesFrontendController {
     mapping("routeType" -> importRouteTypeMapping)(identity)(Option.apply)
   )
 
-  val ImportGoodsPriorityForm = Form[ImportPriorityGoods](
-    mapping("hasPriorityGoods" -> importGoodsPriorityMapping)(identity)(Option.apply)
+  val ImportPriorityGoodsForm = Form[ImportPriorityGoods](
+    mapping("priorityGoods" -> importPriorityGoodsMapping)(identity)(Option.apply)
   )
 
   val ImportFreightTypeForm = Form[ImportFreightType](
