@@ -25,6 +25,7 @@ import play.api.data.validation._
 import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 
 import scala.util.Try
+import java.time.LocalTime
 
 object FormFieldMappings {
 
@@ -143,4 +144,9 @@ object FormFieldMappings {
 
   val importHasALVSMapping: Mapping[Boolean] = booleanMapping("importHasALVS", "yes", "no")
 
+  val mandatoryVesselNameMapping: Mapping[String] = of[String]
+
+  val mandatoryDateOfArrivalMapping: Mapping[LocalDate] = DateFieldHelper.dateFieldsMapping("dateOfArrival")
+
+  val mandatoryTimeOfArrivalMapping: Mapping[LocalTime] = TimeFieldHelper.timeFieldsMapping("timeOfArrival")
 }
