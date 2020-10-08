@@ -53,17 +53,36 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
       form
     )
 
+  val importPriorityGoodsList = Seq(
+    ImportPriorityGoods.ClassADrugs,
+    ImportPriorityGoods.ExplosivesOrFireworks,
+    ImportPriorityGoods.HighValueArt,
+    ImportPriorityGoods.HumanRemains,
+    ImportPriorityGoods.LiveAnimals
+  )
+
+  def importPriorityGoodsMessageKeys(messagePrefix: String): Seq[String] =
+    importPriorityGoodsList.map(key => s"$messagePrefix.$key")
+
+  def importHasPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+    Seq(
+      RadioItem(
+        value = Some("yes"),
+        content = Text(messages(s"form.import-questions.hasPriorityGoods.yes")),
+        checked = form("hasPriorityGoods").value.contains("yes")
+      ),
+      RadioItem(
+        value = Some("no"),
+        content = Text(messages(s"form.import-questions.hasPriorityGoods.no")),
+        checked = form("hasPriorityGoods").value.contains("no")
+      )
+    )
+
   def importPriorityGoodsItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ImportPriorityGoods](
       "import-questions",
-      "hasPriorityGoods",
-      Seq(
-        ImportPriorityGoods.ClassADrugs,
-        ImportPriorityGoods.ExplosivesOrFireworks,
-        ImportPriorityGoods.HighValueArt,
-        ImportPriorityGoods.HumanRemains,
-        ImportPriorityGoods.LiveAnimals
-      ),
+      "priorityGoods",
+      importPriorityGoodsList,
       form
     )
 
