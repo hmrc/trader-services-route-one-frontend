@@ -61,10 +61,17 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(form, "routeType", Map("routeType" -> "Foo"), Seq("error.exportRouteType.invalid-option"))
     }
 
-    "bind tes/no and return Boolean and fill it back" in {
+    "bind yes/no and return Boolean and fill it back" in {
       val form = TraderServicesFrontendController.ExportHasPriorityGoodsForm
       validate(form, Map("hasPriorityGoods" -> "yes"), true)
       validate(form, Map("hasPriorityGoods" -> "no"), false)
+      validate(form, "hasPriorityGoods", Map(), Seq("error.exportHasPriorityGoods.required"))
+      validate(
+        form,
+        "hasPriorityGoods",
+        Map("hasPriorityGoods" -> "Foo"),
+        Seq("error.exportHasPriorityGoods.invalid-option")
+      )
     }
 
     "bind some priorityGoods and return ExportPriorityGoods and fill it back" in {
