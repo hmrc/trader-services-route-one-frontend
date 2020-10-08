@@ -20,11 +20,8 @@ import java.time.LocalDate
 import play.api.libs.json.{Format, Json}
 import java.time.LocalTime
 
-case class MandatoryVesselDetails(vesselName: String, dateOfArrival: LocalDate, timeOfArrival: LocalTime)
+case class VesselDetails(vesselName: Option[String], dateOfArrival: Option[LocalDate], timeOfArrival: Option[LocalTime])
 
 object MandatoryVesselDetails {
-  implicit val formats: Format[MandatoryVesselDetails] = Json.format[MandatoryVesselDetails]
-
-  val mandatoryFields: Set[String] =
-    Set("vesselName", "dateOfArrival", "timeOfArrival")
+  implicit val formats: Format[VesselDetails] = Json.format[VesselDetails]
 }

@@ -33,7 +33,7 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.Success
-import uk.gov.hmrc.traderservices.models.MandatoryVesselDetails
+import uk.gov.hmrc.traderservices.models.VesselDetails
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -569,11 +569,19 @@ object TraderServicesFrontendController {
     mapping("hasALVS" -> importHasALVSMapping)(identity)(Option.apply)
   )
 
-  val MandatoryVesselDetailForm = Form[MandatoryVesselDetails](
+  val MandatoryVesselDetailsForm = Form[VesselDetails](
     mapping(
       "vesselName"    -> mandatoryVesselNameMapping,
       "dateOfArrival" -> mandatoryDateOfArrivalMapping,
       "timeOfArrival" -> mandatoryTimeOfArrivalMapping
-    )(MandatoryVesselDetails.apply)(MandatoryVesselDetails.unapply)
+    )(VesselDetails.apply)(VesselDetails.unapply)
+  )
+
+  val OptionalVesselDetailsForm = Form[VesselDetails](
+    mapping(
+      "vesselName"    -> optionalVesselNameMapping,
+      "dateOfArrival" -> optionalDateOfArrivalMapping,
+      "timeOfArrival" -> optionalTimeOfArrivalMapping
+    )(VesselDetails.apply)(VesselDetails.unapply)
   )
 }

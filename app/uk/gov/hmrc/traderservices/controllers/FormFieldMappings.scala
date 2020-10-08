@@ -144,9 +144,25 @@ object FormFieldMappings {
 
   val importHasALVSMapping: Mapping[Boolean] = booleanMapping("importHasALVS", "yes", "no")
 
-  val mandatoryVesselNameMapping: Mapping[String] = of[String]
+  val mandatoryVesselNameMapping: Mapping[Option[String]] = of[String]
+    .verifying(constraint[String]("vesselName", "invalid-length", s => s.length > 0 && s.length <= 128))
+    .transform(Option.apply, _.get)
 
-  val mandatoryDateOfArrivalMapping: Mapping[LocalDate] = DateFieldHelper.dateFieldsMapping("dateOfArrival")
+  val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper.dateFieldsMapping("dateOfArrival").transform(Option.apply, _.get)
 
-  val mandatoryTimeOfArrivalMapping: Mapping[LocalTime] = TimeFieldHelper.timeFieldsMapping("timeOfArrival")
+  val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
+    TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
+
+  val optionalVesselNameMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(constraint[String]("vesselName", "invalid-length", s => s.length > 0 && s.length <= 128))
+  )
+
+  val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] = optional(
+    DateFieldHelper.dateFieldsMapping("dateOfArrival")
+  )
+
+  val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] = optional(
+    TimeFieldHelper.timeFieldsMapping("timeOfArrival")
+  )
 }
