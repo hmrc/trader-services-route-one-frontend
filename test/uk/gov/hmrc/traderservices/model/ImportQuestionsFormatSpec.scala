@@ -31,7 +31,6 @@ class ImportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("New", ImportRequestType.New)
       validateJsonFormat("Cancellation", ImportRequestType.Cancellation)
       validateJsonFormat("Hold", ImportRequestType.Hold)
-      validateJsonFormat("ALVS", ImportRequestType.ALVS)
     }
 
     "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType](info) {
