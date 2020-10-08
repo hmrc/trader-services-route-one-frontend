@@ -297,7 +297,7 @@ error.importHasPriorityGoods.required=Select yes if you''re moving priority good
 error.importPriorityGoods.required=Select the type of priority goods
 error.importFreightType.required=Select the type of transport you''re using
 error.transportationType.required=Tell us what type of freight transportation is being used
-error.importHasALVS.required=Select yes if you''re using an Automatic License Verification System (ALVS) 
+error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
 error.importFreightType.required=Select the type of transport you''re using
 
 # Common form messages
