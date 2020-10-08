@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import play.api.data.Forms.{mapping, of}
+import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -100,9 +100,12 @@ object DateFieldHelper {
 
   def dateFieldsMapping(fieldName: String): Mapping[LocalDate] =
     mapping(
-      "year"  -> of[String].transform[String](_.trim, identity),
-      "month" -> of[String].transform[String](_.trim, identity),
-      "day"   -> of[String].transform[String](_.trim, identity)
+      "year" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "month" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "day" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeDateFields)(a => Option(a))
       .verifying(validDateFields(fieldName))
       .transform[String](concatDate, splitDate)

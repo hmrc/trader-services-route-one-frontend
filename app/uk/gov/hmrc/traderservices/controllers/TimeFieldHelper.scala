@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter
 import play.api.data.Mapping
 import java.time.format.DateTimeFormatter
 
-import play.api.data.Forms.{mapping, of}
+import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -31,9 +31,12 @@ object TimeFieldHelper {
 
   def timeFieldsMapping(fieldName: String): Mapping[LocalTime] =
     mapping(
-      "hour"    -> of[String].transform[String](_.trim, identity),
-      "minutes" -> of[String].transform[String](_.trim, identity),
-      "period"  -> of[String].transform[String](_.trim.toUpperCase, identity)
+      "hour" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "minutes" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "period" -> optional(of[String].transform[String](_.trim.toUpperCase, identity))
+        .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeTimeFields)(a => Option(a))
       .verifying(validTimeFields(fieldName))
       .transform[String](concatTime, splitTime)
