@@ -22,6 +22,9 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
 import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportPriorityGoods, ExportRequestType, ExportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
+import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
+import uk.gov.hmrc.traderservices.models.ExportFreightType
+import uk.gov.hmrc.traderservices.models.ImportFreightType
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
@@ -202,6 +205,12 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       exportHasPriorityGoodsMapping.bind(Map()) should haveOnlyError[Boolean]("error.exportHasPriorityGoods.required")
     }
 
+    "validate import hasPriorityGoods" in {
+      importHasPriorityGoodsMapping.bind(Map("" -> "yes")) shouldBe Right(true)
+      importHasPriorityGoodsMapping.bind(Map("" -> "no")) shouldBe Right(false)
+      importHasPriorityGoodsMapping.bind(Map()) should haveOnlyError[Boolean]("error.importHasPriorityGoods.required")
+    }
+
     "validate export priorityGoods" in {
       exportPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportPriorityGoods.LiveAnimals)
       exportPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportPriorityGoods.HumanRemains)
@@ -218,10 +227,40 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
     }
 
+    "validate import priorityGoods" in {
+      importPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ImportPriorityGoods.LiveAnimals)
+      importPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ImportPriorityGoods.HumanRemains)
+      importPriorityGoodsMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ImportPriorityGoods.HighValueArt)
+      importPriorityGoodsMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ImportPriorityGoods.ClassADrugs)
+      importPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
+        ImportPriorityGoods.ExplosivesOrFireworks
+      )
+      importPriorityGoodsMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportPriorityGoods](
+        "error.importPriorityGoods.invalid-option"
+      )
+      importPriorityGoodsMapping.bind(Map()) should haveOnlyError[ImportPriorityGoods](
+        "error.importPriorityGoods.required"
+      )
+    }
+
     "validate import hasALVS" in {
       importHasALVSMapping.bind(Map("" -> "yes")) shouldBe Right(true)
       importHasALVSMapping.bind(Map("" -> "no")) shouldBe Right(false)
       importHasALVSMapping.bind(Map()) should haveOnlyError[Boolean]("error.importHasALVS.required")
+    }
+
+    "validate export freightType" in {
+      exportFreightTypeMapping.bind(Map("" -> "Air")) shouldBe Right(ExportFreightType.Air)
+      exportFreightTypeMapping.bind(Map("" -> "Maritime")) shouldBe Right(ExportFreightType.Maritime)
+      exportFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ExportFreightType.RORO)
+      exportFreightTypeMapping.bind(Map()) should haveOnlyError[ExportFreightType]("error.exportFreightType.required")
+    }
+
+    "validate import freightType" in {
+      importFreightTypeMapping.bind(Map("" -> "Air")) shouldBe Right(ImportFreightType.Air)
+      importFreightTypeMapping.bind(Map("" -> "Maritime")) shouldBe Right(ImportFreightType.Maritime)
+      importFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ImportFreightType.RORO)
+      importFreightTypeMapping.bind(Map()) should haveOnlyError[ImportFreightType]("error.importFreightType.required")
     }
   }
 
