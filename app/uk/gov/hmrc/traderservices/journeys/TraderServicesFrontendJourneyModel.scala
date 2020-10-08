@@ -233,6 +233,17 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             )
       }
 
+    def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
+      Transition {
+        case AnswerImportQuestionsRouteType(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsHasPriorityGoods(
+              declarationDetails,
+              importQuestions.copy(routeType = Some(importRouteType))
+            )
+          )
+      }
+
     def submittedImportQuestionsAnswerHasPriorityGoods(user: String)(importHasPriorityGoods: Boolean) =
       Transition {
         case AnswerImportQuestionsHasPriorityGoods(declarationDetails, importQuestions) =>

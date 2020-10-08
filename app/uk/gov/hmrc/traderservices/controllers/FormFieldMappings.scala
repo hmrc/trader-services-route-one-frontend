@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
 
-import play.api.data.Forms.{boolean, of, optional, text}
+import play.api.data.Forms.{of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._

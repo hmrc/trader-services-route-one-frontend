@@ -189,11 +189,15 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/route-type
   val showAnswerImportQuestionsRouteType: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsRouteType =>
+    }
 
   // POST /pre-clearance/import-questions/route-type
   val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportRouteTypeForm)(Transitions.submittedImportQuestionsAnswerRouteType)
+    }
 
   // GET /pre-clearance/import-questions/has-priority-goods
   val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -440,7 +444,8 @@ class TraderServicesFrontendController @Inject() (
                 .map(query => ImportRouteTypeForm.fill(query))
                 .getOrElse(ImportRouteTypeForm)
             ),
-            workInProgresDeadEndCall
+            routes.TraderServicesFrontendController.submitImportQuestionsRouteTypeAnswer(),
+            backLinkFor(breadcrumbs)
           )
         )
 

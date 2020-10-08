@@ -449,6 +449,54 @@ class TraderServicesFrontendISpec
       }
     }
 
+    "GET /pre-clearance/import-questions/route-type" should {
+      "show the import route type question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsRouteType(
+            DeclarationDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
+            ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/route-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.routeType.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
+        journey.getState shouldBe AnswerImportQuestionsRouteType(
+          DeclarationDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
+          ImportQuestions(requestType = Some(ImportRequestType.New))
+        )
+      }
+    }
+
+    "POST /pre-clearance/import-questions/route-type" should {
+      "submit the form and ask next for hasPriorityGoods" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsRouteType(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Route6")
+
+        val result = await(request("/pre-clearance/import-questions/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
+          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+          ImportQuestions(requestType = Some(ImportRequestType.Cancellation), routeType = Some(ImportRouteType.Route6))
+        )
+      }
+    }
+
     "GET /pre-clearance/import-questions/has-priority-goods" should {
       "show the import has priority goods page" in {
         implicit val journeyId: JourneyId = JourneyId()
