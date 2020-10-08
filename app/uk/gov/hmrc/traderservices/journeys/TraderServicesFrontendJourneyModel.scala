@@ -233,6 +233,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             )
       }
 
+    def submittedImportQuestionsAnswerHasPriorityGoods(user: String)(importHasPriorityGoods: Boolean) =
+      Transition {
+        case AnswerImportQuestionsHasPriorityGoods(declarationDetails, importQuestions) =>
+          if (importHasPriorityGoods)
+            goto(AnswerImportQuestionsWhichPriorityGoods(declarationDetails, importQuestions))
+          else
+            goto(AnswerImportQuestionsALVS(declarationDetails, importQuestions))
+      }
+
     def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
       Transition {
         case AnswerImportQuestionsWhichPriorityGoods(declarationDetails, importQuestions) =>

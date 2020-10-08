@@ -131,6 +131,8 @@ object FormFieldMappings {
 
   val exportHasPriorityGoodsMapping: Mapping[Boolean] = booleanMapping("exportHasPriorityGoods", "yes", "no")
 
+  val importHasPriorityGoodsMapping: Mapping[Boolean] = booleanMapping("importHasPriorityGoods", "yes", "no")
+
   val exportPriorityGoodsMapping: Mapping[ExportPriorityGoods] = enumMapping[ExportPriorityGoods]("exportPriorityGoods")
 
   val importPriorityGoodsMapping: Mapping[ImportPriorityGoods] = enumMapping[ImportPriorityGoods]("importPriorityGoods")

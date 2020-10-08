@@ -255,6 +255,35 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       }
     }
 
+    "at state AnswerImportQuestionsHasPriorityGoods" should {
+      "go to AnswerImportQuestionsWhichPriorityGoods when selected YES" in {
+        given(
+          AnswerImportQuestionsHasPriorityGoods(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          AnswerImportQuestionsWhichPriorityGoods(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        )
+      }
+      "go to AnswerImportQuestionsWhichPriorityGoods when selected NO" in {
+        given(
+          AnswerImportQuestionsHasPriorityGoods(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
+          AnswerImportQuestionsALVS(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+          )
+        )
+      }
+    }
+
     "at state AnswerImportQuestionsWhichPriorityGoods" should {
       for (priorityGoods <- ImportPriorityGoods.values)
         s"go to AnswerImportQuestionsALVS when submittedImportQuestionsAnswerWhichPriorityGoods with ${ImportPriorityGoods.keyOf(priorityGoods).get}" in {
