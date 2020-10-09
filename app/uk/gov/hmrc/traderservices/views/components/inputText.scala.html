@@ -25,9 +25,11 @@
         headingMessageArgs: Seq[String] = Seq(),
         hint: Option[Html] = None,
         classes: Option[String] = None,
+        isInFieldset: Boolean = false,
         stripWhitespace: Boolean = false,
         autocomplete: Option[String] = None,
-        inputType: String = "text"
+        inputType: String = "text",
+        attributes: Map[String, String] = Map.empty
 )(implicit messages: Messages)
 
 @govukInput(Input(
@@ -35,16 +37,16 @@
   name,
   classes = classes.fold("")(x => x),
   label = Label(
-    content = Text(messages(label, headingMessageArgs:_*)),
+    content = Text(messages(label, headingMessageArgs: _*)),
     isPageHeading = isPageHeading,
-    classes = if(isPageHeading) "govuk-label--xl" else "govuk-label--s"
+    classes = if(isInFieldset) "" else if(isPageHeading) "govuk-label--xl" else "govuk-label--s"
   ),
   hint = hint.map(hintHtml => Hint(
-      content = HtmlContent(hintHtml)
+    content = HtmlContent(hintHtml)
   )),
   value = form(name).value,
   autocomplete = autocomplete.map(value => value),
   inputType = inputType,
-  errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+  attributes = attributes,
+  errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*))))
 ))
-

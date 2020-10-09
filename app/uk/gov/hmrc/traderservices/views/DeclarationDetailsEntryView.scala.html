@@ -25,7 +25,7 @@
 @(form: Form[DeclarationDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.declaration-details.title")), 
+  pageTitle = Some(messages("view.declaration-details.title")),
   backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
@@ -41,7 +41,9 @@
         name = "epu",
         label = "form.declaration-details.epu",
         isPageHeading = false,
-        classes = Some("govuk-input--width-3")
+        isInFieldset = true,
+        classes = Some("govuk-input--width-3"),
+        attributes = Map("maxlength" -> "3")
       )
 
       @forms.inputText(
@@ -50,19 +52,21 @@
         name = "entryNumber",
         label = "form.declaration-details.entryNumber",
         isPageHeading = false,
-        classes = Some("govuk-input--width-10")
+        isInFieldset = true,
+        classes = Some("govuk-input--width-10"),
+        attributes = Map("maxlength" -> "7")
       )
 
       @forms.inputDate(
         form = form,
         id = "entryDate",
         legendContent = "form.declaration-details.entryDate",
-        legendClasses = "govuk-label--s",
+        legendClasses = "",
         legendAsPageHeading = false,
         hintText = None,
-        attributesDay = Map("aria-label" -> "Day of entry date"),
-        attributesMonth = Map("aria-label" -> "Month of entry date"),
-        attributesYear = Map("aria-label" -> "Year of entry date")
+        attributesDay = Map("aria-label" -> "Day of entry date", "maxlength" -> "2"),
+        attributesMonth = Map("aria-label" -> "Month of entry date", "maxlength" -> "2"),
+        attributesYear = Map("aria-label" -> "Year of entry date", "maxlength" -> "4")
       )
     }
 

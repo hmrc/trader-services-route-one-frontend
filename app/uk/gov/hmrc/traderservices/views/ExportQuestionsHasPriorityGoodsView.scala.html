@@ -18,41 +18,37 @@
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 
 @this(
-    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-    forms: uk.gov.hmrc.traderservices.views.components.forms,
-    html: uk.gov.hmrc.traderservices.views.components.html,
-    context: ExportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ExportQuestionsViewContext
 )
 
 @(form: Form[Boolean], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@inputRadioHint = {
+  @html.p {
+    @messages("view.export-questions.hasPriorityGoods.description")
+  }
+  @html.ul(context.exportPriorityGoodsMessageKeys("view.export-questions.hasPriorityGoods.list"): _*)
+}
+
 @govukLayout(
-    pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")), 
-    backLink = Some(backLink.url)) {
+  pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")),
+  backLink = Some(backLink.url)) {
 
-    @forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "hasPriorityGoods",
+      name = "hasPriorityGoods",
+      items = context.exportHasPriorityGoodsItems(form),
+      legend = Some("view.export-questions.hasPriorityGoods.heading"),
+      hint = Some(inputRadioHint)
+    )
 
-        @forms.fieldset(
-            legend = messages("view.export-questions.hasPriorityGoods.heading")
-        ) {
-
-            @html.p {
-                @messages("view.export-questions.hasPriorityGoods.description")
-                @html.p {
-                    @html.ul(context.exportPriorityGoodsMessageKeys("view.export-questions.hasPriorityGoods.list"):_*)
-                }
-            }
-
-            @forms.inputRadio(
-                form = form,
-                idPrefix = "hasPriorityGoods",
-                name = "hasPriorityGoods",
-                items = context.exportHasPriorityGoodsItems(form)
-            )
-
-            @html.button("form.export-questions.continue")
-        }
-    }
+    @html.button("form.export-questions.continue")
+  }
 }
