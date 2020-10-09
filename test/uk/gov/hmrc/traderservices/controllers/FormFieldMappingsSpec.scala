@@ -262,6 +262,45 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ImportFreightType.RORO)
       importFreightTypeMapping.bind(Map()) should haveOnlyError[ImportFreightType]("error.importFreightType.required")
     }
+
+    "validate vesselName" in {
+      mandatoryVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
+      mandatoryVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
+      mandatoryVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
+        Some("Ship+ley / West-Yorkshire")
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
+      mandatoryVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
+      mandatoryVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
+      mandatoryVesselNameMapping.bind(Map("" -> "")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> " ")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "  ")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-length"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyErrors[Option[String]](
+        "error.vesselName.invalid-length",
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+    }
   }
 
 }
