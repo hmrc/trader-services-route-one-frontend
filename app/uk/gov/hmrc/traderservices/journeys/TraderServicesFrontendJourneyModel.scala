@@ -65,7 +65,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerExportQuestionsVesselInfo(
+    case class AnswerExportQuestionsMandatoryVesselInfo(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerExportQuestionsOptionalVesselInfo(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
     ) extends State with HasDeclarationDetails
@@ -107,14 +112,19 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerImportQuestionsVesselInfo(
+    case class AnswerImportQuestionsMandatoryVesselInfo(
       declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ImportQuestions
+      importQuestionsAnswers: ImportQuestions
+    ) extends State with HasDeclarationDetails
+
+    case class AnswerImportQuestionsOptionalVesselInfo(
+      declarationDetails: DeclarationDetails,
+      importQuestionsAnswers: ImportQuestions
     ) extends State with HasDeclarationDetails
 
     case class AnswerImportQuestionsContactInfo(
       declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ImportQuestions
+      importQuestionsAnswers: ImportQuestions
     ) extends State with HasDeclarationDetails
 
   }
@@ -200,14 +210,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
           if (exportQuestions.requestType.contains(ExportRequestType.C1601))
             goto(
-              AnswerExportQuestionsVesselInfo(
+              AnswerExportQuestionsMandatoryVesselInfo(
                 declarationDetails,
                 exportQuestions.copy(freightType = Some(exportFreightType))
               )
             )
           else
             goto(
-              AnswerExportQuestionsContactInfo(
+              AnswerExportQuestionsOptionalVesselInfo(
                 declarationDetails,
                 exportQuestions.copy(freightType = Some(exportFreightType))
               )
@@ -277,14 +287,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
           if (importFreightType == ImportFreightType.Maritime)
             goto(
-              AnswerImportQuestionsVesselInfo(
+              AnswerImportQuestionsMandatoryVesselInfo(
                 declarationDetails,
                 importQuestions.copy(freightType = Some(importFreightType))
               )
             )
           else
             goto(
-              AnswerImportQuestionsContactInfo(
+              AnswerImportQuestionsOptionalVesselInfo(
                 declarationDetails,
                 importQuestions.copy(freightType = Some(importFreightType))
               )

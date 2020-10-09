@@ -16,8 +16,10 @@ GET        /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc
 POST       /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer
 GET        /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsFreightType
 POST       /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer
-GET        /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsVesselInfo
-POST       /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsVesselInfoAnswer
+GET        /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsMandatoryVesselInfo
+POST       /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsMandatoryVesselInfoAnswer
+GET        /pre-clearance/export-questions/vessel-info-optional     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsOptionalVesselInfo
+POST       /pre-clearance/export-questions/vessel-info-optional     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsOptionalVesselInfoAnswer
 GET        /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo
 POST       /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer
 
@@ -33,8 +35,10 @@ GET        /pre-clearance/import-questions/automatic-licence-verification   @uk.
 POST       /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsALVSAnswer
 GET        /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsFreightType
 POST       /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer
-GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsVesselInfo
-POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsVesselInfoAnswer
+GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
+POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsMandatoryVesselInfoAnswer
+GET        /pre-clearance/import-questions/vessel-info-optional     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
+POST       /pre-clearance/import-questions/vessel-info-optional     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer
 GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo
 POST       /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer
 

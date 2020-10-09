@@ -172,7 +172,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         freightType <- ExportFreightType.values;
         requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.C1601)
       )
-        s"go to AnswerExportQuestionsContactInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
+        s"go to AnswerExportQuestionsOptionalVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
           .keyOf(requestType)
           .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
           given(
@@ -187,7 +187,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
-            AnswerExportQuestionsContactInfo(
+            AnswerExportQuestionsOptionalVesselInfo(
               exportDeclarationDetails,
               ExportQuestions(
                 requestType = Some(requestType),
@@ -200,7 +200,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
 
       for (freightType <- ExportFreightType.values)
-        s"go to AnswerExportQuestionsVesselInfo when submittedExportQuestionsAnswerFreightType and requestType==C1601, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType and requestType==C1601, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerExportQuestionsFreightType(
               exportDeclarationDetails,
@@ -213,7 +213,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
-            AnswerExportQuestionsVesselInfo(
+            AnswerExportQuestionsMandatoryVesselInfo(
               exportDeclarationDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1601),
@@ -369,7 +369,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         freightType <- ImportFreightType.values.filterNot(_ == ImportFreightType.Maritime);
         requestType <- ImportRequestType.values
       )
-        s"go to AnswerImportQuestionsContactInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+        s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
           .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
@@ -384,7 +384,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
-            AnswerImportQuestionsContactInfo(
+            AnswerImportQuestionsOptionalVesselInfo(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(requestType),
@@ -397,7 +397,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
 
       for (requestType <- ImportRequestType.values)
-        s"go to AnswerImportQuestionsContactInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
           .get}, and freightType=Maritime" in {
           given(
@@ -412,7 +412,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             ImportFreightType.Maritime
           ) should thenGo(
-            AnswerImportQuestionsVesselInfo(
+            AnswerImportQuestionsMandatoryVesselInfo(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(requestType),

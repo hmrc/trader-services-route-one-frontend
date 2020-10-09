@@ -161,11 +161,23 @@ class TraderServicesFrontendController @Inject() (
     }
 
   // GET /pre-clearance/export-questions/vessel-info
-  val showAnswerExportQuestionsVesselInfo: Action[AnyContent] =
-    actionNotYetImplemented
+  val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsMandatoryVesselInfo =>
+    }
 
   // POST /pre-clearance/export-questions/vessel-info
-  val submitExportQuestionsVesselInfoAnswer: Action[AnyContent] =
+  val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/export-questions/vessel-info-optional
+  val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsOptionalVesselInfo =>
+    }
+
+  // POST /pre-clearance/export-questions/vessel-info-optional
+  val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
     actionNotYetImplemented
 
   // GET /pre-clearance/export-questions/contact-info
@@ -255,11 +267,23 @@ class TraderServicesFrontendController @Inject() (
     }
 
   // GET /pre-clearance/import-questions/vessel-info
-  val showAnswerImportQuestionsVesselInfo: Action[AnyContent] =
-    actionNotYetImplemented
+  val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsMandatoryVesselInfo =>
+    }
 
   // POST /pre-clearance/import-questions/vessel-info
-  val submitImportQuestionsVesselInfoAnswer: Action[AnyContent] =
+  val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/import-questions/vessel-info-optional
+  val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsOptionalVesselInfo =>
+    }
+
+  // POST /pre-clearance/import-questions/vessel-info-optional
+  val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
     actionNotYetImplemented
 
   // GET /pre-clearance/import-questions/contact-info
@@ -297,8 +321,11 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsFreightType =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsFreightType()
 
-      case _: AnswerExportQuestionsVesselInfo =>
-        routes.TraderServicesFrontendController.showAnswerExportQuestionsVesselInfo()
+      case _: AnswerExportQuestionsMandatoryVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsMandatoryVesselInfo()
+
+      case _: AnswerExportQuestionsOptionalVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerExportQuestionsOptionalVesselInfo()
 
       case _: AnswerExportQuestionsContactInfo =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo()
@@ -321,8 +348,11 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerImportQuestionsFreightType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsFreightType()
 
-      case _: AnswerImportQuestionsVesselInfo =>
-        routes.TraderServicesFrontendController.showAnswerImportQuestionsVesselInfo()
+      case _: AnswerImportQuestionsMandatoryVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo()
+
+      case _: AnswerImportQuestionsOptionalVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo()
 
       case _: AnswerImportQuestionsContactInfo =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo()
@@ -424,6 +454,12 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerExportQuestionsMandatoryVesselInfo(_, exportQuestions) =>
+        Ok("WorkInProgress")
+
+      case AnswerExportQuestionsOptionalVesselInfo(_, exportQuestions) =>
+        Ok("WorkInProgress")
+
       case AnswerImportQuestionsRequestType(_, importQuestions) =>
         Ok(
           views.importQuestionsRequestTypeView(
@@ -501,6 +537,12 @@ class TraderServicesFrontendController @Inject() (
             backLinkFor(breadcrumbs)
           )
         )
+
+      case AnswerImportQuestionsMandatoryVesselInfo(_, importQuestions) =>
+        Ok("WorkInProgress")
+
+      case AnswerImportQuestionsOptionalVesselInfo(_, importQuestions) =>
+        Ok("WorkInProgress")
 
       case _ => NotImplemented
 
