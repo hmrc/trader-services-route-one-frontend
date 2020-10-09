@@ -96,8 +96,8 @@ class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelp
       "export-questions",
       "freightType",
       Seq(
-        ExportFreightType.Maritime,
         ExportFreightType.Air,
+        ExportFreightType.Maritime,
         ExportFreightType.RORO
       ),
       form
