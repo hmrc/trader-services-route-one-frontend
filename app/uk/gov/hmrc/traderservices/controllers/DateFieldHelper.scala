@@ -76,9 +76,10 @@ object DateFieldHelper {
       }
   }
 
-  def validDateFields(fieldName: String): Constraint[(String, String, String)] =
+  def validDateFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
-      case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty => Invalid(ValidationError(s"error.$fieldName.required"))
+      case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty =>
+        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
       case (y, m, d) =>
         val errors = Seq(
           if (y.isEmpty) Some(ValidationError(s"error.$fieldName.required-year"))
@@ -107,11 +108,27 @@ object DateFieldHelper {
       "day" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeDateFields)(a => Option(a))
-      .verifying(validDateFields(fieldName))
+      .verifying(validDateFields(fieldName, true))
       .transform[String](concatDate, splitDate)
       .transform[LocalDate](
         LocalDate.parse(_, DateTimeFormatter.ISO_LOCAL_DATE),
         DateTimeFormatter.ISO_LOCAL_DATE.format
+      )
+
+  def optionalDateFieldsMapping(fieldName: String): Mapping[Option[LocalDate]] =
+    mapping(
+      "year" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "month" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "day" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String])
+    )(normalizeDateFields)(a => Option(a))
+      .verifying(validDateFields(fieldName, false))
+      .transform[String](concatDate, splitDate)
+      .transform[Option[LocalDate]](
+        date => if (date == "--") None else Some(LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)),
+        { case Some(date) => DateTimeFormatter.ISO_LOCAL_DATE.format(date); case None => "--" }
       )
 
   def dateIsBefore(fieldName: String, errorType: String, withOffset: LocalDate => LocalDate): Constraint[LocalDate] =

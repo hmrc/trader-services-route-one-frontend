@@ -148,11 +148,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
+        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
         State.AnswerExportQuestionsMandatoryVesselInfo(
           DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.Hold),
+            requestType = Some(ExportRequestType.C1601),
             priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
             freightType = Some(ExportFreightType.RORO)
           )

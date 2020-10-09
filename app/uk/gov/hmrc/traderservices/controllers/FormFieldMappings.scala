@@ -188,9 +188,8 @@ object FormFieldMappings {
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
 
-  val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] = optional(
-    DateFieldHelper.dateFieldsMapping("dateOfArrival")
-  )
+  val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")
 
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] = optional(
     TimeFieldHelper.timeFieldsMapping("timeOfArrival")

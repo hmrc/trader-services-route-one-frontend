@@ -18,7 +18,6 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
 
-import play.api.data.validation.{Invalid, Valid, ValidationError}
 import uk.gov.hmrc.traderservices.controllers.DateFieldHelper._
 import uk.gov.hmrc.play.test.UnitSpec
 
