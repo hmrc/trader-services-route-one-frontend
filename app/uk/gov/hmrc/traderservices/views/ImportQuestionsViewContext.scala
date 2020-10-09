@@ -91,8 +91,8 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
       "import-questions",
       "freightType",
       Seq(
-        ImportFreightType.Maritime,
         ImportFreightType.Air,
+        ImportFreightType.Maritime,
         ImportFreightType.RORO
       ),
       form
