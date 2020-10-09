@@ -191,7 +191,7 @@ object FormFieldMappings {
   val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")
 
-  val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] = optional(
-    TimeFieldHelper.timeFieldsMapping("timeOfArrival")
-  )
+  val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
+    TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
+
 }

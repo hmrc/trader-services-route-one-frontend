@@ -108,7 +108,7 @@ object DateFieldHelper {
       "day" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeDateFields)(a => Option(a))
-      .verifying(validDateFields(fieldName, true))
+      .verifying(validDateFields(fieldName, required = true))
       .transform[String](concatDate, splitDate)
       .transform[LocalDate](
         LocalDate.parse(_, DateTimeFormatter.ISO_LOCAL_DATE),
@@ -124,7 +124,7 @@ object DateFieldHelper {
       "day" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeDateFields)(a => Option(a))
-      .verifying(validDateFields(fieldName, false))
+      .verifying(validDateFields(fieldName, required = false))
       .transform[String](concatDate, splitDate)
       .transform[Option[LocalDate]](
         date => if (date == "--") None else Some(LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE)),

@@ -18,11 +18,13 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalTime
 
-import play.api.data.validation.{Invalid, Valid, ValidationError}
 import uk.gov.hmrc.traderservices.controllers.TimeFieldHelper._
 import uk.gov.hmrc.play.test.UnitSpec
 import java.time.LocalTime
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
+import play.api.data.validation.Valid
+import play.api.data.validation.ValidationError
+import play.api.data.validation.Invalid
 
 class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
 
@@ -78,10 +80,55 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate time fields" in {
-      val validate = validTimeFields("foo")
+      val validate = t => validTimeFields("foo", required = true)(t)
       validate(("12", "00", "AM")) shouldBe Valid
       validate(("12", "00", "PM")) shouldBe Valid
       validate(("", "", "")) shouldBe Invalid(ValidationError("error.foo.required"))
+      validate(("", "", "AM")) shouldBe Invalid(
+        Seq(ValidationError("error.foo.required-hour"), ValidationError("error.foo.required-minutes"))
+      )
+      validate(("12", "", "AM")) shouldBe Invalid(
+        Seq(ValidationError("error.foo.required-minutes"))
+      )
+      validate(("", "59", "AM")) shouldBe Invalid(
+        Seq(ValidationError("error.foo.required-hour"))
+      )
+      validate(("", "59", "")) shouldBe Invalid(
+        Seq(ValidationError("error.foo.required-hour"), ValidationError("error.foo.required-period"))
+      )
+      validate(("00", "", "SM")) shouldBe Invalid(
+        Seq(
+          ValidationError("error.foo.invalid-hour-value"),
+          ValidationError("error.foo.required-minutes"),
+          ValidationError("error.foo.invalid-period-value")
+        )
+      )
+      validate(("00", "60", "")) shouldBe Invalid(
+        Seq(
+          ValidationError("error.foo.invalid-hour-value"),
+          ValidationError("error.foo.invalid-minutes-value"),
+          ValidationError("error.foo.required-period")
+        )
+      )
+      validate(("01", "00", "M")) shouldBe Invalid(
+        Seq(
+          ValidationError("error.foo.invalid-period-value")
+        )
+      )
+      validate(("0a", "b0", "M")) shouldBe Invalid(
+        Seq(
+          ValidationError("error.foo.invalid-hour-digits"),
+          ValidationError("error.foo.invalid-minutes-digits"),
+          ValidationError("error.foo.invalid-period-value")
+        )
+      )
+    }
+
+    "validate optional time fields" in {
+      val validate = t => validTimeFields("foo", required = false)(t)
+      validate(("12", "00", "AM")) shouldBe Valid
+      validate(("12", "00", "PM")) shouldBe Valid
+      validate(("", "", "")) shouldBe Valid
       validate(("", "", "AM")) shouldBe Invalid(
         Seq(ValidationError("error.foo.required-hour"), ValidationError("error.foo.required-minutes"))
       )
@@ -147,6 +194,33 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
         "error.bar.required-period"
       )
       timeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "60")) should haveOnlyErrors(
+        "error.bar.invalid-hour-value",
+        "error.bar.invalid-minutes-value",
+        "error.bar.required-period"
+      )
+    }
+
+    "validate and optionally map time parts into a time" in {
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "45", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:45"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("03:03"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("15:03"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map()) shouldBe Right(None)
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "", "period" -> "")) shouldBe Right(None)
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyErrors(
+        "error.bar.required-minutes",
+        "error.bar.required-period"
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "60")) should haveOnlyErrors(
         "error.bar.invalid-hour-value",
         "error.bar.invalid-minutes-value",
         "error.bar.required-period"

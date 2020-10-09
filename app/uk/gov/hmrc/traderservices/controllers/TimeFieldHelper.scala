@@ -38,11 +38,27 @@ object TimeFieldHelper {
       "period" -> optional(of[String].transform[String](_.trim.toUpperCase, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeTimeFields)(a => Option(a))
-      .verifying(validTimeFields(fieldName))
+      .verifying(validTimeFields(fieldName, required = true))
       .transform[String](concatTime, splitTime)
       .transform[LocalTime](
         LocalTime.parse(_, ukTimeFormatter),
         ukTimeFormatter.format
+      )
+
+  def optionalTimeFieldsMapping(fieldName: String): Mapping[Option[LocalTime]] =
+    mapping(
+      "hour" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "minutes" -> optional(of[String].transform[String](_.trim, identity))
+        .transform(_.getOrElse(""), Option.apply[String]),
+      "period" -> optional(of[String].transform[String](_.trim.toUpperCase, identity))
+        .transform(_.getOrElse(""), Option.apply[String])
+    )(normalizeTimeFields)(a => Option(a))
+      .verifying(validTimeFields(fieldName, required = false))
+      .transform[String](concatTime, splitTime)
+      .transform[Option[LocalTime]](
+        time => if (time == ": ") None else Some(LocalTime.parse(time, ukTimeFormatter)),
+        { case Some(time) => ukTimeFormatter.format(time); case None => "" }
       )
 
   val normalizeTimeFields: (String, String, String) => (String, String, String) = {
@@ -55,9 +71,10 @@ object TimeFieldHelper {
       }
   }
 
-  def validTimeFields(fieldName: String): Constraint[(String, String, String)] =
+  def validTimeFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.time-fields") {
-      case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty => Invalid(ValidationError(s"error.$fieldName.required"))
+      case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
+        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
       case (h, m, p) =>
         val errors = Seq(
           if (h.isEmpty) Some(ValidationError(s"error.$fieldName.required-hour"))

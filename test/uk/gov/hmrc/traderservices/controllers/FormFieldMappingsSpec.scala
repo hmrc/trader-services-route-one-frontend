@@ -25,6 +25,7 @@ import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
 import uk.gov.hmrc.traderservices.models.ExportFreightType
 import uk.gov.hmrc.traderservices.models.ImportFreightType
+import java.time.LocalTime
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
@@ -433,6 +434,32 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.dateOfArrival.invalid-month-value",
         "error.dateOfArrival.required-day"
       )
+    }
+
+    "validate mandatory timeOfArrival" in {
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
+        "error.timeOfArrival.required"
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map()) should haveOnlyError(
+        "error.timeOfArrival.required"
+      )
+    }
+
+    "validate optional timeOfArrival" in {
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)
+      optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
     }
 
   }
