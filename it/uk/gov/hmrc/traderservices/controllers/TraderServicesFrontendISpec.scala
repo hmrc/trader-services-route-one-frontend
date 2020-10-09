@@ -751,7 +751,7 @@ class TraderServicesFrontendISpec
 
         result.status shouldBe 200
 
-        journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
+        journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
           DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
           ImportQuestions(
             requestType = Some(ImportRequestType.New),

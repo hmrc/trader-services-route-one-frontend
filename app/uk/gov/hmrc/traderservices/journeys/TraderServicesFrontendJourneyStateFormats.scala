@@ -38,7 +38,6 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerImportQuestionsWhichPriorityGoodsFormat = Json.format[AnswerImportQuestionsWhichPriorityGoods]
   val answerImportQuestionsALVSFormat = Json.format[AnswerImportQuestionsALVS]
   val answerImportQuestionsFreightTypeFormat = Json.format[AnswerImportQuestionsFreightType]
-  val answerImportQuestionsMandatoryVesselInfoFormat = Json.format[AnswerImportQuestionsMandatoryVesselInfo]
   val answerImportQuestionsOptionalVesselInfoFormat = Json.format[AnswerImportQuestionsOptionalVesselInfo]
   val answerImportQuestionsContactInfoFormat = Json.format[AnswerImportQuestionsContactInfo]
 
@@ -58,7 +57,6 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: AnswerImportQuestionsWhichPriorityGoods  => answerImportQuestionsWhichPriorityGoodsFormat.writes(s)
     case s: AnswerImportQuestionsALVS                => answerImportQuestionsALVSFormat.writes(s)
     case s: AnswerImportQuestionsFreightType         => answerImportQuestionsFreightTypeFormat.writes(s)
-    case s: AnswerImportQuestionsMandatoryVesselInfo => answerImportQuestionsMandatoryVesselInfoFormat.writes(s)
     case s: AnswerImportQuestionsOptionalVesselInfo  => answerImportQuestionsOptionalVesselInfoFormat.writes(s)
     case s: AnswerImportQuestionsContactInfo         => answerImportQuestionsContactInfoFormat.writes(s)
   }
@@ -82,8 +80,6 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "AnswerImportQuestionsWhichPriorityGoods" => answerImportQuestionsWhichPriorityGoodsFormat.reads(properties)
       case "AnswerImportQuestionsALVS"               => answerImportQuestionsALVSFormat.reads(properties)
       case "AnswerImportQuestionsFreightType"        => answerImportQuestionsFreightTypeFormat.reads(properties)
-      case "AnswerImportQuestionsMandatoryVesselInfo" =>
-        answerImportQuestionsMandatoryVesselInfoFormat.reads(properties)
       case "AnswerImportQuestionsOptionalVesselInfo" => answerImportQuestionsOptionalVesselInfoFormat.reads(properties)
       case "AnswerImportQuestionsContactInfo"        => answerImportQuestionsContactInfoFormat.reads(properties)
       case "WorkInProgressDeadEnd"                   => JsSuccess(WorkInProgressDeadEnd)

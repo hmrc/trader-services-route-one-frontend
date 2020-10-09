@@ -112,11 +112,6 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsOpt: ImportQuestions
     ) extends State with HasDeclarationDetails
 
-    case class AnswerImportQuestionsMandatoryVesselInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends State with HasDeclarationDetails
-
     case class AnswerImportQuestionsOptionalVesselInfo(
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
@@ -285,20 +280,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
       Transition {
         case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
-          if (importFreightType == ImportFreightType.Maritime)
-            goto(
-              AnswerImportQuestionsMandatoryVesselInfo(
-                declarationDetails,
-                importQuestions.copy(freightType = Some(importFreightType))
-              )
+          goto(
+            AnswerImportQuestionsOptionalVesselInfo(
+              declarationDetails,
+              importQuestions.copy(freightType = Some(importFreightType))
             )
-          else
-            goto(
-              AnswerImportQuestionsOptionalVesselInfo(
-                declarationDetails,
-                importQuestions.copy(freightType = Some(importFreightType))
-              )
-            )
+          )
       }
   }
 

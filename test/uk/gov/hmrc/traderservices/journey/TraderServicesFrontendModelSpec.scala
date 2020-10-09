@@ -397,7 +397,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
 
       for (requestType <- ImportRequestType.values)
-        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+        s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
           .get}, and freightType=Maritime" in {
           given(
@@ -412,7 +412,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             ImportFreightType.Maritime
           ) should thenGo(
-            AnswerImportQuestionsMandatoryVesselInfo(
+            AnswerImportQuestionsOptionalVesselInfo(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(requestType),
