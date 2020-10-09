@@ -263,7 +263,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importFreightTypeMapping.bind(Map()) should haveOnlyError[ImportFreightType]("error.importFreightType.required")
     }
 
-    "validate vesselName" in {
+    "validate mandatory vesselName" in {
       mandatoryVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
       mandatoryVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
       mandatoryVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
@@ -301,6 +301,42 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.vesselName.invalid-characters"
       )
     }
+
+    "validate optional vesselName" in {
+      optionalVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
+      optionalVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
+      optionalVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
+        Some("Ship+ley / West-Yorkshire")
+      )
+      optionalVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
+      optionalVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
+      optionalVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
+      optionalVesselNameMapping.bind(Map("" -> "")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> " ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "  ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "                        ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "                        A")) shouldBe Right(Some("A"))
+      optionalVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-length"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyErrors[Option[String]](
+        "error.vesselName.invalid-length",
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+    }
+
   }
 
 }

@@ -146,7 +146,7 @@ object FormFieldMappings {
 
   val allowedSpecialNameCharacterSet = Set(' ', '/', '\\', '_', '-', '&', '+', '\'', '.')
 
-  val vesselNameMapping: Mapping[String] = of[String]
+  val mandatoryVesselNameMapping: Mapping[Option[String]] = of[String]
     .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
     .verifying(
       first(
@@ -163,16 +163,30 @@ object FormFieldMappings {
         )
       )
     )
+    .transform(Option.apply, _.get)
 
-  val mandatoryVesselNameMapping: Mapping[Option[String]] = vesselNameMapping.transform(Option.apply, _.get)
+  val optionalVesselNameMapping: Mapping[Option[String]] = optional(
+    of[String]
+      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
+      .verifying(
+        all(
+          constraint[String]("vesselName", "invalid-length", name => name.isEmpty || name.length <= 128),
+          constraint[String](
+            "vesselName",
+            "invalid-characters",
+            name =>
+              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
+                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
+          )
+        )
+      )
+  ).transform({ case Some("") => None; case o => o }, identity[Option[String]])
 
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper.dateFieldsMapping("dateOfArrival").transform(Option.apply, _.get)
 
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
-
-  val optionalVesselNameMapping: Mapping[Option[String]] = optional(vesselNameMapping)
 
   val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] = optional(
     DateFieldHelper.dateFieldsMapping("dateOfArrival")
