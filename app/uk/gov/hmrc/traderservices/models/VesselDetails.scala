@@ -22,6 +22,6 @@ import java.time.LocalTime
 
 case class VesselDetails(vesselName: Option[String], dateOfArrival: Option[LocalDate], timeOfArrival: Option[LocalTime])
 
-object MandatoryVesselDetails {
+object VesselDetails {
   implicit val formats: Format[VesselDetails] = Json.format[VesselDetails]
 }
