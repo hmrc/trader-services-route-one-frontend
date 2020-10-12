@@ -1,0 +1,75 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.views.viewmodels.TimeInput
+
+@this(govukTimeInput: govukTimeInput)
+
+@(
+  form: Form[_],
+  legendContent: String,
+  legendClasses: String = "govuk-fieldset__legend--xl",
+  id: String = "time",
+  hintText: Option[String] = None,
+  legendAsPageHeading: Boolean = true,
+  attributesHour: Map[String, String] = Map.empty,
+  attributesMinutes: Map[String, String] = Map.empty,
+  attributesPeriod: Map[String, String] = Map.empty)(implicit messages: Messages)
+
+@govukTimeInput(TimeInput(
+    fieldset = Some(Fieldset(
+        legend = Some(
+            Legend(
+                content = Text(messages(legendContent)),
+                isPageHeading = legendAsPageHeading,
+                classes = legendClasses
+            )
+        )
+    )),
+    id = id,
+    items = Seq(
+        InputItem(
+            id = s"$id.hour",
+            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            name =  s"$id.hour",
+            label = Some(messages("time.hour")),
+            value = form(s"$id.hour").value,
+            attributes = attributesHour
+        ),
+        InputItem(
+            id = s"$id.minutes",
+            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            name = s"$id.minutes",
+            label = Some(messages("time.minutes")),
+            value = form(s"$id.minutes").value,
+            attributes = attributesMinutes
+        ),
+        InputItem(
+            id = s"$id.period",
+            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            name = s"$id.period",
+            label = Some(messages("time.period")),
+            value = form(s"$id.period").value,
+            attributes = attributesPeriod
+        )
+    ),
+    periodSelectItems = Seq(
+        SelectItem(value = Some("AM"), text = messages("time.period.am"), selected = form(s"$id.period").value.contains("AM")),
+        SelectItem(value = Some("PM"), text = messages("time.period.pm"), selected = form(s"$id.period").value.contains("PM"))
+    ),
+    hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
+    errorMessage = form(id).error.fold(form.errors.find(_.key.isEmpty))(err => Some(err)).map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+))

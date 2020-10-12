@@ -278,6 +278,14 @@ error.dateOfArrival.invalid-year-digits=Date of arrival must only contain number
 error.dateOfArrival.invalid-month-digits=Date of arrival must only contain numbers
 error.dateOfArrival.invalid-day-digits=Date of arrival must only contain numbers
 error.timeOfArrival.required=Enter the time of arrival
+error.timeOfArrival.required-hour=Time of arrival must include an hour
+error.timeOfArrival.required-minutes=Time of arrival must include minutes
+error.timeOfArrival.required-period=Time of arrival must include period
+error.timeOfArrival.invalid-hour-digits=Time of arrival must only contain numbers
+error.timeOfArrival.invalid-minutes-digits=Time of arrival must only contain numbers
+error.timeOfArrival.invalid-hour-value=Hours must be between 1 and 12
+error.timeOfArrival.invalid-minutes-value=Minutes must be between 00 and 59
+error.timeOfArrival.invalid-period-value=Period must be am or pm 
 
 # Import Questions Form
 # ----------------------------------------------------------
@@ -326,3 +334,8 @@ error.summary.title=There is a problem
 date.day = Day
 date.month = Month
 date.year = Year
+time.hour = HH
+time.minutes = MM
+time.period = am or pm
+time.period.am=am
+time.period.pm=pm

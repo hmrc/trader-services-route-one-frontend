@@ -28,5 +28,6 @@ class forms @Inject() (
   val inputHidden: uk.gov.hmrc.traderservices.views.html.components.inputHidden,
   val inputDate: uk.gov.hmrc.traderservices.views.html.components.inputDate,
   val inputCheckboxes: uk.gov.hmrc.traderservices.views.html.components.inputCheckboxes,
-  val inputRadio: uk.gov.hmrc.traderservices.views.html.components.inputRadio
+  val inputRadio: uk.gov.hmrc.traderservices.views.html.components.inputRadio,
+  val inputTime: uk.gov.hmrc.traderservices.views.html.components.inputTime
 )

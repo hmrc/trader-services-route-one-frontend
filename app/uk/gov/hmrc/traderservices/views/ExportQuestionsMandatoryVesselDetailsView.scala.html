@@ -57,6 +57,18 @@
         attributesMonth = Map("aria-label" -> "Month of arrival date", "maxlength" -> "2"),
         attributesYear = Map("aria-label" -> "Year of arrival date", "maxlength" -> "4")
       )
+
+      @forms.inputTime(
+        form = form,
+        id = "timeOfArrival",
+        legendContent = "form.export-questions.vessel-details.timeOfArrival",
+        legendClasses = "",
+        legendAsPageHeading = false,
+        hintText = None,
+        attributesHour = Map("aria-label" -> "Hour of arrival time", "maxlength" -> "2"),
+        attributesMinutes = Map("aria-label" -> "Minutes of arrival time", "maxlength" -> "2"),
+        attributesPeriod = Map("aria-label" -> "Day period of arrival time")
+      )
     }
 
     @html.button("form.export-questions.continue")
