@@ -35,6 +35,7 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       ukTimeFormatter.format(LocalTime.parse("00:00")) shouldBe "12:00 AM"
       ukTimeFormatter.format(LocalTime.parse("23:59")) shouldBe "11:59 PM"
       ukTimeFormatter.format(LocalTime.parse("12:00")) shouldBe "12:00 PM"
+      ukTimeFormatter.format(LocalTime.parse("00:00")) shouldBe "12:00 AM"
     }
 
     "normalize time fields" in {
@@ -186,6 +187,18 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       timeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "PM")) shouldBe Right(
         LocalTime.parse("15:03")
       )
+      timeFieldsMapping("bar").bind(Map("hour" -> "13", "minutes" -> "33", "period" -> "AM")) shouldBe Right(
+        LocalTime.parse("13:33")
+      )
+      timeFieldsMapping("bar").bind(Map("hour" -> "13", "minutes" -> "33", "period" -> "PM")) shouldBe Right(
+        LocalTime.parse("13:33")
+      )
+      timeFieldsMapping("bar").bind(Map("hour" -> "0", "minutes" -> "29", "period" -> "AM")) shouldBe Right(
+        LocalTime.parse("00:29")
+      )
+      timeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "29", "period" -> "PM")) shouldBe Right(
+        LocalTime.parse("00:29")
+      )
       timeFieldsMapping("bar").bind(Map()) should haveError("error.bar.required")
       timeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "", "period" -> "")) should haveError(
         "error.bar.required"
@@ -197,7 +210,7 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
         "error.bar.required-minutes",
         "error.bar.required-period"
       )
-      timeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "60")) should haveOnlyErrors(
+      timeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
         "error.bar.invalid-hour-value",
         "error.bar.invalid-minutes-value",
         "error.bar.required-period"
@@ -217,6 +230,18 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "PM")) shouldBe Right(
         Some(LocalTime.parse("15:03"))
       )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "13", "minutes" -> "33", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("13:33"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "13", "minutes" -> "33", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("13:33"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "0", "minutes" -> "29", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:29"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "29", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("00:29"))
+      )
       optionalTimeFieldsMapping("bar").bind(Map()) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "", "period" -> "")) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
@@ -224,7 +249,7 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
         "error.bar.required-minutes",
         "error.bar.required-period"
       )
-      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "00", "minutes" -> "60")) should haveOnlyErrors(
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
         "error.bar.invalid-hour-value",
         "error.bar.invalid-minutes-value",
         "error.bar.required-period"

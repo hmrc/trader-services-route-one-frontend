@@ -127,7 +127,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
     "report an error when timeOfArrival is invalid" in {
       val input = formInput
-        .updated("timeOfArrival.hour", "00")
+        .updated("timeOfArrival.hour", "25")
         .updated("timeOfArrival.minutes", "60")
         .updated("timeOfArrival.period", "ma")
       form.bind(input).value shouldBe None
@@ -142,7 +142,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInputFor(dateTime.minusHours(2))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.vesselDetails.invalid-datetime")
+        FormError("", "error.vesselDetails.invalid-datetime")
       )
     }
 
@@ -150,7 +150,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInputFor(dateTime.minusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.vesselDetails.invalid-datetime")
+        FormError("", "error.vesselDetails.invalid-datetime")
       )
     }
   }
