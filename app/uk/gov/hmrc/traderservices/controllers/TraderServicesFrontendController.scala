@@ -599,6 +599,10 @@ object TraderServicesFrontendController {
     mapping("hasALVS" -> importHasALVSMapping)(identity)(Option.apply)
   )
 
+  val ImportContactValidEmail = Form[String](
+    mapping("contactEmail" -> contactEmailMapping)(identity)(Option.apply)
+  )
+
   val MandatoryVesselDetailsForm = Form[VesselDetails](
     mapping(
       "vesselName" -> mandatoryVesselNameMapping,
