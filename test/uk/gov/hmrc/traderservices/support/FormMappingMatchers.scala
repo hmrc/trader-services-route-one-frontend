@@ -48,23 +48,22 @@ trait FormMappingMatchers {
               s"${expectedErrors.size} error(s) ${expectedErrors.mkString(" and ")} has been expected but is success $value",
               s""
             )
-          case Left(errors)
-              if errors.map(_.message).toSet.diff(expectedErrors.toSet).isEmpty && expectedErrors.toSet
-                .diff(errors.map(_.message).toSet)
-                .isEmpty =>
-            MatchResult(true, "", s"")
           case Left(errors) =>
-            val l = errors.map(_.message).toSet.diff(expectedErrors.toSet)
-            val r = expectedErrors.toSet.diff(errors.map(_.message).toSet)
-            MatchResult(
-              false,
-              s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${if (l.nonEmpty)
-                s" Unexpected: ${l.mkString(" and ")}."
-              else ""}${if (r.nonEmpty)
-                s" Unfulfilled: ${r.mkString(" and ")}."
-              else ""}",
-              s""
-            )
+            val found = errors.map(_.message).toSet
+            val expected = expectedErrors.toSet
+            val unexpected = found.diff(expected)
+            val unfulfilled = expected.diff(found)
+            if (found == expected) MatchResult(true, "", s"")
+            else
+              MatchResult(
+                false,
+                s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${if (unexpected.nonEmpty)
+                  s" Unexpected: ${unexpected.mkString(" and ")}."
+                else ""}${if (unfulfilled.nonEmpty)
+                  s" Unfulfilled: ${unfulfilled.mkString(" and ")}."
+                else ""}",
+                s""
+              )
         }
     }
 

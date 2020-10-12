@@ -37,23 +37,19 @@ trait FormMatchers {
   def haveOnlyErrors(expectedErrors: FormError*): Matcher[Seq[FormError]] =
     new Matcher[Seq[FormError]] {
       override def apply(errors: Seq[FormError]): MatchResult = {
-        val l = errors
-          .map(e => (e.key, e.message))
-          .toSet
-          .diff(expectedErrors.map(e => (e.key, e.message)).toSet)
-        val r = expectedErrors
-          .map(e => (e.key, e.message))
-          .toSet
-          .diff(errors.map(e => (e.key, e.message)).toSet)
-        if (l.isEmpty && r.isEmpty)
+        val found = errors.map(_.message).toSet
+        val expected = expectedErrors.map(_.message).toSet
+        val unexpected = found.diff(expected)
+        val unfulfilled = expected.diff(found)
+        if (found == expected)
           MatchResult(true, "", s"")
         else
           MatchResult(
             false,
-            s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${if (l.nonEmpty)
-              s" Unexpected: ${l.map(_._2).mkString(" and ")}."
-            else ""}${if (r.nonEmpty)
-              s" Unfulfilled: ${r.map(_._2).mkString(" and ")}."
+            s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${if (unexpected.nonEmpty)
+              s" Unexpected: ${unexpected.mkString(" and ")}."
+            else ""}${if (unfulfilled.nonEmpty)
+              s" Unfulfilled: ${unfulfilled.mkString(" and ")}."
             else ""}",
             s""
           )

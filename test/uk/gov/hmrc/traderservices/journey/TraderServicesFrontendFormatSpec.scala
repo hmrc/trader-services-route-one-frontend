@@ -147,6 +147,29 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           )
         )
       )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
+        State.AnswerExportQuestionsMandatoryVesselInfo(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerImportQuestionsOptionalVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}""",
+        State.AnswerImportQuestionsOptionalVesselInfo(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+            hasALVS = Some(true),
+            freightType = Some(ImportFreightType.RORO)
+          )
+        )
+      )
     }
 
     "throw an exception when unknown state" in {

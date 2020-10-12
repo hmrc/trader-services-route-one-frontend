@@ -25,6 +25,7 @@ import play.api.data.validation._
 import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 
 import scala.util.Try
+import java.time.LocalTime
 
 object FormFieldMappings {
 
@@ -142,5 +143,55 @@ object FormFieldMappings {
   val importFreightTypeMapping: Mapping[ImportFreightType] = enumMapping[ImportFreightType]("importFreightType")
 
   val importHasALVSMapping: Mapping[Boolean] = booleanMapping("importHasALVS", "yes", "no")
+
+  val allowedSpecialNameCharacterSet = Set(' ', '/', '\\', '_', '-', '&', '+', '\'', '.')
+
+  val mandatoryVesselNameMapping: Mapping[Option[String]] = of[String]
+    .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
+    .verifying(
+      first(
+        constraint[String]("vesselName", "required", _.length > 0),
+        all(
+          constraint[String]("vesselName", "invalid-length", _.length <= 128),
+          constraint[String](
+            "vesselName",
+            "invalid-characters",
+            name =>
+              name.exists(Character.isLetterOrDigit) &&
+                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c))
+          )
+        )
+      )
+    )
+    .transform(Option.apply, _.get)
+
+  val optionalVesselNameMapping: Mapping[Option[String]] = optional(
+    of[String]
+      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
+      .verifying(
+        all(
+          constraint[String]("vesselName", "invalid-length", name => name.isEmpty || name.length <= 128),
+          constraint[String](
+            "vesselName",
+            "invalid-characters",
+            name =>
+              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
+                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
+          )
+        )
+      )
+  ).transform({ case Some("") => None; case o => o }, identity[Option[String]])
+
+  val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper.dateFieldsMapping("dateOfArrival").transform(Option.apply, _.get)
+
+  val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
+    TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
+
+  val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")
+
+  val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
+    TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
 }

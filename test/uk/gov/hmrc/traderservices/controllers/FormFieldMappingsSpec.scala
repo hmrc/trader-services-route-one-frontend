@@ -25,6 +25,7 @@ import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
 import uk.gov.hmrc.traderservices.models.ExportFreightType
 import uk.gov.hmrc.traderservices.models.ImportFreightType
+import java.time.LocalTime
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
@@ -262,6 +263,205 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ImportFreightType.RORO)
       importFreightTypeMapping.bind(Map()) should haveOnlyError[ImportFreightType]("error.importFreightType.required")
     }
+
+    "validate mandatory vesselName" in {
+      mandatoryVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
+      mandatoryVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
+      mandatoryVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
+        Some("Ship+ley / West-Yorkshire")
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
+      mandatoryVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
+      mandatoryVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
+      mandatoryVesselNameMapping.bind(Map("" -> "")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> " ")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "  ")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-length"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyErrors[Option[String]](
+        "error.vesselName.invalid-length",
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      mandatoryVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+    }
+
+    "validate optional vesselName" in {
+      optionalVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
+      optionalVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
+      optionalVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
+        Some("Ship+ley / West-Yorkshire")
+      )
+      optionalVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
+      optionalVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
+      optionalVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
+      optionalVesselNameMapping.bind(Map("" -> "")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> " ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "  ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "                        ")) shouldBe Right(None)
+      optionalVesselNameMapping.bind(Map("" -> "                        A")) shouldBe Right(Some("A"))
+      optionalVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-length"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyErrors[Option[String]](
+        "error.vesselName.invalid-length",
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+      optionalVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
+        "error.vesselName.invalid-characters"
+      )
+    }
+
+    "validate mandatory dateOfArrival" in {
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(Some(LocalDate.parse("2020-12-31")))
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "01", "day" -> "01")) shouldBe Right(Some(LocalDate.parse("2020-01-01")))
+      mandatoryDateOfArrivalMapping.bind(Map()) should haveOnlyError[Option[LocalDate]]("error.dateOfArrival.required")
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfArrival.required"
+      )
+      mandatoryDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfArrival.required"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+        "error.dateOfArrival.required-year"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+        "error.dateOfArrival.required-month"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfArrival.required-day"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.required-month",
+        "error.dateOfArrival.required-day"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.required-year",
+        "error.dateOfArrival.required-day"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyErrors(
+        "error.dateOfArrival.required-year",
+        "error.dateOfArrival.required-month",
+        "error.dateOfArrival.invalid-day-value"
+      )
+      mandatoryDateOfArrivalMapping
+        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.invalid-year-digits",
+        "error.dateOfArrival.invalid-month-value",
+        "error.dateOfArrival.required-day"
+      )
+    }
+
+    "validate optional dateOfArrival" in {
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
+        Some(LocalDate.parse("2020-12-31"))
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "01", "day" -> "01")) shouldBe Right(
+        Some(LocalDate.parse("2020-01-01"))
+      )
+      optionalDateOfArrivalMapping.bind(Map()) shouldBe Right(None)
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)
+      optionalDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+        "error.dateOfArrival.required-year"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+        "error.dateOfArrival.required-month"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfArrival.required-day"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.required-month",
+        "error.dateOfArrival.required-day"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.required-year",
+        "error.dateOfArrival.required-day"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyErrors(
+        "error.dateOfArrival.required-year",
+        "error.dateOfArrival.required-month",
+        "error.dateOfArrival.invalid-day-value"
+      )
+      optionalDateOfArrivalMapping
+        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
+        "error.dateOfArrival.invalid-year-digits",
+        "error.dateOfArrival.invalid-month-value",
+        "error.dateOfArrival.required-day"
+      )
+    }
+
+    "validate mandatory timeOfArrival" in {
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
+        "error.timeOfArrival.required"
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map()) should haveOnlyError(
+        "error.timeOfArrival.required"
+      )
+    }
+
+    "validate optional timeOfArrival" in {
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)
+      optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
+    }
+
   }
 
 }
