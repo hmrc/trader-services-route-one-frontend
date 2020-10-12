@@ -19,12 +19,28 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Format, Json}
 import java.time.LocalTime
+import java.time.LocalDateTime
 
 case class VesselDetails(
   vesselName: Option[String] = None,
   dateOfArrival: Option[LocalDate] = None,
   timeOfArrival: Option[LocalTime] = None
-)
+) {
+
+  def isDateAndTimeBetweenNowAnd(maxDateExclusive: LocalDate, required: Boolean): Boolean = {
+    val now = LocalDateTime.now()
+    dateOfArrival match {
+      case Some(date) if date.isEqual(now.toLocalDate()) =>
+        timeOfArrival match {
+          case None       => !required
+          case Some(time) => !time.isBefore(now.toLocalTime())
+        }
+      case Some(date) => date.isAfter(now.toLocalDate()) && date.isBefore(maxDateExclusive)
+      case None       => !required
+    }
+  }
+
+}
 
 object VesselDetails {
   implicit val formats: Format[VesselDetails] = Json.format[VesselDetails]

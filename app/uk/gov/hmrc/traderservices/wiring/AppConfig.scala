@@ -24,6 +24,10 @@ import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 import scala.util.Try
 
+object AppConfig {
+  val vesselArrivalConstraintMonths = 6
+}
+
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
 

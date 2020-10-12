@@ -26,6 +26,7 @@ import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, 
 
 import scala.util.Try
 import java.time.LocalTime
+import uk.gov.hmrc.traderservices.models.VesselDetails
 
 object FormFieldMappings {
 
@@ -193,5 +194,12 @@ object FormFieldMappings {
 
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
+
+  def constraintVessselArrivalWithinNextMonths(months: Int, required: Boolean) =
+    constraint[VesselDetails](
+      "vesselDetails",
+      "invalid-datetime",
+      _.isDateAndTimeBetweenNowAnd(LocalDate.now().plusMonths(months), required)
+    )
 
 }

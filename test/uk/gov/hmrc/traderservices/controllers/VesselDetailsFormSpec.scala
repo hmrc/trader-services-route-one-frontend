@@ -16,37 +16,45 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import java.time.{LocalDate, LocalTime}
-
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models.VesselDetails
 import uk.gov.hmrc.traderservices.support.FormMatchers
+import java.time.LocalDateTime
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 
 class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
+  val dateTime = LocalDateTime.now().plusHours(1)
+
   val formOutput = VesselDetails(
     vesselName = Some("Foo Bar"),
-    dateOfArrival = Some(LocalDate.parse("2020-08-31")),
-    timeOfArrival = Some(LocalTime.parse("13:10"))
+    dateOfArrival = Some(dateTime.toLocalDate()),
+    timeOfArrival = Some(dateTime.toLocalTime().truncatedTo(ChronoUnit.MINUTES))
   )
 
-  val formInput = Map(
-    "vesselName"            -> "Foo Bar",
-    "dateOfArrival.year"    -> "2020",
-    "dateOfArrival.month"   -> "08",
-    "dateOfArrival.day"     -> "31",
-    "timeOfArrival.hour"    -> "01",
-    "timeOfArrival.minutes" -> "10",
-    "timeOfArrival.period"  -> "PM"
-  )
+  def formInputFor(dateTime: LocalDateTime) =
+    Map(
+      "vesselName"            -> "Foo Bar",
+      "dateOfArrival.year"    -> f"${dateTime.get(ChronoField.YEAR)}",
+      "dateOfArrival.month"   -> f"${dateTime.get(ChronoField.MONTH_OF_YEAR)}%02d",
+      "dateOfArrival.day"     -> f"${dateTime.get(ChronoField.DAY_OF_MONTH)}%02d",
+      "timeOfArrival.hour"    -> f"${dateTime.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
+      "timeOfArrival.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d",
+      "timeOfArrival.period"  -> { if (dateTime.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+    )
+
+  val formInput = formInputFor(dateTime)
 
   "MandatoryVesselDetailsForm" should {
 
     val form = TraderServicesFrontendController.MandatoryVesselDetailsForm
 
     "bind some input fields and return VesselDetails and fill it back" in {
+      form.bind(formInput).errors.foreach(println)
       form.bind(formInput).value shouldBe Some(formOutput)
+
       form.fill(formOutput).data shouldBe formInput
     }
 
@@ -127,6 +135,22 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         FormError("timeOfArrival", "error.timeOfArrival.invalid-hour-value"),
         FormError("timeOfArrival", "error.timeOfArrival.invalid-minutes-value"),
         FormError("timeOfArrival", "error.timeOfArrival.invalid-period-value")
+      )
+    }
+
+    "report an error when timeOfArrival is in the past" in {
+      val input = formInputFor(dateTime.minusHours(2))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("timeOfArrival", "error.vesselDetails.invalid-datetime")
+      )
+    }
+
+    "report an error when dateOfArrival is in the past" in {
+      val input = formInputFor(dateTime.minusDays(1))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("timeOfArrival", "error.vesselDetails.invalid-datetime")
       )
     }
   }

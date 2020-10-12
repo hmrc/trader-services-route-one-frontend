@@ -26,12 +26,16 @@ import uk.gov.hmrc.traderservices.models.ImportRouteType
 import uk.gov.hmrc.traderservices.models.ImportFreightType
 import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
 import uk.gov.hmrc.traderservices.models.VesselDetails
-import java.time.LocalTime
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
+import java.time.LocalDateTime
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
 
   import journey.model.State._
+
+  val dateTime = LocalDateTime.now()
 
   "TraderServicesFrontend" when {
 
@@ -500,14 +504,16 @@ class TraderServicesFrontendISpec
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val payload = Map(
           "vesselName"            -> "Foo Bar",
-          "dateOfArrival.year"    -> "2020",
-          "dateOfArrival.month"   -> "08",
-          "dateOfArrival.day"     -> "31",
-          "timeOfArrival.hour"    -> "01",
-          "timeOfArrival.minutes" -> "10",
-          "timeOfArrival.period"  -> "PM"
+          "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+          "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+          "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
+          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d",
+          "timeOfArrival.period"  -> { if (dateTimeOfArrival.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
         )
 
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
@@ -524,8 +530,8 @@ class TraderServicesFrontendISpec
             vesselDetails = Some(
               VesselDetails(
                 vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(LocalDate.parse("2020-08-31")),
-                timeOfArrival = Some(LocalTime.parse("13:10"))
+                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
               )
             )
           )

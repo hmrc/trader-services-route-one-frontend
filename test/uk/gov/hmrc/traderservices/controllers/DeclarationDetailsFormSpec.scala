@@ -22,22 +22,28 @@ import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
 import uk.gov.hmrc.traderservices.support.FormMatchers
+import java.time.temporal.ChronoField
 
 class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
+
+  val date = LocalDate.now
 
   val formOutput = DeclarationDetails(
     epu = EPU(123),
     entryNumber = EntryNumber("000000Z"),
-    entryDate = LocalDate.parse("2020-08-31")
+    entryDate = date
   )
 
-  val formInput = Map(
-    "epu"             -> "123",
-    "entryNumber"     -> "000000Z",
-    "entryDate.year"  -> "2020",
-    "entryDate.month" -> "08",
-    "entryDate.day"   -> "31"
-  )
+  def formInputFor(date: LocalDate) =
+    Map(
+      "epu"             -> "123",
+      "entryNumber"     -> "000000Z",
+      "entryDate.year"  -> f"${date.get(ChronoField.YEAR)}",
+      "entryDate.month" -> f"${date.get(ChronoField.MONTH_OF_YEAR)}%02d",
+      "entryDate.day"   -> f"${date.get(ChronoField.DAY_OF_MONTH)}%02d"
+    )
+
+  val formInput = formInputFor(date)
 
   "DeclarationDetailsForm" should {
 
@@ -124,6 +130,12 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput.updated("entryDate.month", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.required-month"))
+    }
+
+    "report an error when entryDate in the future" in {
+      val input = formInputFor(date.plusDays(1))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-value-future"))
     }
 
     "disallow empty entryDate.day and empty entryDate.month" in {
