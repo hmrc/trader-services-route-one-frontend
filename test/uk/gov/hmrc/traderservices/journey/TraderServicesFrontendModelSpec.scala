@@ -27,6 +27,7 @@ import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.LocalTime
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -224,6 +225,36 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+    }
+
+    "at state AnswerExportQuestionsMandatoryVesselInfo" should {
+      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsMandatoryVesselDetails" in {
+        given(
+          AnswerExportQuestionsMandatoryVesselInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        ) should thenGo(
+          AnswerExportQuestionsContactInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails =
+                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            )
+          )
+        )
+      }
     }
 
     "at state AnswerImportQuestionsRequestType" should {

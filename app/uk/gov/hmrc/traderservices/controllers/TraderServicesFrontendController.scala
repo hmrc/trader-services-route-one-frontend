@@ -168,7 +168,11 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/export-questions/vessel-info-required
   val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(MandatoryVesselDetailsForm)(
+        Transitions.submittedExportQuestionsMandatoryVesselDetails
+      )
+    }
 
   // GET /pre-clearance/export-questions/vessel-info
   val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
@@ -442,7 +446,17 @@ class TraderServicesFrontendController @Inject() (
         )
 
       case AnswerExportQuestionsMandatoryVesselInfo(_, exportQuestions) =>
-        Ok("WorkInProgress")
+        Ok(
+          views.exportQuestionsMandatoryVesselDetailsView(
+            formWithErrors.or(
+              exportQuestions.vesselDetails
+                .map(query => MandatoryVesselDetailsForm.fill(query))
+                .getOrElse(MandatoryVesselDetailsForm)
+            ),
+            routes.TraderServicesFrontendController.submitExportQuestionsMandatoryVesselInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
 
       case AnswerExportQuestionsOptionalVesselInfo(_, exportQuestions) =>
         Ok("WorkInProgress")

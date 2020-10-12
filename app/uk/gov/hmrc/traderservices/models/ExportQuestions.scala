@@ -22,7 +22,8 @@ case class ExportQuestions(
   requestType: Option[ExportRequestType] = None,
   routeType: Option[ExportRouteType] = None,
   priorityGoods: Option[ExportPriorityGoods] = None,
-  freightType: Option[ExportFreightType] = None
+  freightType: Option[ExportFreightType] = None,
+  vesselDetails: Option[VesselDetails] = None
 )
 
 object ExportQuestions {
