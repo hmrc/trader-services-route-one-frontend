@@ -11,7 +11,7 @@ import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions, VesselDetails}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
@@ -25,6 +25,8 @@ import uk.gov.hmrc.traderservices.models.ImportRequestType
 import uk.gov.hmrc.traderservices.models.ImportRouteType
 import uk.gov.hmrc.traderservices.models.ImportFreightType
 import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
+import uk.gov.hmrc.traderservices.models.VesselDetails
+import java.time.LocalTime
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
@@ -444,6 +446,88 @@ class TraderServicesFrontendISpec
             routeType = Some(ExportRouteType.Route3),
             priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
             freightType = Some(ExportFreightType.Air)
+          )
+        )
+      }
+    }
+
+    "GET /pre-clearance/export-questions/vessel-info-required" should {
+      "show the export vessel details page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsMandatoryVesselInfo(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        journey.getState shouldBe AnswerExportQuestionsMandatoryVesselInfo(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            routeType = Some(ExportRouteType.Route6),
+            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+            freightType = Some(ExportFreightType.Air)
+          )
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/vessel-info-required" should {
+      "submit mandatory vessel details and ask next for contact details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsMandatoryVesselInfo(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "vesselName"            -> "Foo Bar",
+          "dateOfArrival.year"    -> "2020",
+          "dateOfArrival.month"   -> "08",
+          "dateOfArrival.day"     -> "31",
+          "timeOfArrival.hour"    -> "01",
+          "timeOfArrival.minutes" -> "10",
+          "timeOfArrival.period"  -> "PM"
+        )
+
+        val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
+
+        result.status shouldBe 501
+
+        journey.getState shouldBe AnswerExportQuestionsContactInfo(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            routeType = Some(ExportRouteType.Route6),
+            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+            freightType = Some(ExportFreightType.Air),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(LocalDate.parse("2020-08-31")),
+                timeOfArrival = Some(LocalTime.parse("13:10"))
+              )
+            )
           )
         )
       }
