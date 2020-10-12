@@ -84,9 +84,7 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("12", "00", "AM")) shouldBe Valid
       validate(("12", "00", "PM")) shouldBe Valid
       validate(("", "", "")) shouldBe Invalid(ValidationError("error.foo.required"))
-      validate(("", "", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.required-hour"), ValidationError("error.foo.required-minutes"))
-      )
+      validate(("", "", "AM")) shouldBe Invalid(Seq(ValidationError("error.foo.required")))
       validate(("12", "", "AM")) shouldBe Invalid(
         Seq(ValidationError("error.foo.required-minutes"))
       )
@@ -129,8 +127,14 @@ class TimeFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("12", "00", "AM")) shouldBe Valid
       validate(("12", "00", "PM")) shouldBe Valid
       validate(("", "", "")) shouldBe Valid
-      validate(("", "", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.required-hour"), ValidationError("error.foo.required-minutes"))
+      validate(("", "", "AM")) shouldBe Valid
+      validate(("", "", "PM")) shouldBe Valid
+      validate(("", "", "MP")) shouldBe Invalid(
+        Seq(
+          ValidationError("error.foo.required-hour"),
+          ValidationError("error.foo.required-minutes"),
+          ValidationError("error.foo.invalid-period-value")
+        )
       )
       validate(("12", "", "AM")) shouldBe Invalid(
         Seq(ValidationError("error.foo.required-minutes"))

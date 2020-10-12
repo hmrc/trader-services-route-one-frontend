@@ -75,6 +75,8 @@ object TimeFieldHelper {
     Constraint[(String, String, String)](s"constraint.$fieldName.time-fields") {
       case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
         if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
+      case (h, m, p) if h.isEmpty && m.isEmpty && isValidPeriod(p) =>
+        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
       case (h, m, p) =>
         val errors = Seq(
           if (h.isEmpty) Some(ValidationError(s"error.$fieldName.required-hour"))
