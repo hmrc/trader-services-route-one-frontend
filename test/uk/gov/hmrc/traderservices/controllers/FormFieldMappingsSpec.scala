@@ -465,7 +465,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate contactEmailMapping" in {
-
       importContactEmailMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       importContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
@@ -475,7 +474,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
         "error.contactEmail"
       )
-
       importContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right(Some("12@s.com"))
     }
 
