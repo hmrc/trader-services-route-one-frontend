@@ -20,8 +20,9 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.traderservices.controllers.DateFieldHelper._
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
-class DateFieldHelperSpec extends UnitSpec {
+class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
 
   val `2020-04-21`: LocalDate = LocalDate.parse("2020-04-21")
 
@@ -101,6 +102,118 @@ class DateFieldHelperSpec extends UnitSpec {
       isValidDay("31", "09", "2020") shouldBe false
       isValidDay("31", "11", "2020") shouldBe false
     }
+  }
+
+  "validate and map date parts into a date" in {
+    dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
+      LocalDate.parse("2020-12-31")
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError(
+      "error.foo.required"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "", "day" -> "")) should haveOnlyError(
+      "error.foo.required"
+    )
+    dateFieldsMapping("foo").bind(Map("month" -> "", "day" -> "")) should haveOnlyError(
+      "error.foo.required"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "")) should haveOnlyError(
+      "error.foo.required"
+    )
+    dateFieldsMapping("foo").bind(Map()) should haveOnlyError(
+      "error.foo.required"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+      "error.foo.required-year"
+    )
+    dateFieldsMapping("foo").bind(Map("month" -> "12", "day" -> "31")) should haveOnlyError(
+      "error.foo.required-year"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+      "error.foo.required-month"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020", "day" -> "31")) should haveOnlyError(
+      "error.foo.required-month"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+      "error.foo.required-day"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12")) should haveOnlyError(
+      "error.foo.required-day"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
+      "error.foo.invalid-year-digits",
+      "error.foo.invalid-month-value",
+      "error.foo.invalid-day-value"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")) should haveOnlyErrors(
+      "error.foo.invalid-year-digits",
+      "error.foo.invalid-month-digits",
+      "error.foo.invalid-day-digits"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
+      "error.foo.invalid-year-value",
+      "error.foo.invalid-month-value",
+      "error.foo.invalid-day-value"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
+      "error.foo.invalid-day-value"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2001", "month" -> "02", "day" -> "29")) should haveOnlyErrors(
+      "error.foo.invalid-day-value"
+    )
+  }
+
+  "optionally validate and map date parts into a date" in {
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
+      Some(LocalDate.parse("2020-12-31"))
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
+    optionalDateFieldsMapping("bar").bind(Map("month" -> "", "day" -> "")) shouldBe Right(None)
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "")) shouldBe Right(None)
+    optionalDateFieldsMapping("bar").bind(Map()) shouldBe Right(None)
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+      "error.bar.required-year"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("month" -> "12", "day" -> "31")) should haveOnlyError(
+      "error.bar.required-year"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+      "error.bar.required-month"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "day" -> "31")) should haveOnlyError(
+      "error.bar.required-month"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+      "error.bar.required-day"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12")) should haveOnlyError(
+      "error.bar.required-day"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
+      "error.bar.invalid-year-digits",
+      "error.bar.invalid-month-value",
+      "error.bar.invalid-day-value"
+    )
+    optionalDateFieldsMapping("bar").bind(
+      Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")
+    ) should haveOnlyErrors(
+      "error.bar.invalid-year-digits",
+      "error.bar.invalid-month-digits",
+      "error.bar.invalid-day-digits"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
+      "error.bar.invalid-year-value",
+      "error.bar.invalid-month-value",
+      "error.bar.invalid-day-value"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
+      "error.bar.invalid-day-value"
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "2001", "month" -> "02", "day" -> "29")) should haveOnlyErrors(
+      "error.bar.invalid-day-value"
+    )
   }
 
 }
