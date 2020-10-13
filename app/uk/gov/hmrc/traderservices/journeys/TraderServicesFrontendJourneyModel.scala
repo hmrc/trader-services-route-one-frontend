@@ -221,11 +221,23 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, exportQuestions)
+            if vesselDetails.isComplete =>
           goto(
             AnswerExportQuestionsContactInfo(
               declarationDetails,
               exportQuestions.copy(vesselDetails = Some(vesselDetails))
+            )
+          )
+      }
+
+    def submittedExportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
+      Transition {
+        case AnswerExportQuestionsOptionalVesselInfo(declarationDetails, exportQuestions) =>
+          goto(
+            AnswerExportQuestionsContactInfo(
+              declarationDetails,
+              exportQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
             )
           )
       }
