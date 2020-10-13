@@ -14,19 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.models
+package uk.gov.hmrc.traderservices.views
 
-import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.govukfrontend.views.Implicits
 
-case class ExportQuestions(
-  requestType: Option[ExportRequestType] = None,
-  routeType: Option[ExportRouteType] = None,
-  priorityGoods: Option[ExportPriorityGoods] = None,
-  freightType: Option[ExportFreightType] = None,
-  vesselDetails: Option[VesselDetails] = None
-)
-
-object ExportQuestions {
-
-  implicit val formats: Format[ExportQuestions] = Json.format[ExportQuestions]
+package object components {
+  object implicits extends Implicits
 }

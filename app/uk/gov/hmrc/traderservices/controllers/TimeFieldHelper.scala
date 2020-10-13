@@ -24,6 +24,7 @@ import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import scala.util.Try
 
 object TimeFieldHelper {
 
@@ -57,7 +58,7 @@ object TimeFieldHelper {
       .verifying(validTimeFields(fieldName, required = false))
       .transform[String](concatTime, splitTime)
       .transform[Option[LocalTime]](
-        time => if (time == ": ") None else Some(LocalTime.parse(time, ukTimeFormatter)),
+        time => if (time.startsWith(":")) None else Some(LocalTime.parse(time, ukTimeFormatter)),
         { case Some(time) => ukTimeFormatter.format(time); case None => "" }
       )
 
@@ -67,13 +68,24 @@ object TimeFieldHelper {
       else {
         val hour = if (h.isEmpty) "" else if (h.length == 1) "0" + h else h
         val minutes = if (m.isEmpty) "" else if (m.length == 1) "0" + m else m
-        (hour, minutes, p)
+        normalizeFromIso(hour, minutes, p)
       }
   }
+
+  def normalizeFromIso(hour: String, minutes: String, period: String): (String, String, String) =
+    Try(hour.toInt)
+      .map { h =>
+        if (h == 0) ("12", minutes, "AM")
+        else if (h > 12 && h < 24) (f"${h - 12}%02d", minutes, "PM")
+        else (hour, minutes, period)
+      }
+      .getOrElse((hour, minutes, period))
 
   def validTimeFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.time-fields") {
       case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
+        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
+      case (h, m, p) if h.isEmpty && m.isEmpty && isValidPeriod(p) =>
         if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
       case (h, m, p) =>
         val errors = Seq(

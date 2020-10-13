@@ -14,20 +14,22 @@
  * limitations under the License.
  *@
 
-@this(govukDateInput: GovukDateInput)
+@import uk.gov.hmrc.traderservices.views.viewmodels.TimeInput
+
+@this(govukTimeInput: govukTimeInput)
 
 @(
   form: Form[_],
   legendContent: String,
   legendClasses: String = "govuk-fieldset__legend--xl",
-  id: String = "date",
+  id: String = "time",
   hintText: Option[String] = None,
   legendAsPageHeading: Boolean = true,
-  attributesDay: Map[String, String] = Map.empty,
-  attributesMonth: Map[String, String] = Map.empty,
-  attributesYear: Map[String, String] = Map.empty)(implicit messages: Messages)
+  attributesHour: Map[String, String] = Map.empty,
+  attributesMinutes: Map[String, String] = Map.empty,
+  attributesPeriod: Map[String, String] = Map.empty)(implicit messages: Messages)
 
-@govukDateInput(DateInput(
+@govukTimeInput(TimeInput(
     fieldset = Some(Fieldset(
         legend = Some(
             Legend(
@@ -40,29 +42,34 @@
     id = id,
     items = Seq(
         InputItem(
-            id = s"$id.day",
+            id = s"$id.hour",
             classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
-            name =  s"$id.day",
-            label = Some(messages("date.day")),
-            value = form(s"$id.day").value,
-            attributes = attributesDay
+            name =  s"$id.hour",
+            label = Some(messages("time.hour")),
+            value = form(s"$id.hour").value,
+            attributes = attributesHour
         ),
         InputItem(
-            id = s"$id.month",
+            id = s"$id.minutes",
             classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
-            name = s"$id.month",
-            label = Some(messages("date.month")),
-            value = form(s"$id.month").value,
-            attributes = attributesMonth
+            name = s"$id.minutes",
+            label = Some(messages("time.minutes")),
+            value = form(s"$id.minutes").value,
+            attributes = attributesMinutes
         ),
         InputItem(
-            id = s"$id.year",
-            classes = s"govuk-input--width-4${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
-            name = s"$id.year",
-            label = Some(messages("date.year")),
-            value = form(s"$id.year").value,
-            attributes = attributesYear
+            id = s"$id.period",
+            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            name = s"$id.period",
+            label = Some(messages("time.period")),
+            value = form(s"$id.period").value,
+            attributes = attributesPeriod
         )
+    ),
+    periodSelectItems = Seq(
+        SelectItem(value = None, text = messages("time.period.none")),
+        SelectItem(value = Some("AM"), text = messages("time.period.am"), selected = form(s"$id.period").value.contains("AM")),
+        SelectItem(value = Some("PM"), text = messages("time.period.pm"), selected = form(s"$id.period").value.contains("PM"))
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
     errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))

@@ -205,6 +205,8 @@ view.export-questions.whichPriorityGoods.title=Which type of priority goods are 
 view.export-questions.whichPriorityGoods.heading=Which type of priority goods are you moving?
 view.export-questions.freightType.title=Which type of transport are you using?
 view.export-questions.freightType.heading=Which type of transport are you using?
+view.export-questions.vessel-details.title=Tell us about your vessel
+view.export-questions.vessel-details.heading=Tell us about your vessel
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -253,12 +255,38 @@ form.export-questions.priorityGoods.LiveAnimals=Live animals
 form.export-questions.freightType.Maritime=Maritime
 form.export-questions.freightType.Air=Air
 form.export-questions.freightType.RORO=Rail, road, or roll-on, roll-off (RORO)
+form.export-questions.vessel-details.vesselName=Vessel name
+form.export-questions.vessel-details.dateOfArrival=Date of arrival
+form.export-questions.vessel-details.timeOfArrival=Time of arrival
 form.export-questions.continue=Continue
 error.exportRequestType.required=Select the type of export request
 error.exportRouteType.required=Select the route
 error.exportHasPriorityGoods.required=Select yes if you''re moving priority goods
 error.exportPriorityGoods.required=Select the type of priority goods
 error.exportFreightType.required=Select the type of transport you''re using
+error.vesselName.required=Enter the vessel name
+error.vesselName.invalid-characters=Enter the vessel name
+error.vesselName.invalid-length=Enter the vessel name
+error.dateOfArrival.required=Enter the date of arrival
+error.dateOfArrival.required-year=Date of arrival must include a year
+error.dateOfArrival.required-month=Date of arrival must include a month
+error.dateOfArrival.required-day=Date of arrival must include a day
+error.dateOfArrival.invalid-year-value=Date of arrival must be a real date
+error.dateOfArrival.invalid-month-value=Date of arrival must be a real date
+error.dateOfArrival.invalid-day-value=Date of arrival must be a real date
+error.dateOfArrival.invalid-year-digits=Year of arrival must only contain numbers
+error.dateOfArrival.invalid-month-digits=Month of arrival must only contain numbers
+error.dateOfArrival.invalid-day-digits=Day of arrival must only contain numbers
+error.timeOfArrival.required=Enter the time of arrival
+error.timeOfArrival.required-hour=Time of arrival must include an hour
+error.timeOfArrival.required-minutes=Time of arrival must include minutes
+error.timeOfArrival.required-period=Time of arrival must include period
+error.timeOfArrival.invalid-hour-digits=Time of arrival must only contain numbers
+error.timeOfArrival.invalid-minutes-digits=Time of arrival must only contain numbers
+error.timeOfArrival.invalid-hour-value=Hours must be between 1 and 12
+error.timeOfArrival.invalid-minutes-value=Minutes must be between 00 and 59
+error.timeOfArrival.invalid-period-value=Period must be am or pm
+error.vesselDetails.invalid-datetime=Date of arrival must be today or in the next 6 months
 
 # Import Questions Form
 # ----------------------------------------------------------
@@ -307,3 +335,9 @@ error.summary.title=There is a problem
 date.day = Day
 date.month = Month
 date.year = Year
+time.hour = HH
+time.minutes = MM
+time.period = am or pm
+time.period.none=
+time.period.am=am
+time.period.pm=pm
