@@ -310,6 +310,17 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             )
           )
       }
+
+    def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
+      Transition {
+        case AnswerImportQuestionsOptionalVesselInfo(declarationDetails, importQuestions) =>
+          goto(
+            AnswerImportQuestionsContactInfo(
+              declarationDetails,
+              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+            )
+          )
+      }
   }
 
 }

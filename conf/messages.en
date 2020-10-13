@@ -223,6 +223,8 @@ view.import-questions.hasALVS.title=Do you use an Automatic Licence Verification
 view.import-questions.hasALVS.heading=Do you use an Automatic Licence Verification System (ALVS)?
 view.import-questions.freightType.title=Which type of transport are you using?
 view.import-questions.freightType.heading=Which type of transport are you using?
+view.import-questions.vessel-details.title=Tell us about your vessel
+view.import-questions.vessel-details.heading=Tell us about your vessel
 
 # Export Questions Form
 # ----------------------------------------------------------
@@ -321,6 +323,9 @@ form.import-questions.hasALVS.no=No
 form.import-questions.freightType.Maritime=Maritime
 form.import-questions.freightType.Air=Air
 form.import-questions.freightType.RORO=Rail, road, or roll-on, roll-off (RORO)
+form.import-questions.vessel-details.vesselNameOptional=Vessel name (optional)
+form.import-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
+form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
 form.import-questions.continue=Continue
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route

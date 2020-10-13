@@ -281,7 +281,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           AnswerExportQuestionsOptionalVesselInfo(
             exportDeclarationDetails,
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
               freightType = Some(ExportFreightType.Air)
@@ -293,7 +293,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           AnswerExportQuestionsContactInfo(
             exportDeclarationDetails,
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
               freightType = Some(ExportFreightType.Air),
@@ -309,7 +309,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           AnswerExportQuestionsOptionalVesselInfo(
             exportDeclarationDetails,
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
               freightType = Some(ExportFreightType.Air)
@@ -321,7 +321,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           AnswerExportQuestionsContactInfo(
             exportDeclarationDetails,
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
               freightType = Some(ExportFreightType.Air),
@@ -529,6 +529,63 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+    }
+
+    "at state AnswerImportQuestionsOptionalVesselInfo" should {
+      "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails with some vessel details" in {
+        given(
+          AnswerImportQuestionsOptionalVesselInfo(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air)
+            )
+          )
+        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        ) should thenGo(
+          AnswerImportQuestionsContactInfo(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails =
+                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            )
+          )
+        )
+      }
+
+      "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails without vessel details" in {
+        given(
+          AnswerImportQuestionsOptionalVesselInfo(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air)
+            )
+          )
+        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+          VesselDetails()
+        ) should thenGo(
+          AnswerImportQuestionsContactInfo(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails = None
+            )
+          )
+        )
+      }
     }
   }
 

@@ -282,7 +282,11 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/import-questions/vessel-info
   val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(OptionalVesselDetailsForm)(
+        Transitions.submittedImportQuestionsOptionalVesselDetails
+      )
+    }
 
   // GET /pre-clearance/import-questions/contact-info
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
@@ -554,7 +558,17 @@ class TraderServicesFrontendController @Inject() (
         )
 
       case AnswerImportQuestionsOptionalVesselInfo(_, importQuestions) =>
-        Ok("WorkInProgress")
+        Ok(
+          views.importQuestionsOptionalVesselDetailsView(
+            formWithErrors.or(
+              importQuestions.vesselDetails
+                .map(query => OptionalVesselDetailsForm.fill(query))
+                .getOrElse(OptionalVesselDetailsForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
 
       case _ => NotImplemented
 
