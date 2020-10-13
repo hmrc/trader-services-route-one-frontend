@@ -600,7 +600,7 @@ object TraderServicesFrontendController {
   )
 
   val ImportContactValidEmail = Form[String](
-    mapping("contactEmail" -> contactEmailMapping)(identity)(Option.apply)
+    mapping("contactEmail" -> importContactEmailMapping)(identity)(Option.apply)
   )
 
   val MandatoryVesselDetailsForm = Form[VesselDetails](

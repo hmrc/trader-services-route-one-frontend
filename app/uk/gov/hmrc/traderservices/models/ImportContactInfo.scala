@@ -17,8 +17,6 @@
 package uk.gov.hmrc.traderservices.models
 
 case class ImportContactInfo(
-  contactEmail: Option[String] = None,
+  email: Option[String] = None,
   contactNumber: Option[String] = None
 )
-
-
