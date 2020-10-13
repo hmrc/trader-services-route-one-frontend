@@ -228,7 +228,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsMandatoryVesselInfo" should {
-      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsMandatoryVesselDetails" in {
+      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsMandatoryVesselDetails with complete vessel details" in {
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
             exportDeclarationDetails,
@@ -251,6 +251,81 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               freightType = Some(ExportFreightType.Air),
               vesselDetails =
                 Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            )
+          )
+        )
+      }
+
+      "stay when submittedExportQuestionsMandatoryVesselDetails with incomplete vessel details" in {
+        an[TransitionNotAllowed] shouldBe thrownBy {
+          given(
+            AnswerExportQuestionsMandatoryVesselInfo(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
+              )
+            )
+          ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
+            VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), None)
+          )
+        }
+      }
+    }
+
+    "at state AnswerExportQuestionsOptionalVesselInfo" should {
+      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails with some vessel details" in {
+        given(
+          AnswerExportQuestionsOptionalVesselInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        ) should thenGo(
+          AnswerExportQuestionsContactInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails =
+                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            )
+          )
+        )
+      }
+
+      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails without vessel details" in {
+        given(
+          AnswerExportQuestionsOptionalVesselInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
+          VesselDetails()
+        ) should thenGo(
+          AnswerExportQuestionsContactInfo(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails = None
             )
           )
         )

@@ -27,6 +27,10 @@ case class VesselDetails(
   timeOfArrival: Option[LocalTime] = None
 ) {
 
+  def isComplete: Boolean = vesselName.isDefined && dateOfArrival.isDefined && timeOfArrival.isDefined
+
+  def isEmpty: Boolean = vesselName.isEmpty && dateOfArrival.isEmpty && timeOfArrival.isEmpty
+
   def isDateAndTimeBetweenNowAnd(maxDateExclusive: LocalDate, required: Boolean): Boolean = {
     val now = LocalDateTime.now()
     dateOfArrival match {
