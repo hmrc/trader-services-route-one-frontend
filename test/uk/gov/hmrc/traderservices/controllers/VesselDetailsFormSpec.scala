@@ -52,9 +52,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     val form = TraderServicesFrontendController.MandatoryVesselDetailsForm
 
     "bind some input fields and return VesselDetails and fill it back" in {
-      form.bind(formInput).errors.foreach(println)
       form.bind(formInput).value shouldBe Some(formOutput)
-
       form.fill(formOutput).data shouldBe formInput
     }
 
@@ -123,6 +121,112 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       form.bind(input).errors should haveOnlyErrors(
         FormError("timeOfArrival", "error.timeOfArrival.required")
       )
+    }
+
+    "report an error when timeOfArrival is invalid" in {
+      val input = formInput
+        .updated("timeOfArrival.hour", "25")
+        .updated("timeOfArrival.minutes", "60")
+        .updated("timeOfArrival.period", "ma")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("timeOfArrival", "error.timeOfArrival.invalid-hour-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.invalid-minutes-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.invalid-period-value")
+      )
+    }
+
+    "report an error when timeOfArrival is in the past" in {
+      val input = formInputFor(dateTime.minusHours(2))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("", "error.vesselDetails.invalid-datetime")
+      )
+    }
+
+    "report an error when dateOfArrival is in the past" in {
+      val input = formInputFor(dateTime.minusDays(1))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("", "error.vesselDetails.invalid-datetime")
+      )
+    }
+  }
+
+  "OptionalVesselDetailsForm" should {
+
+    val form = TraderServicesFrontendController.OptionalVesselDetailsForm
+
+    "bind some input fields and return VesselDetails and fill it back" in {
+      form.bind(formInput).value shouldBe Some(formOutput)
+      form.fill(formOutput).data shouldBe formInput
+    }
+
+    "return VesselDetails despite missing vesselName" in {
+      val input = formInput.-("vesselName")
+      val output = formOutput.copy(vesselName = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when vesselName is invalid" in {
+      val input = formInput.updated("vesselName", "$$$")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("vesselName", "error.vesselName.invalid-characters")
+      )
+    }
+
+    "return VesselDetails despite missing dateOfArrival" in {
+      val input =
+        formInput
+          .updated("dateOfArrival.year", "")
+          .updated("dateOfArrival.month", "")
+          .updated("dateOfArrival.day", "")
+      val output = formOutput.copy(dateOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when dateOfArrival is partially missing" in {
+      val input = formInput
+        .updated("dateOfArrival.year", "")
+        .updated("dateOfArrival.month", "")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", "error.dateOfArrival.required-year"),
+        FormError("dateOfArrival", "error.dateOfArrival.required-month")
+      )
+    }
+
+    "report an error when dateOfArrival is invalid" in {
+      val input = formInput
+        .updated("dateOfArrival.year", "202a")
+        .updated("dateOfArrival.month", "13")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", "error.dateOfArrival.invalid-year-digits"),
+        FormError("dateOfArrival", "error.dateOfArrival.invalid-month-value")
+      )
+    }
+
+    "return VesselDetails despite missing timeOfArrival" in {
+      val input = formInput
+        .updated("timeOfArrival.hour", "")
+        .updated("timeOfArrival.minutes", "")
+        .updated("timeOfArrival.period", "")
+      val output = formOutput.copy(timeOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when timeOfArrival is partially missing" in {
+      val input = formInput
+        .updated("timeOfArrival.hour", "")
+        .updated("timeOfArrival.minutes", "")
+      val output = formOutput.copy(timeOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input.updated("timeOfArrival.period", "")
     }
 
     "report an error when timeOfArrival is invalid" in {

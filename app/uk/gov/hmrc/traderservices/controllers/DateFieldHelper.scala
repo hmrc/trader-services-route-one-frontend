@@ -61,7 +61,7 @@ object DateFieldHelper {
     s"${fields._1}-${fields._2}-${fields._3}"
 
   def splitDate(date: String): (String, String, String) = {
-    val ydm: Array[String] = date.split('-') ++ Array("", "")
+    val ydm: Array[String] = date.split('-') ++ Array("", "", "")
     (ydm(0), ydm(1), ydm(2))
   }
 

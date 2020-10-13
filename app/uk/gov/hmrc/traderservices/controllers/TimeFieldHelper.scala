@@ -58,7 +58,7 @@ object TimeFieldHelper {
       .verifying(validTimeFields(fieldName, required = false))
       .transform[String](concatTime, splitTime)
       .transform[Option[LocalTime]](
-        time => if (time == ": ") None else Some(LocalTime.parse(time, ukTimeFormatter)),
+        time => if (time.startsWith(":")) None else Some(LocalTime.parse(time, ukTimeFormatter)),
         { case Some(time) => ukTimeFormatter.format(time); case None => "" }
       )
 
