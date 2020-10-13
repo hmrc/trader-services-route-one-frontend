@@ -546,7 +546,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -563,7 +563,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air)
@@ -579,7 +579,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -607,7 +607,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
@@ -628,7 +628,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -646,7 +646,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
