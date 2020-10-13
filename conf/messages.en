@@ -338,5 +338,6 @@ date.year = Year
 time.hour = HH
 time.minutes = MM
 time.period = am or pm
+time.period.none=
 time.period.am=am
 time.period.pm=pm

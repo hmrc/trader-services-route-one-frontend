@@ -67,6 +67,7 @@
         )
     ),
     periodSelectItems = Seq(
+        SelectItem(value = None, text = messages("time.period.none")),
         SelectItem(value = Some("AM"), text = messages("time.period.am"), selected = form(s"$id.period").value.contains("AM")),
         SelectItem(value = Some("PM"), text = messages("time.period.pm"), selected = form(s"$id.period").value.contains("PM"))
     ),

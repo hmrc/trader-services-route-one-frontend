@@ -54,6 +54,7 @@
 @timePeriodSelectItems = @{
   if(periodSelectItems.nonEmpty) periodSelectItems
   else Seq(
+    SelectItem(value = None, text = ""),
     SelectItem(value = Some("AM"), text = "am", selected = true),
     SelectItem(value = Some("PM"), text = "pm", selected = false),
   )
