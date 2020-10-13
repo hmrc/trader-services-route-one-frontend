@@ -546,7 +546,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -563,7 +563,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air)
@@ -579,7 +579,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -607,7 +607,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
@@ -628,7 +628,7 @@ class TraderServicesFrontendISpec
           AnswerExportQuestionsOptionalVesselInfo(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air)
@@ -646,7 +646,7 @@ class TraderServicesFrontendISpec
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
+            requestType = Some(ExportRequestType.New),
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
@@ -1004,7 +1004,123 @@ class TraderServicesFrontendISpec
         )
       }
     }
+  }
 
+  "GET /pre-clearance/import-questions/vessel-info" should {
+    "show the import vessel details page" in {
+      implicit val journeyId: JourneyId = JourneyId()
+      journey.setState(
+        AnswerImportQuestionsOptionalVesselInfo(
+          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air)
+          )
+        )
+      )
+      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+      val result = await(request("/pre-clearance/import-questions/vessel-info").get())
+
+      result.status shouldBe 200
+      result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.title"))
+      result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
+      journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
+        DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+        ImportQuestions(
+          requestType = Some(ImportRequestType.New),
+          routeType = Some(ImportRouteType.Route6),
+          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+          freightType = Some(ImportFreightType.Air)
+        )
+      )
+    }
+  }
+
+  "POST /pre-clearance/import-questions/vessel-info" should {
+    "submit optional vessel details and ask next for contact details" in {
+      implicit val journeyId: JourneyId = JourneyId()
+      journey.setState(
+        AnswerImportQuestionsOptionalVesselInfo(
+          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air)
+          )
+        )
+      )
+      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+      val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
+      val payload = Map(
+        "vesselName"            -> "Foo Bar",
+        "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+        "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+        "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+        "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
+        "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d",
+        "timeOfArrival.period"  -> { if (dateTimeOfArrival.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+      )
+
+      val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
+
+      result.status shouldBe 501
+
+      journey.getState shouldBe AnswerImportQuestionsContactInfo(
+        DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+        ImportQuestions(
+          requestType = Some(ImportRequestType.New),
+          routeType = Some(ImportRouteType.Route6),
+          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+          freightType = Some(ImportFreightType.Air),
+          vesselDetails = Some(
+            VesselDetails(
+              vesselName = Some("Foo Bar"),
+              dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+              timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+            )
+          )
+        )
+      )
+    }
+
+    "submit none vessel details and ask next for contact details" in {
+      implicit val journeyId: JourneyId = JourneyId()
+      journey.setState(
+        AnswerImportQuestionsOptionalVesselInfo(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air)
+          )
+        )
+      )
+      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+      val payload = Map[String, String]()
+
+      val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
+
+      result.status shouldBe 501
+
+      journey.getState shouldBe AnswerImportQuestionsContactInfo(
+        DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+        ImportQuestions(
+          requestType = Some(ImportRequestType.New),
+          routeType = Some(ImportRouteType.Route6),
+          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+          freightType = Some(ImportFreightType.Air),
+          vesselDetails = None
+        )
+      )
+    }
   }
 
 }

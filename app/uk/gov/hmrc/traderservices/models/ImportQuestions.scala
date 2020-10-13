@@ -23,7 +23,8 @@ case class ImportQuestions(
   routeType: Option[ImportRouteType] = None,
   priorityGoods: Option[ImportPriorityGoods] = None,
   hasALVS: Option[Boolean] = None,
-  freightType: Option[ImportFreightType] = None
+  freightType: Option[ImportFreightType] = None,
+  vesselDetails: Option[VesselDetails] = None
 )
 
 object ImportQuestions {
