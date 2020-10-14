@@ -43,7 +43,7 @@
     items = Seq(
         InputItem(
             id = s"$id.hour",
-            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-2${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.hour")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name =  s"$id.hour",
             label = Some(messages("time.hour")),
             value = form(s"$id.hour").value,
@@ -51,7 +51,7 @@
         ),
         InputItem(
             id = s"$id.minutes",
-            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-2${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.minutes")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name = s"$id.minutes",
             label = Some(messages("time.minutes")),
             value = form(s"$id.minutes").value,
@@ -59,7 +59,7 @@
         ),
         InputItem(
             id = s"$id.period",
-            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-2${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.period")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name = s"$id.period",
             label = Some(messages("time.period")),
             value = form(s"$id.period").value,

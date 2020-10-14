@@ -109,58 +109,58 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       LocalDate.parse("2020-12-31")
     )
     dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError(
-      "error.foo.required"
+      "error.foo.all.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "", "day" -> "")) should haveOnlyError(
-      "error.foo.required"
+      "error.foo.all.required"
     )
     dateFieldsMapping("foo").bind(Map("month" -> "", "day" -> "")) should haveOnlyError(
-      "error.foo.required"
+      "error.foo.all.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "")) should haveOnlyError(
-      "error.foo.required"
+      "error.foo.all.required"
     )
     dateFieldsMapping("foo").bind(Map()) should haveOnlyError(
-      "error.foo.required"
+      "error.foo.all.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-      "error.foo.required-year"
+      "error.foo.year.required"
     )
     dateFieldsMapping("foo").bind(Map("month" -> "12", "day" -> "31")) should haveOnlyError(
-      "error.foo.required-year"
+      "error.foo.year.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
-      "error.foo.required-month"
+      "error.foo.month.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020", "day" -> "31")) should haveOnlyError(
-      "error.foo.required-month"
+      "error.foo.month.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
-      "error.foo.required-day"
+      "error.foo.day.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12")) should haveOnlyError(
-      "error.foo.required-day"
+      "error.foo.day.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
-      "error.foo.invalid-year-digits",
-      "error.foo.invalid-month-value",
-      "error.foo.invalid-day-value"
+      "error.foo.year.invalid-digits",
+      "error.foo.month.invalid-value",
+      "error.foo.day.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")) should haveOnlyErrors(
-      "error.foo.invalid-year-digits",
-      "error.foo.invalid-month-digits",
-      "error.foo.invalid-day-digits"
+      "error.foo.year.invalid-digits",
+      "error.foo.month.invalid-digits",
+      "error.foo.day.invalid-digits"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
-      "error.foo.invalid-year-value",
-      "error.foo.invalid-month-value",
-      "error.foo.invalid-day-value"
+      "error.foo.year.invalid-value",
+      "error.foo.month.invalid-value",
+      "error.foo.day.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
-      "error.foo.invalid-day-value"
+      "error.foo.day.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2001", "month" -> "02", "day" -> "29")) should haveOnlyErrors(
-      "error.foo.invalid-day-value"
+      "error.foo.day.invalid-value"
     )
   }
 
@@ -174,45 +174,45 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "")) shouldBe Right(None)
     optionalDateFieldsMapping("bar").bind(Map()) shouldBe Right(None)
     optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-      "error.bar.required-year"
+      "error.bar.year.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("month" -> "12", "day" -> "31")) should haveOnlyError(
-      "error.bar.required-year"
+      "error.bar.year.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
-      "error.bar.required-month"
+      "error.bar.month.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "day" -> "31")) should haveOnlyError(
-      "error.bar.required-month"
+      "error.bar.month.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
-      "error.bar.required-day"
+      "error.bar.day.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12")) should haveOnlyError(
-      "error.bar.required-day"
+      "error.bar.day.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
-      "error.bar.invalid-year-digits",
-      "error.bar.invalid-month-value",
-      "error.bar.invalid-day-value"
+      "error.bar.year.invalid-digits",
+      "error.bar.month.invalid-value",
+      "error.bar.day.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(
       Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")
     ) should haveOnlyErrors(
-      "error.bar.invalid-year-digits",
-      "error.bar.invalid-month-digits",
-      "error.bar.invalid-day-digits"
+      "error.bar.year.invalid-digits",
+      "error.bar.month.invalid-digits",
+      "error.bar.day.invalid-digits"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
-      "error.bar.invalid-year-value",
-      "error.bar.invalid-month-value",
-      "error.bar.invalid-day-value"
+      "error.bar.year.invalid-value",
+      "error.bar.month.invalid-value",
+      "error.bar.day.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
-      "error.bar.invalid-day-value"
+      "error.bar.day.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2001", "month" -> "02", "day" -> "29")) should haveOnlyErrors(
-      "error.bar.invalid-day-value"
+      "error.bar.day.invalid-value"
     )
   }
 

@@ -77,7 +77,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
           .updated("dateOfArrival.month", "")
           .updated("dateOfArrival.day", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("dateOfArrival", "error.dateOfArrival.required"))
+      form.bind(input).errors should haveOnlyErrors(FormError("dateOfArrival", "error.dateOfArrival.all.required"))
     }
 
     "report an error when dateOfArrival is partially missing" in {
@@ -86,8 +86,8 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.month", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.required-year"),
-        FormError("dateOfArrival", "error.dateOfArrival.required-month")
+        FormError("dateOfArrival", "error.dateOfArrival.year.required"),
+        FormError("dateOfArrival", "error.dateOfArrival.month.required")
       )
     }
 
@@ -97,8 +97,8 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.month", "13")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.invalid-year-digits"),
-        FormError("dateOfArrival", "error.dateOfArrival.invalid-month-value")
+        FormError("dateOfArrival", "error.dateOfArrival.year.invalid-digits"),
+        FormError("dateOfArrival", "error.dateOfArrival.month.invalid-value")
       )
     }
 
@@ -109,7 +109,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.period", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.timeOfArrival.required")
+        FormError("timeOfArrival", "error.timeOfArrival.all.required")
       )
     }
 
@@ -119,7 +119,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.minutes", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.timeOfArrival.required")
+        FormError("timeOfArrival", "error.timeOfArrival.all.required")
       )
     }
 
@@ -130,25 +130,25 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.period", "ma")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-hour-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-minutes-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-period-value")
+        FormError("timeOfArrival", "error.timeOfArrival.hour.invalid-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.period.invalid-value")
       )
     }
 
-    "report an error when timeOfArrival is in the past" in {
-      val input = formInputFor(dateTime.minusHours(2))
+    "report an error when dateOfArrival is more than 6 months in the past" in {
+      val input = formInputFor(dateTime.minusMonths(6).minusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("", "error.vesselDetails.invalid-datetime")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-past")
       )
     }
 
-    "report an error when dateOfArrival is in the past" in {
-      val input = formInputFor(dateTime.minusDays(1))
+    "report an error when dateOfArrival is more than 6 months in the future" in {
+      val input = formInputFor(dateTime.plusMonths(6).plusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("", "error.vesselDetails.invalid-datetime")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-future")
       )
     }
   }
@@ -194,8 +194,8 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.month", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.required-year"),
-        FormError("dateOfArrival", "error.dateOfArrival.required-month")
+        FormError("dateOfArrival", "error.dateOfArrival.year.required"),
+        FormError("dateOfArrival", "error.dateOfArrival.month.required")
       )
     }
 
@@ -205,8 +205,8 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.month", "13")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.invalid-year-digits"),
-        FormError("dateOfArrival", "error.dateOfArrival.invalid-month-value")
+        FormError("dateOfArrival", "error.dateOfArrival.year.invalid-digits"),
+        FormError("dateOfArrival", "error.dateOfArrival.month.invalid-value")
       )
     }
 
@@ -236,25 +236,25 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.period", "ma")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-hour-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-minutes-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.invalid-period-value")
+        FormError("timeOfArrival", "error.timeOfArrival.hour.invalid-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value"),
+        FormError("timeOfArrival", "error.timeOfArrival.period.invalid-value")
       )
     }
 
-    "report an error when timeOfArrival is in the past" in {
-      val input = formInputFor(dateTime.minusHours(2))
+    "report an error when dateOfArrival is more than 6 months in the past" in {
+      val input = formInputFor(dateTime.minusMonths(6).minusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("", "error.vesselDetails.invalid-datetime")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-past")
       )
     }
 
-    "report an error when dateOfArrival is in the past" in {
-      val input = formInputFor(dateTime.minusDays(1))
+    "report an error when dateOfArrival is more than 6 months in the future" in {
+      val input = formInputFor(dateTime.plusMonths(6).plusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("", "error.vesselDetails.invalid-datetime")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-future")
       )
     }
   }

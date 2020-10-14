@@ -41,7 +41,7 @@
     items = Seq(
         InputItem(
             id = s"$id.day",
-            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-2${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.day")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name =  s"$id.day",
             label = Some(messages("date.day")),
             value = form(s"$id.day").value,
@@ -49,7 +49,7 @@
         ),
         InputItem(
             id = s"$id.month",
-            classes = s"govuk-input--width-2${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-2${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.month")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name = s"$id.month",
             label = Some(messages("date.month")),
             value = form(s"$id.month").value,
@@ -57,7 +57,7 @@
         ),
         InputItem(
             id = s"$id.year",
-            classes = s"govuk-input--width-4${if(form(id).hasErrors || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
+            classes = s"govuk-input--width-4${if(form.errors.exists(_.message.startsWith(s"error.$id.all")) || form.errors.exists(_.message.startsWith(s"error.$id.year")) || form.errors.exists(_.key.isEmpty)) " govuk-input--error" else ""}",
             name = s"$id.year",
             label = Some(messages("date.year")),
             value = form(s"$id.year").value,
