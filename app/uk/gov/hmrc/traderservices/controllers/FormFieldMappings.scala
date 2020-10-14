@@ -214,7 +214,7 @@ object FormFieldMappings {
 
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
-    
+
   val importContactEmailMapping: Mapping[Option[String]] = optional(
     of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))
   )
