@@ -52,10 +52,6 @@ class TraderServicesFrontendController @Inject() (
   import TraderServicesFrontendController._
   import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel._
 
-  val AsStrideUser: WithAuthorised[String] = { implicit request =>
-    authorisedWithStrideGroup(appConfig.authorisedStrideGroup)
-  }
-
   val AsUser: WithAuthorised[String] = { implicit request =>
     authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
   }
@@ -86,107 +82,88 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/declaration-details
   val showEnterDeclarationDetails: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorised(AsUser)(Transitions.enterDeclarationDetails)(display)
-    }
+    actions.whenAuthorised(AsUser).showOrApply[State.EnterDeclarationDetails](Transitions.enterDeclarationDetails)
 
   // POST /pre-clearance/declaration-details
   val submitDeclarationDetails: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(DeclarationDetailsForm)(Transitions.submittedDeclarationDetails)
-    }
+    actions.whenAuthorised(AsUser).bindForm(DeclarationDetailsForm).apply(Transitions.submittedDeclarationDetails)
 
   // GET /pre-clearance/export-questions/request-type
   val showAnswerExportQuestionsRequestType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsRequestType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsRequestType]
 
   // POST /pre-clearance/export-questions/request-type
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportRequestTypeForm)(Transitions.submittedExportQuestionsAnswerRequestType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ExportRequestTypeForm)
+      .apply(Transitions.submittedExportQuestionsAnswerRequestType)
 
   // GET /pre-clearance/export-questions/route-type
   val showAnswerExportQuestionsRouteType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsRouteType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsRouteType]
 
   // POST /pre-clearance/export-questions/route-type
   val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportRouteTypeForm)(Transitions.submittedExportQuestionsAnswerRouteType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ExportRouteTypeForm)
+      .apply(Transitions.submittedExportQuestionsAnswerRouteType)
 
   // GET /pre-clearance/export-questions/has-priority-goods
   val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsHasPriorityGoods =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsHasPriorityGoods]
 
   // POST /pre-clearance/export-questions/has-priority-goods
   val submitExportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportHasPriorityGoodsForm)(
-        Transitions.submittedExportQuestionsAnswerHasPriorityGoods
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ExportHasPriorityGoodsForm)
+      .apply(Transitions.submittedExportQuestionsAnswerHasPriorityGoods)
 
   // GET /pre-clearance/export-questions/which-priority-goods
   val showAnswerExportQuestionsWhichPriorityGoods: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsWhichPriorityGoods =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsWhichPriorityGoods]
 
   // POST /pre-clearance/export-questions/which-priority-goods
   val submitExportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportPriorityGoodsForm)(
-        Transitions.submittedExportQuestionsAnswerWhichPriorityGoods
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ExportPriorityGoodsForm)
+      .apply(Transitions.submittedExportQuestionsAnswerWhichPriorityGoods)
 
   // GET /pre-clearance/export-questions/transport-type
   val showAnswerExportQuestionsFreightType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsFreightType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsFreightType]
 
   // POST /pre-clearance/export-questions/transport-type
   val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportFreightTypeForm)(Transitions.submittedExportQuestionsAnswerFreightType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ExportFreightTypeForm)
+      .apply(Transitions.submittedExportQuestionsAnswerFreightType)
 
   // GET /pre-clearance/export-questions/vessel-info-required
   val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsMandatoryVesselInfo =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsMandatoryVesselInfo]
 
   // POST /pre-clearance/export-questions/vessel-info-required
   val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(MandatoryVesselDetailsForm)(
-        Transitions.submittedExportQuestionsMandatoryVesselDetails
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(MandatoryVesselDetailsForm)
+      .apply(Transitions.submittedExportQuestionsMandatoryVesselDetails)
 
   // GET /pre-clearance/export-questions/vessel-info
   val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsOptionalVesselInfo =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerExportQuestionsOptionalVesselInfo]
 
   // POST /pre-clearance/export-questions/vessel-info
   val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(OptionalVesselDetailsForm)(
-        Transitions.submittedExportQuestionsOptionalVesselDetails
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(OptionalVesselDetailsForm)
+      .apply(Transitions.submittedExportQuestionsOptionalVesselDetails)
 
   // GET /pre-clearance/export-questions/contact-info
   val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
@@ -198,95 +175,80 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/request-type
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsRequestType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsRequestType]
 
   // POST /pre-clearance/import-questions/request-type
   val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportRequestTypeForm)(Transitions.submittedImportQuestionsAnswersRequestType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportRequestTypeForm)
+      .apply(Transitions.submittedImportQuestionsAnswersRequestType)
 
   // GET /pre-clearance/import-questions/route-type
   val showAnswerImportQuestionsRouteType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsRouteType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsRouteType]
 
   // POST /pre-clearance/import-questions/route-type
   val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportRouteTypeForm)(Transitions.submittedImportQuestionsAnswerRouteType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportRouteTypeForm)
+      .apply(Transitions.submittedImportQuestionsAnswerRouteType)
 
   // GET /pre-clearance/import-questions/has-priority-goods
   val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsHasPriorityGoods =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsHasPriorityGoods]
 
   // POST /pre-clearance/import-questions/has-priority-goods
   val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportHasPriorityGoodsForm)(
-        Transitions.submittedImportQuestionsAnswerHasPriorityGoods
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportHasPriorityGoodsForm)
+      .apply(Transitions.submittedImportQuestionsAnswerHasPriorityGoods)
 
   // GET /pre-clearance/import-questions/which-priority-goods
   val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsWhichPriorityGoods =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsWhichPriorityGoods]
 
   // POST /pre-clearance/import-questions/which-priority-goods
   val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportPriorityGoodsForm)(
-        Transitions.submittedImportQuestionsAnswerWhichPriorityGoods
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportPriorityGoodsForm)
+      .apply(Transitions.submittedImportQuestionsAnswerWhichPriorityGoods)
 
   // GET /pre-clearance/import-questions/automatic-licence-verification
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsALVS =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsALVS]
 
   // POST /pre-clearance/import-questions/automatic-licence-verification
   val submitImportQuestionsALVSAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportHasALVSForm)(
-        Transitions.submittedImportQuestionsAnswerHasALVS
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportHasALVSForm)
+      .apply(Transitions.submittedImportQuestionsAnswerHasALVS)
 
   // GET /pre-clearance/import-questions/transport-type
   val showAnswerImportQuestionsFreightType: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsFreightType =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsFreightType]
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportFreightTypeForm)(Transitions.submittedImportQuestionsAnswerFreightType)
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(ImportFreightTypeForm)
+      .apply(Transitions.submittedImportQuestionsAnswerFreightType)
 
   // GET /pre-clearance/import-questions/vessel-info
   val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsOptionalVesselInfo =>
-    }
+    actions.whenAuthorised(AsUser).show[State.AnswerImportQuestionsOptionalVesselInfo]
 
   // POST /pre-clearance/import-questions/vessel-info
   val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(OptionalVesselDetailsForm)(
-        Transitions.submittedImportQuestionsOptionalVesselDetails
-      )
-    }
+    actions
+      .whenAuthorised(AsUser)
+      .bindForm(OptionalVesselDetailsForm)
+      .apply(Transitions.submittedImportQuestionsOptionalVesselDetails)
 
   // GET /pre-clearance/import-questions/contact-info
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
