@@ -65,7 +65,15 @@ object DateFieldHelper {
     (ydm(0), ydm(1), ydm(2))
   }
 
-  val normalizeDateFields: (String, String, String) => (String, String, String) = {
+  val order: Function3[String, String, String, (String, String, String)] = { (d, m, y) =>
+    (y, m, d)
+  }
+
+  val reorder: Function[(String, String, String), Option[(String, String, String)]] = {
+    case (y, m, d) => Some((d, m, y))
+  }
+
+  val normalizeDateFields: ((String, String, String)) => (String, String, String) = {
     case (y, m, d) =>
       if (y.isEmpty && m.isEmpty && d.isEmpty) (y, m, d)
       else {
@@ -82,18 +90,18 @@ object DateFieldHelper {
         if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
       case (y, m, d) =>
         val errors = Seq(
-          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.required-year"))
-          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-year-digits"))
-          else if (isValidYear(y)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-year-value")),
+          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.required-day"))
+          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-day-digits"))
+          else if (isValidDay(d, m, y)) None
+          else Some(ValidationError(s"error.$fieldName.invalid-day-value")),
           if (m.isEmpty) Some(ValidationError(s"error.$fieldName.required-month"))
           else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-month-digits"))
           else if (isValidMonth(m)) None
           else Some(ValidationError(s"error.$fieldName.invalid-month-value")),
-          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.required-day"))
-          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-day-digits"))
-          else if (isValidDay(d, m, y)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-day-value"))
+          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.required-year"))
+          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-year-digits"))
+          else if (isValidYear(y)) None
+          else Some(ValidationError(s"error.$fieldName.invalid-year-value"))
         ).collect { case Some(e) => e }
 
         if (errors.isEmpty) Valid else Invalid(errors)
@@ -101,13 +109,14 @@ object DateFieldHelper {
 
   def dateFieldsMapping(fieldName: String): Mapping[LocalDate] =
     mapping(
-      "year" -> optional(of[String].transform[String](_.trim, identity))
+      "day" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
       "month" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
-      "day" -> optional(of[String].transform[String](_.trim, identity))
+      "year" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String])
-    )(normalizeDateFields)(a => Option(a))
+    )(order)(reorder)
+      .transform(normalizeDateFields, identity[(String, String, String)])
       .verifying(validDateFields(fieldName, required = true))
       .transform[String](concatDate, splitDate)
       .transform[LocalDate](
@@ -117,13 +126,14 @@ object DateFieldHelper {
 
   def optionalDateFieldsMapping(fieldName: String): Mapping[Option[LocalDate]] =
     mapping(
-      "year" -> optional(of[String].transform[String](_.trim, identity))
+      "day" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
       "month" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
-      "day" -> optional(of[String].transform[String](_.trim, identity))
+      "year" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String])
-    )(normalizeDateFields)(a => Option(a))
+    )(order)(reorder)
+      .transform(normalizeDateFields, identity[(String, String, String)])
       .verifying(validDateFields(fieldName, required = false))
       .transform[String](concatDate, splitDate)
       .transform[Option[LocalDate]](
