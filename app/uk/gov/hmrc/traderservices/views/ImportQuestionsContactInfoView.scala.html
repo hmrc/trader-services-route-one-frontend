@@ -14,47 +14,49 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.ImportRouteType
-@import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.models.ImportContactInfo
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
-        html: uk.gov.hmrc.traderservices.views.components.html,
-        context: ImportQuestionsViewContext
+        html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[ImportRouteType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportContactInfo], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.import-questions.contactInfo.title")),
-  backLink = Some(backLink.url)) {
+    pageTitle = Some(messages("view.import-questions.contactInfo.title")),
+    backLink = Some(backLink.url)) {
 
-  @forms.errorSummary(form.errors)
+    @forms.errorSummary(form.errors)
 
-  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-      @forms.inputText(
-          form = form,
-          id = "contactEmail",
-          name = "contactEmail",
-          label = "form.import-questions.contactEmail",
-          isPageHeading = false,
-          isInFieldset = true,
-          classes = Some("govuk-input--width-3"),
-          attributes = Map("emailAddress" -> "3")
-      )
+        @forms.fieldset(
+            legend = messages("view.import-questions.contactInfo.heading")
+        ) {
+            @forms.inputText(
+                form = form,
+                id = "contactEmail",
+                name = "contactEmail",
+                label = "form.import-questions.contactEmail",
+                isPageHeading = false,
+                isInFieldset = true,
+                classes = Some("govuk-input--width-3"),
+                attributes = Map("emailAddress" -> "3")
+            )
 
-      @forms.inputText(
-          form = form,
-          id = "contactNumber",
-          name = "contactNumber",
-          label = "form.import-questions.contactNumber",
-          isPageHeading = false,
-          isInFieldset = true,
-          classes = Some("govuk-input--width-10")
-      )
+            @forms.inputText(
+                form = form,
+                id = "contactNumber",
+                name = "contactNumber",
+                label = "form.import-questions.contactNumber",
+                isPageHeading = false,
+                isInFieldset = true,
+                classes = Some("govuk-input--width-10")
+            )
+        }
+        @html.button("form.import-questions.continue")
 
-    @html.button("form.import-questions.continue")
-  }
+    }
 }

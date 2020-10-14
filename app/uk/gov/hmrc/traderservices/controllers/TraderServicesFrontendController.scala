@@ -251,7 +251,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/contact-info
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsContactInfo =>
+    }
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
@@ -531,6 +533,19 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerImportQuestionsContactInfo(_, importQuestions) =>
+        Ok(
+          views.importQuestionsContactInfoView(
+            formWithErrors.or(
+              importQuestions.contactInfo
+                .map(query => ImportContactForm.fill(query))
+                .getOrElse(ImportContactForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case _ => NotImplemented
 
     }
@@ -600,8 +615,8 @@ object TraderServicesFrontendController {
 
   val ImportContactForm = Form[ImportContactInfo](
     mapping(
-      "contactEmail" -> importContactEmailMapping,
-      "contactNumber" -> importContactEmailMapping
+      "contactEmail"  -> importContactEmailMapping,
+      "contactNumber" -> importContactNumberMapping
     )(ImportContactInfo.apply)(ImportContactInfo.unapply)
   )
 

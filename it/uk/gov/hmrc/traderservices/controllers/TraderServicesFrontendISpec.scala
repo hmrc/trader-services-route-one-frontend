@@ -1143,6 +1143,29 @@ class TraderServicesFrontendISpec
         )
       )
     }
+
+    "GET /pre-clearance/import-questions/contact-info" should {
+      "show the import contact information question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsContactInfo(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/contact-info").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.heading"))
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ImportQuestions()
+        )
+      }
+    }
   }
 
 }

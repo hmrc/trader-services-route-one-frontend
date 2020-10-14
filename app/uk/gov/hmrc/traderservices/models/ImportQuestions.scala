@@ -24,7 +24,8 @@ case class ImportQuestions(
   priorityGoods: Option[ImportPriorityGoods] = None,
   hasALVS: Option[Boolean] = None,
   freightType: Option[ImportFreightType] = None,
-  vesselDetails: Option[VesselDetails] = None
+  vesselDetails: Option[VesselDetails] = None,
+  contactInfo: Option[ImportContactInfo] = None
 )
 
 object ImportQuestions {

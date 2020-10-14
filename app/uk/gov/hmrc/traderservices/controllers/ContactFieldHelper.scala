@@ -21,12 +21,12 @@ import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 object ContactFieldHelper {
 
-  def contactNumber(errorMessage: String = "error.contactNumber"): Constraint[String] = Constraint[String]("constraint.contactNumber") {
-    phoneNum =>
+  def contactNumber(errorMessage: String = "error.contactNumber"): Constraint[String] =
+    Constraint[String]("constraint.contactNumber") { phoneNum =>
       if (phoneNum == null) Invalid(ValidationError(errorMessage))
       else if (phoneNum.trim.isEmpty) Invalid(ValidationError(errorMessage))
       else
-        try{
+        try {
           val phoneNumberUtil = PhoneNumberUtil.getInstance()
           val sequenceToNumber = phoneNumberUtil.parse(phoneNum, "GB")
           if (phoneNumberUtil.isValidNumber(sequenceToNumber)) Valid
@@ -34,5 +34,5 @@ object ContactFieldHelper {
         } catch {
           case _: NumberParseException => Invalid(ValidationError(errorMessage))
         }
-  }
+    }
 }
