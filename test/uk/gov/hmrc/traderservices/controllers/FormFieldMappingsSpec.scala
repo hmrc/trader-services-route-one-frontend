@@ -107,63 +107,63 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         LocalDate.parse("2020-09-21")
       )
       entryDateMapping.bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.required"
+        "error.entryDate.all.required"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.required-month",
-        "error.entryDate.required-day"
+        "error.entryDate.month.required",
+        "error.entryDate.day.required"
       )
       entryDateMapping.bind(Map("year" -> "", "month" -> "11", "day" -> "")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.required-year",
-        "error.entryDate.required-day"
+        "error.entryDate.year.required",
+        "error.entryDate.day.required"
       )
       entryDateMapping.bind(Map("year" -> "", "month" -> "", "day" -> "31")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.required-year",
-        "error.entryDate.required-month"
+        "error.entryDate.year.required",
+        "error.entryDate.month.required"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.required-day"
+        "error.entryDate.day.required"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "13", "day" -> "")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.required-day",
-        "error.entryDate.invalid-month-value"
+        "error.entryDate.day.required",
+        "error.entryDate.month.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "13", "day" -> "32")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.invalid-day-value",
-        "error.entryDate.invalid-month-value"
+        "error.entryDate.day.invalid-value",
+        "error.entryDate.month.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "20", "month" -> "13", "day" -> "32")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.invalid-day-value",
-        "error.entryDate.invalid-month-value"
+        "error.entryDate.day.invalid-value",
+        "error.entryDate.month.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "2", "day" -> "30")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-day-value"
+        "error.entryDate.day.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "202", "month" -> "2", "day" -> "28")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-year-value"
+        "error.entryDate.year.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "202A", "month" -> "1", "day" -> "1")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-year-digits"
+        "error.entryDate.year.invalid-digits"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "06", "day" -> "31")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-day-value"
+        "error.entryDate.day.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "", "month" -> "0A", "day" -> "21")) should haveError[LocalDate](
-        "error.entryDate.required-year"
-      ).and(haveError[LocalDate]("error.entryDate.invalid-month-digits"))
+        "error.entryDate.year.required"
+      ).and(haveError[LocalDate]("error.entryDate.month.invalid-digits"))
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "0A", "day" -> "2AA")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.invalid-month-digits",
-        "error.entryDate.invalid-day-digits"
+        "error.entryDate.month.invalid-digits",
+        "error.entryDate.day.invalid-digits"
       )
       entryDateMapping.bind(Map("year" -> "2021", "month" -> "0A", "day" -> "2AA")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.invalid-month-digits",
-        "error.entryDate.invalid-day-digits"
+        "error.entryDate.month.invalid-digits",
+        "error.entryDate.day.invalid-digits"
       )
       entryDateMapping.bind(Map("year" -> "2050", "month" -> "01", "day" -> "01")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-value-future"
+        "error.entryDate.all.invalid-value-future"
       )
       entryDateMapping.bind(Map("year" -> "1970", "month" -> "01", "day" -> "01")) should haveOnlyError[LocalDate](
-        "error.entryDate.invalid-value-past"
+        "error.entryDate.all.invalid-value-past"
       )
     }
 
@@ -343,47 +343,49 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         .bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(Some(LocalDate.parse("2020-12-31")))
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "01", "day" -> "01")) shouldBe Right(Some(LocalDate.parse("2020-01-01")))
-      mandatoryDateOfArrivalMapping.bind(Map()) should haveOnlyError[Option[LocalDate]]("error.dateOfArrival.required")
+      mandatoryDateOfArrivalMapping.bind(Map()) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfArrival.all.required"
+      )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
-        "error.dateOfArrival.required"
+        "error.dateOfArrival.all.required"
       )
       mandatoryDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
-        "error.dateOfArrival.required"
+        "error.dateOfArrival.all.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.required-year"
+        "error.dateOfArrival.year.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.required-month"
+        "error.dateOfArrival.month.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.day.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.required-month",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.month.required",
+        "error.dateOfArrival.day.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.required-year",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.year.required",
+        "error.dateOfArrival.day.required"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyErrors(
-        "error.dateOfArrival.required-year",
-        "error.dateOfArrival.required-month",
-        "error.dateOfArrival.invalid-day-value"
+        "error.dateOfArrival.year.required",
+        "error.dateOfArrival.month.required",
+        "error.dateOfArrival.day.invalid-value"
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.invalid-year-digits",
-        "error.dateOfArrival.invalid-month-value",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.year.invalid-digits",
+        "error.dateOfArrival.month.invalid-value",
+        "error.dateOfArrival.day.required"
       )
     }
 
@@ -402,37 +404,37 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       optionalDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.required-year"
+        "error.dateOfArrival.year.required"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.required-month"
+        "error.dateOfArrival.month.required"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.day.required"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.required-month",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.month.required",
+        "error.dateOfArrival.day.required"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.required-year",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.year.required",
+        "error.dateOfArrival.day.required"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyErrors(
-        "error.dateOfArrival.required-year",
-        "error.dateOfArrival.required-month",
-        "error.dateOfArrival.invalid-day-value"
+        "error.dateOfArrival.year.required",
+        "error.dateOfArrival.month.required",
+        "error.dateOfArrival.day.invalid-value"
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.invalid-year-digits",
-        "error.dateOfArrival.invalid-month-value",
-        "error.dateOfArrival.required-day"
+        "error.dateOfArrival.year.invalid-digits",
+        "error.dateOfArrival.month.invalid-value",
+        "error.dateOfArrival.day.required"
       )
     }
 
@@ -444,10 +446,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         Some(LocalTime.parse("12:00"))
       )
       mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
-        "error.timeOfArrival.required"
+        "error.timeOfArrival.all.required"
       )
       mandatoryTimeOfArrivalMapping.bind(Map()) should haveOnlyError(
-        "error.timeOfArrival.required"
+        "error.timeOfArrival.all.required"
       )
     }
 

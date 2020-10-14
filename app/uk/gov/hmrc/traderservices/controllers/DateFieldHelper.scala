@@ -87,21 +87,21 @@ object DateFieldHelper {
   def validDateFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
       case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
+        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
       case (y, m, d) =>
         val errors = Seq(
-          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.required-day"))
-          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-day-digits"))
+          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.day.required"))
+          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.day.invalid-digits"))
           else if (isValidDay(d, m, y)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-day-value")),
-          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.required-month"))
-          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-month-digits"))
+          else Some(ValidationError(s"error.$fieldName.day.invalid-value")),
+          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.month.required"))
+          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.month.invalid-digits"))
           else if (isValidMonth(m)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-month-value")),
-          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.required-year"))
-          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-year-digits"))
+          else Some(ValidationError(s"error.$fieldName.month.invalid-value")),
+          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.year.required"))
+          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.year.invalid-digits"))
           else if (isValidYear(y)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-year-value"))
+          else Some(ValidationError(s"error.$fieldName.year.invalid-value"))
         ).collect { case Some(e) => e }
 
         if (errors.isEmpty) Valid else Invalid(errors)

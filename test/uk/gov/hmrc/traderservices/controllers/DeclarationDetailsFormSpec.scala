@@ -87,63 +87,63 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when entryDate.year is missing" in {
       val input = formInput.updated("entryDate.year", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.required-year"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.year.required"))
     }
 
     "report an error when entryDate.year is invalid" in {
       val input = formInput.updated("entryDate.year", "197B")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-year-digits"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.year.invalid-digits"))
     }
 
     "report an error when entryDate.day is invalid - contains digit and letter" in {
       val input = formInput.updated("entryDate.day", "0X")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-day-digits"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.day.invalid-digits"))
     }
 
     "report an error when entryDate.day is invalid - contains value out-of-scope" in {
       val input = formInput.updated("entryDate.day", "32")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-day-value"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.day.invalid-value"))
     }
 
     "report an error when entryDate.month is invalid - contains digit and letter" in {
       val input = formInput.updated("entryDate.month", "1X")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-month-digits"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.month.invalid-digits"))
     }
 
     "report an error when entryDate.month is invalid - contains value out-of-scope" in {
       val input = formInput.updated("entryDate.month", "13")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-month-value"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.month.invalid-value"))
     }
 
     "disallow empty entryDate.day" in {
       val input = formInput.updated("entryDate.day", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyError(FormError("entryDate", "error.entryDate.required-day"))
+      form.bind(input).errors should haveOnlyError(FormError("entryDate", "error.entryDate.day.required"))
     }
 
     "report an error when empty entryDate.month " in {
       val input = formInput.updated("entryDate.month", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.required-month"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.month.required"))
     }
 
     "report an error when entryDate in the future" in {
       val input = formInputFor(date.plusDays(1))
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.invalid-value-future"))
+      form.bind(input).errors should haveOnlyErrors(FormError("entryDate", "error.entryDate.all.invalid-value-future"))
     }
 
     "disallow empty entryDate.day and empty entryDate.month" in {
       val input = formInput.updated("entryDate.day", "").updated("entryDate.month", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("entryDate", "error.entryDate.required-month"),
-        FormError("entryDate", "error.entryDate.required-day")
+        FormError("entryDate", "error.entryDate.month.required"),
+        FormError("entryDate", "error.entryDate.day.required")
       )
     }
   }

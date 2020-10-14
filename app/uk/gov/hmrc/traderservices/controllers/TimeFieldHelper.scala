@@ -84,22 +84,22 @@ object TimeFieldHelper {
   def validTimeFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.time-fields") {
       case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
+        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
       case (h, m, p) if h.isEmpty && m.isEmpty && isValidPeriod(p) =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.required")) else Valid
+        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
       case (h, m, p) =>
         val errors = Seq(
-          if (h.isEmpty) Some(ValidationError(s"error.$fieldName.required-hour"))
-          else if (!h.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-hour-digits"))
+          if (h.isEmpty) Some(ValidationError(s"error.$fieldName.hour.required"))
+          else if (!h.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.hour.invalid-digits"))
           else if (isValidHour(h)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-hour-value")),
-          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.required-minutes"))
-          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.invalid-minutes-digits"))
+          else Some(ValidationError(s"error.$fieldName.hour.invalid-value")),
+          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.minutes.required"))
+          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.minutes.invalid-digits"))
           else if (isValidMinutes(m)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-minutes-value")),
-          if (p.isEmpty) Some(ValidationError(s"error.$fieldName.required-period"))
+          else Some(ValidationError(s"error.$fieldName.minutes.invalid-value")),
+          if (p.isEmpty) Some(ValidationError(s"error.$fieldName.period.required"))
           else if (isValidPeriod(p)) None
-          else Some(ValidationError(s"error.$fieldName.invalid-period-value"))
+          else Some(ValidationError(s"error.$fieldName.period.invalid-value"))
         ).collect { case Some(e) => e }
 
         if (errors.isEmpty) Valid else Invalid(errors)

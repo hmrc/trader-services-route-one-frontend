@@ -639,19 +639,19 @@ object TraderServicesFrontendController {
 
   val MandatoryVesselDetailsForm = Form[VesselDetails](
     mapping(
-      "vesselName"    -> mandatoryVesselNameMapping,
-      "dateOfArrival" -> mandatoryDateOfArrivalMapping,
+      "vesselName" -> mandatoryVesselNameMapping,
+      "dateOfArrival" -> mandatoryDateOfArrivalMapping
+        .verifying(dateOfArrivalRangeConstraint),
       "timeOfArrival" -> mandatoryTimeOfArrivalMapping
     )(VesselDetails.apply)(VesselDetails.unapply)
-      .verifying(constraintVessselArrivalWithinNextMonths(AppConfig.vesselArrivalConstraintMonths, required = true))
   )
 
   val OptionalVesselDetailsForm = Form[VesselDetails](
     mapping(
-      "vesselName"    -> optionalVesselNameMapping,
-      "dateOfArrival" -> optionalDateOfArrivalMapping,
+      "vesselName" -> optionalVesselNameMapping,
+      "dateOfArrival" -> optionalDateOfArrivalMapping
+        .verifying(dateOfArrivalRangeConstraint),
       "timeOfArrival" -> optionalTimeOfArrivalMapping
     )(VesselDetails.apply)(VesselDetails.unapply)
-      .verifying(constraintVessselArrivalWithinNextMonths(AppConfig.vesselArrivalConstraintMonths, required = false))
   )
 }

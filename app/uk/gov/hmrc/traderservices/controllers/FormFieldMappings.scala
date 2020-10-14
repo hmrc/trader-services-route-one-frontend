@@ -78,6 +78,12 @@ object FormFieldMappings {
       }
     }
 
+  def some[A](c: Constraint[A]): Constraint[Option[A]] =
+    Constraint[Option[A]](s"${c.name}.optional") {
+      case Some(s) => c.apply(s)
+      case None    => Valid
+    }
+
   val epuMapping: Mapping[EPU] = uppercaseNormalizedText
     .verifying(
       first(
@@ -108,8 +114,8 @@ object FormFieldMappings {
 
   val entryDateMapping: Mapping[LocalDate] = DateFieldHelper
     .dateFieldsMapping("entryDate")
-    .verifying(DateFieldHelper.dateIsBefore("entryDate", "invalid-value-future", _.plusDays(1)))
-    .verifying(DateFieldHelper.dateIsAfter("entryDate", "invalid-value-past", _.minusMonths(6)))
+    .verifying(DateFieldHelper.dateIsBefore("entryDate.all", "invalid-value-future", _.plusDays(1)))
+    .verifying(DateFieldHelper.dateIsAfter("entryDate.all", "invalid-value-past", _.minusMonths(6)))
 
   def enumMapping[A: EnumerationFormats](fieldName: String): Mapping[A] =
     optional(text)
@@ -183,8 +189,17 @@ object FormFieldMappings {
       )
   ).transform({ case Some("") => None; case o => o }, identity[Option[String]])
 
+  val dateOfArrivalRangeConstraint = some(
+    first(
+      DateFieldHelper.dateIsBefore("dateOfArrival.all", "invalid-value-future", _.plusMonths(6).plusDays(1)),
+      DateFieldHelper.dateIsAfter("dateOfArrival.all", "invalid-value-past", _.minusMonths(6).minusDays(1))
+    )
+  )
+
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
-    DateFieldHelper.dateFieldsMapping("dateOfArrival").transform(Option.apply, _.get)
+    DateFieldHelper
+      .dateFieldsMapping("dateOfArrival")
+      .transform(Option.apply, _.get)
 
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
@@ -194,12 +209,5 @@ object FormFieldMappings {
 
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
-
-  def constraintVessselArrivalWithinNextMonths(months: Int, required: Boolean) =
-    constraint[VesselDetails](
-      "vesselDetails",
-      "invalid-datetime",
-      _.isDateAndTimeBetweenNowAnd(LocalDate.now().plusMonths(months), required)
-    )
 
 }
