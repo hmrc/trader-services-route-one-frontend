@@ -29,3 +29,11 @@ $hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 		margin-left: 10px;
 	}
 }
+
+.govuk-input--error {
+    border: $govuk-border-width-form-element-error solid $govuk-error-colour !important;
+
+    &:focus {
+      border-color: $govuk-input-border-colour;
+    }
+  }
