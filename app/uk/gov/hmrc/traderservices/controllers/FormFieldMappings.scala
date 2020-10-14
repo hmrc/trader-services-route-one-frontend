@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import java.lang.NumberFormatException
 import java.time.LocalDate
 
 import play.api.data.Forms.{email, of, optional, text}
@@ -27,6 +28,10 @@ import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, 
 import scala.util.Try
 import java.time.LocalTime
 import uk.gov.hmrc.traderservices.models.VesselDetails
+
+import com.google.i18n.phonenumbers.NumberParseException.ErrorType
+import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberMatch, PhoneNumberUtil}
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
 
 object FormFieldMappings {
 
@@ -210,7 +215,12 @@ object FormFieldMappings {
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
-  val importContactEmailMapping: Mapping[String] =
-    of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))
+  val importContactEmailMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(
+      Constraints.emailAddress(errorMessage = "error.contactEmail"))
+  )
 
+  val importContactNumberMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(ContactFieldHelper.contactNumber())
+  )
 }

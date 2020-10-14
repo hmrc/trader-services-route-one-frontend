@@ -16,7 +16,13 @@
 
 package uk.gov.hmrc.traderservices.models
 
+import play.api.libs.json.{Format, Json}
+
 case class ImportContactInfo(
-  email: Option[String] = None,
+  contactEmail: Option[String] = None,
   contactNumber: Option[String] = None
 )
+
+object ImportContactInfo {
+  implicit val formats: Format[ImportContactInfo] = Json.format[ImportContactInfo]
+}

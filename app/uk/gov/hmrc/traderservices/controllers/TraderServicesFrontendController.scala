@@ -27,13 +27,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.util.Success
-import uk.gov.hmrc.traderservices.models.VesselDetails
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -599,8 +598,11 @@ object TraderServicesFrontendController {
     mapping("hasALVS" -> importHasALVSMapping)(identity)(Option.apply)
   )
 
-  val ImportContactValidEmail = Form[String](
-    mapping("contactEmail" -> importContactEmailMapping)(identity)(Option.apply)
+  val ImportContactForm = Form[ImportContactInfo](
+    mapping(
+      "contactEmail" -> importContactEmailMapping,
+      "contactNumber" -> importContactEmailMapping
+    )(ImportContactInfo.apply)(ImportContactInfo.unapply)
   )
 
   val MandatoryVesselDetailsForm = Form[VesselDetails](
