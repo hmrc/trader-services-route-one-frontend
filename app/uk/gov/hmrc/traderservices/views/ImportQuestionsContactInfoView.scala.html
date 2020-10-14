@@ -35,6 +35,10 @@
         @forms.fieldset(
             legend = messages("view.import-questions.contactInfo.heading")
         ) {
+            @html.p {
+                @messages("view.import-questions.contactInfo.description")
+            }
+
             @forms.inputText(
                 form = form,
                 id = "contactEmail",
@@ -42,8 +46,8 @@
                 label = "form.import-questions.contactEmail",
                 isPageHeading = false,
                 isInFieldset = true,
-                classes = Some("govuk-input--width-3"),
-                attributes = Map("emailAddress" -> "3")
+                classes = Some("govuk-input--width-20"),
+                attributes = Map("autocomplete" -> "email")
             )
 
             @forms.inputText(
@@ -53,7 +57,8 @@
                 label = "form.import-questions.contactNumber",
                 isPageHeading = false,
                 isInFieldset = true,
-                classes = Some("govuk-input--width-10")
+                classes = Some("govuk-input--width-20"),
+                attributes = Map("autocomplete" -> "tel")
             )
         }
         @html.button("form.import-questions.continue")

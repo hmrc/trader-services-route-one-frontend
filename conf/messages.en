@@ -314,6 +314,8 @@ view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or 
 view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
 view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
 view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.contactInfo.heading=What are your contact details?
+view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
 form.import-questions.priorityGoods.ClassADrugs=Class A drugs
 form.import-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
 form.import-questions.priorityGoods.HighValueArt=High value art
@@ -327,6 +329,8 @@ form.import-questions.freightType.RORO=Rail, road, or roll-on, roll-off (RORO)
 form.import-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.import-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
+form.import-questions.contactEmail=Email address
+form.import-questions.contactNumber=Phone number
 form.import-questions.continue=Continue
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route
@@ -335,7 +339,6 @@ error.importPriorityGoods.required=Select the type of priority goods
 error.importFreightType.required=Select the type of transport you''re using
 error.transportationType.required=Tell us what type of freight transportation is being used
 error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
-error.importFreightType.required=Select the type of transport you''re using
 
 # Common form messages
 # ----------------------------------------------------------
