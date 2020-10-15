@@ -53,7 +53,7 @@ class TraderServicesFrontendISpec
     }
 
     "GET /trader-services/pre-clearance/declaration-details" should {
-      "show the enter declaration details page" in {
+      "show blank declaration details page if at Start" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -64,6 +64,28 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.declaration-details.title"))
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails(None)
+      }
+
+      "redisplay pre-filled enter declaration details page " in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsRequestType(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/declaration-details").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.declaration-details.title"))
+        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should (include("235") and include("A11111X"))
+        result.body should (include("2020") and include("09") and include("23"))
+        journey.getState shouldBe EnterDeclarationDetails(
+          Some(DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")))
+        )
       }
     }
 
