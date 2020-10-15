@@ -11,21 +11,12 @@ import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType, VesselDetails}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.traderservices.models.ExportRequestType
-import uk.gov.hmrc.traderservices.models.ExportRouteType
-import uk.gov.hmrc.traderservices.models.ExportPriorityGoods
-import uk.gov.hmrc.traderservices.models.ExportFreightType
-import uk.gov.hmrc.traderservices.models.ImportRequestType
-import uk.gov.hmrc.traderservices.models.ImportRouteType
-import uk.gov.hmrc.traderservices.models.ImportFreightType
-import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
-import uk.gov.hmrc.traderservices.models.VesselDetails
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
@@ -1164,6 +1155,31 @@ class TraderServicesFrontendISpec
           DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
           ImportQuestions()
         )
+      }
+    }
+
+    "POST /pre-clearance/import-questions/contact-info" should {
+      "ask for the next page when only email submitted" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsContactInfo(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6),
+              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              freightType = Some(ImportFreightType.Air)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "contactEmail" -> "someone@email.com"
+        )
+        val result = await(request("/pre-clearance/import-questions/contact-info").post(payload))
+
+        result.status shouldBe 501
       }
     }
   }
