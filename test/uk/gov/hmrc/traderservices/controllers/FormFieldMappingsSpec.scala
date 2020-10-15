@@ -489,10 +489,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.contactNumber"
       )
 
-      importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
       importContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
         "error.contactNumber"
       )

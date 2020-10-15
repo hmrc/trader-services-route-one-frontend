@@ -314,6 +314,7 @@ view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or 
 view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
 view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
 view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.contactInfo.title=What are your contact details?
 view.import-questions.contactInfo.heading=What are your contact details?
 view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
 form.import-questions.priorityGoods.ClassADrugs=Class A drugs
