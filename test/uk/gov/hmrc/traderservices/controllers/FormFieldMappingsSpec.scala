@@ -465,10 +465,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate contactEmailMapping" in {
-<<<<<<< HEAD
-=======
-
->>>>>>> Added phone number validation
       importContactEmailMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       importContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
@@ -505,36 +501,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.contactNumber"
       )
 
-<<<<<<< HEAD
-=======
-      importContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right(Some("12@s.com"))
-    }
-
-    "validate contactNumberMapping" in {
-
-      importContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
-
-      importContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
->>>>>>> Added phone number validation
       importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
       importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))

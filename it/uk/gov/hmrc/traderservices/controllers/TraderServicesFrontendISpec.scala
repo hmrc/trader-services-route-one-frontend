@@ -1091,7 +1091,7 @@ class TraderServicesFrontendISpec
 
       val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
 
-      result.status shouldBe 501
+      result.status shouldBe 200
 
       journey.getState shouldBe AnswerImportQuestionsContactInfo(
         DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
@@ -1130,7 +1130,7 @@ class TraderServicesFrontendISpec
 
       val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
 
-      result.status shouldBe 501
+      result.status shouldBe 200
 
       journey.getState shouldBe AnswerImportQuestionsContactInfo(
         DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
