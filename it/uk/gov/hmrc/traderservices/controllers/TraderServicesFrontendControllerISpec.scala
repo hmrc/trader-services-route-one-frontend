@@ -35,7 +35,7 @@ class TraderServicesFrontendControllerISpec
         journey.set(Start, Nil)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = controller.showEnterDeclarationDetails(fakeRequest)
-        status(result) shouldBe 303
+        status(result) shouldBe 200
         journey.get shouldBe Some((EnterDeclarationDetails(None), List(Start)))
       }
     }

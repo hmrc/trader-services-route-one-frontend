@@ -124,6 +124,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
   }
 
+  object Mergers {
+
+    val copyDeclarationDetails = Merger[State.EnterDeclarationDetails] {
+      case (s, d: State with State.HasDeclarationDetails) =>
+        s.copy(declarationDetailsOpt = Some(d.declarationDetails))
+    }
+  }
+
   object Transitions {
     import State._
 

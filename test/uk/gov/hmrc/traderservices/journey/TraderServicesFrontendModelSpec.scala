@@ -21,13 +21,15 @@ import java.time.LocalDate
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{State, Transition, TransitionNotAllowed}
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Mergers._
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalTime
+import scala.reflect.ClassTag
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -66,6 +68,13 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
+      }
+
+      "copy details if coming back from the state having declaration details set" in {
+        given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
+          exportDeclarationDetails,
+          ExportQuestions()
+        )) should thenGo(EnterDeclarationDetails(Some(exportDeclarationDetails)))
       }
     }
 
@@ -589,7 +598,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
   }
 
-  case class given(initialState: State)
+  case class given[S <: State: ClassTag](initialState: S)
       extends TraderServicesFrontendJourneyService[DummyContext]
       with InMemoryStore[(State, List[State]), DummyContext] {
 
@@ -603,6 +612,9 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
     def when(transition: Transition): (State, List[State]) =
       await(super.apply(transition))
+
+    def when(merger: Merger[S], state: State): (State, List[State]) =
+      await(super.modify { s: S => merger.apply((s, state)) })
   }
 }
 

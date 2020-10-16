@@ -82,7 +82,11 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/declaration-details
   val showEnterDeclarationDetails: Action[AnyContent] =
-    actions.whenAuthorised(AsUser).showOrApply[State.EnterDeclarationDetails](Transitions.enterDeclarationDetails)
+    actions
+      .whenAuthorised(AsUser)
+      .show[State.EnterDeclarationDetails]
+      .using(Mergers.copyDeclarationDetails)
+      .orApply(Transitions.enterDeclarationDetails)
 
   // POST /pre-clearance/declaration-details
   val submitDeclarationDetails: Action[AnyContent] =
@@ -346,7 +350,7 @@ class TraderServicesFrontendController @Inject() (
                 .getOrElse(DeclarationDetailsForm)
             ),
             routes.TraderServicesFrontendController.submitDeclarationDetails(),
-            routes.TraderServicesFrontendController.showStart()
+            backLinkFor(breadcrumbs)
           )
         )
 
