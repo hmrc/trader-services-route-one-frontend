@@ -340,7 +340,7 @@ error.importPriorityGoods.required=Select the type of priority goods
 error.importFreightType.required=Select the type of transport you''re using
 error.transportationType.required=Tell us what type of freight transportation is being used
 error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
-error.contactNumber=Enter a phone number
+error.contactNumber=Enter a valid phone number
 error.contactEmail=Enter an email address in the correct format, like name@example.com
 
 # Common form messages

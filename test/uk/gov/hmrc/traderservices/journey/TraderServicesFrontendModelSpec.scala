@@ -587,6 +587,28 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state AnswerImportQuestionsContactInfo" should {
+      "go to WorkInProgress when submittedImportQuestionsContactInfo with some contact details" in {
+        given(
+          AnswerImportQuestionsContactInfo(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails =
+                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            )
+          )
+        ) when submittedImportQuestionsContactInfo(eoriNumber)(
+          ImportContactInfo(contactEmail = Some("name@somewhere.com"))
+        ) should thenGo(
+          WorkInProgressDeadEnd
+        )
+      }
+    }
   }
 
   case class given(initialState: State)
