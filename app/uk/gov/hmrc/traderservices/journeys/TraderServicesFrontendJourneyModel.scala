@@ -321,6 +321,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             )
           )
       }
+
+    def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
+      Transition {
+        case _ =>
+          goto(
+            WorkInProgressDeadEnd
+          )
+      }
   }
 
 }

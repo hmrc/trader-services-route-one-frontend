@@ -18,16 +18,11 @@ package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
 
-case class ImportQuestions(
-  requestType: Option[ImportRequestType] = None,
-  routeType: Option[ImportRouteType] = None,
-  priorityGoods: Option[ImportPriorityGoods] = None,
-  hasALVS: Option[Boolean] = None,
-  freightType: Option[ImportFreightType] = None,
-  vesselDetails: Option[VesselDetails] = None,
-  contactInfo: Option[ImportContactInfo] = None
+case class ImportContactInfo(
+  contactEmail: Option[String] = None,
+  contactNumber: Option[String] = None
 )
 
-object ImportQuestions {
-  implicit val formats: Format[ImportQuestions] = Json.format[ImportQuestions]
+object ImportContactInfo {
+  implicit val formats: Format[ImportContactInfo] = Json.format[ImportContactInfo]
 }

@@ -36,5 +36,6 @@ class Views @Inject() (
   val importQuestionsWhichPriorityGoodsView: ImportQuestionsWhichPriorityGoodsView,
   val importQuestionsALVSView: ImportQuestionsALVSView,
   val importQuestionsFreightTypeView: ImportQuestionsFreightTypeView,
-  val importQuestionsOptionalVesselDetailsView: ImportQuestionsOptionalVesselDetailsView
+  val importQuestionsOptionalVesselDetailsView: ImportQuestionsOptionalVesselDetailsView,
+  val importQuestionsContactInfoView: ImportQuestionsContactInfoView
 )
