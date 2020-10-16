@@ -30,7 +30,10 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     case object Start extends State
 
-    case class EnterDeclarationDetails(declarationDetailsOpt: Option[DeclarationDetails]) extends State
+    case class EnterDeclarationDetails(
+      declarationDetailsOpt: Option[DeclarationDetails] = None,
+      exportQuestionsAnswersOpt: Option[ExportQuestions] = None
+    ) extends State
 
     trait HasDeclarationDetails {
       def declarationDetails: DeclarationDetails
@@ -40,45 +43,51 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     // EXPORT QUESTIONS
 
+    trait HasExportQuestions {
+      val exportQuestionsAnswers: ExportQuestions
+    }
+
+    sealed trait ExportQuestionsState extends State with HasDeclarationDetails with HasExportQuestions
+
     case class AnswerExportQuestionsRequestType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsRouteType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsHasPriorityGoods(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsWhichPriorityGoods(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsFreightType(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsMandatoryVesselInfo(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsOptionalVesselInfo(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     case class AnswerExportQuestionsContactInfo(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends State with HasDeclarationDetails
+    ) extends ExportQuestionsState
 
     // IMPORT QUESTIONS
 
@@ -127,9 +136,23 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
   object Mergers {
 
     val copyDeclarationDetails = Merger[State.EnterDeclarationDetails] {
+      case (s, d: State with State.HasDeclarationDetails with State.HasExportQuestions) =>
+        s.copy(
+          declarationDetailsOpt = Some(d.declarationDetails),
+          exportQuestionsAnswersOpt = Some(d.exportQuestionsAnswers)
+        )
+
       case (s, d: State with State.HasDeclarationDetails) =>
-        s.copy(declarationDetailsOpt = Some(d.declarationDetails))
+        s.copy(
+          declarationDetailsOpt = Some(d.declarationDetails)
+        )
     }
+
+    def copyExportQuestions[S <: State: Setters.SetExportQuestions] =
+      Merger[S] {
+        case (s, d: State with State.HasExportQuestions) =>
+          implicitly[Setters.SetExportQuestions[S]].set(s, d.exportQuestionsAnswers)
+      }
   }
 
   object Transitions {
@@ -152,9 +175,9 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
       Transition {
-        case EnterDeclarationDetails(_) =>
+        case EnterDeclarationDetails(_, exportQuestionsOpt) =>
           if (declarationDetails.isExportDeclaration)
-            goto(AnswerExportQuestionsRequestType(declarationDetails, ExportQuestions()))
+            goto(AnswerExportQuestionsRequestType(declarationDetails, exportQuestionsOpt.getOrElse(ExportQuestions())))
           else goto(AnswerImportQuestionsRequestType(declarationDetails, ImportQuestions()))
       }
 
@@ -192,9 +215,19 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsHasPriorityGoods(declarationDetails, exportQuestions) =>
           if (exportHasPriorityGoods)
-            goto(AnswerExportQuestionsWhichPriorityGoods(declarationDetails, exportQuestions))
+            goto(
+              AnswerExportQuestionsWhichPriorityGoods(
+                declarationDetails,
+                exportQuestions.copy(hasPriorityGoods = Some(exportHasPriorityGoods))
+              )
+            )
           else
-            goto(AnswerExportQuestionsFreightType(declarationDetails, exportQuestions))
+            goto(
+              AnswerExportQuestionsFreightType(
+                declarationDetails,
+                exportQuestions.copy(hasPriorityGoods = Some(exportHasPriorityGoods))
+              )
+            )
       }
 
     def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
@@ -331,4 +364,27 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       }
   }
 
+  object Setters {
+    import State._
+
+    /** Typeclass of exportQuestions setters */
+    trait SetExportQuestions[S <: State] {
+      def set(state: S, exportQuestions: ExportQuestions): S
+    }
+
+    object SetExportQuestions {
+      private def of[S <: State](fx: (S, ExportQuestions) => S): SetExportQuestions[S] =
+        new SetExportQuestions[S] {
+          override def set(state: S, exportQuestions: ExportQuestions): S = fx(state, exportQuestions)
+        }
+
+      implicit val s1 = of[AnswerExportQuestionsRequestType]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s2 = of[AnswerExportQuestionsRouteType]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s3 = of[AnswerExportQuestionsHasPriorityGoods]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s4 = of[AnswerExportQuestionsWhichPriorityGoods]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s5 = of[AnswerExportQuestionsFreightType]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s6 = of[AnswerExportQuestionsMandatoryVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s7 = of[AnswerExportQuestionsOptionalVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
+    }
+  }
 }

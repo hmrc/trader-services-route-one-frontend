@@ -13,7 +13,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
 import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportQuestions, ImportQuestions, VesselDetails}
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,8 +30,7 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 
-class TraderServicesFrontendISpec
-    extends TraderServicesFrontendISpecSetup with TraderServicesStubs with JourneyTestData {
+class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with TraderServicesStubs {
 
   import journey.model.State._
 
@@ -302,7 +301,11 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
           DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route2),
+            hasPriorityGoods = Some(true)
+          )
         )
       }
 
@@ -311,7 +314,10 @@ class TraderServicesFrontendISpec
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route2)
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -325,7 +331,11 @@ class TraderServicesFrontendISpec
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route2),
+            hasPriorityGoods = Some(false)
+          )
         )
       }
     }

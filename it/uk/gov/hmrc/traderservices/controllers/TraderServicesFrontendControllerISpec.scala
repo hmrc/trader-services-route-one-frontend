@@ -9,7 +9,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
-import uk.gov.hmrc.traderservices.stubs.{JourneyTestData, TraderServicesStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs}
 import uk.gov.hmrc.traderservices.support.{AppISpec, InMemoryJourneyService, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -96,7 +96,7 @@ class TraderServicesFrontendControllerISpec
 
 }
 
-trait JourneyStateHelpers extends JourneyTestData {
+trait JourneyStateHelpers {
 
   def journey: TestInMemoryTraderServicesFrontendJourneyService
 

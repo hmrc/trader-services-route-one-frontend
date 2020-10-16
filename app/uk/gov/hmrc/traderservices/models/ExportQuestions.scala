@@ -21,6 +21,7 @@ import play.api.libs.json.{Format, Json}
 case class ExportQuestions(
   requestType: Option[ExportRequestType] = None,
   routeType: Option[ExportRouteType] = None,
+  hasPriorityGoods: Option[Boolean] = None,
   priorityGoods: Option[ExportPriorityGoods] = None,
   freightType: Option[ExportFreightType] = None,
   vesselDetails: Option[VesselDetails] = None
