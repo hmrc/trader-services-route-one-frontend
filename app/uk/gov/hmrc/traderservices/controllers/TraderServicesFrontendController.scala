@@ -27,12 +27,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.traderservices.models.VesselDetails
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
