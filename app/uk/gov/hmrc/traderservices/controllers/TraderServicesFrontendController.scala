@@ -257,7 +257,11 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportContactForm)(
+        Transitions.submittedImportQuestionsContactInfo
+      )
+    }
 
   /**
     * Function from the `State` to the `Call` (route),

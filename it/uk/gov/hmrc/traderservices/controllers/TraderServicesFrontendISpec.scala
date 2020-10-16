@@ -1179,7 +1179,7 @@ class TraderServicesFrontendISpec
         )
         val result = await(request("/pre-clearance/import-questions/contact-info").post(payload))
 
-        result.status shouldBe 501
+        result.status shouldBe 404
       }
     }
   }
