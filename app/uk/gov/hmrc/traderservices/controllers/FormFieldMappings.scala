@@ -16,17 +16,15 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalTime}
 
 import play.api.data.Forms.{of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, EnumerationFormats, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models._
 
 import scala.util.Try
-import java.time.LocalTime
-import uk.gov.hmrc.traderservices.models.VesselDetails
 
 object FormFieldMappings {
 
@@ -210,4 +208,11 @@ object FormFieldMappings {
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
+  val importContactEmailMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))
+  )
+
+  val importContactNumberMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(ContactFieldHelper.contactNumber())
+  )
 }

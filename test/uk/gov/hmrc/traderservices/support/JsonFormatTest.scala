@@ -30,7 +30,7 @@ abstract class JsonFormatTest[A: Format](info: Informer) {
     info(nameOf(entity))
     val json = s"""{"entity":${if (value.startsWith("{")) value else s""""$value""""}}"""
     Json.parse(json).as[TestEntity].entity shouldBe entity
-    Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json
+    Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json.filter(_ >= ' ')
   }
 
   val localPackagePrefix = "class uk.gov.hmrc.traderservices."

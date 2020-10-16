@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -254,11 +254,17 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/contact-info
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerImportQuestionsContactInfo =>
+    }
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ImportContactForm)(
+        Transitions.submittedImportQuestionsContactInfo
+      )
+    }
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -534,6 +540,19 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerImportQuestionsContactInfo(_, importQuestions) =>
+        Ok(
+          views.importQuestionsContactInfoView(
+            formWithErrors.or(
+              importQuestions.contactInfo
+                .map(query => ImportContactForm.fill(query))
+                .getOrElse(ImportContactForm)
+            ),
+            routes.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case _ => NotImplemented
 
     }
@@ -599,6 +618,13 @@ object TraderServicesFrontendController {
 
   val ImportHasALVSForm = Form[Boolean](
     mapping("hasALVS" -> importHasALVSMapping)(identity)(Option.apply)
+  )
+
+  val ImportContactForm = Form[ImportContactInfo](
+    mapping(
+      "contactEmail"  -> importContactEmailMapping,
+      "contactNumber" -> importContactNumberMapping
+    )(ImportContactInfo.apply)(ImportContactInfo.unapply)
   )
 
   val MandatoryVesselDetailsForm = Form[VesselDetails](
