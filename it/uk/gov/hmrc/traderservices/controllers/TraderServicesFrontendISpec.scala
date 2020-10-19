@@ -509,7 +509,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
 
-        result.status shouldBe 501
+        result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -584,7 +584,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
 
-        result.status shouldBe 501
+        result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -623,7 +623,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
 
-        result.status shouldBe 501
+        result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -635,6 +635,54 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             vesselDetails = None
           )
         )
+      }
+    }
+
+    "GET /pre-clearance/export-questions/contact-info" should {
+      "show the export contact information question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsContactInfo(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/contact-info").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        journey.getState shouldBe AnswerExportQuestionsContactInfo(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions()
+        )
+      }
+    }
+
+    "POST /pre-clearance/export-questions/contact-info" should {
+      "ask for the next page when only email submitted" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerExportQuestionsContactInfo(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "contactEmail" -> "someone@email.com"
+        )
+        val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
+
+        result.status shouldBe 404
       }
     }
 

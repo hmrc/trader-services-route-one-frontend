@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -178,11 +178,17 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/export-questions/contact-info
   val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
-    actionNotYetImplemented
+    actionShowStateWhenAuthorised(AsUser) {
+      case _: AnswerExportQuestionsContactInfo =>
+    }
 
   // POST /pre-clearance/export-questions/contact-info
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
-    actionNotYetImplemented
+    action { implicit request =>
+      whenAuthorisedWithForm(AsUser)(ExportContactForm)(
+        Transitions.submittedExportQuestionsContactInfo
+      )
+    }
 
   // GET /pre-clearance/export-questions/summary
   val showExportQuestionsSummary: Action[AnyContent] =
@@ -457,6 +463,15 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case AnswerExportQuestionsContactInfo(_, importQuestions) =>
+        Ok(
+          views.exportQuestionsContactInfoView(
+            formWithErrors.or(ExportContactForm, importQuestions.contactInfo),
+            routes.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case AnswerImportQuestionsRequestType(_, importQuestions) =>
         Ok(
           views.importQuestionsRequestTypeView(
@@ -580,6 +595,13 @@ object TraderServicesFrontendController {
 
   val ExportFreightTypeForm = Form[ExportFreightType](
     mapping("freightType" -> exportFreightTypeMapping)(identity)(Option.apply)
+  )
+
+  val ExportContactForm = Form[ExportContactInfo](
+    mapping(
+      "contactEmail"  -> exportContactEmailMapping,
+      "contactNumber" -> exportContactNumberMapping
+    )(ExportContactInfo.apply)(ExportContactInfo.unapply)
   )
 
   val ImportRequestTypeForm = Form[ImportRequestType](

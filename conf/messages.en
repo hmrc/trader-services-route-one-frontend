@@ -286,6 +286,8 @@ form.export-questions.vessel-details.timeOfArrival=Time of arrival
 form.export-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
+form.export-questions.contactEmail=Email address
+form.export-questions.contactNumber=Phone number
 form.export-questions.continue=Continue
 
 error.exportRequestType.required=Select the type of export request

@@ -313,6 +313,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           )
       }
 
+    def submittedExportQuestionsContactInfo(user: String)(contactInfo: ExportContactInfo) =
+      Transition {
+        case _ =>
+          goto(
+            WorkInProgressDeadEnd
+          )
+      }
+
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
         case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>

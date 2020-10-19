@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 import play.api.data.Form
 
@@ -90,5 +90,21 @@ class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(form, "freightType", Map("freightType" -> "Foo"), Seq("error.importFreightType.invalid-option"))
     }
 
+    "bind some contactInfo and return ImportContactInfo and fill it back" in {
+      val form = TraderServicesFrontendController.ImportContactForm
+      validate(
+        form,
+        Map("contactEmail" -> "name@example.com"),
+        ImportContactInfo(contactEmail = Some("name@example.com"))
+      )
+
+      validate(form, Map("contactNumber" -> "01234567891"), ImportContactInfo(contactNumber = Some("01234567891")))
+
+      validate(
+        form,
+        Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
+        ImportContactInfo(contactEmail = Some("name@example.com"), contactNumber = Some("01234567891"))
+      )
+    }
   }
 }
