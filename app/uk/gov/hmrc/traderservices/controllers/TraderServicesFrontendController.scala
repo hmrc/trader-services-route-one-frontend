@@ -360,11 +360,7 @@ class TraderServicesFrontendController @Inject() (
       case EnterDeclarationDetails(declarationDetailsOpt, _, _) =>
         Ok(
           views.declarationDetailsEntryView(
-            formWithErrors.or(
-              declarationDetailsOpt
-                .map(query => DeclarationDetailsForm.fill(query))
-                .getOrElse(DeclarationDetailsForm)
-            ),
+            formWithErrors.or(DeclarationDetailsForm, declarationDetailsOpt),
             routes.TraderServicesFrontendController.submitDeclarationDetails(),
             backLinkFor(breadcrumbs)
           )
@@ -373,11 +369,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsRequestType(_, exportQuestions) =>
         Ok(
           views.exportQuestionsRequestTypeView(
-            formWithErrors.or(
-              exportQuestions.requestType
-                .map(query => ExportRequestTypeForm.fill(query))
-                .getOrElse(ExportRequestTypeForm)
-            ),
+            formWithErrors.or(ExportRequestTypeForm, exportQuestions.requestType),
             routes.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -386,11 +378,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsRouteType(_, exportQuestions) =>
         Ok(
           views.exportQuestionsRouteTypeView(
-            formWithErrors.or(
-              exportQuestions.routeType
-                .map(query => ExportRouteTypeForm.fill(query))
-                .getOrElse(ExportRouteTypeForm)
-            ),
+            formWithErrors.or(ExportRouteTypeForm, exportQuestions.routeType),
             routes.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -399,11 +387,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsHasPriorityGoods(_, exportQuestions) =>
         Ok(
           views.exportQuestionsHasPriorityGoodsView(
-            formWithErrors.or(
-              exportQuestions.hasPriorityGoods
-                .map(flag => ExportHasPriorityGoodsForm.fill(flag))
-                .getOrElse(ExportHasPriorityGoodsForm)
-            ),
+            formWithErrors.or(ExportHasPriorityGoodsForm, exportQuestions.hasPriorityGoods),
             routes.TraderServicesFrontendController.submitExportQuestionsHasPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -412,11 +396,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsWhichPriorityGoods(_, exportQuestions) =>
         Ok(
           views.exportQuestionsWhichPriorityGoodsView(
-            formWithErrors.or(
-              exportQuestions.priorityGoods
-                .map(query => ExportPriorityGoodsForm.fill(query))
-                .getOrElse(ExportPriorityGoodsForm)
-            ),
+            formWithErrors.or(ExportPriorityGoodsForm, exportQuestions.priorityGoods),
             routes.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -425,11 +405,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsFreightType(_, exportQuestions) =>
         Ok(
           views.exportQuestionsFreightTypeView(
-            formWithErrors.or(
-              exportQuestions.freightType
-                .map(query => ExportFreightTypeForm.fill(query))
-                .getOrElse(ExportFreightTypeForm)
-            ),
+            formWithErrors.or(ExportFreightTypeForm, exportQuestions.freightType),
             routes.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -438,11 +414,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsMandatoryVesselInfo(_, exportQuestions) =>
         Ok(
           views.exportQuestionsMandatoryVesselDetailsView(
-            formWithErrors.or(
-              exportQuestions.vesselDetails
-                .map(query => MandatoryVesselDetailsForm.fill(query))
-                .getOrElse(MandatoryVesselDetailsForm)
-            ),
+            formWithErrors.or(MandatoryVesselDetailsForm, exportQuestions.vesselDetails),
             routes.TraderServicesFrontendController.submitExportQuestionsMandatoryVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -451,11 +423,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerExportQuestionsOptionalVesselInfo(_, exportQuestions) =>
         Ok(
           views.exportQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(
-              exportQuestions.vesselDetails
-                .map(query => OptionalVesselDetailsForm.fill(query))
-                .getOrElse(OptionalVesselDetailsForm)
-            ),
+            formWithErrors.or(OptionalVesselDetailsForm, exportQuestions.vesselDetails),
             routes.TraderServicesFrontendController.submitExportQuestionsOptionalVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -464,11 +432,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsRequestType(_, importQuestions) =>
         Ok(
           views.importQuestionsRequestTypeView(
-            formWithErrors.or(
-              importQuestions.requestType
-                .map(query => ImportRequestTypeForm.fill(query))
-                .getOrElse(ImportRequestTypeForm)
-            ),
+            formWithErrors.or(ImportRequestTypeForm, importQuestions.requestType),
             routes.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -477,11 +441,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsRouteType(_, importQuestions) =>
         Ok(
           views.importQuestionsRouteTypeView(
-            formWithErrors.or(
-              importQuestions.routeType
-                .map(query => ImportRouteTypeForm.fill(query))
-                .getOrElse(ImportRouteTypeForm)
-            ),
+            formWithErrors.or(ImportRouteTypeForm, importQuestions.routeType),
             routes.TraderServicesFrontendController.submitImportQuestionsRouteTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -490,11 +450,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsHasPriorityGoods(_, importQuestions) =>
         Ok(
           views.importQuestionsHasPriorityGoodsView(
-            formWithErrors.or(
-              importQuestions.hasPriorityGoods
-                .map(flag => ImportHasPriorityGoodsForm.fill(flag))
-                .getOrElse(ImportHasPriorityGoodsForm)
-            ),
+            formWithErrors.or(ImportHasPriorityGoodsForm, importQuestions.hasPriorityGoods),
             routes.TraderServicesFrontendController.submitImportQuestionsHasPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -503,11 +459,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsWhichPriorityGoods(_, importQuestions) =>
         Ok(
           views.importQuestionsWhichPriorityGoodsView(
-            formWithErrors.or(
-              importQuestions.priorityGoods
-                .map(query => ImportPriorityGoodsForm.fill(query))
-                .getOrElse(ImportPriorityGoodsForm)
-            ),
+            formWithErrors.or(ImportPriorityGoodsForm, importQuestions.priorityGoods),
             routes.TraderServicesFrontendController.submitImportQuestionsWhichPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -516,11 +468,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsALVS(_, importQuestions) =>
         Ok(
           views.importQuestionsALVSView(
-            formWithErrors.or(
-              importQuestions.hasALVS
-                .map(query => ImportHasALVSForm.fill(true))
-                .getOrElse(ImportHasALVSForm)
-            ),
+            formWithErrors.or(ImportHasALVSForm, importQuestions.hasALVS),
             routes.TraderServicesFrontendController.submitImportQuestionsALVSAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -529,11 +477,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsFreightType(_, importQuestions) =>
         Ok(
           views.importQuestionsFreightTypeView(
-            formWithErrors.or(
-              importQuestions.freightType
-                .map(query => ImportFreightTypeForm.fill(query))
-                .getOrElse(ImportFreightTypeForm)
-            ),
+            formWithErrors.or(ImportFreightTypeForm, importQuestions.freightType),
             routes.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -542,11 +486,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsOptionalVesselInfo(_, importQuestions) =>
         Ok(
           views.importQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(
-              importQuestions.vesselDetails
-                .map(query => OptionalVesselDetailsForm.fill(query))
-                .getOrElse(OptionalVesselDetailsForm)
-            ),
+            formWithErrors.or(OptionalVesselDetailsForm, importQuestions.vesselDetails),
             routes.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
@@ -555,11 +495,7 @@ class TraderServicesFrontendController @Inject() (
       case AnswerImportQuestionsContactInfo(_, importQuestions) =>
         Ok(
           views.importQuestionsContactInfoView(
-            formWithErrors.or(
-              importQuestions.contactInfo
-                .map(query => ImportContactForm.fill(query))
-                .getOrElse(ImportContactForm)
-            ),
+            formWithErrors.or(ImportContactForm, importQuestions.contactInfo),
             routes.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
