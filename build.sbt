@@ -16,17 +16,17 @@ lazy val scoverageSettings = {
 
 lazy val compileDeps = Seq(
   ws,
-  "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "2.25.0",
-  "uk.gov.hmrc" %% "auth-client"                % "3.1.0-play-26",
-  "uk.gov.hmrc" %% "play-partials"              % "6.11.0-play-26",
-  "uk.gov.hmrc" %% "agent-kenshoo-monitoring"   % "4.4.0",
-  "uk.gov.hmrc" %% "play-fsm"                   % "0.54.0-play-26",
-  "uk.gov.hmrc" %% "domain"                     % "5.10.0-play-26",
-  "uk.gov.hmrc" %% "mongo-caching"              % "6.15.0-play-26",
-  "uk.gov.hmrc" %% "json-encryption"            % "4.8.0-play-26",
-  "uk.gov.hmrc" %% "play-frontend-govuk"        % "0.51.0-play-26",
-  "uk.gov.hmrc" %% "play-frontend-hmrc"         % "0.20.0-play-26",
-  "com.googlecode.libphonenumber" % "libphonenumber" % "8.12.11"
+  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-26" % "2.25.0",
+  "uk.gov.hmrc"                  %% "auth-client"                % "3.1.0-play-26",
+  "uk.gov.hmrc"                  %% "play-partials"              % "6.11.0-play-26",
+  "uk.gov.hmrc"                  %% "agent-kenshoo-monitoring"   % "4.4.0",
+  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.56.0-play-26",
+  "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-26",
+  "uk.gov.hmrc"                  %% "mongo-caching"              % "6.15.0-play-26",
+  "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
+  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.51.0-play-26",
+  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.20.0-play-26",
+  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.11"
 )
 
 def testDeps(scope: String) =
