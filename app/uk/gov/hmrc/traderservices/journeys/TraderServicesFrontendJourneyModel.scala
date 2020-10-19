@@ -90,6 +90,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       exportQuestionsAnswers: ExportQuestions
     ) extends ExportQuestionsState
 
+    case class ExportQuestionsSummary(
+      declarationDetails: DeclarationDetails,
+      exportQuestionsAnswers: ExportQuestions
+    ) extends ExportQuestionsState
+
     // IMPORT QUESTIONS
 
     trait HasImportQuestions {
@@ -134,6 +139,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsContactInfo(
+      declarationDetails: DeclarationDetails,
+      importQuestionsAnswers: ImportQuestions
+    ) extends ImportQuestionsState
+
+    case class ImportQuestionsSummary(
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
     ) extends ImportQuestionsState
@@ -395,9 +405,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
       Transition {
-        case _ =>
+        case AnswerImportQuestionsContactInfo(declarationDetails, importQuestions) =>
           goto(
-            WorkInProgressDeadEnd
+            ImportQuestionsSummary(
+              declarationDetails,
+              importQuestions.copy(contactInfo = Some(contactInfo))
+            )
           )
       }
   }

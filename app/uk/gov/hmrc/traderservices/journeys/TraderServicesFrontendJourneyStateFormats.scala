@@ -32,6 +32,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerExportQuestionsMandatoryVesselInfoFormat = Json.format[AnswerExportQuestionsMandatoryVesselInfo]
   val answerExportQuestionsOptionalVesselInfoFormat = Json.format[AnswerExportQuestionsOptionalVesselInfo]
   val answerExportQuestionsContactInfoFormat = Json.format[AnswerExportQuestionsContactInfo]
+  val exportQuestionsSummaryFormat = Json.format[ExportQuestionsSummary]
   val answerImportQuestionsRequestTypeFormat = Json.format[AnswerImportQuestionsRequestType]
   val answerImportQuestionsRouteTypeFormat = Json.format[AnswerImportQuestionsRouteType]
   val answerImportQuestionsHasPriorityGoodsFormat = Json.format[AnswerImportQuestionsHasPriorityGoods]
@@ -40,6 +41,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerImportQuestionsFreightTypeFormat = Json.format[AnswerImportQuestionsFreightType]
   val answerImportQuestionsOptionalVesselInfoFormat = Json.format[AnswerImportQuestionsOptionalVesselInfo]
   val answerImportQuestionsContactInfoFormat = Json.format[AnswerImportQuestionsContactInfo]
+  val importQuestionsSummaryFormat = Json.format[ImportQuestionsSummary]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterDeclarationDetails                  => enterDeclarationDetailsFormat.writes(s)
@@ -51,6 +53,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: AnswerExportQuestionsMandatoryVesselInfo => answerExportQuestionsMandatoryVesselInfoFormat.writes(s)
     case s: AnswerExportQuestionsOptionalVesselInfo  => answerExportQuestionsOptionalVesselInfoFormat.writes(s)
     case s: AnswerExportQuestionsContactInfo         => answerExportQuestionsContactInfoFormat.writes(s)
+    case s: ExportQuestionsSummary                   => exportQuestionsSummaryFormat.writes(s)
     case s: AnswerImportQuestionsRequestType         => answerImportQuestionsRequestTypeFormat.writes(s)
     case s: AnswerImportQuestionsRouteType           => answerImportQuestionsRouteTypeFormat.writes(s)
     case s: AnswerImportQuestionsHasPriorityGoods    => answerImportQuestionsHasPriorityGoodsFormat.writes(s)
@@ -59,6 +62,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: AnswerImportQuestionsFreightType         => answerImportQuestionsFreightTypeFormat.writes(s)
     case s: AnswerImportQuestionsOptionalVesselInfo  => answerImportQuestionsOptionalVesselInfoFormat.writes(s)
     case s: AnswerImportQuestionsContactInfo         => answerImportQuestionsContactInfoFormat.writes(s)
+    case s: ImportQuestionsSummary                   => importQuestionsSummaryFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
@@ -74,6 +78,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
         answerExportQuestionsMandatoryVesselInfoFormat.reads(properties)
       case "AnswerExportQuestionsOptionalVesselInfo" => answerExportQuestionsOptionalVesselInfoFormat.reads(properties)
       case "AnswerExportQuestionsContactInfo"        => answerExportQuestionsContactInfoFormat.reads(properties)
+      case "ExportQuestionsSummary"                  => exportQuestionsSummaryFormat.reads(properties)
       case "AnswerImportQuestionsRequestType"        => answerImportQuestionsRequestTypeFormat.reads(properties)
       case "AnswerImportQuestionsRouteType"          => answerImportQuestionsRouteTypeFormat.reads(properties)
       case "AnswerImportQuestionsHasPriorityGoods"   => answerImportQuestionsHasPriorityGoodsFormat.reads(properties)
@@ -82,6 +87,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "AnswerImportQuestionsFreightType"        => answerImportQuestionsFreightTypeFormat.reads(properties)
       case "AnswerImportQuestionsOptionalVesselInfo" => answerImportQuestionsOptionalVesselInfoFormat.reads(properties)
       case "AnswerImportQuestionsContactInfo"        => answerImportQuestionsContactInfoFormat.reads(properties)
+      case "ImportQuestionsSummary"                  => importQuestionsSummaryFormat.reads(properties)
       case "WorkInProgressDeadEnd"                   => JsSuccess(WorkInProgressDeadEnd)
       case _                                         => JsError(s"Unknown state name $stateName")
     }

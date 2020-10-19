@@ -207,6 +207,23 @@ view.export-questions.freightType.title=Which type of transport are you using?
 view.export-questions.freightType.heading=Which type of transport are you using?
 view.export-questions.vessel-details.title=Tell us about your vessel
 view.export-questions.vessel-details.heading=Tell us about your vessel
+view.export-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
+view.export-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
+view.export-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
+view.export-questions.hasPriorityGoods.list.HighValueArt=high value art
+view.export-questions.hasPriorityGoods.list.HumanRemains=human remains
+view.export-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
+view.import-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
+view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
+view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
+view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
+view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.contactInfo.title=What are your contact details?
+view.import-questions.contactInfo.heading=What are your contact details?
+view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
+view.export-questions.summary.title=Review your pre-clearance case details
+view.export-questions.heading.title=Review your pre-clearance case details
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -225,6 +242,8 @@ view.import-questions.freightType.title=Which type of transport are you using?
 view.import-questions.freightType.heading=Which type of transport are you using?
 view.import-questions.vessel-details.title=Tell us about your vessel
 view.import-questions.vessel-details.heading=Tell us about your vessel
+view.import-questions.summary.title=Review your pre-clearance case details
+view.import-questions.heading.title=Review your pre-clearance case details
 
 # Export Questions Form
 # ----------------------------------------------------------
@@ -243,12 +262,6 @@ form.export-questions.routeType.Route6=Route 6
 form.export-questions.routeType.Hold=Hold
 form.export-questions.hasPriorityGoods.yes=Yes
 form.export-questions.hasPriorityGoods.no=No
-view.export-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
-view.export-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
-view.export-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
-view.export-questions.hasPriorityGoods.list.HighValueArt=high value art
-view.export-questions.hasPriorityGoods.list.HumanRemains=human remains
-view.export-questions.hasPriorityGoods.list.LiveAnimals=live animals
 form.export-questions.priorityGoods.ClassADrugs=Class A drugs
 form.export-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
 form.export-questions.priorityGoods.HighValueArt=High value art
@@ -264,6 +277,7 @@ form.export-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
 form.export-questions.continue=Continue
+
 error.exportRequestType.required=Select the type of export request
 error.exportRouteType.required=Select the route
 error.exportHasPriorityGoods.required=Select yes if you''re moving priority goods
@@ -308,15 +322,6 @@ form.import-questions.routeType.Route6=Route 6
 form.import-questions.routeType.Hold=Hold
 form.import-questions.hasPriorityGoods.yes=Yes
 form.import-questions.hasPriorityGoods.no=No
-view.import-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
-view.import-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
-view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
-view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
-view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
-view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
-view.import-questions.contactInfo.title=What are your contact details?
-view.import-questions.contactInfo.heading=What are your contact details?
-view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
 form.import-questions.priorityGoods.ClassADrugs=Class A drugs
 form.import-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
 form.import-questions.priorityGoods.HighValueArt=High value art
@@ -333,6 +338,7 @@ form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (opti
 form.import-questions.contactEmail=Email address
 form.import-questions.contactNumber=Phone number
 form.import-questions.continue=Continue
+
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route
 error.importHasPriorityGoods.required=Select yes if you''re moving priority goods

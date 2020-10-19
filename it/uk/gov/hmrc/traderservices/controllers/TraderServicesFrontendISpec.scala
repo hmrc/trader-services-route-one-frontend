@@ -1192,12 +1192,22 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map(
-          "contactEmail" -> "someone@email.com"
-        )
+        val payload = Map("contactEmail" -> "someone@email.com")
+
         val result = await(request("/pre-clearance/import-questions/contact-info").post(payload))
 
-        result.status shouldBe 404
+        result.status shouldBe 200
+
+        journey.getState shouldBe ImportQuestionsSummary(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air),
+            contactInfo = Some(ImportContactInfo(contactEmail = Some("someone@email.com")))
+          )
+        )
       }
     }
   }

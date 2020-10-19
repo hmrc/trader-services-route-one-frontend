@@ -24,6 +24,7 @@ import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFor
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
+import java.time.LocalTime
 
 class TraderServicesFrontendFormatSpec extends UnitSpec {
 
@@ -84,6 +85,29 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           ExportQuestions(
             requestType = Some(ExportRequestType.Hold),
             priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"ExportQuestionsSummary","properties":{
+          |"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
+          |"exportQuestionsAnswers":{"requestType":"Hold","routeType":"Route2","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"}}}}""".stripMargin,
+        State.ExportQuestionsSummary(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.Hold),
+            routeType = Some(ExportRouteType.Route2),
+            hasPriorityGoods = Some(true),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                timeOfArrival = Some(LocalTime.parse("00:00"))
+              )
+            )
           )
         )
       )
@@ -181,6 +205,36 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
             hasALVS = Some(true),
             freightType = Some(ImportFreightType.RORO),
+            contactInfo = Some(
+              ImportContactInfo(
+                contactEmail = Some("name@somewhere.com"),
+                contactNumber = Some("012345678910")
+              )
+            )
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"ImportQuestionsSummary","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"importQuestionsAnswers":{"requestType":"Hold","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
+        State.ImportQuestionsSummary(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            routeType = Some(ImportRouteType.Route3),
+            hasPriorityGoods = Some(true),
+            priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+            hasALVS = Some(true),
+            freightType = Some(ImportFreightType.RORO),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                timeOfArrival = Some(LocalTime.parse("00:00"))
+              )
+            ),
             contactInfo = Some(
               ImportContactInfo(
                 contactEmail = Some("name@somewhere.com"),
