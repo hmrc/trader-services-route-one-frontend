@@ -8,7 +8,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.support.WireMockSupport
 
-trait TraderServicesStubs extends JourneyTestData {
+trait TraderServicesStubs {
   me: WireMockSupport =>
 
   val queryMonths: Int = 6
@@ -36,7 +36,7 @@ trait TraderServicesStubs extends JourneyTestData {
 
   val someApiValidResponseBody: String =
     s"""{
-       |  "correlationId": "$correlationId",
+       |  "correlationId": "",
        |  "result": "Dummy"
        |}""".stripMargin
 
@@ -47,7 +47,7 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
+         |  "correlationId": "",
          |  "error": {
          |    "errCode": "ERR_REQUEST_INVALID"
          |  }
@@ -60,7 +60,7 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
+         |  "correlationId": "",
          |  "error": {
          |    "errCode": "ERR_NOT_FOUND"
          |  }
@@ -73,7 +73,7 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
+         |  "correlationId": "",
          |  "error": {
          |    "errCode": "ERR_CONFLICT"
          |  }
@@ -89,7 +89,7 @@ trait TraderServicesStubs extends JourneyTestData {
 
     val errorResponseBody: String =
       s"""{
-         |  "correlationId": "$correlationId",
+         |  "correlationId": "",
          |  "error": {
          |    "errCode": "ERR_VALIDATION",
          |    "fields": [
