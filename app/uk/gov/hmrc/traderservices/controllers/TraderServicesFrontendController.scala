@@ -184,7 +184,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/request-type
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsRequestType]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsRequestType]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsRequestType])
 
   // POST /pre-clearance/import-questions/request-type
   val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
@@ -194,7 +196,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/route-type
   val showAnswerImportQuestionsRouteType: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsRouteType]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsRouteType]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsRouteType])
 
   // POST /pre-clearance/import-questions/route-type
   val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
@@ -204,7 +208,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/has-priority-goods
   val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsHasPriorityGoods]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsHasPriorityGoods]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsHasPriorityGoods])
 
   // POST /pre-clearance/import-questions/has-priority-goods
   val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
@@ -214,7 +220,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/which-priority-goods
   val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsWhichPriorityGoods]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsWhichPriorityGoods]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsWhichPriorityGoods])
 
   // POST /pre-clearance/import-questions/which-priority-goods
   val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
@@ -224,7 +232,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/automatic-licence-verification
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsALVS]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsALVS]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsALVS])
 
   // POST /pre-clearance/import-questions/automatic-licence-verification
   val submitImportQuestionsALVSAnswer: Action[AnyContent] =
@@ -234,7 +244,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/transport-type
   val showAnswerImportQuestionsFreightType: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsFreightType]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsFreightType]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsFreightType])
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -244,7 +256,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/vessel-info
   val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.AnswerImportQuestionsOptionalVesselInfo]
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsOptionalVesselInfo]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsOptionalVesselInfo])
 
   // POST /pre-clearance/import-questions/vessel-info
   val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -254,17 +268,15 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/contact-info
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerImportQuestionsContactInfo =>
-    }
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsContactInfo]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsContactInfo])
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ImportContactForm)(
-        Transitions.submittedImportQuestionsContactInfo
-      )
-    }
+    whenAuthorisedAsUser
+      .bindForm(ImportContactForm)
+      .apply(Transitions.submittedImportQuestionsContactInfo)
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -345,7 +357,7 @@ class TraderServicesFrontendController @Inject() (
       case Start =>
         Ok(views.startView(routes.TraderServicesFrontendController.showEnterDeclarationDetails()))
 
-      case EnterDeclarationDetails(declarationDetailsOpt, _) =>
+      case EnterDeclarationDetails(declarationDetailsOpt, _, _) =>
         Ok(
           views.declarationDetailsEntryView(
             formWithErrors.or(
@@ -479,8 +491,8 @@ class TraderServicesFrontendController @Inject() (
         Ok(
           views.importQuestionsHasPriorityGoodsView(
             formWithErrors.or(
-              importQuestions.priorityGoods
-                .map(_ => ImportHasPriorityGoodsForm.fill(true))
+              importQuestions.hasPriorityGoods
+                .map(flag => ImportHasPriorityGoodsForm.fill(flag))
                 .getOrElse(ImportHasPriorityGoodsForm)
             ),
             routes.TraderServicesFrontendController.submitImportQuestionsHasPriorityGoodsAnswer(),

@@ -70,14 +70,26 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
       }
 
-      "copy declaration and export details if coming back from the advanced state" in {
+      "copy declaration and export details if coming back from the advanced export state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
           exportDeclarationDetails,
           ExportQuestions(requestType = Some(ExportRequestType.C1603))
         )) should thenGo(
           EnterDeclarationDetails(
-            Some(exportDeclarationDetails),
-            Some(ExportQuestions(requestType = Some(ExportRequestType.C1603)))
+            declarationDetailsOpt = Some(exportDeclarationDetails),
+            exportQuestionsAnswersOpt = Some(ExportQuestions(requestType = Some(ExportRequestType.C1603)))
+          )
+        )
+      }
+
+      "copy declaration and import details if coming back from the advanced import state" in {
+        given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerImportQuestionsRequestType(
+          importDeclarationDetails,
+          ImportQuestions(requestType = Some(ImportRequestType.New))
+        )) should thenGo(
+          EnterDeclarationDetails(
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(ImportQuestions(requestType = Some(ImportRequestType.New)))
           )
         )
       }
@@ -483,6 +495,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         )
       }
+
+      "copy import details if coming back from the advanced state" in {
+        given(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())) when (copyImportQuestions[
+          AnswerImportQuestionsRequestType
+        ], AnswerImportQuestionsRouteType(
+          importDeclarationDetails,
+          ImportQuestions(requestType = Some(ImportRequestType.New))
+        )) should thenGo(
+          AnswerImportQuestionsRequestType(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
+        )
+      }
     }
 
     "at state AnswerImportQuestionsRouteType" should {
@@ -514,7 +540,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route1),
+              hasPriorityGoods = Some(true)
+            )
           )
         )
       }
@@ -527,7 +557,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsALVS(
             importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route1),
+              hasPriorityGoods = Some(false)
+            )
           )
         )
       }
