@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.models.{ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 import play.api.data.Form
 
@@ -92,6 +92,23 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(form, Map("freightType" -> "RORO"), ExportFreightType.RORO)
       validate(form, "freightType", Map(), Seq("error.exportFreightType.required"))
       validate(form, "freightType", Map("freightType" -> "Foo"), Seq("error.exportFreightType.invalid-option"))
+    }
+
+    "bind some contactInfo and return ExportContactInfo and fill it back" in {
+      val form = TraderServicesFrontendController.ExportContactForm
+      validate(
+        form,
+        Map("contactEmail" -> "name@example.com"),
+        ExportContactInfo(contactEmail = Some("name@example.com"))
+      )
+
+      validate(form, Map("contactNumber" -> "01234567891"), ExportContactInfo(contactNumber = Some("01234567891")))
+
+      validate(
+        form,
+        Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
+        ExportContactInfo(contactEmail = Some("name@example.com"), contactNumber = Some("01234567891"))
+      )
     }
 
   }

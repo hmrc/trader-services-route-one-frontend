@@ -30,6 +30,7 @@ class Views @Inject() (
   val exportQuestionsFreightTypeView: ExportQuestionsFreightTypeView,
   val exportQuestionsMandatoryVesselDetailsView: ExportQuestionsMandatoryVesselDetailsView,
   val exportQuestionsOptionalVesselDetailsView: ExportQuestionsOptionalVesselDetailsView,
+  val exportQuestionsContactInfoView: ExportQuestionsContactInfoView,
   val exportQuestionsSummaryView: ExportQuestionsSummaryView,
   val importQuestionsRequestTypeView: ImportQuestionsRequestTypeView,
   val importQuestionsRouteTypeView: ImportQuestionsRouteTypeView,

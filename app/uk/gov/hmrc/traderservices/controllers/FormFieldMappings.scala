@@ -215,4 +215,12 @@ object FormFieldMappings {
   val importContactNumberMapping: Mapping[Option[String]] = optional(
     of[String].verifying(ContactFieldHelper.contactNumber())
   )
+
+  val exportContactEmailMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))
+  )
+
+  val exportContactNumberMapping: Mapping[Option[String]] = optional(
+    of[String].verifying(ContactFieldHelper.contactNumber())
+  )
 }

@@ -18,17 +18,11 @@ package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
 
-case class ExportQuestions(
-  requestType: Option[ExportRequestType] = None,
-  routeType: Option[ExportRouteType] = None,
-  hasPriorityGoods: Option[Boolean] = None,
-  priorityGoods: Option[ExportPriorityGoods] = None,
-  freightType: Option[ExportFreightType] = None,
-  vesselDetails: Option[VesselDetails] = None,
-  contactInfo: Option[ExportContactInfo] = None
+case class ExportContactInfo(
+  contactEmail: Option[String] = None,
+  contactNumber: Option[String] = None
 )
 
-object ExportQuestions {
-
-  implicit val formats: Format[ExportQuestions] = Json.format[ExportQuestions]
+object ExportContactInfo {
+  implicit val formats: Format[ExportContactInfo] = Json.format[ExportContactInfo]
 }

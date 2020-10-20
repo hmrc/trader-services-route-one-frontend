@@ -112,6 +112,25 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
+        """{"state":"AnswerExportQuestionsContactInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"exportQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO",
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
+        State.AnswerExportQuestionsContactInfo(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.Hold),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO),
+            contactInfo = Some(
+              ExportContactInfo(
+                contactEmail = Some("name@somewhere.com"),
+                contactNumber = Some("012345678910")
+              )
+            )
+          )
+        )
+      )
+      validateJsonFormat(
         """{"state":"AnswerImportQuestionsRequestType","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{}}}""",
         State.AnswerImportQuestionsRequestType(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
