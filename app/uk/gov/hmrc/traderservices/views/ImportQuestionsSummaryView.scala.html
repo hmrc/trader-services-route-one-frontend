@@ -14,17 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions}
+@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions, VesselDetails, ImportContactInfo}
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
+        govukSummaryList: GovukSummaryList,
         context: ImportQuestionsViewContext
 )
 
-@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages("view.import-questions.summary.title")),
@@ -32,5 +34,25 @@
 
   @html.h1(messages("view.import-questions.summary.heading"))
 
-  @html.button("form.import-questions.continue")
+  @html.h2(messages("view.import-questions.summary.declaration-details.heading"))
+
+  @govukSummaryList(context.summaryListOfDeclarationDetails(declarationDetails))
+
+  @html.h2(messages("view.import-questions.summary.pre-clearance.heading"))
+
+  @govukSummaryList(context.summaryListOfImportQuestions(importQuestions))
+
+  @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
+
+  @govukSummaryList(context.summaryListOfVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()), 
+    TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo))
+
+  @html.h2(messages("view.import-questions.summary.contact-details.heading"))
+
+  @govukSummaryList(context.summaryListOfContactDetails(importQuestions.contactInfo.getOrElse(ImportContactInfo()),
+    TraderServicesFrontendController.showAnswerImportQuestionsContactInfo))
+
+  @forms.formWithCSRF(action = postAction, 'autoComplete -> "off") {
+      @html.button("form.import-questions.continue")
+  }
 }

@@ -20,11 +20,18 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
+import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import uk.gov.hmrc.traderservices.models.VesselDetails
+import uk.gov.hmrc.traderservices.models.ImportContactInfo
+import play.api.mvc.Call
 
 @Singleton
-class ImportQuestionsViewContext extends RadioItemsHelper {
+class ImportQuestionsViewContext
+    extends RadioItemsHelper with SummaryListRowHelper with DateTimeFormatHelper with DeclarationDetailsHelper
+    with VesselDetailsHelper with ContactDetailsHelper {
 
   def importRequestTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ImportRequestType](
@@ -111,4 +118,90 @@ class ImportQuestionsViewContext extends RadioItemsHelper {
         checked = form("hasALVS").value.contains("no")
       )
     )
+
+  def summaryListOfImportQuestions(importQuestions: ImportQuestions)(implicit messages: Messages): SummaryList = {
+
+    val requestTypeRows = Seq(
+      summaryListRow(
+        label = "summary.import-questions.requestType",
+        value = importQuestions.requestType
+          .flatMap(ImportRequestType.keyOf)
+          .map(key => messages(s"form.import-questions.requestType.$key"))
+          .getOrElse("-"),
+        visuallyHiddenText = Some("summary.import-questions.requestType"),
+        action = (TraderServicesFrontendController.showAnswerImportQuestionsRequestType(), "site.change")
+      )
+    )
+
+    val routeTypeRows =
+      if (importQuestions.requestType.contains(ImportRequestType.Hold)) Seq.empty
+      else
+        Seq(
+          summaryListRow(
+            label = "summary.import-questions.routeType",
+            value = importQuestions.routeType
+              .flatMap(ImportRouteType.keyOf)
+              .map(key => messages(s"form.import-questions.routeType.$key"))
+              .getOrElse("-"),
+            visuallyHiddenText = Some("summary.import-questions.routeType"),
+            action = (TraderServicesFrontendController.showAnswerImportQuestionsRouteType(), "site.change")
+          )
+        )
+
+    val hasPriorityGoodsRows = Seq(
+      summaryListRow(
+        label = "summary.import-questions.hasPriorityGoods",
+        value =
+          if (importQuestions.hasPriorityGoods.getOrElse(false))
+            messages(s"form.import-questions.hasPriorityGoods.yes")
+          else messages(s"form.import-questions.hasPriorityGoods.no"),
+        visuallyHiddenText = Some("summary.import-questions.hasPriorityGoods"),
+        action = (TraderServicesFrontendController.showAnswerImportQuestionsHasPriorityGoods(), "site.change")
+      )
+    )
+
+    val whichPriorityGoodsRows =
+      if (importQuestions.hasPriorityGoods.contains(true))
+        Seq(
+          summaryListRow(
+            label = "summary.import-questions.whichPriorityGoods",
+            value = importQuestions.priorityGoods
+              .flatMap(ImportPriorityGoods.keyOf)
+              .map(key => messages(s"form.import-questions.priorityGoods.$key"))
+              .getOrElse("-"),
+            visuallyHiddenText = Some("summary.import-questions.whichPriorityGoods"),
+            action = (TraderServicesFrontendController.showAnswerImportQuestionsWhichPriorityGoods(), "site.change")
+          )
+        )
+      else Seq.empty
+
+    val hasALVSRows = Seq(
+      summaryListRow(
+        label = "summary.import-questions.hasALVS",
+        value =
+          if (importQuestions.hasALVS.getOrElse(false))
+            messages(s"form.import-questions.hasALVS.yes")
+          else messages(s"form.import-questions.hasALVS.no"),
+        visuallyHiddenText = Some("summary.import-questions.hasALVS"),
+        action = (TraderServicesFrontendController.showAnswerImportQuestionsALVS(), "site.change")
+      )
+    )
+
+    val freightTypeRows = Seq(
+      summaryListRow(
+        label = "summary.import-questions.freightType",
+        value = importQuestions.freightType
+          .flatMap(ImportFreightType.keyOf)
+          .map(key => messages(s"form.import-questions.freightType.$key"))
+          .getOrElse("-"),
+        visuallyHiddenText = Some("summary.import-questions.freightType"),
+        action = (TraderServicesFrontendController.showAnswerImportQuestionsFreightType(), "site.change")
+      )
+    )
+
+    SummaryList(
+      requestTypeRows ++ routeTypeRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ hasALVSRows ++ freightTypeRows
+    )
+  }
+
 }
