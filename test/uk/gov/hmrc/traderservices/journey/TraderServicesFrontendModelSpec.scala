@@ -469,7 +469,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsContactInfo" should {
-      "go to WorkInProgress when submittedExportQuestionsContactInfo with some contact details" in {
+      "go to ExportQuestionsSummary when submittedExportQuestionsContactInfo with some contact details" in {
         given(
           AnswerExportQuestionsContactInfo(
             exportDeclarationDetails,

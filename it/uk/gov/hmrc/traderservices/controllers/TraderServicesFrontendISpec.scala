@@ -697,6 +697,111 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       }
     }
 
+    "GET /pre-clearance/export-questions/check-your-answers" should {
+      "show the export questions summary page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ExportQuestionsSummary(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route6),
+            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+            freightType = Some(ExportFreightType.Air),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+              )
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/check-your-answers").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /pre-clearance/import-questions/request-type" should {
+      "show the import request type question page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerImportQuestionsRequestType(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ImportQuestions()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/import-questions/request-type").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.requestType.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "POST /pre-clearance/import-questions/request-type" should {
+      "submit the form and ask next for route type if not Hold" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsRequestType(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("requestType" -> "New")
+
+        val result = await(request("/pre-clearance/import-questions/request-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.routeType.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
+        journey.getState shouldBe AnswerImportQuestionsRouteType(
+          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+        )
+      }
+
+      "submit the form and ask next for hasPriorityGoods if Hold" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsRequestType(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("requestType" -> "Hold")
+
+        val result = await(request("/pre-clearance/import-questions/request-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
+          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+          ImportQuestions(requestType = Some(ImportRequestType.Hold))
+        )
+      }
+    }
+
     "GET /pre-clearance/import-questions/route-type" should {
       "show the import route type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
@@ -992,25 +1097,6 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             freightType = Some(ImportFreightType.Maritime)
           )
         )
-      }
-    }
-
-    "GET /pre-clearance/import-questions/request-type" should {
-      "show the import request type question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
-        val state = AnswerImportQuestionsRequestType(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions()
-        )
-        journey.setState(state)
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
-        val result = await(request("/pre-clearance/import-questions/request-type").get())
-
-        result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.requestType.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
-        journey.getState shouldBe state
       }
     }
   }

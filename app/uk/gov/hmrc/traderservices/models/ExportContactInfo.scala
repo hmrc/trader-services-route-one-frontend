@@ -21,7 +21,10 @@ import play.api.libs.json.{Format, Json}
 case class ExportContactInfo(
   contactEmail: Option[String] = None,
   contactNumber: Option[String] = None
-)
+) {
+
+  def isEmpty = contactEmail.isEmpty && contactNumber.isEmpty
+}
 
 object ExportContactInfo {
   implicit val formats: Format[ExportContactInfo] = Json.format[ExportContactInfo]

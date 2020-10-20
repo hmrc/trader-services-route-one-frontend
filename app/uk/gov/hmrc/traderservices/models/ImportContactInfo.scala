@@ -21,7 +21,10 @@ import play.api.libs.json.{Format, Json}
 case class ImportContactInfo(
   contactEmail: Option[String] = None,
   contactNumber: Option[String] = None
-)
+) {
+
+  def isEmpty = contactEmail.isEmpty && contactNumber.isEmpty
+}
 
 object ImportContactInfo {
   implicit val formats: Format[ImportContactInfo] = Json.format[ImportContactInfo]

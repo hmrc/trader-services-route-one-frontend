@@ -24,7 +24,6 @@ import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
-import play.api.mvc.Call
 
 @Singleton
 class ImportQuestionsViewContext
@@ -132,8 +131,7 @@ class ImportQuestionsViewContext
     )
 
     val routeTypeRows =
-      if (importQuestions.requestType.contains(ImportRequestType.Hold)) Seq.empty
-      else
+      if (importQuestions.shouldAskRouteQuestion)
         Seq(
           summaryListRow(
             label = "summary.import-questions.routeType",
@@ -145,6 +143,7 @@ class ImportQuestionsViewContext
             action = (TraderServicesFrontendController.showAnswerImportQuestionsRouteType(), "site.change")
           )
         )
+      else Seq.empty
 
     val hasPriorityGoodsRows = Seq(
       summaryListRow(
