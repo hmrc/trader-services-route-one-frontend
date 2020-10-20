@@ -207,6 +207,29 @@ view.export-questions.freightType.title=Which type of transport are you using?
 view.export-questions.freightType.heading=Which type of transport are you using?
 view.export-questions.vessel-details.title=Tell us about your vessel
 view.export-questions.vessel-details.heading=Tell us about your vessel
+view.export-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
+view.export-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
+view.export-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
+view.export-questions.hasPriorityGoods.list.HighValueArt=high value art
+view.export-questions.hasPriorityGoods.list.HumanRemains=human remains
+view.export-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
+view.import-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
+view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
+view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
+view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
+view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
+view.import-questions.contactInfo.title=What are your contact details?
+view.import-questions.contactInfo.heading=What are your contact details?
+view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
+view.export-questions.summary.title=Review your pre-clearance case details
+view.export-questions.heading.title=Review your pre-clearance case details
+view.export-questions.summary.title=Review your pre-clearance case details
+view.export-questions.summary.heading=Review your pre-clearance case details
+view.export-questions.summary.declaration-details.heading=Declaration information
+view.export-questions.summary.pre-clearance.heading=Pre-clearance information
+view.export-questions.summary.vessel-details.heading=Vessel information
+view.export-questions.summary.contact-details.heading=Contact details
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -225,6 +248,12 @@ view.import-questions.freightType.title=Which type of transport are you using?
 view.import-questions.freightType.heading=Which type of transport are you using?
 view.import-questions.vessel-details.title=Tell us about your vessel
 view.import-questions.vessel-details.heading=Tell us about your vessel
+view.import-questions.summary.title=Review your pre-clearance case details
+view.import-questions.summary.heading=Review your pre-clearance case details
+view.import-questions.summary.declaration-details.heading=Declaration information
+view.import-questions.summary.pre-clearance.heading=Pre-clearance information
+view.import-questions.summary.vessel-details.heading=Vessel information
+view.import-questions.summary.contact-details.heading=Contact details
 
 # Export Questions Form
 # ----------------------------------------------------------
@@ -243,12 +272,6 @@ form.export-questions.routeType.Route6=Route 6
 form.export-questions.routeType.Hold=Hold
 form.export-questions.hasPriorityGoods.yes=Yes
 form.export-questions.hasPriorityGoods.no=No
-view.export-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
-view.export-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
-view.export-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
-view.export-questions.hasPriorityGoods.list.HighValueArt=high value art
-view.export-questions.hasPriorityGoods.list.HumanRemains=human remains
-view.export-questions.hasPriorityGoods.list.LiveAnimals=live animals
 form.export-questions.priorityGoods.ClassADrugs=Class A drugs
 form.export-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
 form.export-questions.priorityGoods.HighValueArt=High value art
@@ -264,6 +287,7 @@ form.export-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
 form.export-questions.continue=Continue
+
 error.exportRequestType.required=Select the type of export request
 error.exportRouteType.required=Select the route
 error.exportHasPriorityGoods.required=Select yes if you''re moving priority goods
@@ -308,15 +332,6 @@ form.import-questions.routeType.Route6=Route 6
 form.import-questions.routeType.Hold=Hold
 form.import-questions.hasPriorityGoods.yes=Yes
 form.import-questions.hasPriorityGoods.no=No
-view.import-questions.hasPriorityGoods.description=Priority goods require exceptional treatment. These include:
-view.import-questions.hasPriorityGoods.list.ClassADrugs=class A drugs
-view.import-questions.hasPriorityGoods.list.ExplosivesOrFireworks=explosives or fireworks
-view.import-questions.hasPriorityGoods.list.HighValueArt=high value art
-view.import-questions.hasPriorityGoods.list.HumanRemains=human remains
-view.import-questions.hasPriorityGoods.list.LiveAnimals=live animals
-view.import-questions.contactInfo.title=What are your contact details?
-view.import-questions.contactInfo.heading=What are your contact details?
-view.import-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
 form.import-questions.priorityGoods.ClassADrugs=Class A drugs
 form.import-questions.priorityGoods.ExplosivesOrFireworks=Explosives or fireworks
 form.import-questions.priorityGoods.HighValueArt=High value art
@@ -333,6 +348,8 @@ form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (opti
 form.import-questions.contactEmail=Email address
 form.import-questions.contactNumber=Phone number
 form.import-questions.continue=Continue
+form.import-questions.summary.continue=Continue to file upload
+
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route
 error.importHasPriorityGoods.required=Select yes if you''re moving priority goods
@@ -342,6 +359,30 @@ error.transportationType.required=Tell us what type of freight transportation is
 error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
 error.contactNumber=Enter a valid phone number
 error.contactEmail=Enter an email address in the correct format, like name@example.com
+
+# Summary messages
+# ----------------------------------------------------------
+summary.declaration-details.epu=EPU number
+summary.declaration-details.entryNumber=Entry number
+summary.declaration-details.entryDate=Entry date
+summary.import-questions.requestType=Type of import request
+summary.import-questions.routeType=Route
+summary.import-questions.hasPriorityGoods=Priority goods
+summary.import-questions.whichPriorityGoods=Type of priority goods
+summary.import-questions.hasALVS=ALVS
+summary.import-questions.freightType=Type of transport 
+summary.export-questions.requestType=Type of export request
+summary.export-questions.routeType=Route
+summary.export-questions.hasPriorityGoods=Priority goods
+summary.export-questions.whichPriorityGoods=Type of priority goods
+summary.export-questions.freightType=Type of transport 
+summary.vessel-details.vesselName=Vessel name
+summary.vessel-details.dateOfArrival=Date of arrival
+summary.vessel-details.timeOfArrival=Time of arrival
+summary.contact-details=Contact details
+summary.contact-details.contactName=Full name
+summary.contact-details.contactEmail=Email address
+summary.contact-details.contactNumber=Phone number
 
 # Common form messages
 # ----------------------------------------------------------

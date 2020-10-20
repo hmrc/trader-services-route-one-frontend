@@ -90,6 +90,8 @@ class TraderServicesFrontendController @Inject() (
   val submitDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser.bindForm(DeclarationDetailsForm).apply(Transitions.submittedDeclarationDetails)
 
+  // ----------------------- EXPORT QUESTIONS -----------------------
+
   // GET /pre-clearance/export-questions/request-type
   val showAnswerExportQuestionsRequestType: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -181,6 +183,12 @@ class TraderServicesFrontendController @Inject() (
   // POST /pre-clearance/export-questions/contact-info
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
     actionNotYetImplemented
+
+  // GET /pre-clearance/export-questions/summary
+  val showExportQuestionsSummary: Action[AnyContent] =
+    whenAuthorisedAsUser.show[State.ExportQuestionsSummary]
+
+  // ----------------------- IMPORT QUESTIONS -----------------------
 
   // GET /pre-clearance/import-questions/request-type
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
@@ -278,6 +286,10 @@ class TraderServicesFrontendController @Inject() (
       .bindForm(ImportContactForm)
       .apply(Transitions.submittedImportQuestionsContactInfo)
 
+  // GET /pre-clearance/import-questions/summary
+  val showImportQuestionsSummary: Action[AnyContent] =
+    whenAuthorisedAsUser.show[State.ImportQuestionsSummary]
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -314,6 +326,9 @@ class TraderServicesFrontendController @Inject() (
       case _: AnswerExportQuestionsContactInfo =>
         routes.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo()
 
+      case _: ExportQuestionsSummary =>
+        routes.TraderServicesFrontendController.showExportQuestionsSummary()
+
       case _: AnswerImportQuestionsRequestType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsRequestType()
 
@@ -337,6 +352,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: AnswerImportQuestionsContactInfo =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo()
+
+      case _: ImportQuestionsSummary =>
+        routes.TraderServicesFrontendController.showImportQuestionsSummary()
 
       case _ =>
         workInProgresDeadEndCall
@@ -429,6 +447,16 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case ExportQuestionsSummary(declarationDetails, exportQuestions) =>
+        Ok(
+          views.exportQuestionsSummaryView(
+            declarationDetails,
+            exportQuestions,
+            workInProgresDeadEndCall,
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case AnswerImportQuestionsRequestType(_, importQuestions) =>
         Ok(
           views.importQuestionsRequestTypeView(
@@ -497,6 +525,16 @@ class TraderServicesFrontendController @Inject() (
           views.importQuestionsContactInfoView(
             formWithErrors.or(ImportContactForm, importQuestions.contactInfo),
             routes.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
+      case ImportQuestionsSummary(declarationDetails, importQuestions) =>
+        Ok(
+          views.importQuestionsSummaryView(
+            declarationDetails,
+            importQuestions,
+            workInProgresDeadEndCall,
             backLinkFor(breadcrumbs)
           )
         )

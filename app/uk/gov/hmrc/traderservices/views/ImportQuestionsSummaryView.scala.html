@@ -1,0 +1,58 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions, VesselDetails, ImportContactInfo}
+@import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+
+@this(
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        govukSummaryList: GovukSummaryList,
+        context: ImportQuestionsViewContext
+)
+
+@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+
+@govukLayout(
+  pageTitle = Some(messages("view.import-questions.summary.title")),
+  backLink = Some(backLink.url)) {
+
+  @html.h1(messages("view.import-questions.summary.heading"))
+
+  @html.h2(messages("view.import-questions.summary.declaration-details.heading"))
+
+  @govukSummaryList(context.summaryListOfDeclarationDetails(declarationDetails))
+
+  @html.h2(messages("view.import-questions.summary.pre-clearance.heading"))
+
+  @govukSummaryList(context.summaryListOfImportQuestions(importQuestions))
+
+  @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
+
+  @govukSummaryList(context.summaryListOfVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()), 
+    TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo))
+
+  @html.h2(messages("view.import-questions.summary.contact-details.heading"))
+
+  @govukSummaryList(context.summaryListOfContactDetails(importQuestions.contactInfo.getOrElse(ImportContactInfo()),
+    TraderServicesFrontendController.showAnswerImportQuestionsContactInfo))
+
+  @forms.formWithCSRF(action = postAction, 'autoComplete -> "off") {
+      @html.button("form.import-questions.summary.continue")
+  }
+}

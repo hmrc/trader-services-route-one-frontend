@@ -50,5 +50,11 @@ class ExportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("ClassADrugs", ExportPriorityGoods.ClassADrugs)
     }
 
+    "serialize and deserialize ExportFreightType" in new JsonFormatTest[ExportFreightType](info) {
+      validateJsonFormat("Air", ExportFreightType.Air)
+      validateJsonFormat("Maritime", ExportFreightType.Maritime)
+      validateJsonFormat("RORO", ExportFreightType.RORO)
+    }
+
   }
 }
