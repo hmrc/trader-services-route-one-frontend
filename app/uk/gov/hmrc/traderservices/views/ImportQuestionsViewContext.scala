@@ -24,8 +24,6 @@ import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
-import uk.gov.hmrc.traderservices.models.VesselDetails
-import uk.gov.hmrc.traderservices.models.ImportContactInfo
 import play.api.mvc.Call
 
 @Singleton

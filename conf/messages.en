@@ -348,6 +348,7 @@ form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (opti
 form.import-questions.contactEmail=Email address
 form.import-questions.contactNumber=Phone number
 form.import-questions.continue=Continue
+form.import-questions.summary.continue=Continue to file upload
 
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route
