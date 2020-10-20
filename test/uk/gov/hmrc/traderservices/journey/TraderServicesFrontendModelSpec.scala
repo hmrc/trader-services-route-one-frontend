@@ -485,7 +485,18 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) when submittedExportQuestionsContactInfo(eoriNumber)(
           ExportContactInfo(contactEmail = Some("name@somewhere.com"))
         ) should thenGo(
-          WorkInProgressDeadEnd
+          ExportQuestionsSummary(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails =
+                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+              contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+            )
+          )
         )
       }
     }

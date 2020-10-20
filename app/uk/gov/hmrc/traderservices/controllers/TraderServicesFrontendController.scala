@@ -178,17 +178,15 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/export-questions/contact-info
   val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
-    actionShowStateWhenAuthorised(AsUser) {
-      case _: AnswerExportQuestionsContactInfo =>
-    }
+    whenAuthorisedAsUser
+      .show[State.AnswerExportQuestionsContactInfo]
+      .using(Mergers.copyExportQuestions[AnswerExportQuestionsContactInfo])
 
   // POST /pre-clearance/export-questions/contact-info
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
-    action { implicit request =>
-      whenAuthorisedWithForm(AsUser)(ExportContactForm)(
-        Transitions.submittedExportQuestionsContactInfo
-      )
-    }
+    whenAuthorisedAsUser
+      .bindForm(ExportContactForm)
+      .apply(Transitions.submittedExportQuestionsContactInfo)
 
   // GET /pre-clearance/export-questions/summary
   val showExportQuestionsSummary: Action[AnyContent] =
@@ -463,10 +461,10 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerExportQuestionsContactInfo(_, importQuestions) =>
+      case AnswerExportQuestionsContactInfo(_, exportQuestions) =>
         Ok(
           views.exportQuestionsContactInfoView(
-            formWithErrors.or(ExportContactForm, importQuestions.contactInfo),
+            formWithErrors.or(ExportContactForm, exportQuestions.contactInfo),
             routes.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer(),
             backLinkFor(breadcrumbs)
           )

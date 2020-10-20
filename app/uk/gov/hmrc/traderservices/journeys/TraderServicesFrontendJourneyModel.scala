@@ -315,9 +315,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedExportQuestionsContactInfo(user: String)(contactInfo: ExportContactInfo) =
       Transition {
-        case _ =>
+        case AnswerExportQuestionsContactInfo(declarationDetails, exportQuestions) =>
           goto(
-            WorkInProgressDeadEnd
+            ExportQuestionsSummary(
+              declarationDetails,
+              exportQuestions.copy(contactInfo = Some(contactInfo))
+            )
           )
       }
 
@@ -449,6 +452,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       implicit val s5 = of[AnswerExportQuestionsFreightType]((s, e) => s.copy(exportQuestionsAnswers = e))
       implicit val s6 = of[AnswerExportQuestionsMandatoryVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
       implicit val s7 = of[AnswerExportQuestionsOptionalVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s8 = of[AnswerExportQuestionsContactInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
     }
 
     object SetImportQuestions {

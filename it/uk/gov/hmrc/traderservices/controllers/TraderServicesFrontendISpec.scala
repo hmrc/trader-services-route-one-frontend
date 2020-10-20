@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
+import uk.gov.hmrc.traderservices.models.ExportContactInfo
 
 class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with TraderServicesStubs {
 
@@ -682,7 +683,17 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         )
         val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
 
-        result.status shouldBe 404
+        result.status shouldBe 200
+        journey.getState shouldBe ExportQuestionsSummary(
+          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route6),
+            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+            freightType = Some(ExportFreightType.Air),
+            contactInfo = Some(ExportContactInfo(contactEmail = Some("someone@email.com")))
+          )
+        )
       }
     }
 
