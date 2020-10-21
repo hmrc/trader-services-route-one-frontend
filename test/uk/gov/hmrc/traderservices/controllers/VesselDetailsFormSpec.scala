@@ -136,15 +136,15 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInputFor(dateTime.minusMonths(6).minusDays(2))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-past")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-range")
       )
     }
 
     "report an error when dateOfArrival is more than 6 months in the future" in {
-      val input = formInputFor(dateTime.plusMonths(6).plusDays(2))
+      val input = formInputFor(dateTime.plusMonths(6).plusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-future")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-range")
       )
     }
   }
@@ -239,15 +239,15 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInputFor(dateTime.minusMonths(6).minusDays(2))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-past")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-range")
       )
     }
 
     "report an error when dateOfArrival is more than 6 months in the future" in {
-      val input = formInputFor(dateTime.plusMonths(6).plusDays(2))
+      val input = formInputFor(dateTime.plusMonths(6).plusDays(1))
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-future")
+        FormError("dateOfArrival", "error.dateOfArrival.all.invalid-value-range")
       )
     }
   }

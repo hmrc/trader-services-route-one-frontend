@@ -112,7 +112,7 @@ object FormFieldMappings {
 
   val entryDateMapping: Mapping[LocalDate] = DateFieldHelper
     .dateFieldsMapping("entryDate")
-    .verifying(DateFieldHelper.dateIsBefore("entryDate.all", "invalid-value-future", _.plusDays(1)))
+    .verifying(DateFieldHelper.dateIsBefore("entryDate.all", "invalid-value-future", identity))
     .verifying(DateFieldHelper.dateIsAfter("entryDate.all", "invalid-value-past", _.minusMonths(6)))
 
   def enumMapping[A: EnumerationFormats](fieldName: String): Mapping[A] =
@@ -188,10 +188,7 @@ object FormFieldMappings {
   ).transform({ case Some("") => None; case o => o }, identity[Option[String]])
 
   val dateOfArrivalRangeConstraint = some(
-    first(
-      DateFieldHelper.dateIsBefore("dateOfArrival.all", "invalid-value-future", _.plusMonths(6).plusDays(1)),
-      DateFieldHelper.dateIsAfter("dateOfArrival.all", "invalid-value-past", _.minusMonths(6).minusDays(1))
-    )
+    DateFieldHelper.dateIsBetween("dateOfArrival.all", "invalid-value-range", _.minusMonths(6), _.plusMonths(6))
   )
 
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
