@@ -32,11 +32,14 @@ case class ExportQuestions(
     requestType.forall(_ != ExportRequestType.Hold)
 
   def isVesselDetailsAnswerMandatory: Boolean =
-    requestType.contains(ExportRequestType.C1601)
+    requestType.exists(ExportQuestions.mandatoryVesselDetailsRequestTypes.contains)
 
 }
 
 object ExportQuestions {
+
+  val mandatoryVesselDetailsRequestTypes: Set[ExportRequestType] =
+    Set(ExportRequestType.Hold, ExportRequestType.C1601, ExportRequestType.C1602)
 
   implicit val formats: Format[ExportQuestions] = Json.format[ExportQuestions]
 }

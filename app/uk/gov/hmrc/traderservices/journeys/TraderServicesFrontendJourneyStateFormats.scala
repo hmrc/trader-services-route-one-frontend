@@ -40,6 +40,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val answerImportQuestionsALVSFormat = Json.format[AnswerImportQuestionsALVS]
   val answerImportQuestionsFreightTypeFormat = Json.format[AnswerImportQuestionsFreightType]
   val answerImportQuestionsOptionalVesselInfoFormat = Json.format[AnswerImportQuestionsOptionalVesselInfo]
+  val answerImportQuestionsMandatoryVesselInfoFormat = Json.format[AnswerImportQuestionsMandatoryVesselInfo]
   val answerImportQuestionsContactInfoFormat = Json.format[AnswerImportQuestionsContactInfo]
   val importQuestionsSummaryFormat = Json.format[ImportQuestionsSummary]
 
@@ -61,6 +62,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: AnswerImportQuestionsALVS                => answerImportQuestionsALVSFormat.writes(s)
     case s: AnswerImportQuestionsFreightType         => answerImportQuestionsFreightTypeFormat.writes(s)
     case s: AnswerImportQuestionsOptionalVesselInfo  => answerImportQuestionsOptionalVesselInfoFormat.writes(s)
+    case s: AnswerImportQuestionsMandatoryVesselInfo => answerImportQuestionsMandatoryVesselInfoFormat.writes(s)
     case s: AnswerImportQuestionsContactInfo         => answerImportQuestionsContactInfoFormat.writes(s)
     case s: ImportQuestionsSummary                   => importQuestionsSummaryFormat.writes(s)
   }
@@ -86,9 +88,11 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "AnswerImportQuestionsALVS"               => answerImportQuestionsALVSFormat.reads(properties)
       case "AnswerImportQuestionsFreightType"        => answerImportQuestionsFreightTypeFormat.reads(properties)
       case "AnswerImportQuestionsOptionalVesselInfo" => answerImportQuestionsOptionalVesselInfoFormat.reads(properties)
-      case "AnswerImportQuestionsContactInfo"        => answerImportQuestionsContactInfoFormat.reads(properties)
-      case "ImportQuestionsSummary"                  => importQuestionsSummaryFormat.reads(properties)
-      case "WorkInProgressDeadEnd"                   => JsSuccess(WorkInProgressDeadEnd)
-      case _                                         => JsError(s"Unknown state name $stateName")
+      case "AnswerImportQuestionsMandatoryVesselInfo" =>
+        answerImportQuestionsMandatoryVesselInfoFormat.reads(properties)
+      case "AnswerImportQuestionsContactInfo" => answerImportQuestionsContactInfoFormat.reads(properties)
+      case "ImportQuestionsSummary"           => importQuestionsSummaryFormat.reads(properties)
+      case "WorkInProgressDeadEnd"            => JsSuccess(WorkInProgressDeadEnd)
+      case _                                  => JsError(s"Unknown state name $stateName")
     }
 }

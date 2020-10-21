@@ -45,7 +45,7 @@
   @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
 
   @govukSummaryList(context.summaryListOfVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()), 
-    TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo))
+    context.getChangeCallForVesselDetails(importQuestions)))
 
   @html.h2(messages("view.import-questions.summary.contact-details.heading"))
 

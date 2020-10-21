@@ -36,6 +36,8 @@ GET        /pre-clearance/import-questions/automatic-licence-verification   @uk.
 POST       /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsALVSAnswer
 GET        /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsFreightType
 POST       /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer
+GET        /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
+POST       /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsMandatoryVesselInfoAnswer
 GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
 POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer
 GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo

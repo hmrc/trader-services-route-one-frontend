@@ -31,6 +31,9 @@ case class ImportQuestions(
 
   def shouldAskRouteQuestion: Boolean =
     requestType.forall(_ != ImportRequestType.Hold)
+
+  def isVesselDetailsAnswerMandatory: Boolean =
+    requestType.contains(ImportRequestType.Hold)
 }
 
 object ImportQuestions {

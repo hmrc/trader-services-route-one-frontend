@@ -266,6 +266,18 @@ class TraderServicesFrontendController @Inject() (
       .bindForm(ImportFreightTypeForm)
       .apply(Transitions.submittedImportQuestionsAnswerFreightType)
 
+  // GET /pre-clearance/import-questions/vessel-info-required
+  val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsMandatoryVesselInfo]
+      .using(Mergers.copyImportQuestions[AnswerImportQuestionsMandatoryVesselInfo])
+
+  // POST /pre-clearance/import-questions/vessel-info-required
+  val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(MandatoryVesselDetailsForm)
+      .apply(Transitions.submittedImportQuestionsMandatoryVesselDetails)
+
   // GET /pre-clearance/import-questions/vessel-info
   val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -350,6 +362,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: AnswerImportQuestionsFreightType =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsFreightType()
+
+      case _: AnswerImportQuestionsMandatoryVesselInfo =>
+        routes.TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo()
 
       case _: AnswerImportQuestionsOptionalVesselInfo =>
         routes.TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo()
@@ -520,6 +535,15 @@ class TraderServicesFrontendController @Inject() (
           views.importQuestionsFreightTypeView(
             formWithErrors.or(ImportFreightTypeForm, importQuestions.freightType),
             routes.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer(),
+            backLinkFor(breadcrumbs)
+          )
+        )
+
+      case AnswerImportQuestionsMandatoryVesselInfo(_, importQuestions) =>
+        Ok(
+          views.importQuestionsMandatoryVesselDetailsView(
+            formWithErrors.or(MandatoryVesselDetailsForm, importQuestions.vesselDetails),
+            routes.TraderServicesFrontendController.submitImportQuestionsMandatoryVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )

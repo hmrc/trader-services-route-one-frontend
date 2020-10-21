@@ -1039,7 +1039,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
     }
 
     "POST /pre-clearance/import-questions/transport-type" should {
-      "submit selected RORO transport type and ask next for optional vessel details" in {
+      "submit selected transport type and ask next for optional vessel details" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
@@ -1068,14 +1068,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         )
       }
 
-      "submit selected Maritime transport type and ask next for vessel details" in {
+      "submit selected transport type and ask next for mandatory vessel details" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
             DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3)
+              requestType = Some(ImportRequestType.Hold)
             )
           )
         )
@@ -1087,11 +1086,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         result.status shouldBe 200
 
-        journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
+        journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
           DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
           ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route3),
+            requestType = Some(ImportRequestType.Hold),
             freightType = Some(ImportFreightType.Maritime)
           )
         )

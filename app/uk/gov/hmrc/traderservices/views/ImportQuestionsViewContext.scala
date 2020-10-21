@@ -24,6 +24,7 @@ import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import play.api.mvc.Call
 
 @Singleton
 class ImportQuestionsViewContext
@@ -115,6 +116,12 @@ class ImportQuestionsViewContext
         checked = form("hasALVS").value.contains("no")
       )
     )
+
+  def getChangeCallForVesselDetails(importQuestions: ImportQuestions): Call =
+    if (importQuestions.isVesselDetailsAnswerMandatory)
+      TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
+    else
+      TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
 
   def summaryListOfImportQuestions(importQuestions: ImportQuestions)(implicit messages: Messages): SummaryList = {
 
