@@ -20,12 +20,16 @@ import javax.inject.Singleton
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.CheckboxItem
+import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
+import play.api.mvc.Call
 
 @Singleton
-class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelper {
+class ExportQuestionsViewContext
+    extends RadioItemsHelper with CheckboxItemsHelper with SummaryListRowHelper with DateTimeFormatHelper
+    with DeclarationDetailsHelper with VesselDetailsHelper with ContactDetailsHelper {
 
   def exportRequestTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ExportRequestType](
@@ -91,6 +95,12 @@ class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelp
       )
     )
 
+  def getChangeCallForVesselDetails(exportQuestions: ExportQuestions): Call =
+    if (exportQuestions.isVesselDetailsAnswerMandatory)
+      TraderServicesFrontendController.showAnswerExportQuestionsMandatoryVesselInfo
+    else
+      TraderServicesFrontendController.showAnswerExportQuestionsOptionalVesselInfo
+
   def exportFreightTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ExportFreightType](
       "export-questions",
@@ -102,5 +112,78 @@ class ExportQuestionsViewContext extends RadioItemsHelper with CheckboxItemsHelp
       ),
       form
     )
+
+  def summaryListOfExportQuestions(exportQuestions: ExportQuestions)(implicit messages: Messages): SummaryList = {
+
+    val requestTypeRows = Seq(
+      summaryListRow(
+        label = "summary.export-questions.requestType",
+        value = exportQuestions.requestType
+          .flatMap(ExportRequestType.keyOf)
+          .map(key => messages(s"form.export-questions.requestType.$key"))
+          .getOrElse("-"),
+        visuallyHiddenText = Some("summary.export-questions.requestType"),
+        action = (TraderServicesFrontendController.showAnswerExportQuestionsRequestType, "site.change")
+      )
+    )
+
+    val routeTypeRows =
+      if (exportQuestions.shouldAskRouteQuestion)
+        Seq(
+          summaryListRow(
+            label = "summary.export-questions.routeType",
+            value = exportQuestions.routeType
+              .flatMap(ExportRouteType.keyOf)
+              .map(key => messages(s"form.export-questions.routeType.$key"))
+              .getOrElse("-"),
+            visuallyHiddenText = Some("summary.export-questions.routeType"),
+            action = (TraderServicesFrontendController.showAnswerExportQuestionsRouteType, "site.change")
+          )
+        )
+      else Seq.empty
+
+    val hasPriorityGoodsRows = Seq(
+      summaryListRow(
+        label = "summary.export-questions.hasPriorityGoods",
+        value =
+          if (exportQuestions.hasPriorityGoods.getOrElse(false))
+            messages(s"form.export-questions.hasPriorityGoods.yes")
+          else messages(s"form.export-questions.hasPriorityGoods.no"),
+        visuallyHiddenText = Some("summary.export-questions.hasPriorityGoods"),
+        action = (TraderServicesFrontendController.showAnswerExportQuestionsHasPriorityGoods, "site.change")
+      )
+    )
+
+    val whichPriorityGoodsRows =
+      if (exportQuestions.hasPriorityGoods.contains(true))
+        Seq(
+          summaryListRow(
+            label = "summary.export-questions.whichPriorityGoods",
+            value = exportQuestions.priorityGoods
+              .flatMap(ExportPriorityGoods.keyOf)
+              .map(key => messages(s"form.export-questions.priorityGoods.$key"))
+              .getOrElse("-"),
+            visuallyHiddenText = Some("summary.export-questions.whichPriorityGoods"),
+            action = (TraderServicesFrontendController.showAnswerExportQuestionsWhichPriorityGoods, "site.change")
+          )
+        )
+      else Seq.empty
+
+    val freightTypeRows = Seq(
+      summaryListRow(
+        label = "summary.export-questions.freightType",
+        value = exportQuestions.freightType
+          .flatMap(ExportFreightType.keyOf)
+          .map(key => messages(s"form.export-questions.freightType.$key"))
+          .getOrElse("-"),
+        visuallyHiddenText = Some("summary.export-questions.freightType"),
+        action = (TraderServicesFrontendController.showAnswerExportQuestionsFreightType, "site.change")
+      )
+    )
+
+    SummaryList(
+      requestTypeRows ++ routeTypeRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ freightTypeRows
+    )
+  }
 
 }

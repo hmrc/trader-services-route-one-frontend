@@ -20,6 +20,7 @@ import uk.gov.hmrc.traderservices.models.ImportContactInfo
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import uk.gov.hmrc.traderservices.models.ExportContactInfo
 
 trait ContactDetailsHelper extends SummaryListRowHelper {
 
@@ -29,12 +30,33 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
 
     val contactEmail = contactDetails.contactEmail.map(value => s"<div>$value</div>").getOrElse("")
     val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
+    val value = if (contactDetails.isEmpty) "-" else contactEmail + contactNumber
 
     SummaryList(
       Seq(
         summaryListRow(
           label = "summary.contact-details",
-          value = contactEmail + contactNumber,
+          value = value,
+          visuallyHiddenText = Some("summary.contact-details"),
+          action = (changeCall, "site.change")
+        )
+      )
+    )
+  }
+
+  def summaryListOfContactDetails(contactDetails: ExportContactInfo, changeCall: Call)(implicit
+    messages: Messages
+  ): SummaryList = {
+
+    val contactEmail = contactDetails.contactEmail.map(value => s"<div>$value</div>").getOrElse("")
+    val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
+    val value = if (contactDetails.isEmpty) "-" else contactEmail + contactNumber
+
+    SummaryList(
+      Seq(
+        summaryListRow(
+          label = "summary.contact-details",
+          value = value,
           visuallyHiddenText = Some("summary.contact-details"),
           action = (changeCall, "site.change")
         )

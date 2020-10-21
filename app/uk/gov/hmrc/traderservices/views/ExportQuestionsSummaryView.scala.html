@@ -14,17 +14,19 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportQuestions}
-@import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, VesselDetails, ExportContactInfo, ExportQuestions}
+@import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
-        context: ImportQuestionsViewContext
+        govukSummaryList: GovukSummaryList,
+        context: ExportQuestionsViewContext
 )
 
-@(declarationDetails: DeclarationDetails, exportQuestions: ExportQuestions, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(declarationDetails: DeclarationDetails, exportQuestions: ExportQuestions, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages("view.export-questions.summary.title")),
@@ -32,5 +34,25 @@
 
   @html.h1(messages("view.export-questions.summary.heading"))
 
-  @html.button("form.export-questions.continue")
+  @html.h2(messages("view.export-questions.summary.declaration-details.heading"))
+
+  @govukSummaryList(context.summaryListOfDeclarationDetails(declarationDetails))
+
+  @html.h2(messages("view.export-questions.summary.pre-clearance.heading"))
+
+  @govukSummaryList(context.summaryListOfExportQuestions(exportQuestions))
+
+  @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
+
+  @govukSummaryList(context.summaryListOfVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()), 
+    context.getChangeCallForVesselDetails(exportQuestions)))
+
+  @html.h2(messages("view.export-questions.summary.contact-details.heading"))
+
+  @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.getOrElse(ExportContactInfo()),
+    TraderServicesFrontendController.showAnswerExportQuestionsContactInfo))
+
+  @forms.formWithCSRF(action = postAction, 'autoComplete -> "off") {
+      @html.button("form.export-questions.summary.continue")
+  }
 }

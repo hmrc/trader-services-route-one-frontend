@@ -214,20 +214,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
       Transition {
         case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
-          if (exportRequestType == ExportRequestType.Hold)
-            goto(
-              AnswerExportQuestionsHasPriorityGoods(
-                declarationDetails,
-                exportQuestions.copy(requestType = Some(exportRequestType))
-              )
-            )
+          val updatedExportQuestions = exportQuestions.copy(requestType = Some(exportRequestType))
+          if (updatedExportQuestions.shouldAskRouteQuestion)
+            goto(AnswerExportQuestionsRouteType(declarationDetails, updatedExportQuestions))
           else
             goto(
-              AnswerExportQuestionsRouteType(
-                declarationDetails,
-                exportQuestions.copy(requestType = Some(exportRequestType))
-              )
+              AnswerExportQuestionsHasPriorityGoods(declarationDetails, updatedExportQuestions.copy(routeType = None))
             )
+
       }
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
@@ -274,20 +268,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
       Transition {
         case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
-          if (exportQuestions.requestType.contains(ExportRequestType.C1601))
-            goto(
-              AnswerExportQuestionsMandatoryVesselInfo(
-                declarationDetails,
-                exportQuestions.copy(freightType = Some(exportFreightType))
-              )
-            )
+          val updatedExportQuestions = exportQuestions.copy(freightType = Some(exportFreightType))
+          if (updatedExportQuestions.isVesselDetailsAnswerMandatory)
+            goto(AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, updatedExportQuestions))
           else
-            goto(
-              AnswerExportQuestionsOptionalVesselInfo(
-                declarationDetails,
-                exportQuestions.copy(freightType = Some(exportFreightType))
-              )
-            )
+            goto(AnswerExportQuestionsOptionalVesselInfo(declarationDetails, updatedExportQuestions))
       }
 
     def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
@@ -327,20 +312,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
         case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
-          if (importRequestType == ImportRequestType.Hold)
-            goto(
-              AnswerImportQuestionsHasPriorityGoods(
-                declarationDetails,
-                importQuestions.copy(requestType = Some(importRequestType))
-              )
-            )
+          val updatedImportQuestions = importQuestions.copy(requestType = Some(importRequestType))
+          if (updatedImportQuestions.shouldAskRouteQuestion)
+            goto(AnswerImportQuestionsRouteType(declarationDetails, updatedImportQuestions))
           else
             goto(
-              AnswerImportQuestionsRouteType(
-                declarationDetails,
-                importQuestions.copy(requestType = Some(importRequestType))
-              )
+              AnswerImportQuestionsHasPriorityGoods(declarationDetails, updatedImportQuestions.copy(routeType = None))
             )
+
       }
 
     def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
