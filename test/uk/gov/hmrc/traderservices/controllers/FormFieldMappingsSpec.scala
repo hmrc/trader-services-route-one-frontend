@@ -267,8 +267,8 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate mandatory vesselName" in {
       mandatoryVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
       mandatoryVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
-      mandatoryVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
-        Some("Ship+ley / West-Yorkshire")
+      mandatoryVesselNameMapping.bind(Map("" -> " Shipley & West-Yorkshire")) shouldBe Right(
+        Some("Shipley & West-Yorkshire")
       )
       mandatoryVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
       mandatoryVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
@@ -306,8 +306,8 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate optional vesselName" in {
       optionalVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
       optionalVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
-      optionalVesselNameMapping.bind(Map("" -> " Ship+ley / West-Yorkshire")) shouldBe Right(
-        Some("Ship+ley / West-Yorkshire")
+      optionalVesselNameMapping.bind(Map("" -> " Shipley & West-Yorkshire")) shouldBe Right(
+        Some("Shipley & West-Yorkshire")
       )
       optionalVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
       optionalVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
