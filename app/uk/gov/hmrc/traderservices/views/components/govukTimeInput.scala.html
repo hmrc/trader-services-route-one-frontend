@@ -113,6 +113,7 @@
         ))
       </div>
     }
+    @if(showSelectPeriod){
     <div class="govuk-date-input__item">
         @govukSelect(Select(
           id = timePeriodItem.id.toOption.getNonEmptyOrElse(id + "-" + timePeriodItem.name),
@@ -127,6 +128,7 @@
           attributes = timePeriodItem.attributes
         ))
       </div>
+    } else {}
   </div>
 }
 

@@ -503,9 +503,8 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
           "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
           "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
           "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
-          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d",
-          "timeOfArrival.period"  -> { if (dateTimeOfArrival.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
@@ -578,9 +577,8 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
           "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
           "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
           "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
-          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d",
-          "timeOfArrival.period"  -> { if (dateTimeOfArrival.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
@@ -1149,9 +1147,8 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
         "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
         "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-        "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
-        "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d",
-        "timeOfArrival.period"  -> { if (dateTimeOfArrival.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+        "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+        "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
       )
 
       val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))

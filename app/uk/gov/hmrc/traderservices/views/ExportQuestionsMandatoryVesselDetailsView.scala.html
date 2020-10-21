@@ -64,10 +64,11 @@
         legendContent = "form.export-questions.vessel-details.timeOfArrival",
         legendClasses = "",
         legendAsPageHeading = false,
-        hintText = None,
         attributesHour = Map("aria-label" -> "Hour of arrival time", "maxlength" -> "2"),
         attributesMinutes = Map("aria-label" -> "Minutes of arrival time", "maxlength" -> "2"),
-        attributesPeriod = Map("aria-label" -> "Day period of arrival time")
+        attributesPeriod = Map("aria-label" -> "Day period of arrival time"),
+        showSelectPeriod = false,
+        hintText = Some("form.export-questions.vessel-details.timeOfArrival.hint")
       )
     }
 

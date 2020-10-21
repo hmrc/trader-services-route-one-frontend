@@ -27,7 +27,8 @@
   legendAsPageHeading: Boolean = true,
   attributesHour: Map[String, String] = Map.empty,
   attributesMinutes: Map[String, String] = Map.empty,
-  attributesPeriod: Map[String, String] = Map.empty)(implicit messages: Messages)
+  attributesPeriod: Map[String, String] = Map.empty,
+  showSelectPeriod: Boolean = true)(implicit messages: Messages)
 
 @govukTimeInput(TimeInput(
     fieldset = Some(Fieldset(
@@ -72,5 +73,6 @@
         SelectItem(value = Some("PM"), text = messages("time.period.pm"), selected = form(s"$id.period").value.contains("PM"))
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
-    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*))))
+    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+    showSelectPeriod = showSelectPeriod
 ))
