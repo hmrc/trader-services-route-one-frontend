@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Json, Reads, Writes}
+import play.api.libs.json.{Format, JsError, JsString, JsSuccess, Reads, Writes}
 
 object SimpleStringFormat {
 

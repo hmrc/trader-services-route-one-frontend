@@ -32,7 +32,8 @@ case class TimeInput(
   formGroupClasses: String = "",
   fieldset: Option[Fieldset] = None,
   classes: String = "",
-  attributes: Map[String, String] = Map.empty
+  attributes: Map[String, String] = Map.empty,
+  showSelectPeriod: Boolean = true
 )
 
 object TimeInput extends JsonDefaultValueFormatter[TimeInput] {
@@ -50,7 +51,8 @@ object TimeInput extends JsonDefaultValueFormatter[TimeInput] {
         readsFormGroupClasses and
         (__ \ "fieldset").readNullable[Fieldset] and
         (__ \ "classes").read[String] and
-        (__ \ "attributes").read[Map[String, String]]
+        (__ \ "attributes").read[Map[String, String]] and
+        (__ \ "showSelectPeriod").read[Boolean]
     )(TimeInput.apply _)
 
   override implicit def jsonWrites: OWrites[TimeInput] =
@@ -64,7 +66,8 @@ object TimeInput extends JsonDefaultValueFormatter[TimeInput] {
         writesFormGroupClasses and
         (__ \ "fieldset").writeNullable[Fieldset] and
         (__ \ "classes").write[String] and
-        (__ \ "attributes").write[Map[String, String]]
+        (__ \ "attributes").write[Map[String, String]] and
+        (__ \ "showSelectPeriod").write[Boolean]
     )(unlift(TimeInput.unapply))
 
 }

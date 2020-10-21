@@ -24,26 +24,25 @@ import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import scala.util.Try
 
-object TimeFieldHelper {
+object Time24FieldHelper {
 
-  val ukTimeFormatter = DateTimeFormatter.ofPattern("hh:mm a")
+  type TimeParts = (String, String)
+
+  val isoTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
   def timeFieldsMapping(fieldName: String): Mapping[LocalTime] =
     mapping(
       "hour" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
       "minutes" -> optional(of[String].transform[String](_.trim, identity))
-        .transform(_.getOrElse(""), Option.apply[String]),
-      "period" -> optional(of[String].transform[String](_.trim.toUpperCase, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeTimeFields)(a => Option(a))
       .verifying(validTimeFields(fieldName, required = true))
       .transform[String](concatTime, splitTime)
       .transform[LocalTime](
-        LocalTime.parse(_, ukTimeFormatter),
-        ukTimeFormatter.format
+        LocalTime.parse(_, isoTimeFormatter),
+        isoTimeFormatter.format
       )
 
   def optionalTimeFieldsMapping(fieldName: String): Mapping[Option[LocalTime]] =
@@ -51,43 +50,30 @@ object TimeFieldHelper {
       "hour" -> optional(of[String].transform[String](_.trim, identity))
         .transform(_.getOrElse(""), Option.apply[String]),
       "minutes" -> optional(of[String].transform[String](_.trim, identity))
-        .transform(_.getOrElse(""), Option.apply[String]),
-      "period" -> optional(of[String].transform[String](_.trim.toUpperCase, identity))
         .transform(_.getOrElse(""), Option.apply[String])
     )(normalizeTimeFields)(a => Option(a))
       .verifying(validTimeFields(fieldName, required = false))
       .transform[String](concatTime, splitTime)
       .transform[Option[LocalTime]](
-        time => if (time.startsWith(":")) None else Some(LocalTime.parse(time, ukTimeFormatter)),
-        { case Some(time) => ukTimeFormatter.format(time); case None => "" }
+        time => if (time.startsWith(":")) None else Some(LocalTime.parse(time, isoTimeFormatter)),
+        { case Some(time) => isoTimeFormatter.format(time); case None => "" }
       )
 
-  val normalizeTimeFields: (String, String, String) => (String, String, String) = {
-    case (h, m, p) =>
-      if (h.isEmpty && m.isEmpty && p.isEmpty) (h, m, p)
+  val normalizeTimeFields: (String, String) => TimeParts = {
+    case (h, m) =>
+      if (h.isEmpty && m.isEmpty) (h, m)
       else {
         val hour = if (h.isEmpty) "" else if (h.length == 1) "0" + h else h
         val minutes = if (m.isEmpty) "" else if (m.length == 1) "0" + m else m
-        normalizeFromIso(hour, minutes, p)
+        (hour, minutes)
       }
   }
 
-  def normalizeFromIso(hour: String, minutes: String, period: String): (String, String, String) =
-    Try(hour.toInt)
-      .map { h =>
-        if (h == 0) ("12", minutes, "AM")
-        else if (h > 12 && h < 24) (f"${h - 12}%02d", minutes, "PM")
-        else (hour, minutes, period)
-      }
-      .getOrElse((hour, minutes, period))
-
-  def validTimeFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
-    Constraint[(String, String, String)](s"constraint.$fieldName.time-fields") {
-      case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
+  def validTimeFields(fieldName: String, required: Boolean): Constraint[TimeParts] =
+    Constraint[TimeParts](s"constraint.$fieldName.time-fields") {
+      case (h, m) if h.isEmpty && m.isEmpty =>
         if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
-      case (h, m, p) if h.isEmpty && m.isEmpty && isValidPeriod(p) =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
-      case (h, m, p) =>
+      case (h, m) =>
         val errors = Seq(
           if (h.isEmpty) Some(ValidationError(s"error.$fieldName.hour.required"))
           else if (!h.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.hour.invalid-digits"))
@@ -96,10 +82,7 @@ object TimeFieldHelper {
           if (m.isEmpty) Some(ValidationError(s"error.$fieldName.minutes.required"))
           else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.minutes.invalid-digits"))
           else if (isValidMinutes(m)) None
-          else Some(ValidationError(s"error.$fieldName.minutes.invalid-value")),
-          if (p.isEmpty) Some(ValidationError(s"error.$fieldName.period.required"))
-          else if (isValidPeriod(p)) None
-          else Some(ValidationError(s"error.$fieldName.period.invalid-value"))
+          else Some(ValidationError(s"error.$fieldName.minutes.invalid-value"))
         ).collect { case Some(e) => e }
 
         if (errors.isEmpty) Valid else Invalid(errors)
@@ -107,7 +90,7 @@ object TimeFieldHelper {
 
   def isValidHour(hour: String): Boolean = {
     val h = hour.toInt
-    h >= 1 && h <= 12
+    h >= 0 && h < 24
   }
 
   def isValidMinutes(minutes: String): Boolean = {
@@ -115,15 +98,12 @@ object TimeFieldHelper {
     m >= 0 && m <= 59
   }
 
-  def isValidPeriod(period: String): Boolean =
-    period == "AM" || period == "PM"
+  def concatTime(fields: TimeParts): String =
+    s"${fields._1}:${fields._2}"
 
-  def concatTime(fields: (String, String, String)): String =
-    s"${fields._1}:${fields._2} ${fields._3}"
-
-  def splitTime(time: String): (String, String, String) = {
-    val ydm: Array[String] = time.split("[: ]") ++ Array("", "")
-    (ydm(0), ydm(1), ydm(2))
+  def splitTime(time: String): TimeParts = {
+    val ydm: Array[String] = time.split(":") ++ Array("", "")
+    (ydm(0), ydm(1))
   }
 
 }

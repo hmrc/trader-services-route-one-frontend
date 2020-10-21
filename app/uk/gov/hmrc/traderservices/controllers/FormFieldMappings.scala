@@ -200,13 +200,13 @@ object FormFieldMappings {
       .transform(Option.apply, _.get)
 
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
-    TimeFieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
+    Time24FieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
 
   val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")
 
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
-    TimeFieldHelper.optionalTimeFieldsMapping("timeOfArrival")
+    Time24FieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
   val importContactEmailMapping: Mapping[Option[String]] = optional(
     of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))

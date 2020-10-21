@@ -439,11 +439,11 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate mandatory timeOfArrival" in {
-      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
-        Some(LocalTime.parse("00:00"))
-      )
-      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
         Some(LocalTime.parse("12:00"))
+      )
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
       )
       mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
         "error.timeOfArrival.all.required"
@@ -454,10 +454,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate optional timeOfArrival" in {
-      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "AM")) shouldBe Right(
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
         Some(LocalTime.parse("00:00"))
       )
-      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
+      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
         Some(LocalTime.parse("12:00"))
       )
       optionalTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)

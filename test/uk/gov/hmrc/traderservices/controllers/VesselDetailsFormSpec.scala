@@ -40,9 +40,8 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       "dateOfArrival.year"    -> f"${dateTime.get(ChronoField.YEAR)}",
       "dateOfArrival.month"   -> f"${dateTime.get(ChronoField.MONTH_OF_YEAR)}%02d",
       "dateOfArrival.day"     -> f"${dateTime.get(ChronoField.DAY_OF_MONTH)}%02d",
-      "timeOfArrival.hour"    -> f"${dateTime.get(ChronoField.CLOCK_HOUR_OF_AMPM)}%02d",
-      "timeOfArrival.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d",
-      "timeOfArrival.period"  -> { if (dateTime.get(ChronoField.AMPM_OF_DAY) == 0) "AM" else "PM" }
+      "timeOfArrival.hour"    -> f"${dateTime.get(ChronoField.HOUR_OF_DAY)}%02d",
+      "timeOfArrival.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d"
     )
 
   val formInput = formInputFor(dateTime)
@@ -106,7 +105,6 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput
         .updated("timeOfArrival.hour", "")
         .updated("timeOfArrival.minutes", "")
-        .updated("timeOfArrival.period", "")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError("timeOfArrival", "error.timeOfArrival.all.required")
@@ -127,12 +125,10 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput
         .updated("timeOfArrival.hour", "25")
         .updated("timeOfArrival.minutes", "60")
-        .updated("timeOfArrival.period", "ma")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError("timeOfArrival", "error.timeOfArrival.hour.invalid-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.period.invalid-value")
+        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value")
       )
     }
 
@@ -214,7 +210,6 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput
         .updated("timeOfArrival.hour", "")
         .updated("timeOfArrival.minutes", "")
-        .updated("timeOfArrival.period", "")
       val output = formOutput.copy(timeOfArrival = None)
       form.bind(input).value shouldBe Some(output)
       form.fill(output).data shouldBe input
@@ -226,19 +221,17 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.minutes", "")
       val output = formOutput.copy(timeOfArrival = None)
       form.bind(input).value shouldBe Some(output)
-      form.fill(output).data shouldBe input.updated("timeOfArrival.period", "")
+      form.fill(output).data shouldBe input
     }
 
     "report an error when timeOfArrival is invalid" in {
       val input = formInput
         .updated("timeOfArrival.hour", "25")
         .updated("timeOfArrival.minutes", "60")
-        .updated("timeOfArrival.period", "ma")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError("timeOfArrival", "error.timeOfArrival.hour.invalid-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value"),
-        FormError("timeOfArrival", "error.timeOfArrival.period.invalid-value")
+        FormError("timeOfArrival", "error.timeOfArrival.minutes.invalid-value")
       )
     }
 
