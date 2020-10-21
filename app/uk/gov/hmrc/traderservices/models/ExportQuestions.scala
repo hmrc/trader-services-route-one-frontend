@@ -26,20 +26,9 @@ case class ExportQuestions(
   freightType: Option[ExportFreightType] = None,
   vesselDetails: Option[VesselDetails] = None,
   contactInfo: Option[ExportContactInfo] = None
-) {
-
-  def shouldAskRouteQuestion: Boolean =
-    requestType.forall(_ != ExportRequestType.Hold)
-
-  def isVesselDetailsAnswerMandatory: Boolean =
-    requestType.exists(ExportQuestions.mandatoryVesselDetailsRequestTypes.contains)
-
-}
+)
 
 object ExportQuestions {
-
-  val mandatoryVesselDetailsRequestTypes: Set[ExportRequestType] =
-    Set(ExportRequestType.Hold, ExportRequestType.C1601, ExportRequestType.C1602)
 
   implicit val formats: Format[ExportQuestions] = Json.format[ExportQuestions]
 }

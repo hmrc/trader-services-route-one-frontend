@@ -25,6 +25,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
 import play.api.mvc.Call
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel
 
 @Singleton
 class ImportQuestionsViewContext
@@ -118,7 +119,7 @@ class ImportQuestionsViewContext
     )
 
   def getChangeCallForVesselDetails(importQuestions: ImportQuestions): Call =
-    if (importQuestions.isVesselDetailsAnswerMandatory)
+    if (TraderServicesFrontendJourneyModel.Rules.isVesselDetailsAnswerMandatory(importQuestions))
       TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
     else
       TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
@@ -138,7 +139,7 @@ class ImportQuestionsViewContext
     )
 
     val routeTypeRows =
-      if (importQuestions.shouldAskRouteQuestion)
+      if (TraderServicesFrontendJourneyModel.Rules.shouldAskRouteQuestion(importQuestions))
         Seq(
           summaryListRow(
             label = "summary.import-questions.routeType",

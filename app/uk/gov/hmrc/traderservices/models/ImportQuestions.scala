@@ -27,14 +27,7 @@ case class ImportQuestions(
   freightType: Option[ImportFreightType] = None,
   vesselDetails: Option[VesselDetails] = None,
   contactInfo: Option[ImportContactInfo] = None
-) {
-
-  def shouldAskRouteQuestion: Boolean =
-    requestType.forall(_ != ImportRequestType.Hold)
-
-  def isVesselDetailsAnswerMandatory: Boolean =
-    requestType.contains(ImportRequestType.Hold)
-}
+)
 
 object ImportQuestions {
   implicit val formats: Format[ImportQuestions] = Json.format[ImportQuestions]

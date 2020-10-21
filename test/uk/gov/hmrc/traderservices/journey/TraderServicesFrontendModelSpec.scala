@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Mergers._
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Rules._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
@@ -279,7 +280,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     "at state AnswerExportQuestionsFreightType" should {
       for (
         freightType <- ExportFreightType.values;
-        requestType <- ExportRequestType.values.diff(ExportQuestions.mandatoryVesselDetailsRequestTypes)
+        requestType <- ExportRequestType.values.diff(mandatoryVesselDetailsRequestTypes)
       )
         s"go to AnswerExportQuestionsOptionalVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
           .keyOf(requestType)
@@ -310,7 +311,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       for (
         freightType <- ExportFreightType.values;
-        requestType <- ExportQuestions.mandatoryVesselDetailsRequestTypes
+        requestType <- mandatoryVesselDetailsRequestTypes
       )
         s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
           .keyOf(requestType)
