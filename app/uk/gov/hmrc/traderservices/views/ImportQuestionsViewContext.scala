@@ -24,6 +24,8 @@ import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import play.api.mvc.Call
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel
 
 @Singleton
 class ImportQuestionsViewContext
@@ -116,6 +118,12 @@ class ImportQuestionsViewContext
       )
     )
 
+  def getChangeCallForVesselDetails(importQuestions: ImportQuestions): Call =
+    if (TraderServicesFrontendJourneyModel.Rules.isVesselDetailsAnswerMandatory(importQuestions))
+      TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
+    else
+      TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
+
   def summaryListOfImportQuestions(importQuestions: ImportQuestions)(implicit messages: Messages): SummaryList = {
 
     val requestTypeRows = Seq(
@@ -131,7 +139,7 @@ class ImportQuestionsViewContext
     )
 
     val routeTypeRows =
-      if (importQuestions.shouldAskRouteQuestion)
+      if (TraderServicesFrontendJourneyModel.Rules.shouldAskRouteQuestion(importQuestions))
         Seq(
           summaryListRow(
             label = "summary.import-questions.routeType",

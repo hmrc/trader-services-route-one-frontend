@@ -26,15 +26,7 @@ case class ExportQuestions(
   freightType: Option[ExportFreightType] = None,
   vesselDetails: Option[VesselDetails] = None,
   contactInfo: Option[ExportContactInfo] = None
-) {
-
-  def shouldAskRouteQuestion: Boolean =
-    requestType.forall(_ != ExportRequestType.Hold)
-
-  def isVesselDetailsAnswerMandatory: Boolean =
-    requestType.contains(ExportRequestType.C1601)
-
-}
+)
 
 object ExportQuestions {
 

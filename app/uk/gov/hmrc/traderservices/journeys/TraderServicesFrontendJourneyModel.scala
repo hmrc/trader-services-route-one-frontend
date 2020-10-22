@@ -138,6 +138,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       importQuestionsAnswers: ImportQuestions
     ) extends ImportQuestionsState
 
+    case class AnswerImportQuestionsMandatoryVesselInfo(
+      declarationDetails: DeclarationDetails,
+      importQuestionsAnswers: ImportQuestions
+    ) extends ImportQuestionsState
+
     case class AnswerImportQuestionsContactInfo(
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
@@ -147,6 +152,25 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
     ) extends ImportQuestionsState
+
+  }
+
+  object Rules {
+
+    val mandatoryVesselDetailsRequestTypes: Set[ExportRequestType] =
+      Set(ExportRequestType.Hold, ExportRequestType.C1601, ExportRequestType.C1602)
+
+    def shouldAskRouteQuestion(exportQuestions: ExportQuestions): Boolean =
+      exportQuestions.requestType.forall(_ != ExportRequestType.Hold)
+
+    def isVesselDetailsAnswerMandatory(exportQuestions: ExportQuestions): Boolean =
+      exportQuestions.requestType.exists(mandatoryVesselDetailsRequestTypes.contains)
+
+    def shouldAskRouteQuestion(importQuestions: ImportQuestions): Boolean =
+      importQuestions.requestType.forall(_ != ImportRequestType.Hold)
+
+    def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
+      importQuestions.requestType.contains(ImportRequestType.Hold)
 
   }
 
@@ -215,7 +239,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
           val updatedExportQuestions = exportQuestions.copy(requestType = Some(exportRequestType))
-          if (updatedExportQuestions.shouldAskRouteQuestion)
+          if (Rules.shouldAskRouteQuestion(updatedExportQuestions))
             goto(AnswerExportQuestionsRouteType(declarationDetails, updatedExportQuestions))
           else
             goto(
@@ -269,7 +293,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
           val updatedExportQuestions = exportQuestions.copy(freightType = Some(exportFreightType))
-          if (updatedExportQuestions.isVesselDetailsAnswerMandatory)
+          if (Rules.isVesselDetailsAnswerMandatory(updatedExportQuestions))
             goto(AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, updatedExportQuestions))
           else
             goto(AnswerExportQuestionsOptionalVesselInfo(declarationDetails, updatedExportQuestions))
@@ -313,7 +337,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
           val updatedImportQuestions = importQuestions.copy(requestType = Some(importRequestType))
-          if (updatedImportQuestions.shouldAskRouteQuestion)
+          if (Rules.shouldAskRouteQuestion(updatedImportQuestions))
             goto(AnswerImportQuestionsRouteType(declarationDetails, updatedImportQuestions))
           else
             goto(
@@ -374,10 +398,21 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
       Transition {
         case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
+          val updatedImportQuestions = importQuestions.copy(freightType = Some(importFreightType))
+          if (Rules.isVesselDetailsAnswerMandatory(updatedImportQuestions))
+            goto(AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, updatedImportQuestions))
+          else
+            goto(AnswerImportQuestionsOptionalVesselInfo(declarationDetails, updatedImportQuestions))
+      }
+
+    def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
+      Transition {
+        case AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, importQuestions)
+            if vesselDetails.isComplete =>
           goto(
-            AnswerImportQuestionsOptionalVesselInfo(
+            AnswerImportQuestionsContactInfo(
               declarationDetails,
-              importQuestions.copy(freightType = Some(importFreightType))
+              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
             )
           )
       }
@@ -448,6 +483,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       implicit val s6 = of[AnswerImportQuestionsALVS]((s, e) => s.copy(importQuestionsAnswers = e))
       implicit val s7 = of[AnswerImportQuestionsOptionalVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
       implicit val s8 = of[AnswerImportQuestionsContactInfo]((s, e) => s.copy(importQuestionsAnswers = e))
+      implicit val s9 = of[AnswerImportQuestionsMandatoryVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
     }
   }
 }

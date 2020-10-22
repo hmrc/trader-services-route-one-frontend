@@ -29,6 +29,8 @@ import scala.util.Try
 
 object DateFieldHelper {
 
+  val govukDateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
+
   def isValidYear(year: String) = year.matches("""^\d\d\d\d$""")
 
   def isValidMonth(month: String) = isInRange(toInt(month), 1, 12)
@@ -141,16 +143,46 @@ object DateFieldHelper {
         { case Some(date) => DateTimeFormatter.ISO_LOCAL_DATE.format(date); case None => "--" }
       )
 
-  def dateIsBefore(fieldName: String, errorType: String, withOffset: LocalDate => LocalDate): Constraint[LocalDate] =
-    Constraint[LocalDate](s"constraint.$fieldName.$errorType")(date =>
-      if (date.isBefore(withOffset(LocalDate.now()))) Valid
-      else Invalid(ValidationError(s"error.$fieldName.$errorType"))
-    )
+  def dateIsBefore(
+    fieldName: String,
+    errorType: String,
+    maxDateGen: LocalDate => LocalDate,
+    dateFormatter: DateTimeFormatter = govukDateFormat
+  ): Constraint[LocalDate] =
+    Constraint[LocalDate](s"constraint.$fieldName.$errorType") { date =>
+      val maxDate = maxDateGen(LocalDate.now())
+      if (date.isBefore(maxDate.plusDays(1))) Valid
+      else Invalid(ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(maxDate)))
+    }
 
-  def dateIsAfter(fieldName: String, errorType: String, withOffset: LocalDate => LocalDate): Constraint[LocalDate] =
-    Constraint[LocalDate](s"constraint.$fieldName.$errorType")(date =>
-      if (date.isAfter(withOffset(LocalDate.now()))) Valid
-      else Invalid(ValidationError(s"error.$fieldName.$errorType"))
-    )
+  def dateIsAfter(
+    fieldName: String,
+    errorType: String,
+    minDateGen: LocalDate => LocalDate,
+    dateFormatter: DateTimeFormatter = govukDateFormat
+  ): Constraint[LocalDate] =
+    Constraint[LocalDate](s"constraint.$fieldName.$errorType") { date =>
+      val minDate = minDateGen(LocalDate.now())
+      if (date.isAfter(minDate.minusDays(1))) Valid
+      else Invalid(ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(minDate)))
+    }
+
+  def dateIsBetween(
+    fieldName: String,
+    errorType: String,
+    minDateGen: LocalDate => LocalDate,
+    maxDateGen: LocalDate => LocalDate,
+    dateFormatter: DateTimeFormatter = govukDateFormat
+  ): Constraint[LocalDate] =
+    Constraint[LocalDate](s"constraint.$fieldName.$errorType") { date =>
+      val now = LocalDate.now()
+      val minDate = minDateGen(now)
+      val maxDate = maxDateGen(now)
+      if (date.isAfter(minDate.minusDays(1)) && date.isBefore(maxDate.plusDays(1))) Valid
+      else
+        Invalid(
+          ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(minDate), dateFormatter.format(maxDate))
+        )
+    }
 
 }

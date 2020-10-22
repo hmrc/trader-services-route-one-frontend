@@ -22,6 +22,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Mergers._
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Rules._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
@@ -279,7 +280,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     "at state AnswerExportQuestionsFreightType" should {
       for (
         freightType <- ExportFreightType.values;
-        requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.C1601)
+        requestType <- ExportRequestType.values.diff(mandatoryVesselDetailsRequestTypes)
       )
         s"go to AnswerExportQuestionsOptionalVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
           .keyOf(requestType)
@@ -308,13 +309,18 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      for (freightType <- ExportFreightType.values)
-        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType and requestType==C1601, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+      for (
+        freightType <- ExportFreightType.values;
+        requestType <- mandatoryVesselDetailsRequestTypes
+      )
+        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerExportQuestionsFreightType(
               exportDeclarationDetails,
               ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
+                requestType = Some(requestType),
                 routeType = Some(ExportRouteType.Route3),
                 priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
               )
@@ -325,7 +331,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             AnswerExportQuestionsMandatoryVesselInfo(
               exportDeclarationDetails,
               ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
+                requestType = Some(requestType),
                 routeType = Some(ExportRouteType.Route3),
                 priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
                 freightType = Some(freightType)
@@ -663,8 +669,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
     "at state AnswerImportQuestionsFreightType" should {
       for (
-        freightType <- ImportFreightType.values.filterNot(_ == ImportFreightType.Maritime);
-        requestType <- ImportRequestType.values
+        freightType <- ImportFreightType.values;
+        requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold)
       )
         s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
@@ -693,29 +699,32 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      for (requestType <- ImportRequestType.values)
-        s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+      for (
+        freightType <- ImportFreightType.values;
+        requestType = ImportRequestType.Hold
+      )
+        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
-          .get}, and freightType=Maritime" in {
+          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerImportQuestionsFreightType(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(requestType),
                 routeType = Some(ImportRouteType.Route3),
-                hasALVS = Some(true)
+                hasALVS = Some(false)
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
-            ImportFreightType.Maritime
+            freightType
           ) should thenGo(
-            AnswerImportQuestionsOptionalVesselInfo(
+            AnswerImportQuestionsMandatoryVesselInfo(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(requestType),
                 routeType = Some(ImportRouteType.Route3),
-                freightType = Some(ImportFreightType.Maritime),
-                hasALVS = Some(true)
+                freightType = Some(freightType),
+                hasALVS = Some(false)
               )
             )
           )
