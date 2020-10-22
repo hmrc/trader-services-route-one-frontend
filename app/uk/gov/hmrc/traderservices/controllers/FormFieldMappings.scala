@@ -149,7 +149,7 @@ object FormFieldMappings {
 
   val importHasALVSMapping: Mapping[Boolean] = booleanMapping("importHasALVS", "yes", "no")
 
-  val allowedSpecialNameCharacterSet = Set(' ', '-', '&', '\'', '.')
+  val allowedSpecialNameCharacterSet = Set(' ', '/', '\\', '_', '-', '&', '+', '\'', '.')
 
   val mandatoryVesselNameMapping: Mapping[Option[String]] = of[String]
     .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
