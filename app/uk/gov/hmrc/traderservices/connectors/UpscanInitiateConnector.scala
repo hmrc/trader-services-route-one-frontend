@@ -47,11 +47,6 @@ class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet wit
         .POST[UpscanInitiateRequest, UpscanInitiateResponse](
           new URL(baseUrl + upscanInitiatev2Path).toExternalForm,
           request
-        )(
-          implicitly[Writes[UpscanInitiateRequest]],
-          implicitly[HttpReads[UpscanInitiateResponse]],
-          hc.withExtraHeaders("User-Agent" -> userAgent),
-          implicitly[ExecutionContext]
         )
         .recoverWith {
           case e: Throwable =>
