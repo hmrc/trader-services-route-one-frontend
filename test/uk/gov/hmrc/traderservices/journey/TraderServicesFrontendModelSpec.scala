@@ -839,12 +839,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             importDeclarationDetails,
             fullExportQuestions
           )
-        ) when initiateFileUpload("https://foo.bar/1")(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
+          mockUpscanInitiate
+        )(eoriNumber) should thenGo(
           UploadFile(
             importDeclarationDetails,
             fullExportQuestions,
             "foo-bar-ref",
-            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/1")),
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
           )
         )
@@ -857,21 +859,39 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           Future.successful(
             UpscanInitiateResponse(
               reference = "foo-bar-ref",
-              uploadRequest =
-                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+              uploadRequest = UploadRequest(
+                href = "https://s3.bucket",
+                fields = Map(
+                  "callbackUrl"     -> request.callbackUrl,
+                  "successRedirect" -> request.successRedirect.getOrElse(""),
+                  "errorRedirect"   -> request.errorRedirect.getOrElse("")
+                )
+              )
             )
           )
+
         given(
           ImportQuestionsSummary(
             importDeclarationDetails,
             fullImportQuestions
           )
-        ) when initiateFileUpload("https://foo.bar/1")(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
+          mockUpscanInitiate
+        )(
+          eoriNumber
+        ) should thenGo(
           UploadFile(
             importDeclarationDetails,
             fullImportQuestions,
             "foo-bar-ref",
-            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/1")),
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
           )
         )

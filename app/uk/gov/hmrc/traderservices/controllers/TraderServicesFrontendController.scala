@@ -315,8 +315,12 @@ class TraderServicesFrontendController @Inject() (
       .orApplyWithRequest { implicit request =>
         val callbackUrl =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+        val successRedirect =
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUploaded
+        val errorRedirect =
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
         Transitions
-          .initiateFileUpload(callbackUrl)(
+          .initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(
             upscanInitiateConnector.initiate(_)
           )
       }
