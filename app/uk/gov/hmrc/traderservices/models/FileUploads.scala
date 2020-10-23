@@ -34,7 +34,10 @@ object FileUploads {
   implicit val formats: Format[FileUploads] = Json.format[FileUploads]
 }
 
-sealed trait FileUpload
+sealed trait FileUpload {
+  def orderNumber: Int
+  def reference: String
+}
 
 object FileUpload {
 

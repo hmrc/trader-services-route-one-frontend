@@ -897,6 +897,57 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state UploadFile" should {
+      "go to WaitingForFileVerification when fileUploaded and not verified yet" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(3, "foo-bar-ref-3")
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(2, "foo-bar-ref-2"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(3, "foo-bar-ref-3")
+              )
+            )
+          )
+        )
+      }
+    }
   }
 
   case class given[S <: State: ClassTag](initialState: S)

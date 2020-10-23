@@ -24,11 +24,12 @@
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
         govukFileUpload: GovukFileUpload,
+        govukButton: GovukButton,
         context: ImportQuestionsViewContext,
         appConfig: AppConfig
 )
 
-@(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, backLink: Call, waiting: Boolean)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages(if(fileUploads.isFirst) "view.upload-file.first.title" else "view.upload-file.next.title")),
@@ -39,6 +40,15 @@
     @forms.fieldset(
       legend = messages(if(fileUploads.isFirst) "view.upload-file.first.heading" else "view.upload-file.next.heading")
     ) { 
+
+        @if(waiting){
+          <div id="processing" aria-live="polite" class="govuk-!-margin-bottom-5">
+              <h2 class="govuk-heading-m">@messages("view.upload-file.waiting")</h2>
+              <div>
+                <div class="ccms-loader"></div>
+              </div>
+          </div>
+        }
 
         @uploadRequest.fields.map { case (key, value) =>
           @forms.inputHidden(key, value)
@@ -62,10 +72,15 @@
             "data-msg-required" -> messages("error.upload-file.required"),
             "data-msg-filesize" -> messages("error.upload-file.filesize"),
             "data-msg-accept" -> messages("error.upload-file.accept")
-          )
+          ) ++ (if(waiting) Map("disabled" -> "") else Map.empty)
         ))
 
-        @html.button("form.upload-file.submit")
+        
+        @govukButton(Button(
+          content = Text(messages("form.upload-file.submit")),
+          preventDoubleClick = true,
+          disabled = waiting
+        ))
       }
 
   </form>
