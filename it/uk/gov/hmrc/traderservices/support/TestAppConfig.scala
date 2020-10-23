@@ -24,4 +24,6 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   override val authorisedServiceName: String = "HMRC-XYZ"
   override val authorisedIdentifierKey: String = "EORINumber"
   override val subscriptionJourneyUrl: String = "/subscription"
+
+  val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(10, "", "")
 }

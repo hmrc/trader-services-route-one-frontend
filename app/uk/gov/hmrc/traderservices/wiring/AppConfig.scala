@@ -26,8 +26,9 @@ import scala.util.Try
 
 object AppConfig {
   val vesselArrivalConstraintMonths = 6
-}
 
+  case class FileFormats(maxFileSizeMb: Int, approvedFileTypes: String, approvedFileExtensions: String)
+}
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
 
@@ -64,6 +65,8 @@ trait AppConfig {
   val signOutUrl: String
   val researchBannerUrl: String
 
+  val fileFormats: AppConfig.FileFormats
+
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -99,5 +102,11 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   val signOutUrl: String = config.getString("urls.signOut")
   val researchBannerUrl: String = config.getString("urls.researchBanner")
+
+  val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
+    maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),
+    approvedFileTypes = config.getString("file-formats.approved-file-extensions"),
+    approvedFileExtensions = config.getString("file-formats.approved-file-types")
+  )
 
 }
