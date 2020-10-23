@@ -5,6 +5,7 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends AppConfig {
 
   override val appName: String = "trader-services-frontend"
+  override val baseCallbackUrl: String = wireMockBaseUrl
   override val authBaseUrl: String = wireMockBaseUrl
   override val traderServicesApiBaseUrl: String = wireMockBaseUrl
   override val upscanInitiateBaseUrl: String = wireMockBaseUrl

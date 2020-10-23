@@ -41,5 +41,6 @@ class Views @Inject() (
   val importQuestionsMandatoryVesselDetailsView: ImportQuestionsMandatoryVesselDetailsView,
   val importQuestionsOptionalVesselDetailsView: ImportQuestionsOptionalVesselDetailsView,
   val importQuestionsContactInfoView: ImportQuestionsContactInfoView,
-  val importQuestionsSummaryView: ImportQuestionsSummaryView
+  val importQuestionsSummaryView: ImportQuestionsSummaryView,
+  val uploadFileView: UploadFileView
 )

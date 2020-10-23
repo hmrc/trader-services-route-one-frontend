@@ -17,6 +17,7 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.traderservices.models.UploadRequest
 
 /**
   * Response from Upscan Initiate.
@@ -50,17 +51,10 @@ import play.api.libs.json.{Format, Json}
   */
 case class UpscanInitiateResponse(
   reference: String,
-  uploadRequest: UpscanInitiateResponse.UploadRequest
+  uploadRequest: UploadRequest
 )
 
 object UpscanInitiateResponse {
-
-  case class UploadRequest(href: String, fields: Map[String, String])
-
-  object UploadRequest {
-    implicit val formats: Format[UploadRequest] =
-      Json.format[UploadRequest]
-  }
 
   implicit val formats: Format[UpscanInitiateResponse] =
     Json.format[UpscanInitiateResponse]

@@ -44,6 +44,10 @@ GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc
 POST       /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer
 GET        /pre-clearance/import-questions/check-your-answers       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showImportQuestionsSummary
 
+GET        /pre-clearance/file-upload                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUpload
+GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUploaded
+GET        /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.callbackFromUpscan(journeyId: String)
+
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
 GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)

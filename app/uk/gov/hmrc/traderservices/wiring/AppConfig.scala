@@ -33,6 +33,7 @@ trait AppConfig {
 
   val host: String
   val appName: String
+  val baseCallbackUrl: String
   val authBaseUrl: String
   val traderServicesApiBaseUrl: String
   val upscanInitiateBaseUrl: String
@@ -70,6 +71,8 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   val host: String = config.getString("host")
 
   val appName: String = config.getString("appName")
+
+  val baseCallbackUrl: String = config.getString("urls.callback")
 
   val authBaseUrl: String = config.baseUrl("auth")
 

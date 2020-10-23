@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.support.WireMockSupport
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse.UploadRequest
+import uk.gov.hmrc.traderservices.models.UploadRequest
 
 trait UpscanInitiateStubs {
   me: WireMockSupport =>

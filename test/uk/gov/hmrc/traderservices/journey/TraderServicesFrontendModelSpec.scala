@@ -31,6 +31,9 @@ import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalTime
 import scala.reflect.ClassTag
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
+import scala.concurrent.Future
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -820,6 +823,60 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
     }
+
+    "at state ExportQuestionsSummary" should {
+      "go to UploadFile when initiateFileUpload" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+            )
+          )
+        given(
+          ExportQuestionsSummary(
+            importDeclarationDetails,
+            fullExportQuestions
+          )
+        ) when initiateFileUpload("https://foo.bar/1")(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullExportQuestions,
+            "foo-bar-ref",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/1")),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+    }
+
+    "at state ImportQuestionsSummary" should {
+      "go to UploadFile when initiateFileUpload" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+            )
+          )
+        given(
+          ImportQuestionsSummary(
+            importDeclarationDetails,
+            fullImportQuestions
+          )
+        ) when initiateFileUpload("https://foo.bar/1")(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/1")),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+    }
   }
 
   case class given[S <: State: ClassTag](initialState: S)
@@ -850,5 +907,28 @@ trait TestData {
   val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
   val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
   val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+
+  val fullExportQuestions = ExportQuestions(
+    requestType = Some(ExportRequestType.New),
+    routeType = Some(ExportRouteType.Route3),
+    hasPriorityGoods = Some(true),
+    priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+    freightType = Some(ExportFreightType.Air),
+    vesselDetails =
+      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+    contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+  )
+
+  val fullImportQuestions = ImportQuestions(
+    requestType = Some(ImportRequestType.New),
+    routeType = Some(ImportRouteType.Route3),
+    hasPriorityGoods = Some(true),
+    priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+    hasALVS = Some(true),
+    freightType = Some(ImportFreightType.Air),
+    contactInfo = Some(ImportContactInfo(contactEmail = Some("name@somewhere.com"))),
+    vesselDetails =
+      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+  )
 
 }
