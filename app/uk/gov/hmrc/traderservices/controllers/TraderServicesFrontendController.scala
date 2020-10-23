@@ -316,7 +316,7 @@ class TraderServicesFrontendController @Inject() (
         val callbackUrl =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
         val successRedirect =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUploaded
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
         val errorRedirect =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
         Transitions
@@ -325,9 +325,14 @@ class TraderServicesFrontendController @Inject() (
           )
       }
 
+  // GET /pre-clearance/file-verification
+  val showWaitingForFileVerification: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyThenRedirectOrDisplay(_ => Transitions.waitForFileVerification)
+
   // GET /pre-clearance/file-uploaded
   def showFileUploaded: Action[AnyContent] =
-    actionNotYetImplemented
+    whenAuthorisedAsUser.show[State.FileUploaded]
 
   // GET /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
@@ -404,6 +409,12 @@ class TraderServicesFrontendController @Inject() (
 
       case _: UploadFile =>
         routes.TraderServicesFrontendController.showFileUpload()
+
+      case _: WaitingForFileVerification =>
+        routes.TraderServicesFrontendController.showWaitingForFileVerification()
+
+      case _: FileUploaded =>
+        routes.TraderServicesFrontendController.showFileUploaded()
 
       case _ =>
         workInProgresDeadEndCall
@@ -612,7 +623,19 @@ class TraderServicesFrontendController @Inject() (
             reference,
             uploadRequest,
             fileUploads,
-            backLinkFor(breadcrumbs)
+            backLinkFor(breadcrumbs),
+            waiting = false
+          )
+        )
+
+      case WaitingForFileVerification(_, _, reference, uploadRequest, _, fileUploads) =>
+        Ok(
+          views.uploadFileView(
+            reference,
+            uploadRequest,
+            fileUploads,
+            backLinkFor(breadcrumbs),
+            waiting = true
           )
         )
 

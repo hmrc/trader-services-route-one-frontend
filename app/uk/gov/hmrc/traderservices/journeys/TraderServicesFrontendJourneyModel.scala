@@ -22,6 +22,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.ExecutionContext
+import java.io.File
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -165,6 +166,22 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       fileUploads: FileUploads
     ) extends State
 
+    case class WaitingForFileVerification(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      reference: String,
+      uploadRequest: UploadRequest,
+      currentFileUpload: FileUpload,
+      fileUploads: FileUploads
+    ) extends State
+
+    case class FileUploaded(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      currentFileUpload: FileUpload,
+      fileUploads: FileUploads
+    ) extends State
+
   }
 
   object Rules {
@@ -183,6 +200,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
       importQuestions.requestType.contains(ImportRequestType.Hold)
+
+    val maxFileUploadsNumber = 10
 
   }
 
@@ -257,7 +276,6 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             goto(
               AnswerExportQuestionsHasPriorityGoods(declarationDetails, updatedExportQuestions.copy(routeType = None))
             )
-
       }
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
@@ -492,6 +510,53 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             upscanResponse.uploadRequest,
             FileUploads(files = Seq(FileUpload.Initiated(1, upscanResponse.reference)))
           )
+      }
+
+    def waitForFileVerification(user: String) =
+      Transition {
+        case current @ UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case FileUpload.Initiated(orderNumber, ref) if ref == reference => FileUpload.Posted(orderNumber, reference)
+            case u                                                          => u
+          })
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case Some(upload: FileUpload.Posted) =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  upload,
+                  updatedFileUploads
+                )
+              )
+
+            case Some(upload) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, upload, updatedFileUploads))
+
+            case None =>
+              goto(current)
+          }
+
+        case current @ WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          fileUploads.files.find(_.reference == reference) match {
+            case Some(upload: FileUpload.Posted) =>
+              goto(current)
+
+            case Some(upload) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, upload, fileUploads))
+
+            case None =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
+          }
       }
   }
 

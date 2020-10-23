@@ -360,27 +360,65 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |]}}}""".stripMargin,
         State.UploadFile(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(false),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
-                timeOfArrival = Some(LocalTime.parse("10:09"))
-              )
-            ),
-            contactInfo = Some(
-              ExportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
-                contactNumber = Some("012345678910")
-              )
-            )
-          ),
+          exportQuestions,
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Accepted(4, "foo4"),
+              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Posted(3, "foo3")
+            )
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"FileUploaded","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
+          |"fileUploads":{"files":[
+          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |]}}}""".stripMargin,
+        State.FileUploaded(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          exportQuestions,
+          FileUpload.Posted(3, "foo3"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Accepted(4, "foo4"),
+              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Posted(3, "foo3")
+            )
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"WaitingForFileVerification","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"reference":"foo-bar-ref-2",
+          |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
+          |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
+          |"fileUploads":{"files":[
+          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |]}}}""".stripMargin,
+        State.WaitingForFileVerification(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          exportQuestions,
+          "foo-bar-ref-2",
+          UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
+          FileUpload.Posted(3, "foo3"),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "foo1"),
@@ -401,4 +439,24 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
     }
 
   }
+
+  val exportQuestions = ExportQuestions(
+    requestType = Some(ExportRequestType.New),
+    routeType = Some(ExportRouteType.Route2),
+    hasPriorityGoods = Some(false),
+    freightType = Some(ExportFreightType.Air),
+    vesselDetails = Some(
+      VesselDetails(
+        vesselName = Some("Foo Bar"),
+        dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+        timeOfArrival = Some(LocalTime.parse("10:09"))
+      )
+    ),
+    contactInfo = Some(
+      ExportContactInfo(
+        contactEmail = Some("name@somewhere.com"),
+        contactNumber = Some("012345678910")
+      )
+    )
+  )
 }

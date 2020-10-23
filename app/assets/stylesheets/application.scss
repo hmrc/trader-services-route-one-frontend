@@ -15,6 +15,7 @@ $hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 @import "language-toggle";
 @import "research-banner";
 @import "responsive-table";
+@import "upload-loading";
 
 .app-\!-previous-claims-status-width {
     width: 30.5% !important;
