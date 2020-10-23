@@ -454,12 +454,20 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     type UpscanInitiate = UpscanInitiateRequest => Future[UpscanInitiateResponse]
 
     def initiateFileUpload(
-      callbackUrl: String
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String
     )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case ExportQuestionsSummary(declarationDetails, exportQuestionsAnswers) =>
           for {
-            upscanResponse <- upscanInitiate(UpscanInitiateRequest(callbackUrl))
+            upscanResponse <- upscanInitiate(
+                                UpscanInitiateRequest(
+                                  callbackUrl = callbackUrl,
+                                  successRedirect = Some(successRedirect),
+                                  errorRedirect = Some(errorRedirect)
+                                )
+                              )
           } yield UploadFile(
             declarationDetails,
             exportQuestionsAnswers,
@@ -470,7 +478,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
         case ImportQuestionsSummary(declarationDetails, importQuestionsAnswers) =>
           for {
-            upscanResponse <- upscanInitiate(UpscanInitiateRequest(callbackUrl))
+            upscanResponse <- upscanInitiate(
+                                UpscanInitiateRequest(
+                                  callbackUrl = callbackUrl,
+                                  successRedirect = Some(successRedirect),
+                                  errorRedirect = Some(errorRedirect)
+                                )
+                              )
           } yield UploadFile(
             declarationDetails,
             importQuestionsAnswers,
