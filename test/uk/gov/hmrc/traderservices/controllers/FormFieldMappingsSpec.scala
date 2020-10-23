@@ -464,6 +464,22 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
     }
 
+    "validate import contactNameMapping" in {
+      importContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactName.required"
+      )
+
+      importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+    }
+
+    "validate export contactNameMapping" in {
+      exportContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactName.required"
+      )
+
+      exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+    }
+
     "validate import contactEmailMapping" in {
       importContactEmailMapping.bind(Map("" -> "")) should haveOnlyError(
         "error.contactEmail.required"

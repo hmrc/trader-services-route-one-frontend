@@ -41,6 +41,17 @@
 
             @forms.inputText(
                 form = form,
+                id = "contactName",
+                name = "contactName",
+                label = "form.export-questions.contactName",
+                isPageHeading = false,
+                isInFieldset = true,
+                classes = Some("govuk-input--width-20"),
+                attributes = Map("autocomplete" -> "name")
+            )
+
+            @forms.inputText(
+                form = form,
                 id = "contactEmail",
                 name = "contactEmail",
                 label = "form.export-questions.contactEmail",

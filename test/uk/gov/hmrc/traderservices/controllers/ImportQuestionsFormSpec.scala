@@ -94,14 +94,18 @@ class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
       val form = TraderServicesFrontendController.ImportContactForm
       validate(
         form,
-        Map("contactEmail" -> "name@example.com"),
-        ImportContactInfo(contactEmail = "name@example.com")
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com"),
+        ImportContactInfo(contactName = "Full Name", contactEmail = "name@example.com")
       )
 
       validate(
         form,
-        Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
-        ImportContactInfo(contactEmail = "name@example.com", contactNumber = Some("01234567891"))
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
+        ImportContactInfo(
+          contactName = "Full Name",
+          contactEmail = "name@example.com",
+          contactNumber = Some("01234567891")
+        )
       )
     }
   }

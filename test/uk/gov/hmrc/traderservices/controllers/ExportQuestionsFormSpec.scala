@@ -98,14 +98,18 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
       val form = TraderServicesFrontendController.ExportContactForm
       validate(
         form,
-        Map("contactEmail" -> "name@example.com"),
-        ExportContactInfo(contactEmail = "name@example.com")
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com"),
+        ExportContactInfo(contactName = "Full Name", contactEmail = "name@example.com")
       )
 
       validate(
         form,
-        Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
-        ExportContactInfo(contactEmail = "name@example.com", contactNumber = Some("01234567891"))
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
+        ExportContactInfo(
+          contactName = "Full Name",
+          contactEmail = "name@example.com",
+          contactNumber = Some("01234567891")
+        )
       )
     }
 

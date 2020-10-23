@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.models
 import play.api.libs.json.{Format, Json}
 
 case class ExportContactInfo(
+  contactName: String,
   contactEmail: String,
   contactNumber: Option[String] = None
 ) {

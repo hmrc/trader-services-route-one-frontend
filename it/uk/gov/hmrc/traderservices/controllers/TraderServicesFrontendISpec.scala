@@ -661,7 +661,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
     }
 
     "POST /pre-clearance/export-questions/contact-info" should {
-      "ask for the next page when only email submitted" in {
+      "ask for the next page when only email and name submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsContactInfo(
@@ -677,6 +677,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
+          "contactName"  -> "Full Name",
           "contactEmail" -> "someone@email.com"
         )
         val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
@@ -689,7 +690,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
-            contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
+            contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
         )
       }
@@ -713,7 +714,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
                 timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
               )
             ),
-            contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
+            contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
         )
         journey.setState(state)
@@ -1225,7 +1226,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
     }
 
     "POST /pre-clearance/import-questions/contact-info" should {
-      "ask for the next page when only email submitted" in {
+      "ask for the next page when only email and name submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsContactInfo(
@@ -1240,7 +1241,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("contactEmail" -> "someone@email.com")
+        val payload = Map(
+          "contactName"  -> "Full Name",
+          "contactEmail" -> "someone@email.com"
+        )
 
         val result = await(request("/pre-clearance/import-questions/contact-info").post(payload))
 
@@ -1253,7 +1257,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             routeType = Some(ImportRouteType.Route6),
             priorityGoods = Some(ImportPriorityGoods.HighValueArt),
             freightType = Some(ImportFreightType.Air),
-            contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
+            contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
         )
       }
@@ -1277,7 +1281,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
                 timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
               )
             ),
-            contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
+            contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
         )
         journey.setState(state)

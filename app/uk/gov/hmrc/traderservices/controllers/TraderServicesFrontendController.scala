@@ -621,6 +621,7 @@ object TraderServicesFrontendController {
 
   val ExportContactForm = Form[ExportContactInfo](
     mapping(
+      "contactName"   -> exportContactNameMapping,
       "contactEmail"  -> exportContactEmailMapping,
       "contactNumber" -> exportContactNumberMapping
     )(ExportContactInfo.apply)(ExportContactInfo.unapply)
@@ -652,6 +653,7 @@ object TraderServicesFrontendController {
 
   val ImportContactForm = Form[ImportContactInfo](
     mapping(
+      "contactName"   -> importContactNameMapping,
       "contactEmail"  -> importContactEmailMapping,
       "contactNumber" -> importContactNumberMapping
     )(ImportContactInfo.apply)(ImportContactInfo.unapply)
