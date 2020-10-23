@@ -402,6 +402,13 @@ summary.contact-details.contactName=Full name
 summary.contact-details.contactEmail=Email address
 summary.contact-details.contactNumber=Phone number
 
+# File upload messages
+# ----------------------------------------------------------
+view.upload-file.first.title=Upload your first document
+view.upload-file.first.heading=Upload your first document
+view.upload-file.next.title=Upload another document
+view.upload-file.next.heading=Upload another document
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:

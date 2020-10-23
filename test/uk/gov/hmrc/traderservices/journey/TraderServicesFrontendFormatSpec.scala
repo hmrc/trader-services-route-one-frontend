@@ -297,6 +297,100 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           )
         )
       )
+      validateJsonFormat(
+        """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"questionsAnswers":{"import":{"requestType":"Hold","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"reference":"foo-bar-ref",
+          |"uploadRequest":{"href":"https://foo.bar","fields":{}},
+          |"fileUploads":{"files":[
+          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"posted":{"orderNumber":3,"reference":"foo3"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2"}}
+          |]}}}""".stripMargin,
+        State.UploadFile(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.Hold),
+            routeType = Some(ImportRouteType.Route3),
+            hasPriorityGoods = Some(true),
+            priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+            hasALVS = Some(true),
+            freightType = Some(ImportFreightType.RORO),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                timeOfArrival = Some(LocalTime.parse("00:00"))
+              )
+            ),
+            contactInfo = Some(
+              ImportContactInfo(
+                contactEmail = Some("name@somewhere.com"),
+                contactNumber = Some("012345678910")
+              )
+            )
+          ),
+          "foo-bar-ref",
+          UploadRequest(href = "https://foo.bar", fields = Map.empty),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Posted(3, "foo3"),
+              FileUpload.Accepted(4, "foo4"),
+              FileUpload.Rejected(2, "foo2")
+            )
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
+          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"reference":"foo-bar-ref-2",
+          |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
+          |"fileUploads":{"files":[
+          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |]}}}""".stripMargin,
+        State.UploadFile(
+          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route2),
+            hasPriorityGoods = Some(false),
+            freightType = Some(ExportFreightType.Air),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                timeOfArrival = Some(LocalTime.parse("10:09"))
+              )
+            ),
+            contactInfo = Some(
+              ExportContactInfo(
+                contactEmail = Some("name@somewhere.com"),
+                contactNumber = Some("012345678910")
+              )
+            )
+          ),
+          "foo-bar-ref-2",
+          UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Accepted(4, "foo4"),
+              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Posted(3, "foo3")
+            )
+          )
+        )
+      )
     }
 
     "throw an exception when unknown state" in {

@@ -32,12 +32,14 @@ import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceW
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
   appConfig: AppConfig,
   override val messagesApi: MessagesApi,
   traderServicesApiConnector: TraderServicesApiConnector,
+  upscanInitiateConnector: UpscanInitiateConnector,
   val authConnector: FrontendAuthConnector,
   val env: Environment,
   override val journeyService: TraderServicesFrontendJourneyServiceWithHeaderCarrier,
@@ -306,6 +308,27 @@ class TraderServicesFrontendController @Inject() (
   val showImportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser.show[State.ImportQuestionsSummary]
 
+  // GET /pre-clearance/file-upload
+  val showFileUpload: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.UploadFile]
+      .orApplyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+        Transitions
+          .initiateFileUpload(callbackUrl)(
+            upscanInitiateConnector.initiate(_)
+          )
+      }
+
+  // GET /pre-clearance/file-uploaded
+  def showFileUploaded: Action[AnyContent] =
+    actionNotYetImplemented
+
+  // GET /pre-clearance/journey/:journeyId/callback-from-upscan
+  def callbackFromUpscan(journeyId: String): Action[AnyContent] =
+    actionNotYetImplemented
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -374,6 +397,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: ImportQuestionsSummary =>
         routes.TraderServicesFrontendController.showImportQuestionsSummary()
+
+      case _: UploadFile =>
+        routes.TraderServicesFrontendController.showFileUpload()
 
       case _ =>
         workInProgresDeadEndCall
@@ -471,7 +497,7 @@ class TraderServicesFrontendController @Inject() (
           views.exportQuestionsSummaryView(
             declarationDetails,
             exportQuestions,
-            workInProgresDeadEndCall,
+            routes.TraderServicesFrontendController.showFileUpload,
             backLinkFor(breadcrumbs)
           )
         )
@@ -571,7 +597,17 @@ class TraderServicesFrontendController @Inject() (
           views.importQuestionsSummaryView(
             declarationDetails,
             importQuestions,
-            workInProgresDeadEndCall,
+            routes.TraderServicesFrontendController.showFileUpload,
+            backLinkFor(breadcrumbs)
+          )
+        )
+
+      case UploadFile(_, _, reference, uploadRequest, fileUploads) =>
+        Ok(
+          views.uploadFileView(
+            reference,
+            uploadRequest,
+            fileUploads,
             backLinkFor(breadcrumbs)
           )
         )
@@ -579,6 +615,18 @@ class TraderServicesFrontendController @Inject() (
       case _ => NotImplemented
 
     }
+
+  private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
+
+  override def journeyId(implicit rh: RequestHeader): Option[String] = {
+    val journeyIdFromSession = rh.session.get(journeyService.journeyKey)
+    journeyIdFromSession.orElse(rh.path match {
+      case journeyIdPathParamRegex(id) => Some(id)
+      case _                           => None
+    })
+  }
+
+  def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get
 
   override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
     appendJourneyId(super.hc)

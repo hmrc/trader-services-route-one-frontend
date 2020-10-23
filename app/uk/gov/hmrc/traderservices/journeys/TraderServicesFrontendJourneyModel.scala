@@ -18,6 +18,10 @@ package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.play.fsm.JourneyModel
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
+import scala.concurrent.ExecutionContext
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -152,6 +156,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
     ) extends ImportQuestionsState
+
+    case class UploadFile(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      reference: String,
+      uploadRequest: UploadRequest,
+      fileUploads: FileUploads
+    ) extends State
 
   }
 
@@ -436,6 +448,35 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               declarationDetails,
               importQuestions.copy(contactInfo = Some(contactInfo))
             )
+          )
+      }
+
+    type UpscanInitiate = UpscanInitiateRequest => Future[UpscanInitiateResponse]
+
+    def initiateFileUpload(
+      callbackUrl: String
+    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+      Transition {
+        case ExportQuestionsSummary(declarationDetails, exportQuestionsAnswers) =>
+          for {
+            upscanResponse <- upscanInitiate(UpscanInitiateRequest(callbackUrl))
+          } yield UploadFile(
+            declarationDetails,
+            exportQuestionsAnswers,
+            upscanResponse.reference,
+            upscanResponse.uploadRequest,
+            FileUploads(files = Seq(FileUpload.Initiated(1, upscanResponse.reference)))
+          )
+
+        case ImportQuestionsSummary(declarationDetails, importQuestionsAnswers) =>
+          for {
+            upscanResponse <- upscanInitiate(UpscanInitiateRequest(callbackUrl))
+          } yield UploadFile(
+            declarationDetails,
+            importQuestionsAnswers,
+            upscanResponse.reference,
+            upscanResponse.uploadRequest,
+            FileUploads(files = Seq(FileUpload.Initiated(1, upscanResponse.reference)))
           )
       }
   }
