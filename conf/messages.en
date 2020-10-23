@@ -293,7 +293,8 @@ form.export-questions.vessel-details.timeOfArrivalOptional=Time of arrival (opti
 form.export-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
 form.export-questions.contactName=Full Name
 form.export-questions.contactEmail=Email address
-form.export-questions.contactNumber=Phone number
+form.export-questions.contactNumber=Phone number (optional)
+form.export-questions.contactNumber.hint=Enter a U.K. landline or mobile number
 form.export-questions.continue=Continue
 form.export-questions.summary.continue=Continue to file upload
 
@@ -360,7 +361,8 @@ form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (opti
 form.import-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
 form.import-questions.contactName=Full Name
 form.import-questions.contactEmail=Email address
-form.import-questions.contactNumber=Phone number
+form.import-questions.contactNumber=Phone number (optional)
+form.import-questions.contactNumber.hint=Enter a U.K. landline or mobile number
 form.import-questions.continue=Continue
 form.import-questions.summary.continue=Continue to file upload
 
