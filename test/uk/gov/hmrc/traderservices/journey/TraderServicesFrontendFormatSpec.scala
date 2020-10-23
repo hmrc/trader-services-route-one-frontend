@@ -123,7 +123,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             freightType = Some(ExportFreightType.RORO),
             contactInfo = Some(
               ExportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )
@@ -237,7 +237,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             freightType = Some(ImportFreightType.RORO),
             contactInfo = Some(
               ImportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )
@@ -267,7 +267,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             ),
             contactInfo = Some(
               ImportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )

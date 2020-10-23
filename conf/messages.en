@@ -371,6 +371,7 @@ error.transportationType.required=Tell us what type of freight transportation is
 error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
 error.contactNumber=Phone number must contain numbers only
 error.contactEmail=Enter an email address in the correct format, like name@example.com
+error.contactEmail.required=Enter an email address
 
 # Summary messages
 # ----------------------------------------------------------

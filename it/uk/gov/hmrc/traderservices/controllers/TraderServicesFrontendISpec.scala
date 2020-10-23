@@ -689,7 +689,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             routeType = Some(ExportRouteType.Route6),
             priorityGoods = Some(ExportPriorityGoods.HighValueArt),
             freightType = Some(ExportFreightType.Air),
-            contactInfo = Some(ExportContactInfo(contactEmail = Some("someone@email.com")))
+            contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
           )
         )
       }
@@ -712,7 +712,8 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
                 dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
                 timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
               )
-            )
+            ),
+            contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
           )
         )
         journey.setState(state)
@@ -1252,7 +1253,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             routeType = Some(ImportRouteType.Route6),
             priorityGoods = Some(ImportPriorityGoods.HighValueArt),
             freightType = Some(ImportFreightType.Air),
-            contactInfo = Some(ImportContactInfo(contactEmail = Some("someone@email.com")))
+            contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
           )
         )
       }
@@ -1275,7 +1276,8 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
                 dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
                 timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
               )
-            )
+            ),
+            contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
           )
         )
         journey.setState(state)

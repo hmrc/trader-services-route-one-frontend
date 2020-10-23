@@ -205,22 +205,25 @@ object FormFieldMappings {
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     Time24FieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
-  val importContactEmailMapping: Mapping[Option[String]] = optional(
+  val importContactEmailMapping: Mapping[String] =
     of[String].verifying(
       first(
-      constraint[String]("contactEmail", "required", _.length > 0),
-      Constraints.emailAddress(errorMessage = "error.contactEmail")
+        constraint[String]("contactEmail", "required", _.nonEmpty),
+        Constraints.emailAddress(errorMessage = "error.contactEmail")
       )
     )
-  )
 
   val importContactNumberMapping: Mapping[Option[String]] = optional(
     of[String].verifying(ContactFieldHelper.contactNumber())
   )
 
-  val exportContactEmailMapping: Mapping[Option[String]] = optional(
-    of[String].verifying(Constraints.emailAddress(errorMessage = "error.contactEmail"))
-  )
+  val exportContactEmailMapping: Mapping[String] =
+    of[String].verifying(
+      first(
+        constraint[String]("contactEmail", "required", _.nonEmpty),
+        Constraints.emailAddress(errorMessage = "error.contactEmail")
+      )
+    )
 
   val exportContactNumberMapping: Mapping[Option[String]] = optional(
     of[String].verifying(ContactFieldHelper.contactNumber())

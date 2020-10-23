@@ -99,15 +99,13 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(
         form,
         Map("contactEmail" -> "name@example.com"),
-        ExportContactInfo(contactEmail = Some("name@example.com"))
+        ExportContactInfo(contactEmail = "name@example.com")
       )
-
-      validate(form, Map("contactNumber" -> "01234567891"), ExportContactInfo(contactNumber = Some("01234567891")))
 
       validate(
         form,
         Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
-        ExportContactInfo(contactEmail = Some("name@example.com"), contactNumber = Some("01234567891"))
+        ExportContactInfo(contactEmail = "name@example.com", contactNumber = Some("01234567891"))
       )
     }
 

@@ -95,15 +95,13 @@ class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
       validate(
         form,
         Map("contactEmail" -> "name@example.com"),
-        ImportContactInfo(contactEmail = Some("name@example.com"))
+        ImportContactInfo(contactEmail = "name@example.com")
       )
-
-      validate(form, Map("contactNumber" -> "01234567891"), ImportContactInfo(contactNumber = Some("01234567891")))
 
       validate(
         form,
         Map("contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
-        ImportContactInfo(contactEmail = Some("name@example.com"), contactNumber = Some("01234567891"))
+        ImportContactInfo(contactEmail = "name@example.com", contactNumber = Some("01234567891"))
       )
     }
   }
