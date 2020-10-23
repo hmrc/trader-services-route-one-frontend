@@ -11,9 +11,9 @@ import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -22,7 +22,8 @@ import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
 
-class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with TraderServicesStubs {
+class TraderServicesFrontendISpec
+    extends TraderServicesFrontendISpecSetup with TraderServicesStubs with UpscanInitiateStubs {
 
   import journey.model.State._
 
@@ -701,6 +702,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
+<<<<<<< HEAD
           DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
           ExportQuestions(
             requestType = Some(ExportRequestType.New),
@@ -716,6 +718,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             ),
             contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
+=======
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival)
+>>>>>>> [DOR-50][AO] add integration test of show file upload page
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1268,6 +1274,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
+<<<<<<< HEAD
           DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
           ImportQuestions(
             requestType = Some(ImportRequestType.New),
@@ -1283,6 +1290,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
             ),
             contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
           )
+=======
+          TestData.importDeclarationDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival)
+>>>>>>> [DOR-50][AO] add integration test of show file upload page
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1293,6 +1304,92 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
         journey.getState shouldBe state
+      }
+    }
+
+    "GET /pre-clearance/file-upload" should {
+      "show the upload first document page for the importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ImportQuestionsSummary(
+          TestData.importDeclarationDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival)
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/pre-clearance/file-upload").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          TestData.importDeclarationDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+        )
+      }
+
+      "show the upload first document page for the exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ExportQuestionsSummary(
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival)
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/pre-clearance/file-upload").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+        )
       }
     }
 
@@ -1350,5 +1447,48 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
         )
       )
   }
+
+}
+
+object TestData {
+
+  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
+  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+
+  def fullExportQuestions(dateTimeOfArrival: LocalDateTime) =
+    ExportQuestions(
+      requestType = Some(ExportRequestType.New),
+      routeType = Some(ExportRouteType.Route3),
+      hasPriorityGoods = Some(true),
+      priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+      freightType = Some(ExportFreightType.Air),
+      vesselDetails = Some(
+        VesselDetails(
+          vesselName = Some("Foo"),
+          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+        )
+      ),
+      contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+    )
+
+  def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
+    ImportQuestions(
+      requestType = Some(ImportRequestType.New),
+      routeType = Some(ImportRouteType.Route3),
+      hasPriorityGoods = Some(true),
+      priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+      hasALVS = Some(true),
+      freightType = Some(ImportFreightType.Air),
+      contactInfo = Some(ImportContactInfo(contactEmail = Some("name@somewhere.com"))),
+      vesselDetails = Some(
+        VesselDetails(
+          vesselName = Some("Foo"),
+          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+        )
+      )
+    )
 
 }
