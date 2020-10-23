@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.traderservices.models.{FileUploads,UploadRequest}
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
 
@@ -22,8 +23,9 @@
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
-        govukSummaryList: GovukSummaryList,
-        context: ImportQuestionsViewContext
+        govukFileUpload: GovukFileUpload,
+        context: ImportQuestionsViewContext,
+        appConfig: AppConfig
 )
 
 @(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, backLink: Call)(implicit request: Request[_], messages: Messages)
@@ -32,11 +34,41 @@
   pageTitle = Some(messages(if(fileUploads.isFirst) "view.upload-file.first.title" else "view.upload-file.next.title")),
   backLink = Some(backLink.url)) {
 
-  @if(fileUploads.isFirst) {
-      @html.h1(messages("view.upload-file.first.heading"))
-  }  else {
-      @html.h1(messages("view.upload-file.next.heading"))
-  }
+  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
+    
+    @forms.fieldset(
+      legend = messages(if(fileUploads.isFirst) "view.upload-file.first.heading" else "view.upload-file.next.heading")
+    ) { 
+
+        @uploadRequest.fields.map { case (key, value) =>
+          @forms.inputHidden(key, value)
+        } 
+
+        @govukFileUpload(FileUpload(
+          name = "file",
+          id = "upload-file",
+          value = Some(""),
+          describedBy = None,
+          label = Label(),
+          hint = None,
+          errorMessage = None,
+          formGroupClasses = "",
+          classes = "",
+          attributes = Map(
+            "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
+            "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
+            "accept" -> appConfig.fileFormats.approvedFileTypes,
+            "required" -> "",
+            "data-msg-required" -> messages("error.upload-file.required"),
+            "data-msg-filesize" -> messages("error.upload-file.filesize"),
+            "data-msg-accept" -> messages("error.upload-file.accept")
+          )
+        ))
+
+        @html.button("form.upload-file.submit")
+      }
+
+  </form>
   
 
 }

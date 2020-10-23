@@ -409,6 +409,11 @@ view.upload-file.first.heading=Upload your first document
 view.upload-file.next.title=Upload another document
 view.upload-file.next.heading=Upload another document
 
+error.upload-file.required=The selected file must be a [list of file types]
+error.upload-file.filesize=The selected file must be smaller than 10MB
+error.upload-file.accept=The selected file contains a virus - upload a different one
+form.upload-file.submit=Continue
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:
