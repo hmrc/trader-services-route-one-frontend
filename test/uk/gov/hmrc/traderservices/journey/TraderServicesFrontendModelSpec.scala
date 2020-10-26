@@ -1643,7 +1643,7 @@ trait TestData {
     freightType = Some(ExportFreightType.Air),
     vesselDetails =
       Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-    contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+    contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
   )
 
   val fullImportQuestions = ImportQuestions(
@@ -1653,7 +1653,7 @@ trait TestData {
     priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
     hasALVS = Some(true),
     freightType = Some(ImportFreightType.Air),
-    contactInfo = Some(ImportContactInfo(contactEmail = Some("name@somewhere.com"))),
+    contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
     vesselDetails =
       Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
   )

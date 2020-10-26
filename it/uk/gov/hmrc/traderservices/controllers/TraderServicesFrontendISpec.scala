@@ -702,26 +702,8 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
-<<<<<<< HEAD
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-              )
-            ),
-            contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
-          )
-=======
           TestData.exportDeclarationDetails,
           TestData.fullExportQuestions(dateTimeOfArrival)
->>>>>>> [DOR-50][AO] add integration test of show file upload page
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1274,26 +1256,8 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
-<<<<<<< HEAD
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-              )
-            ),
-            contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
-          )
-=======
           TestData.importDeclarationDetails,
           TestData.fullImportQuestions(dateTimeOfArrival)
->>>>>>> [DOR-50][AO] add integration test of show file upload page
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1470,7 +1434,7 @@ object TestData {
           timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
         )
       ),
-      contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+      contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
     )
 
   def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
@@ -1481,7 +1445,7 @@ object TestData {
       priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
       hasALVS = Some(true),
       freightType = Some(ImportFreightType.Air),
-      contactInfo = Some(ImportContactInfo(contactEmail = Some("name@somewhere.com"))),
+      contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
       vesselDetails = Some(
         VesselDetails(
           vesselName = Some("Foo"),
