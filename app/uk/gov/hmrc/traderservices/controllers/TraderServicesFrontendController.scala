@@ -335,15 +335,14 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
-    actions.applyWithRequest { implicit request =>
-      val body = request.asInstanceOf[Request[AnyContent]].body
-      body.asJson.flatMap(_.asOpt[UpscanNotification]) match {
-        case Some(notification) =>
-          Transitions.upscanCallbackArrived(notification)
-        case None =>
-          throw new IllegalArgumentException(s"Unsupported Upscan callback format: $body")
+    actions
+      .parseJson[UpscanNotification]
+      .apply(Transitions.upscanCallbackArrived)
+      .transform { case _ => Accepted }
+      .recover {
+        case e: IllegalArgumentException => BadRequest
+        case e                           => InternalServerError
       }
-    }
 
   /**
     * Function from the `State` to the `Call` (route),
