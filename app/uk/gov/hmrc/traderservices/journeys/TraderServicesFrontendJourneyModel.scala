@@ -179,7 +179,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
       acceptedFile: FileUpload.Accepted,
-      fileUploads: FileUploads
+      fileUploads: FileUploads,
+      acknowledged: Boolean = false
     ) extends State
 
   }
@@ -521,7 +522,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             ) =>
           goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
 
-        case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads) =>
+        case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, _) =>
           for {
             upscanResponse <- upscanInitiate(
                                 UpscanInitiateRequest(
@@ -583,9 +584,33 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             case _ =>
               goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
           }
+
+        case state: FileUploaded =>
+          goto(state.copy(acknowledged = true))
       }
 
-    def upscanCallbackArrived(notification: UpscanNotification) =
+    def upscanCallbackArrived(notification: UpscanNotification) = {
+
+      def updateFileUploads(reference: String, fileUploads: FileUploads) =
+        fileUploads.copy(files = fileUploads.files.map {
+          case FileUpload.Posted(orderNumber, ref) if ref == notification.reference =>
+            notification match {
+              case UpscanFileReady(_, url, uploadDetails) =>
+                FileUpload.Accepted(
+                  orderNumber,
+                  reference,
+                  url,
+                  uploadDetails.uploadTimestamp,
+                  uploadDetails.checksum,
+                  uploadDetails.fileName,
+                  uploadDetails.fileMimeType
+                )
+              case UpscanFileFailed(_, failureDetails) =>
+                FileUpload.Rejected(orderNumber, reference, failureDetails.failureReason, failureDetails.message)
+            }
+          case u => u
+        })
+
       Transition {
         case WaitingForFileVerification(
               declarationDetails,
@@ -595,24 +620,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               currentFileUpload,
               fileUploads
             ) =>
-          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Posted(orderNumber, ref) if ref == notification.reference =>
-              notification match {
-                case UpscanFileReady(_, url, uploadDetails) =>
-                  FileUpload.Accepted(
-                    orderNumber,
-                    reference,
-                    url,
-                    uploadDetails.uploadTimestamp,
-                    uploadDetails.checksum,
-                    uploadDetails.fileName,
-                    uploadDetails.fileMimeType
-                  )
-                case UpscanFileFailed(_, failureDetails) =>
-                  FileUpload.Rejected(orderNumber, reference, failureDetails.failureReason, failureDetails.message)
-              }
-            case u => u
-          })
+          val updatedFileUploads = updateFileUploads(reference, fileUploads)
           updatedFileUploads.files.find(_.reference == reference) match {
             case Some(upload: FileUpload.Posted) =>
               goto(
@@ -633,7 +641,19 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
 
           }
+
+        case UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads) =>
+          val updatedFileUploads = updateFileUploads(reference, fileUploads)
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, acceptedFile, updatedFileUploads))
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
+
+          }
       }
+    }
   }
 
   object Setters {

@@ -646,7 +646,7 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads) =>
+      case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, _) =>
         Ok(
           views.fileUploadedView(
             acceptedFile,

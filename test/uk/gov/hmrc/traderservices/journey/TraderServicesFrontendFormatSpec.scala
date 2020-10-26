@@ -405,7 +405,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
           |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
           |{"posted":{"orderNumber":3,"reference":"foo3"}}
-          |]}}}""".stripMargin,
+          |]},
+          |"acknowledged":false}}""".stripMargin,
         State.FileUploaded(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           exportQuestions,
