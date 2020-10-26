@@ -47,7 +47,7 @@ GET        /pre-clearance/import-questions/check-your-answers       @uk.gov.hmrc
 GET        /pre-clearance/file-upload                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUpload
 GET        /pre-clearance/file-verification                         @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showWaitingForFileVerification
 GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUploaded
-GET        /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.callbackFromUpscan(journeyId: String)
+POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.callbackFromUpscan(journeyId: String)
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
