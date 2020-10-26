@@ -72,7 +72,11 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
     val protectedEntry = Protected(entry)
     cache
       .save(protectedEntry)
-      .map(_ => state)
+      .map { _ =>
+        println("-" * 32)
+        println(state._1)
+        state
+      }
   }
 
   override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =

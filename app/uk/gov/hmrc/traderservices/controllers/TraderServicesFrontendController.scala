@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -311,8 +311,7 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.UploadFile]
-      .orApplyWithRequest { implicit request =>
+      .applyThenRedirectOrDisplay { implicit request =>
         val callbackUrl =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
         val successRedirect =
@@ -334,9 +333,17 @@ class TraderServicesFrontendController @Inject() (
   def showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser.show[State.FileUploaded]
 
-  // GET /pre-clearance/journey/:journeyId/callback-from-upscan
+  // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
-    actionNotYetImplemented
+    actions.applyWithRequest { implicit request =>
+      val body = request.asInstanceOf[Request[AnyContent]].body
+      body.asJson.flatMap(_.asOpt[UpscanNotification]) match {
+        case Some(notification) =>
+          Transitions.upscanCallbackArrived(notification)
+        case None =>
+          throw new IllegalArgumentException(s"Unsupported Upscan callback format: $body")
+      }
+    }
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -639,6 +646,15 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
+      case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads) =>
+        Ok(
+          views.fileUploadedView(
+            acceptedFile,
+            fileUploads,
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case _ => NotImplemented
 
     }
@@ -646,11 +662,11 @@ class TraderServicesFrontendController @Inject() (
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 
   override def journeyId(implicit rh: RequestHeader): Option[String] = {
-    val journeyIdFromSession = rh.session.get(journeyService.journeyKey)
-    journeyIdFromSession.orElse(rh.path match {
+    val journeyIdFromPath = rh.path match {
       case journeyIdPathParamRegex(id) => Some(id)
       case _                           => None
-    })
+    }
+    journeyIdFromPath.orElse(rh.session.get(journeyService.journeyKey))
   }
 
   def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get

@@ -22,12 +22,12 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.ExecutionContext
-import java.io.File
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
   sealed trait State
   sealed trait IsError
+  sealed trait IsTransient
 
   override val root: State = State.Start
 
@@ -173,12 +173,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       uploadRequest: UploadRequest,
       currentFileUpload: FileUpload,
       fileUploads: FileUploads
-    ) extends State
+    ) extends State with IsTransient
 
     case class FileUploaded(
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
-      currentFileUpload: FileUpload,
+      acceptedFile: FileUpload.Accepted,
       fileUploads: FileUploads
     ) extends State
 
@@ -510,6 +510,35 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             upscanResponse.uploadRequest,
             FileUploads(files = Seq(FileUpload.Initiated(1, upscanResponse.reference)))
           )
+
+        case WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
+
+        case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads) =>
+          for {
+            upscanResponse <- upscanInitiate(
+                                UpscanInitiateRequest(
+                                  callbackUrl = callbackUrl,
+                                  successRedirect = Some(successRedirect),
+                                  errorRedirect = Some(errorRedirect)
+                                )
+                              )
+          } yield UploadFile(
+            declarationDetails,
+            questionsAnswers,
+            upscanResponse.reference,
+            upscanResponse.uploadRequest,
+            fileUploads.copy(files =
+              fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+            )
+          )
       }
 
     def waitForFileVerification(user: String) =
@@ -520,7 +549,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             case u                                                          => u
           })
           updatedFileUploads.files.find(_.reference == reference) match {
-            case Some(upload: FileUpload.Posted) =>
+            case Some(upload) =>
               goto(
                 WaitingForFileVerification(
                   declarationDetails,
@@ -531,9 +560,6 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                   updatedFileUploads
                 )
               )
-
-            case Some(upload) =>
-              goto(FileUploaded(declarationDetails, questionsAnswers, upload, updatedFileUploads))
 
             case None =>
               goto(current)
@@ -551,11 +577,61 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             case Some(upload: FileUpload.Posted) =>
               goto(current)
 
-            case Some(upload) =>
-              goto(FileUploaded(declarationDetails, questionsAnswers, upload, fileUploads))
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads))
 
-            case None =>
+            case _ =>
               goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
+          }
+      }
+
+    def upscanCallbackArrived(notification: UpscanNotification) =
+      Transition {
+        case WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case FileUpload.Posted(orderNumber, ref) if ref == notification.reference =>
+              notification match {
+                case UpscanFileReady(_, url, uploadDetails) =>
+                  FileUpload.Accepted(
+                    orderNumber,
+                    reference,
+                    url,
+                    uploadDetails.uploadTimestamp,
+                    uploadDetails.checksum,
+                    uploadDetails.fileName,
+                    uploadDetails.fileMimeType
+                  )
+                case UpscanFileFailed(_, failureDetails) =>
+                  FileUpload.Rejected(orderNumber, reference, failureDetails.failureReason, failureDetails.message)
+              }
+            case u => u
+          })
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case Some(upload: FileUpload.Posted) =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  upload,
+                  updatedFileUploads
+                )
+              )
+
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, acceptedFile, updatedFileUploads))
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
+
           }
       }
   }

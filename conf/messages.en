@@ -409,6 +409,8 @@ view.upload-file.first.heading=Upload your first document
 view.upload-file.next.title=Upload another document
 view.upload-file.next.heading=Upload another document
 view.upload-file.waiting=We are checking your file, please wait
+view.file-uploaded.title=You have uploaded {0} document
+view.file-uploaded.heading=You have uploaded {0} document
 
 form.upload-file.submit=Upload file
 error.upload-file.required=The selected file must be a [list of file types]

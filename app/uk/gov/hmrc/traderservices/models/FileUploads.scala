@@ -22,12 +22,15 @@ import play.api.libs.json.JsError
 import play.api.libs.json.Writes
 import play.api.libs.json.Reads
 import play.api.libs.json.JsValue
+import java.time.ZonedDateTime
 
 case class FileUploads(
   files: Seq[FileUpload] = Seq.empty
 ) {
 
   def isFirst: Boolean = files.size == 1
+
+  def acceptedCount: Int = files.count { case _: FileUpload.Accepted => true; case _ => false }
 }
 
 object FileUploads {
@@ -63,7 +66,12 @@ object FileUpload {
 
   case class Accepted(
     orderNumber: Int,
-    reference: String
+    reference: String,
+    url: String,
+    uploadTimestamp: ZonedDateTime,
+    checksum: String,
+    fileName: String,
+    fileMimeType: String
   ) extends FileUpload
 
   object Accepted {
@@ -73,7 +81,9 @@ object FileUpload {
 
   case class Rejected(
     orderNumber: Int,
-    reference: String
+    reference: String,
+    failureReason: UpscanNotification.FailureReason,
+    failureMessage: String
   ) extends FileUpload
 
   object Rejected {

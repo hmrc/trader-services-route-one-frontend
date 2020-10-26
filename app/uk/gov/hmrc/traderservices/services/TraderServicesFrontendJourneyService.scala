@@ -30,9 +30,9 @@ trait TraderServicesFrontendJourneyService[RequestContext] extends PersistentJou
 
   override val model = TraderServicesFrontendJourneyModel
 
-  // do not keep errors in the journey history
+  // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
-    _.filterNot(_.isInstanceOf[model.IsError])
+    _.filterNot(s => s.isInstanceOf[model.IsError] || s.isInstanceOf[model.IsTransient])
 }
 
 trait TraderServicesFrontendJourneyServiceWithHeaderCarrier extends TraderServicesFrontendJourneyService[HeaderCarrier]
