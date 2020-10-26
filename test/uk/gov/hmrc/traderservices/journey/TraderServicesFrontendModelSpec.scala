@@ -840,14 +840,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         given(
           ExportQuestionsSummary(
-            importDeclarationDetails,
+            exportDeclarationDetails,
             fullExportQuestions
           )
         ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
           mockUpscanInitiate
         )(eoriNumber) should thenGo(
           UploadFile(
-            importDeclarationDetails,
+            exportDeclarationDetails,
             fullExportQuestions,
             "foo-bar-ref",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
@@ -1344,7 +1344,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "go to FileUploaded when waitForFileVerification and file already rejected" in {
+      "go to UploadFile when waitForFileVerification and file already rejected" in {
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
@@ -1514,7 +1514,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "goto UploadFile when upscanCallbackArrived and reference doesn't match" in {
+      "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
