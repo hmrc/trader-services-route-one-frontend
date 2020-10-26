@@ -25,6 +25,7 @@ import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.LocalTime
+import java.time.ZonedDateTime
 
 class TraderServicesFrontendFormatSpec extends UnitSpec {
 
@@ -307,8 +308,9 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"fileUploads":{"files":[
           |{"initiated":{"orderNumber":1,"reference":"foo1"}},
           |{"posted":{"orderNumber":3,"reference":"foo3"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2"}}
+          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}}
           |]}}}""".stripMargin,
         State.UploadFile(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
@@ -339,8 +341,16 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             Seq(
               FileUpload.Initiated(1, "foo1"),
               FileUpload.Posted(3, "foo3"),
-              FileUpload.Accepted(4, "foo4"),
-              FileUpload.Rejected(2, "foo2")
+              FileUpload.Accepted(
+                4,
+                "foo4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason")
             )
           )
         )
@@ -354,8 +364,9 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
           |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
           |{"posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
         State.UploadFile(
@@ -366,8 +377,16 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "foo1"),
-              FileUpload.Accepted(4, "foo4"),
-              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Accepted(
+                4,
+                "foo4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
               FileUpload.Posted(3, "foo3")
             )
           )
@@ -378,22 +397,40 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
-          |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
+          |"acceptedFile":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"},
           |"fileUploads":{"files":[
           |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
           |{"posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
         State.FileUploaded(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           exportQuestions,
-          FileUpload.Posted(3, "foo3"),
+          FileUpload.Accepted(
+            4,
+            "foo4",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf"
+          ),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "foo1"),
-              FileUpload.Accepted(4, "foo4"),
-              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Accepted(
+                4,
+                "foo4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
               FileUpload.Posted(3, "foo3")
             )
           )
@@ -409,8 +446,9 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
           |"fileUploads":{"files":[
           |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2"}},
+          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
+          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
           |{"posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
         State.WaitingForFileVerification(
@@ -422,8 +460,16 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "foo1"),
-              FileUpload.Accepted(4, "foo4"),
-              FileUpload.Rejected(2, "foo2"),
+              FileUpload.Accepted(
+                4,
+                "foo4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
               FileUpload.Posted(3, "foo3")
             )
           )
