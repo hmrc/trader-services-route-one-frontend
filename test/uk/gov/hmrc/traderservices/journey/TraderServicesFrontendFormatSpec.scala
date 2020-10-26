@@ -302,7 +302,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"import":{"requestType":"Hold","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"reference":"foo-bar-ref",
           |"uploadRequest":{"href":"https://foo.bar","fields":{}},
           |"fileUploads":{"files":[
@@ -330,7 +330,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             ),
             contactInfo = Some(
               ImportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactName = "Bob",
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )
@@ -359,7 +360,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
@@ -396,7 +397,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         """{"state":"FileUploaded","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"acceptedFile":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"},
           |"fileUploads":{"files":[
@@ -441,7 +442,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         """{"state":"WaitingForFileVerification","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
@@ -501,7 +502,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
     ),
     contactInfo = Some(
       ExportContactInfo(
-        contactEmail = Some("name@somewhere.com"),
+        contactName = "Bob",
+        contactEmail = "name@somewhere.com",
         contactNumber = Some("012345678910")
       )
     )
