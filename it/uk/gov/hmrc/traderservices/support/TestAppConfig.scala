@@ -7,6 +7,8 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   override val appName: String = "trader-services-frontend"
   override val authBaseUrl: String = wireMockBaseUrl
   override val traderServicesApiBaseUrl: String = wireMockBaseUrl
+  override val upscanInitiateBaseUrl: String = wireMockBaseUrl
+
   override val mongoSessionExpiryTime: Int = 3600
   override val authorisedStrideGroup: String = "TBC"
 
