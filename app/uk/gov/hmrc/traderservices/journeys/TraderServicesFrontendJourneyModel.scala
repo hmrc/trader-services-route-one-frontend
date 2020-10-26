@@ -550,7 +550,10 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             case u                                                          => u
           })
           updatedFileUploads.files.find(_.reference == reference) match {
-            case Some(upload) =>
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, acceptedFile, updatedFileUploads))
+
+            case Some(upload: FileUpload.Posted) =>
               goto(
                 WaitingForFileVerification(
                   declarationDetails,
@@ -562,8 +565,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                 )
               )
 
-            case None =>
-              goto(current)
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
           }
 
         case current @ WaitingForFileVerification(
@@ -591,14 +594,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def upscanCallbackArrived(notification: UpscanNotification) = {
 
-      def updateFileUploads(reference: String, fileUploads: FileUploads) =
+      def updateFileUploads(fileUploads: FileUploads) =
         fileUploads.copy(files = fileUploads.files.map {
           case FileUpload.Posted(orderNumber, ref) if ref == notification.reference =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
                 FileUpload.Accepted(
                   orderNumber,
-                  reference,
+                  ref,
                   url,
                   uploadDetails.uploadTimestamp,
                   uploadDetails.checksum,
@@ -606,7 +609,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                   uploadDetails.fileMimeType
                 )
               case UpscanFileFailed(_, failureDetails) =>
-                FileUpload.Rejected(orderNumber, reference, failureDetails.failureReason, failureDetails.message)
+                FileUpload.Rejected(orderNumber, ref, failureDetails.failureReason, failureDetails.message)
             }
           case u => u
         })
@@ -620,8 +623,20 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               currentFileUpload,
               fileUploads
             ) =>
-          val updatedFileUploads = updateFileUploads(reference, fileUploads)
+          val updatedFileUploads = updateFileUploads(fileUploads)
           updatedFileUploads.files.find(_.reference == reference) match {
+            case None =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  currentFileUpload,
+                  updatedFileUploads
+                )
+              )
+
             case Some(upload: FileUpload.Posted) =>
               goto(
                 WaitingForFileVerification(
@@ -643,7 +658,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           }
 
         case UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads) =>
-          val updatedFileUploads = updateFileUploads(reference, fileUploads)
+          val updatedFileUploads = updateFileUploads(fileUploads)
           updatedFileUploads.files.find(_.reference == reference) match {
             case Some(acceptedFile: FileUpload.Accepted) =>
               goto(FileUploaded(declarationDetails, questionsAnswers, acceptedFile, updatedFileUploads))

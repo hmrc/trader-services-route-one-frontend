@@ -38,6 +38,9 @@ import java.time.ZonedDateTime
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
+  import scala.concurrent.duration._
+  override implicit val defaultTimeout: FiniteDuration = 60 seconds
+
   // dummy journey context
   case class DummyContext()
   implicit val dummyContext: DummyContext = DummyContext()
@@ -900,7 +903,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state UploadFile" should {
-      "go to WaitingForFileVerification when fileUploaded and not verified yet" in {
+      "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
         given(
           UploadFile(
             importDeclarationDetails,
@@ -926,7 +929,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf"
-                )
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
               )
             )
           )
@@ -958,11 +962,646 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and accepted already" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-3",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUpload.Accepted(
+              3,
+              "foo-bar-ref-3",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and rejected already" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      }
+
+      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUpload.Accepted(
+              1,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
                 )
               )
             )
           )
         )
+      }
+
+      "goto FileUploaded when upscanCallbackArrived and rejected, and reference matches" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.UNKNOWN,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(FileUpload.Rejected(1, "foo-bar-ref-1", UpscanNotification.UNKNOWN, "e.g. This file has a virus"))
+            )
+          )
+        )
+      }
+    }
+
+    "at state WaitingForFileVerification" should {
+      "stay when waitForFileVerification and not verified yet" in {
+        val state = WaitingForFileVerification(
+          importDeclarationDetails,
+          fullImportQuestions,
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(1, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1")
+            )
+          )
+        )
+        given(state) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(state)
+      }
+
+      "go to UploadFile when waitForFileVerification and reference unknown" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1")
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1")
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and file already accepted" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Accepted(
+              1,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUpload.Accepted(
+              1,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and file already rejected" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Rejected(
+              1,
+              "foo-bar-ref-1",
+              UpscanNotification.QUARANTINE,
+              "some reason"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.QUARANTINE,
+                  "some reason"
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.QUARANTINE,
+                  "some reason"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUpload.Accepted(
+              1,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile when upscanCallbackArrived and rejected, and reference matches" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.QUARANTINE,
+                  "e.g. This file has a virus"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile when upscanCallbackArrived and reference doesn't match" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-2",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Rejected(
+                  2,
+                  "foo-bar-ref-2",
+                  UpscanNotification.QUARANTINE,
+                  "e.g. This file has a virus"
+                )
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "at state FileUploaded" should {
+      "goto acknowledged FileUploaded when waitForFileVerification" in {
+        val state = FileUploaded(
+          importDeclarationDetails,
+          fullImportQuestions,
+          FileUpload.Accepted(
+            1,
+            "foo-bar-ref-1",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf"
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            )
+          ),
+          acknowledged = false
+        )
+
+        given(state) when
+          waitForFileVerification(eoriNumber) should
+          thenGo(state.copy(acknowledged = true))
       }
     }
   }
