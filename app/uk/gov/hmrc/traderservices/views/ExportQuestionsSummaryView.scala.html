@@ -49,7 +49,7 @@
 
   @html.h2(messages("view.export-questions.summary.contact-details.heading"))
 
-  @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.getOrElse(ExportContactInfo()),
+  @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
     TraderServicesFrontendController.showAnswerExportQuestionsContactInfo))
 
   @forms.formWithCSRF(action = postAction, 'autoComplete -> "off") {

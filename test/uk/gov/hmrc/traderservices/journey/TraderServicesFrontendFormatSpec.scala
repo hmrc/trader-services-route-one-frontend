@@ -89,10 +89,53 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
+        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
+        State.AnswerExportQuestionsMandatoryVesselInfo(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsOptionalVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
+        State.AnswerExportQuestionsOptionalVesselInfo(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO)
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AnswerExportQuestionsContactInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
+          |"exportQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO",
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
+        State.AnswerExportQuestionsContactInfo(
+          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+          ExportQuestions(
+            requestType = Some(ExportRequestType.Hold),
+            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+            freightType = Some(ExportFreightType.RORO),
+            contactInfo = Some(
+              ExportContactInfo(
+                contactName = "Full Name",
+                contactEmail = "name@somewhere.com",
+                contactNumber = Some("012345678910")
+              )
+            )
+          )
+        )
+      )
+      validateJsonFormat(
         """{"state":"ExportQuestionsSummary","properties":{
           |"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
           |"exportQuestionsAnswers":{"requestType":"Hold","routeType":"Route2","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","freightType":"RORO",
-          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"}}}}""".stripMargin,
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
         State.ExportQuestionsSummary(
           DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
           ExportQuestions(
@@ -107,29 +150,18 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
                 dateOfArrival = Some(LocalDate.parse("2020-10-19")),
                 timeOfArrival = Some(LocalTime.parse("00:00"))
               )
-            )
-          )
-        )
-      )
-      validateJsonFormat(
-        """{"state":"AnswerExportQuestionsContactInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
-          |"exportQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO",
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
-        State.AnswerExportQuestionsContactInfo(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.Hold),
-            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
-            freightType = Some(ExportFreightType.RORO),
+            ),
             contactInfo = Some(
               ExportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactName = "Full Name",
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )
           )
         )
       )
+
       validateJsonFormat(
         """{"state":"AnswerImportQuestionsRequestType","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{}}}""",
         State.AnswerImportQuestionsRequestType(
@@ -191,17 +223,6 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
-        State.AnswerExportQuestionsMandatoryVesselInfo(
-          DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
-            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
-            freightType = Some(ExportFreightType.RORO)
-          )
-        )
-      )
-      validateJsonFormat(
         """{"state":"AnswerImportQuestionsMandatoryVesselInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"100000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO"}}}""",
         State.AnswerImportQuestionsMandatoryVesselInfo(
           DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2020-10-05")),
@@ -227,7 +248,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
       validateJsonFormat(
         """{"state":"AnswerImportQuestionsContactInfo","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"Hold","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
         State.AnswerImportQuestionsContactInfo(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(
@@ -237,7 +258,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             freightType = Some(ImportFreightType.RORO),
             contactInfo = Some(
               ImportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactName = "Full Name",
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )
@@ -248,7 +270,7 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         """{"state":"ImportQuestionsSummary","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"Hold","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}""".stripMargin,
         State.ImportQuestionsSummary(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(
@@ -267,7 +289,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
             ),
             contactInfo = Some(
               ImportContactInfo(
-                contactEmail = Some("name@somewhere.com"),
+                contactName = "Full Name",
+                contactEmail = "name@somewhere.com",
                 contactNumber = Some("012345678910")
               )
             )

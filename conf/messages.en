@@ -291,8 +291,10 @@ form.export-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
+form.export-questions.contactName=Full Name
 form.export-questions.contactEmail=Email address
-form.export-questions.contactNumber=Phone number
+form.export-questions.contactNumber=Phone number (optional)
+form.export-questions.contactNumber.hint=For UK landline or mobile numbers
 form.export-questions.continue=Continue
 form.export-questions.summary.continue=Continue to file upload
 
@@ -357,8 +359,10 @@ form.import-questions.vessel-details.vesselNameOptional=Vessel name (optional)
 form.import-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.import-questions.vessel-details.timeOfArrivalOptional=Time of arrival (optional)
 form.import-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
+form.import-questions.contactName=Full Name
 form.import-questions.contactEmail=Email address
-form.import-questions.contactNumber=Phone number
+form.import-questions.contactNumber=Phone number (optional)
+form.import-questions.contactNumber.hint=For UK landline or mobile numbers
 form.import-questions.continue=Continue
 form.import-questions.summary.continue=Continue to file upload
 
@@ -371,6 +375,8 @@ error.transportationType.required=Tell us what type of freight transportation is
 error.importHasALVS.required=Select yes if you''re using an Automatic Licence Verification System (ALVS)
 error.contactNumber=Phone number must contain numbers only
 error.contactEmail=Enter an email address in the correct format, like name@example.com
+error.contactEmail.required=Enter an email address
+error.contactName.required=Enter your full name
 
 # Summary messages
 # ----------------------------------------------------------

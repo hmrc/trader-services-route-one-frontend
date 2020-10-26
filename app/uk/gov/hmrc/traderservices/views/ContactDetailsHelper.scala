@@ -28,9 +28,10 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactEmail = contactDetails.contactEmail.map(value => s"<div>$value</div>").getOrElse("")
+    val contactName = s"<div>${contactDetails.contactName}</div>"
+    val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
     val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
-    val value = if (contactDetails.isEmpty) "-" else contactEmail + contactNumber
+    val value = contactName + contactEmail + contactNumber
 
     SummaryList(
       Seq(
@@ -48,9 +49,10 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactEmail = contactDetails.contactEmail.map(value => s"<div>$value</div>").getOrElse("")
+    val contactName = s"<div>${contactDetails.contactName}</div>"
+    val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
     val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
-    val value = if (contactDetails.isEmpty) "-" else contactEmail + contactNumber
+    val value = contactName + contactEmail + contactNumber
 
     SummaryList(
       Seq(

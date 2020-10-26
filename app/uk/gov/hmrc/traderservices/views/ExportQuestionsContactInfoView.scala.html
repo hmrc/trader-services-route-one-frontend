@@ -24,6 +24,10 @@
 
 @(form: Form[ExportContactInfo], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@contactNumberHint = {
+    @messages("form.export-questions.contactNumber.hint")
+}
+
 @govukLayout(
     pageTitle = Some(messages("view.export-questions.contactInfo.title")),
     backLink = Some(backLink.url)) {
@@ -41,12 +45,21 @@
 
             @forms.inputText(
                 form = form,
+                id = "contactName",
+                name = "contactName",
+                label = "form.export-questions.contactName",
+                isPageHeading = false,
+                isInFieldset = true,
+                attributes = Map("autocomplete" -> "name")
+            )
+
+            @forms.inputText(
+                form = form,
                 id = "contactEmail",
                 name = "contactEmail",
                 label = "form.export-questions.contactEmail",
                 isPageHeading = false,
                 isInFieldset = true,
-                classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "email")
             )
 
@@ -55,6 +68,7 @@
                 id = "contactNumber",
                 name = "contactNumber",
                 label = "form.export-questions.contactNumber",
+                hint = Some(contactNumberHint),
                 isPageHeading = false,
                 isInFieldset = true,
                 classes = Some("govuk-input--width-20"),

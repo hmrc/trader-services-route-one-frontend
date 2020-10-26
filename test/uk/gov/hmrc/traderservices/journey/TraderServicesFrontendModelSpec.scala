@@ -489,7 +489,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         ) when submittedExportQuestionsContactInfo(eoriNumber)(
-          ExportContactInfo(contactEmail = Some("name@somewhere.com"))
+          ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
         ) should thenGo(
           ExportQuestionsSummary(
             exportDeclarationDetails,
@@ -500,7 +500,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               freightType = Some(ExportFreightType.Air),
               vesselDetails =
                 Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-              contactInfo = Some(ExportContactInfo(contactEmail = Some("name@somewhere.com")))
+              contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com"))
             )
           )
         )
@@ -803,7 +803,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         ) when submittedImportQuestionsContactInfo(eoriNumber)(
-          ImportContactInfo(contactEmail = Some("name@somewhere.com"))
+          ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
         ) should thenGo(
           ImportQuestionsSummary(
             importDeclarationDetails,
@@ -812,7 +812,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               routeType = Some(ImportRouteType.Route3),
               priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
               freightType = Some(ImportFreightType.Air),
-              contactInfo = Some(ImportContactInfo(contactEmail = Some("name@somewhere.com"))),
+              contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
               vesselDetails =
                 Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
             )

@@ -24,6 +24,10 @@
 
 @(form: Form[ImportContactInfo], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@contactNumberHint = {
+    @messages("form.import-questions.contactNumber.hint")
+}
+
 @govukLayout(
     pageTitle = Some(messages("view.import-questions.contactInfo.title")),
     backLink = Some(backLink.url)) {
@@ -41,12 +45,21 @@
 
             @forms.inputText(
                 form = form,
+                id = "contactName",
+                name = "contactName",
+                label = "form.import-questions.contactName",
+                isPageHeading = false,
+                isInFieldset = true,
+                attributes = Map("autocomplete" -> "name")
+            )
+
+            @forms.inputText(
+                form = form,
                 id = "contactEmail",
                 name = "contactEmail",
                 label = "form.import-questions.contactEmail",
                 isPageHeading = false,
                 isInFieldset = true,
-                classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "email")
             )
 
@@ -55,6 +68,7 @@
                 id = "contactNumber",
                 name = "contactNumber",
                 label = "form.import-questions.contactNumber",
+                hint = Some(contactNumberHint),
                 isPageHeading = false,
                 isInFieldset = true,
                 classes = Some("govuk-input--width-20"),

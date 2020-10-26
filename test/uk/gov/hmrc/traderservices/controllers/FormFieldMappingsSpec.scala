@@ -464,8 +464,26 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
     }
 
-    "validate contactEmailMapping" in {
-      importContactEmailMapping.bind(Map("" -> "")) shouldBe Right(None)
+    "validate import contactNameMapping" in {
+      importContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactName.required"
+      )
+
+      importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+    }
+
+    "validate export contactNameMapping" in {
+      exportContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactName.required"
+      )
+
+      exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+    }
+
+    "validate import contactEmailMapping" in {
+      importContactEmailMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactEmail.required"
+      )
 
       importContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
         "error.contactEmail"
@@ -474,10 +492,25 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
         "error.contactEmail"
       )
-      importContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right(Some("12@s.com"))
+      importContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right("12@s.com")
     }
 
-    "validate contactNumberMapping" in {
+    "validate export contactEmailMapping" in {
+      exportContactEmailMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.contactEmail.required"
+      )
+
+      exportContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
+        "error.contactEmail"
+      )
+
+      exportContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
+        "error.contactEmail"
+      )
+      exportContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right("12@s.com")
+    }
+
+    "validate import contactNumberMapping" in {
 
       importContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
 
@@ -500,6 +533,31 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
       importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
+    }
+
+    "validate export contactNumberMapping" in {
+
+      exportContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
+
+      exportContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
+      exportContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
     }
   }
 
