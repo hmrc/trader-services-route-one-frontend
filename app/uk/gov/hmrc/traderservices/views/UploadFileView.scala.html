@@ -35,24 +35,26 @@
   backLink = Some(backLink.url),
   refresh = if(waiting) 3 else 0) {
 
-  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
-    
-    @forms.fieldset(
-      legend = messages(if(fileUploads.isFirst) "view.upload-file.first.heading" else "view.upload-file.next.heading")
-    ) { 
+  @if(waiting) {
+    <!-- TODO verification view -->
+    <!-- TODO supply correct urls to data props -->
+    <div class="upload-status"
+    data-upload-status-redirect-success-url="file-uploaded"
+    data-upload-status-redirect-failure-url="file-upload"
+    data-upload-status-check-status-url="check-status-url">
+      <h1 class="govuk-heading-l">@messages("view.upload-file.waiting")</h1>
+      <div class="ccms-loader"></div>
+    </div>
+  } else {
+    <!-- TODO upload file view -->
+    <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
 
-        @if(waiting){
-          <div id="processing" aria-live="polite" class="govuk-!-margin-bottom-5">
-              <h2 class="govuk-heading-m">@messages("view.upload-file.waiting")</h2>
-              <div>
-                <div class="ccms-loader"></div>
-              </div>
-          </div>
-        }
-
+      @forms.fieldset(
+        legend = messages(if(fileUploads.isFirst) "view.upload-file.first.heading" else "view.upload-file.next.heading")
+      ) {
         @uploadRequest.fields.map { case (key, value) =>
           @forms.inputHidden(key, value)
-        } 
+        }
 
         @govukFileUpload(FileUpload(
           name = "file",
@@ -75,7 +77,6 @@
           ) ++ (if(waiting) Map("disabled" -> "") else Map.empty)
         ))
 
-        
         @govukButton(Button(
           content = Text(messages("form.upload-file.submit")),
           preventDoubleClick = true,
@@ -83,7 +84,6 @@
         ))
       }
 
-  </form>
-  
-
+    </form>
+  }
 }
