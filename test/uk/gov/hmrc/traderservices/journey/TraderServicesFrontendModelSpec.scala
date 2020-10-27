@@ -1116,7 +1116,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
         ) when upscanCallbackArrived(
           UpscanFileReady(
@@ -1173,7 +1173,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
         ) when upscanCallbackArrived(
           UpscanFileFailed(

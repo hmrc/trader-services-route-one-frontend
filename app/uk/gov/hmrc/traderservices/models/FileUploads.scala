@@ -44,6 +44,9 @@ sealed trait FileUpload {
 
 object FileUpload {
 
+  def unapply(fileUpload: FileUpload): Option[(Int, String)] =
+    Some((fileUpload.orderNumber, fileUpload.reference))
+
   case class Initiated(
     orderNumber: Int,
     reference: String

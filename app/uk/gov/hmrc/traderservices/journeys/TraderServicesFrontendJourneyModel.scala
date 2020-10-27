@@ -596,7 +596,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
       def updateFileUploads(fileUploads: FileUploads) =
         fileUploads.copy(files = fileUploads.files.map {
-          case FileUpload.Posted(orderNumber, ref) if ref == notification.reference =>
+          case FileUpload(orderNumber, ref) if ref == notification.reference =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
                 FileUpload.Accepted(
