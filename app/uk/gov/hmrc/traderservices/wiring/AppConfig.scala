@@ -35,6 +35,8 @@ trait AppConfig {
   val appName: String
   val authBaseUrl: String
   val traderServicesApiBaseUrl: String
+  val upscanInitiateBaseUrl: String
+
   val mongoSessionExpiryTime: Int
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
@@ -72,6 +74,8 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   val authBaseUrl: String = config.baseUrl("auth")
 
   val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
+
+  val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
 
   val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
 
