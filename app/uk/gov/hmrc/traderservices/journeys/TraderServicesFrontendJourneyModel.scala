@@ -45,6 +45,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       def declarationDetails: DeclarationDetails
     }
 
+    sealed trait SummaryState extends State
+
     case object WorkInProgressDeadEnd extends State
 
     // EXPORT QUESTIONS
@@ -98,7 +100,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     case class ExportQuestionsSummary(
       declarationDetails: DeclarationDetails,
       exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
+    ) extends ExportQuestionsState with SummaryState
 
     // IMPORT QUESTIONS
 
@@ -156,7 +158,9 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     case class ImportQuestionsSummary(
       declarationDetails: DeclarationDetails,
       importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
+    ) extends ImportQuestionsState with SummaryState
+
+    // FILE UPLOAD
 
     case class UploadFile(
       declarationDetails: DeclarationDetails,
@@ -522,24 +526,27 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             ) =>
           goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
 
-        case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, _) =>
-          for {
-            upscanResponse <- upscanInitiate(
-                                UpscanInitiateRequest(
-                                  callbackUrl = callbackUrl,
-                                  successRedirect = Some(successRedirect),
-                                  errorRedirect = Some(errorRedirect)
+        case current @ FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, _) =>
+          if (fileUploads.acceptedCount >= Rules.maxFileUploadsNumber)
+            goto(current)
+          else
+            for {
+              upscanResponse <- upscanInitiate(
+                                  UpscanInitiateRequest(
+                                    callbackUrl = callbackUrl,
+                                    successRedirect = Some(successRedirect),
+                                    errorRedirect = Some(errorRedirect)
+                                  )
                                 )
-                              )
-          } yield UploadFile(
-            declarationDetails,
-            questionsAnswers,
-            upscanResponse.reference,
-            upscanResponse.uploadRequest,
-            fileUploads.copy(files =
-              fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+            } yield UploadFile(
+              declarationDetails,
+              questionsAnswers,
+              upscanResponse.reference,
+              upscanResponse.uploadRequest,
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
             )
-          )
       }
 
     def waitForFileVerification(user: String) =
@@ -669,6 +676,36 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           }
       }
     }
+
+    def submitedUploadAnotherFileChoice(
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String
+    )(upscanInitiate: UpscanInitiate)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
+      Transition {
+        case current @ FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, acknowledged) =>
+          if (uploadAnotherFile && fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(upscanInitiate)(user).apply(current)
+          else
+            goto(WorkInProgressDeadEnd)
+      }
+
+    def removeFileUploadByReference(reference: String)(
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String
+    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+      Transition {
+        case current: FileUploaded =>
+          val updatedFileUploads = current.fileUploads
+            .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
+          val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
+          if (updatedFileUploads.isEmpty)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(upscanInitiate)(user)
+              .apply(updatedCurrentState)
+          else
+            goto(updatedCurrentState)
+      }
   }
 
   object Setters {

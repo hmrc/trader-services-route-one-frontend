@@ -31,7 +31,7 @@
 @(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, backLink: Call, waiting: Boolean)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages(if(fileUploads.isFirst) "view.upload-file.first.title" else "view.upload-file.next.title")),
+  pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
   backLink = Some(backLink.url),
   refresh = if(waiting) 3 else 0) {
 
@@ -50,7 +50,7 @@
     <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
 
       @forms.fieldset(
-        legend = messages(if(fileUploads.isFirst) "view.upload-file.first.heading" else "view.upload-file.next.heading")
+        legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
       ) {
         @uploadRequest.fields.map { case (key, value) =>
           @forms.inputHidden(key, value)

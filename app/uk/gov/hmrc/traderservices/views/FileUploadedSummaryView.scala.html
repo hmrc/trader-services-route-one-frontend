@@ -28,36 +28,26 @@
         context: FileUploadedViewContext
 )
 
-@(form: Form[Boolean], acceptedFile: FileUpload.Accepted, fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", fileUploads.acceptedCount)),
+  pageTitle = Some(messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)),
   backLink = Some(backLink.url)) {
-  
-  @forms.errorSummary(form.errors)
 
+  @html.h1(messages("view.file-uploaded.plural.heading", fileUploads.acceptedCount))
+
+  @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
+
+  @govukSummaryList(context.summaryListOfFileUploads(fileUploads,removeFileCall))
+  
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-    @forms.fieldset(
-        legend = messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount)
-      ) {
-
-        @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
-
-        @govukSummaryList(context.summaryListOfFileUploads(fileUploads, removeFileCall))
-
-        @forms.inputRadio(
-            form = form,
-            idPrefix = "uploadAnotherFile",
-            name = "uploadAnotherFile",
-            items = context.uploadAnotherFileItems(form),
-            inline = true,
-            legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
-            legendClasses = "govuk-label"
-        )
-
-        @html.button("form.file-uploaded.continue")
-      }
+    @html.p {
+      @messages("view.file-uploaded.maximum")
     }
+
+    @html.button("form.file-uploaded.continue")
+
+  }
 
 }

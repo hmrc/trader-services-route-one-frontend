@@ -308,16 +308,17 @@ class TraderServicesFrontendController @Inject() (
   val showImportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser.show[State.ImportQuestionsSummary]
 
+  val successRedirect =
+    appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
+  val errorRedirect =
+    appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
+
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyThenRedirectOrDisplay { implicit request =>
         val callbackUrl =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
-        val successRedirect =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
-        val errorRedirect =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
         Transitions
           .initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(
             upscanInitiateConnector.initiate(_)
@@ -330,10 +331,6 @@ class TraderServicesFrontendController @Inject() (
       .waitForStateAndRedirect[State.FileUploaded](3)
       .orApply(_ => Transitions.waitForFileVerification)
 
-  // GET /pre-clearance/file-uploaded
-  def showFileUploaded: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.FileUploaded]
-
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
@@ -343,6 +340,33 @@ class TraderServicesFrontendController @Inject() (
       .recover {
         case e: IllegalArgumentException => BadRequest
         case e                           => InternalServerError
+      }
+
+  // GET /pre-clearance/file-uploaded
+  val showFileUploaded: Action[AnyContent] =
+    whenAuthorisedAsUser.show[State.FileUploaded]
+
+  // POST /pre-clearance/file-uploaded
+  val submitUploadAnotherFileChoice: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm[Boolean](UploadAnotherFileChoiceForm)
+      .applyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+        Transitions.submitedUploadAnotherFileChoice(callbackUrl, successRedirect, errorRedirect)(
+          upscanInitiateConnector.initiate(_)
+        ) _
+      }
+
+  // GET /pre-clearance/file-uploaded/:reference/remove
+  def removeFileUploadByReference(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+        Transitions.removeFileUploadByReference(reference)(callbackUrl, successRedirect, errorRedirect)(
+          upscanInitiateConnector.initiate(_)
+        ) _
       }
 
   /**
@@ -630,7 +654,7 @@ class TraderServicesFrontendController @Inject() (
             reference,
             uploadRequest,
             fileUploads,
-            backLinkFor(breadcrumbs),
+            backLinkToMostRecent[State.SummaryState](breadcrumbs),
             waiting = false
           )
         )
@@ -648,11 +672,22 @@ class TraderServicesFrontendController @Inject() (
 
       case FileUploaded(declarationDetails, questionsAnswers, acceptedFile, fileUploads, _) =>
         Ok(
-          views.fileUploadedView(
-            acceptedFile,
-            fileUploads,
-            backLinkFor(breadcrumbs)
-          )
+          if (fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
+            views.fileUploadedView(
+              formWithErrors.or(UploadAnotherFileChoiceForm),
+              acceptedFile,
+              fileUploads,
+              routes.TraderServicesFrontendController.submitUploadAnotherFileChoice,
+              routes.TraderServicesFrontendController.removeFileUploadByReference,
+              backLinkToMostRecent[State.SummaryState](breadcrumbs)
+            )
+          else
+            views.fileUploadedSummaryView(
+              fileUploads,
+              workInProgresDeadEndCall,
+              routes.TraderServicesFrontendController.removeFileUploadByReference,
+              backLinkToMostRecent[State.SummaryState](breadcrumbs)
+            )
         )
 
       case _ => NotImplemented
@@ -766,5 +801,9 @@ object TraderServicesFrontendController {
         .verifying(dateOfArrivalRangeConstraint),
       "timeOfArrival" -> optionalTimeOfArrivalMapping
     )(VesselDetails.apply)(VesselDetails.unapply)
+  )
+
+  val UploadAnotherFileChoiceForm = Form[Boolean](
+    mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)
   )
 }

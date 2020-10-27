@@ -32,16 +32,17 @@ trait SummaryListRowHelper {
     value: String,
     visuallyHiddenText: Option[String],
     action: (Call, String),
-    valueClasses: String = "govuk-!-width-one-third"
+    keyClasses: Option[String] = None,
+    valueClasses: Option[String] = None
   )(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(
         content = Text(messages(label)),
-        classes = "govuk-!-width-one-third"
+        classes = keyClasses.getOrElse("govuk-!-width-one-third")
       ),
       value = Value(
         content = HtmlContent(value),
-        classes = valueClasses
+        classes = valueClasses.getOrElse("govuk-!-width-two-thirds")
       ),
       actions = Some(
         Actions(
@@ -61,16 +62,17 @@ trait SummaryListRowHelper {
     label: String,
     value: String,
     visuallyHiddenText: Option[String],
-    classes: Option[String]
+    keyClasses: Option[String] = None,
+    valueClasses: Option[String] = None
   )(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(
         content = Text(messages(label)),
-        classes = classes.getOrElse("govuk-!-width-one-third")
+        classes = keyClasses.getOrElse("govuk-!-width-one-third")
       ),
       value = Value(
         content = HtmlContent(value),
-        classes = classes.getOrElse("govuk-!-width-two-thirds")
+        classes = valueClasses.getOrElse("govuk-!-width-two-thirds")
       ),
       actions = None
     )

@@ -28,9 +28,12 @@ case class FileUploads(
   files: Seq[FileUpload] = Seq.empty
 ) {
 
-  def isFirst: Boolean = files.size == 1
+  val isEmpty: Boolean = acceptedCount == 0
+  val isSingle: Boolean = acceptedCount == 1
+  def acceptedCount: Int =
+    files
+      .count { case _: FileUpload.Accepted => true; case _ => false }
 
-  def acceptedCount: Int = files.count { case _: FileUpload.Accepted => true; case _ => false }
 }
 
 object FileUploads {

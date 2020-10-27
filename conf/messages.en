@@ -28,6 +28,7 @@ site.opensInNewWindowOrTab = (opens in new tab)
 site.change = Change
 site.logOut = log out
 site.youCan = You can:
+site.file.remove = Remove
 
 site.Jan = January
 site.Feb = February
@@ -409,13 +410,22 @@ view.upload-file.first.heading=Upload your first document
 view.upload-file.next.title=Upload another document
 view.upload-file.next.heading=Upload another document
 view.upload-file.waiting=We are checking your file, please wait
-view.file-uploaded.title=You have uploaded {0} document
-view.file-uploaded.heading=You have uploaded {0} document
+view.file-uploaded.singular.title=You have uploaded {0} document
+view.file-uploaded.singular.heading=You have uploaded {0} document
+view.file-uploaded.plural.title=You have uploaded {0} documents
+view.file-uploaded.plural.heading=You have uploaded {0} documents
+view.file-uploaded.uploadAnotherFile.heading=Do you want to upload another file?
+view.file-uploaded.list.heading=Documents you will be sending us
+view.file-uploaded.maximum=You have uploaded the maximum number of files and cannot add any more.
 
 form.upload-file.submit=Upload file
+form.file-uploaded.uploadAnotherFile.yes=Yes
+form.file-uploaded.uploadAnotherFile.no=No
+form.file-uploaded.continue=Continue
 error.upload-file.required=The selected file must be a [list of file types]
 error.upload-file.filesize=The selected file must be smaller than 10MB
 error.upload-file.accept=The selected file contains a virus - upload a different one
+error.uploadAnotherFile.required=Select yes if you want to upload another document
 
 # Common form messages
 # ----------------------------------------------------------
