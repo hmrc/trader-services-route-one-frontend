@@ -327,7 +327,8 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyThenRedirectOrDisplay(_ => Transitions.waitForFileVerification)
+      .waitForStateAndRedirect[State.FileUploaded](3)
+      .orApply(_ => Transitions.waitForFileVerification)
 
   // GET /pre-clearance/file-uploaded
   def showFileUploaded: Action[AnyContent] =
