@@ -317,6 +317,7 @@ class TraderServicesFrontendController @Inject() (
 
   val successRedirect =
     appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
+
   val errorRedirect =
     appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
 
@@ -337,7 +338,8 @@ class TraderServicesFrontendController @Inject() (
   val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
       .waitForStateAndRedirect[State.FileUploaded](3)
-      .orApply(_ => Transitions.waitForFileVerification)
+      .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
+      .redirectOrDisplayIf[State.WaitingForFileVerification]
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
@@ -352,7 +354,8 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/file-uploaded
   val showFileUploaded: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.FileUploaded]
+    whenAuthorisedAsUser
+      .show[State.FileUploaded]
 
   // POST /pre-clearance/file-uploaded
   val submitUploadAnotherFileChoice: Action[AnyContent] =
@@ -670,7 +673,13 @@ class TraderServicesFrontendController @Inject() (
             routes.TraderServicesFrontendController.showFileUploaded,
             routes.TraderServicesFrontendController.showFileUpload,
             routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
-            backLinkToMostRecent[State.SummaryState](breadcrumbs),
+            if (fileUploads.isEmpty)
+              backLinkToMostRecent[State.SummaryState](breadcrumbs)
+            else
+              backLinkToMostRecent[State.FileUploaded](
+                breadcrumbs,
+                Some(backLinkToMostRecent[State.SummaryState](breadcrumbs))
+              ),
             waiting = false
           )
         )
