@@ -22,7 +22,11 @@ case class ImportQuestionsStateModel(
   declarationDetails: DeclarationDetails,
   importQuestionsAnswers: ImportQuestions,
   fileUploadsOpt: Option[FileUploads] = None
-)
+) {
+
+  def updated(importQuestionsAnswers: ImportQuestions): ImportQuestionsStateModel =
+    copy(importQuestionsAnswers = importQuestionsAnswers)
+}
 
 object ImportQuestionsStateModel {
   implicit val formats: Format[ImportQuestionsStateModel] =

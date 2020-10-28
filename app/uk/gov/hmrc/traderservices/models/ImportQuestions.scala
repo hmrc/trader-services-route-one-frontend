@@ -32,4 +32,10 @@ case class ImportQuestions(
 object ImportQuestions {
   val tag = "import"
   implicit val formats: Format[ImportQuestions] = Json.format[ImportQuestions]
+
+  def from(questionsAnswers: QuestionsAnswers): ImportQuestions =
+    questionsAnswers match {
+      case i: ImportQuestions => i
+      case e: ExportQuestions => ImportQuestions()
+    }
 }

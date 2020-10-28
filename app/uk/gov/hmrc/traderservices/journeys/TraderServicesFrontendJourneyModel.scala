@@ -74,8 +74,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       val model: ExportQuestionsStateModel
     }
 
-    sealed trait HasImportQuestions {
-      val importQuestionsAnswers: ImportQuestions
+    sealed trait HasImportQuestionsStateModel {
+      val model: ImportQuestionsStateModel
     }
 
     sealed trait HasFileUploads {
@@ -92,7 +92,9 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     }
 
     sealed trait ImportQuestionsState
-        extends State with HasDeclarationDetails with HasImportQuestions with HasQuestionsAnswers {
+        extends State with HasDeclarationDetails with HasImportQuestionsStateModel with HasQuestionsAnswers {
+      def declarationDetails: DeclarationDetails = model.declarationDetails
+      def importQuestionsAnswers: ImportQuestions = model.importQuestionsAnswers
       def questionsAnswers: QuestionsAnswers = importQuestionsAnswers
     }
 
@@ -150,53 +152,43 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     // IMPORT QUESTIONS
 
     case class AnswerImportQuestionsRequestType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsRouteType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsHasPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsWhichPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsALVS(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsFreightType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsOptionalVesselInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsMandatoryVesselInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class AnswerImportQuestionsContactInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState
 
     case class ImportQuestionsSummary(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
+      model: ImportQuestionsStateModel
     ) extends ImportQuestionsState with SummaryState
 
     // FILE UPLOAD
@@ -238,10 +230,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           fileUploadsOpt = d.model.fileUploadsOpt
         )
 
-      case (s, d: State with State.HasDeclarationDetails with State.HasImportQuestions) =>
+      case (s, d: State.ImportQuestionsState) =>
         s.copy(
-          declarationDetailsOpt = Some(d.declarationDetails),
-          importQuestionsAnswersOpt = Some(d.importQuestionsAnswers)
+          declarationDetailsOpt = Some(d.model.declarationDetails),
+          importQuestionsAnswersOpt = Some(d.model.importQuestionsAnswers),
+          fileUploadsOpt = d.model.fileUploadsOpt
         )
 
       case (s, d: State.FileUploadState) =>
@@ -268,10 +261,21 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             )
       }
 
-    def copyImportQuestions[S <: State: Setters.SetImportQuestions] =
+    def copyImportQuestionsStateModel[S <: State: Setters.SetImportQuestionsStateModel] =
       Merger[S] {
-        case (s, d: State with State.HasImportQuestions) =>
-          implicitly[Setters.SetImportQuestions[S]].set(s, d.importQuestionsAnswers)
+        case (s, d: State.ImportQuestionsState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]].set(s, d.model)
+
+        case (s, d: State.FileUploadState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]]
+            .set(
+              s,
+              ImportQuestionsStateModel(
+                declarationDetails = d.declarationDetails,
+                importQuestionsAnswers = ImportQuestions.from(d.questionsAnswers),
+                fileUploadsOpt = Some(d.fileUploads)
+              )
+            )
       }
   }
 
@@ -307,7 +311,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               )
             )
           else
-            goto(AnswerImportQuestionsRequestType(declarationDetails, importQuestionsOpt.getOrElse(ImportQuestions())))
+            goto(
+              AnswerImportQuestionsRequestType(
+                ImportQuestionsStateModel(
+                  declarationDetails,
+                  importQuestionsOpt.getOrElse(ImportQuestions()),
+                  fileUploadsOpt
+                )
+              )
+            )
       }
 
     def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
@@ -405,106 +417,108 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
-        case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
-          val updatedImportQuestions = importQuestions.copy(requestType = Some(importRequestType))
+        case AnswerImportQuestionsRequestType(model) =>
+          val updatedImportQuestions = model.importQuestionsAnswers.copy(requestType = Some(importRequestType))
           if (Rules.shouldAskRouteQuestion(updatedImportQuestions))
-            goto(AnswerImportQuestionsRouteType(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
           else
             goto(
-              AnswerImportQuestionsHasPriorityGoods(declarationDetails, updatedImportQuestions.copy(routeType = None))
+              AnswerImportQuestionsHasPriorityGoods(model.updated(updatedImportQuestions.copy(routeType = None)))
             )
 
       }
 
     def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
       Transition {
-        case AnswerImportQuestionsRouteType(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsRouteType(model) =>
           goto(
             AnswerImportQuestionsHasPriorityGoods(
-              declarationDetails,
-              importQuestions.copy(routeType = Some(importRouteType))
+              model.updated(model.importQuestionsAnswers.copy(routeType = Some(importRouteType)))
             )
           )
       }
 
     def submittedImportQuestionsAnswerHasPriorityGoods(user: String)(importHasPriorityGoods: Boolean) =
       Transition {
-        case AnswerImportQuestionsHasPriorityGoods(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsHasPriorityGoods(model) =>
           if (importHasPriorityGoods)
             goto(
               AnswerImportQuestionsWhichPriorityGoods(
-                declarationDetails,
-                importQuestions.copy(hasPriorityGoods = Some(importHasPriorityGoods))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
             )
           else
             goto(
               AnswerImportQuestionsALVS(
-                declarationDetails,
-                importQuestions.copy(hasPriorityGoods = Some(importHasPriorityGoods))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
             )
       }
 
     def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
       Transition {
-        case AnswerImportQuestionsWhichPriorityGoods(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsWhichPriorityGoods(model) =>
           goto(
             AnswerImportQuestionsALVS(
-              declarationDetails,
-              importQuestions.copy(priorityGoods = Some(importPriorityGoods))
+              model.updated(model.importQuestionsAnswers.copy(priorityGoods = Some(importPriorityGoods)))
             )
           )
       }
 
     def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
       Transition {
-        case AnswerImportQuestionsALVS(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsALVS(model) =>
           goto(
-            AnswerImportQuestionsFreightType(declarationDetails, importQuestions.copy(hasALVS = Some(importHasALVS)))
+            AnswerImportQuestionsFreightType(
+              model.updated(model.importQuestionsAnswers.copy(hasALVS = Some(importHasALVS)))
+            )
           )
       }
 
     def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
       Transition {
-        case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
-          val updatedImportQuestions = importQuestions.copy(freightType = Some(importFreightType))
+        case AnswerImportQuestionsFreightType(model) =>
+          val updatedImportQuestions = model.importQuestionsAnswers.copy(freightType = Some(importFreightType))
           if (Rules.isVesselDetailsAnswerMandatory(updatedImportQuestions))
-            goto(AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsMandatoryVesselInfo(model.updated(updatedImportQuestions)))
           else
-            goto(AnswerImportQuestionsOptionalVesselInfo(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsOptionalVesselInfo(model.updated(updatedImportQuestions)))
       }
 
     def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, importQuestions)
-            if vesselDetails.isComplete =>
+        case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           goto(
             AnswerImportQuestionsContactInfo(
-              declarationDetails,
-              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+              model.updated(
+                model.importQuestionsAnswers.copy(vesselDetails =
+                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+                )
+              )
             )
           )
       }
 
     def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsOptionalVesselInfo(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsOptionalVesselInfo(model) =>
           goto(
             AnswerImportQuestionsContactInfo(
-              declarationDetails,
-              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+              model.updated(
+                model.importQuestionsAnswers.copy(vesselDetails =
+                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+                )
+              )
             )
           )
       }
 
     def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
       Transition {
-        case AnswerImportQuestionsContactInfo(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsContactInfo(model) =>
           goto(
             ImportQuestionsSummary(
-              declarationDetails,
-              importQuestions.copy(contactInfo = Some(contactInfo))
+              model.updated(model.importQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
           )
       }
@@ -541,25 +555,39 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               model.exportQuestionsAnswers,
               upscanResponse.reference,
               upscanResponse.uploadRequest,
-              fileUploads.copy(files = fileUploads.files :+ FileUpload.Initiated(1, upscanResponse.reference))
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
             )
 
-        case ImportQuestionsSummary(declarationDetails, importQuestionsAnswers) =>
-          for {
-            upscanResponse <- upscanInitiate(
-                                UpscanInitiateRequest(
-                                  callbackUrl = callbackUrl,
-                                  successRedirect = Some(successRedirect),
-                                  errorRedirect = Some(errorRedirect)
+        case ImportQuestionsSummary(model) =>
+          val fileUploads = model.fileUploadsOpt.getOrElse(FileUploads())
+          if (fileUploads.nonEmpty || fileUploads.acceptedCount >= Rules.maxFileUploadsNumber)
+            goto(
+              FileUploaded(
+                model.declarationDetails,
+                model.importQuestionsAnswers,
+                fileUploads
+              )
+            )
+          else
+            for {
+              upscanResponse <- upscanInitiate(
+                                  UpscanInitiateRequest(
+                                    callbackUrl = callbackUrl,
+                                    successRedirect = Some(successRedirect),
+                                    errorRedirect = Some(errorRedirect)
+                                  )
                                 )
-                              )
-          } yield UploadFile(
-            declarationDetails,
-            importQuestionsAnswers,
-            upscanResponse.reference,
-            upscanResponse.uploadRequest,
-            FileUploads(files = Seq(FileUpload.Initiated(1, upscanResponse.reference)))
-          )
+            } yield UploadFile(
+              model.declarationDetails,
+              model.importQuestionsAnswers,
+              upscanResponse.reference,
+              upscanResponse.uploadRequest,
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
+            )
 
         case WaitingForFileVerification(
               declarationDetails,
@@ -762,8 +790,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     }
 
     /** Typeclass of importQuestions setters */
-    trait SetImportQuestions[S <: State] {
-      def set(state: S, importQuestions: ImportQuestions): S
+    trait SetImportQuestionsStateModel[S <: State] {
+      def set(state: S, importQuestionsStateModel: ImportQuestionsStateModel): S
     }
 
     object SetExportQuestionsStateModel {
@@ -783,22 +811,22 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       implicit val s9 = of[ExportQuestionsSummary]((s, e) => s.copy(model = e))
     }
 
-    object SetImportQuestions {
-      private def of[S <: State](fx: (S, ImportQuestions) => S): SetImportQuestions[S] =
-        new SetImportQuestions[S] {
-          override def set(state: S, importQuestions: ImportQuestions): S = fx(state, importQuestions)
+    object SetImportQuestionsStateModel {
+      private def of[S <: State](fx: (S, ImportQuestionsStateModel) => S): SetImportQuestionsStateModel[S] =
+        new SetImportQuestionsStateModel[S] {
+          override def set(state: S, model: ImportQuestionsStateModel): S = fx(state, model)
         }
 
-      implicit val s1 = of[AnswerImportQuestionsRequestType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s2 = of[AnswerImportQuestionsRouteType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s3 = of[AnswerImportQuestionsHasPriorityGoods]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s4 = of[AnswerImportQuestionsWhichPriorityGoods]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s5 = of[AnswerImportQuestionsFreightType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s6 = of[AnswerImportQuestionsALVS]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s7 = of[AnswerImportQuestionsOptionalVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s8 = of[AnswerImportQuestionsContactInfo]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s9 = of[AnswerImportQuestionsMandatoryVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s10 = of[ImportQuestionsSummary]((s, e) => s.copy(importQuestionsAnswers = e))
+      implicit val s1 = of[AnswerImportQuestionsRequestType]((s, e) => s.copy(model = e))
+      implicit val s2 = of[AnswerImportQuestionsRouteType]((s, e) => s.copy(model = e))
+      implicit val s3 = of[AnswerImportQuestionsHasPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s4 = of[AnswerImportQuestionsWhichPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s5 = of[AnswerImportQuestionsFreightType]((s, e) => s.copy(model = e))
+      implicit val s6 = of[AnswerImportQuestionsALVS]((s, e) => s.copy(model = e))
+      implicit val s7 = of[AnswerImportQuestionsOptionalVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s8 = of[AnswerImportQuestionsContactInfo]((s, e) => s.copy(model = e))
+      implicit val s9 = of[AnswerImportQuestionsMandatoryVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s10 = of[ImportQuestionsSummary]((s, e) => s.copy(model = e))
     }
   }
 }

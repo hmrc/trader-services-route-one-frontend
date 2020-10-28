@@ -77,7 +77,9 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
-        ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
+        ) should thenGo(
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+        )
       }
 
       "copy declaration and export details if coming back from the advanced export state" in {
@@ -96,8 +98,10 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       "copy declaration and import details if coming back from the advanced import state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerImportQuestionsRequestType(
-          importDeclarationDetails,
-          ImportQuestions(requestType = Some(ImportRequestType.New))
+          ImportQuestionsStateModel(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
         )) should thenGo(
           EnterDeclarationDetails(
             declarationDetailsOpt = Some(importDeclarationDetails),
@@ -595,40 +599,47 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       for (requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold))
         s"go to AnswerImportQuestionsRequestType when submitted requestType of ${ImportRequestType.keyOf(requestType).get}" in {
           given(
-            AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+            AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
           ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
             requestType
           ) should thenGo(
             AnswerImportQuestionsRouteType(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(requestType))
+              ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions(requestType = Some(requestType)))
             )
           )
         }
 
       "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
         given(
-          AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
         ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
           ImportRequestType.Hold
         ) should thenGo(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.Hold))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.Hold))
+            )
           )
         )
       }
 
       "copy import details if coming back from the advanced state" in {
-        given(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())) when (copyImportQuestions[
+        given(
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+        ) when (copyImportQuestionsStateModel[
           AnswerImportQuestionsRequestType
         ], AnswerImportQuestionsRouteType(
-          importDeclarationDetails,
-          ImportQuestions(requestType = Some(ImportRequestType.New))
-        )) should thenGo(
-          AnswerImportQuestionsRequestType(
+          ImportQuestionsStateModel(
             importDeclarationDetails,
             ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
+        )) should thenGo(
+          AnswerImportQuestionsRequestType(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New))
+            )
           )
         )
       }
@@ -639,15 +650,19 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         s"go to AnswerImportQuestionsHasPriorityGoods when submitted routeType of ${ImportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerImportQuestionsRouteType(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New))
+              )
             )
           ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
             routeType
           ) should thenGo(
             AnswerImportQuestionsHasPriorityGoods(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(routeType))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(routeType))
+              )
             )
           )
         }
@@ -657,16 +672,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsWhichPriorityGoods when selected YES" in {
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasPriorityGoods = Some(true)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasPriorityGoods = Some(true)
+              )
             )
           )
         )
@@ -674,16 +693,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsWhichPriorityGoods when selected NO" in {
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasPriorityGoods = Some(false)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasPriorityGoods = Some(false)
+              )
             )
           )
         )
@@ -695,18 +718,22 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         s"go to AnswerImportQuestionsALVS when submittedImportQuestionsAnswerWhichPriorityGoods with ${ImportPriorityGoods.keyOf(priorityGoods).get}" in {
           given(
             AnswerImportQuestionsWhichPriorityGoods(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+              )
             )
           ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
             priorityGoods
           ) should thenGo(
             AnswerImportQuestionsALVS(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(ImportRequestType.New),
-                routeType = Some(ImportRouteType.Route3),
-                priorityGoods = Some(priorityGoods)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(ImportRequestType.New),
+                  routeType = Some(ImportRouteType.Route3),
+                  priorityGoods = Some(priorityGoods)
+                )
               )
             )
           )
@@ -717,16 +744,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected YES" in {
         given(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsFreightType(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasALVS = Some(true)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasALVS = Some(true)
+              )
             )
           )
         )
@@ -735,16 +766,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected NO" in {
         given(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsFreightType(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasALVS = Some(false)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasALVS = Some(false)
+              )
             )
           )
         )
@@ -761,23 +796,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerImportQuestionsFreightType(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  hasALVS = Some(false)
+                )
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsOptionalVesselInfo(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                freightType = Some(freightType),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
               )
             )
           )
@@ -792,23 +831,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerImportQuestionsFreightType(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  hasALVS = Some(false)
+                )
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsMandatoryVesselInfo(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                freightType = Some(freightType),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
               )
             )
           )
@@ -819,26 +862,30 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails with some vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air)
+              )
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
@@ -847,25 +894,29 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails without vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air)
+              )
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails()
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails = None
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails = None
+              )
             )
           )
         )
@@ -876,29 +927,33 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to ImportQuestionsSummary when submittedImportQuestionsContactInfo with some contact details" in {
         given(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         ) when submittedImportQuestionsContactInfo(eoriNumber)(
           ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
         ) should thenGo(
           ImportQuestionsSummary(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
@@ -952,8 +1007,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
         given(
           ImportQuestionsSummary(
-            importDeclarationDetails,
-            fullImportQuestions
+            ImportQuestionsStateModel(importDeclarationDetails, fullImportQuestions)
           )
         ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
           mockUpscanInitiate
