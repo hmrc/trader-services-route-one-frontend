@@ -21,6 +21,7 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
+import java.time.ZonedDateTime
 
 class TraderServicesFrontendISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesStubs with UpscanInitiateStubs {
@@ -1490,6 +1491,59 @@ class TraderServicesFrontendISpec
           fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
       }
+    }
+
+    "return file verification status" in {
+      implicit val journeyId: JourneyId = JourneyId()
+      val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+      val state = FileUploaded(
+        TestData.importDeclarationDetails,
+        TestData.fullImportQuestions(dateTimeOfArrival),
+        FileUploads(files =
+          Seq(
+            FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+            FileUpload.Accepted(
+              4,
+              "f029444f-415c-4dec-9cf2-36774ec63ab8",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUpload.Rejected(3, "4b1e15a4-4152-4328-9448-4924d9aee6e2", UpscanNotification.QUARANTINE, "some reason")
+          )
+        ),
+        acknowledged = false
+      )
+      journey.setState(state)
+      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+      val result1 = await(request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status").get())
+      result1.status shouldBe 200
+      result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+      journey.getState shouldBe state
+
+      val result2 = await(request("/pre-clearance/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
+      result2.status shouldBe 200
+      result2.body shouldBe """{"fileStatus":"WAITING"}"""
+      journey.getState shouldBe state
+
+      val result3 = await(request("/pre-clearance/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
+      result3.status shouldBe 200
+      result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+      journey.getState shouldBe state
+
+      val result4 = await(request("/pre-clearance/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
+      result4.status shouldBe 200
+      result4.body shouldBe """{"fileStatus":"REJECTED"}"""
+      journey.getState shouldBe state
+
+      val result5 = await(request("/pre-clearance/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
+      result5.status shouldBe 404
+      journey.getState shouldBe state
+
     }
 
     "GET /trader-services/foo" should {

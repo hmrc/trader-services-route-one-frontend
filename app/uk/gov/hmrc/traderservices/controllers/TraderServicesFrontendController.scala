@@ -27,12 +27,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
+import play.api.libs.json.Json
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -376,6 +377,11 @@ class TraderServicesFrontendController @Inject() (
         ) _
       }
 
+  // GET /pre-clearance/file-verification/:reference/status
+  def checkFileVerificationStatus(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .showCurrentStateUsing(implicit request => renderFileVerificationStatus(reference))
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -661,6 +667,9 @@ class TraderServicesFrontendController @Inject() (
             reference,
             uploadRequest,
             fileUploads,
+            routes.TraderServicesFrontendController.showFileUploaded,
+            routes.TraderServicesFrontendController.showFileUpload,
+            routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLinkToMostRecent[State.SummaryState](breadcrumbs),
             waiting = false
           )
@@ -672,6 +681,9 @@ class TraderServicesFrontendController @Inject() (
             reference,
             uploadRequest,
             fileUploads,
+            routes.TraderServicesFrontendController.showFileUploaded,
+            routes.TraderServicesFrontendController.showFileUpload,
+            routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLinkFor(breadcrumbs),
             waiting = true
           )
@@ -698,6 +710,20 @@ class TraderServicesFrontendController @Inject() (
 
       case _ => NotImplemented
 
+    }
+
+  def renderFileVerificationStatus(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: State.HasFileUploads =>
+        s.fileUploads.files.find(_.reference == reference) match {
+          case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
+          case None    => NotFound
+        }
+      case _ => NotFound
     }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r

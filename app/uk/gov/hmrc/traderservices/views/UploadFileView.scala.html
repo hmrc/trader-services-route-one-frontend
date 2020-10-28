@@ -28,7 +28,8 @@
         appConfig: AppConfig
 )
 
-@(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, backLink: Call, waiting: Boolean)(implicit request: Request[_], messages: Messages)
+@(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, 
+  successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call, waiting: Boolean)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
@@ -37,11 +38,11 @@
 
   @if(waiting) {
     <!-- TODO verification view -->
-    <!-- TODO supply correct urls to data props -->
     <div class="upload-status"
-    data-upload-status-redirect-success-url="file-uploaded"
-    data-upload-status-redirect-failure-url="file-upload"
-    data-upload-status-check-status-url="check-status-url">
+      data-upload-status-redirect-success-url="@successAction.url"
+      data-upload-status-redirect-failure-url="@failureAction.url"
+      data-upload-status-check-status-url="@checkStatusAction.url"
+    >
       <h1 class="govuk-heading-l">@messages("view.upload-file.waiting")</h1>
       <div class="ccms-loader"></div>
     </div>
