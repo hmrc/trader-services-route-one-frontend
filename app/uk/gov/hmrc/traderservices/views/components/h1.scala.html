@@ -16,6 +16,6 @@
 
 @this()
 
-@(msg: String)(implicit messages: Messages)
+@(msg: String, classes: String = "govuk-heading-xl")(implicit messages: Messages)
 
-<h1 class="govuk-heading-xl">@messages(msg)</h1>
+<h1 class="@classes">@messages(msg)</h1>

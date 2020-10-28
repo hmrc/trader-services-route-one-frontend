@@ -19,8 +19,13 @@
 @(
         link: String,
         messageKey: String,
+        useButtonStyle: Boolean = false,
         id: Option[String] = None,
         isExternal: Boolean = false
 )(implicit messages: Messages)
 
-<a href="@link" class="govuk-link" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" }>@messages(messageKey)@if(isExternal)(" " + messages("site.opensInNewWindowOrTab"))</a>
+@classes = @{
+ if (useButtonStyle) "govuk-button" else "govuk-link"
+}
+
+<a href="@link" class="@classes" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" }>@messages(messageKey)@if(isExternal)(" " + messages("site.opensInNewWindowOrTab"))</a>
