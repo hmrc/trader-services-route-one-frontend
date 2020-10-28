@@ -53,7 +53,8 @@
             items = context.uploadAnotherFileItems(form),
             inline = true,
             legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
-            legendClasses = "govuk-label"
+            legendAsHeading = false,
+            legendClasses = ""
         )
 
         @html.button("form.file-uploaded.continue")

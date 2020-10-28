@@ -34,7 +34,7 @@
   pageTitle = Some(messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)),
   backLink = Some(backLink.url)) {
 
-  @html.h1(messages("view.file-uploaded.plural.heading", fileUploads.acceptedCount))
+  @html.h1(messages("view.file-uploaded.plural.heading", fileUploads.acceptedCount), classes = "govuk-heading-l")
 
   @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
 
