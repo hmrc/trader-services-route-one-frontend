@@ -206,7 +206,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
       importQuestions.requestType.contains(ImportRequestType.Hold)
 
-    val maxFileUploadsNumber = 10
+    val maxFileUploadsNumber = 3
 
   }
 

@@ -316,7 +316,7 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyThenRedirectOrDisplay { implicit request =>
+      .applyWithRequest { implicit request =>
         val callbackUrl =
           appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
         Transitions
@@ -324,6 +324,7 @@ class TraderServicesFrontendController @Inject() (
             upscanInitiateConnector.initiate(_)
           )
       }
+      .redirectOrDisplayIf[State.UploadFile]
 
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
