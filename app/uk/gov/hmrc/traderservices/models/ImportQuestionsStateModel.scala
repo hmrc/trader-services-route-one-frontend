@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import java.time.LocalDate
-
 import play.api.libs.json.{Format, Json}
 
-case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate) {
+case class ImportQuestionsStateModel(
+  declarationDetails: DeclarationDetails,
+  importQuestionsAnswers: ImportQuestions,
+  fileUploadsOpt: Option[FileUploads] = None
+)
 
-  val isExportDeclaration: Boolean =
-    entryNumber.value.headOption.forall(_.isLetter) && entryNumber.value.lastOption.forall(_.isLetter)
-  val isImportDeclaration: Boolean =
-    entryNumber.value.headOption.forall(_.isDigit) && entryNumber.value.lastOption.forall(_.isLetter)
-}
-
-object DeclarationDetails {
-  implicit val formats: Format[DeclarationDetails] = Json.format[DeclarationDetails]
+object ImportQuestionsStateModel {
+  implicit val formats: Format[ImportQuestionsStateModel] =
+    Json.format[ImportQuestionsStateModel]
 }

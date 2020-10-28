@@ -28,8 +28,9 @@ case class FileUploads(
   files: Seq[FileUpload] = Seq.empty
 ) {
 
-  val isEmpty: Boolean = acceptedCount == 0
-  val isSingle: Boolean = acceptedCount == 1
+  def isEmpty: Boolean = acceptedCount == 0
+  def nonEmpty: Boolean = !isEmpty
+  def isSingle: Boolean = acceptedCount == 1
   def acceptedCount: Int =
     files
       .count { case _: FileUpload.Accepted => true; case _ => false }
