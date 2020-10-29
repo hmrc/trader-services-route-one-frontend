@@ -52,7 +52,5 @@
   @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
     TraderServicesFrontendController.showAnswerExportQuestionsContactInfo))
 
-  <a href="@postAction.url" class="govuk-link">
-      @html.button("form.import-questions.summary.continue")
-  </a>
+  @html.a(postAction.url, messages("form.export-questions.summary.continue"), useButtonStyle = true)
 }
