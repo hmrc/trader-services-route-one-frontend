@@ -1060,7 +1060,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
               )
             )
           )
@@ -1093,7 +1097,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
               )
             )
           )
@@ -1127,7 +1135,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
               )
             )
           )
@@ -1150,14 +1162,18 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
               )
             )
           )
         )
       }
 
-      "go to FileUploaded when waitForFileVerification and rejected already" in {
+      "go to UploadFile when waitForFileVerification and rejected already" in {
         given(
           UploadFile(
             importDeclarationDetails,
@@ -1184,14 +1200,18 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
               )
             )
           )
         ) when waitForFileVerification(
           eoriNumber
         ) should thenGo(
-          UploadFile(
+          WaitingForFileVerification(
             importDeclarationDetails,
             fullImportQuestions,
             "foo-bar-ref-4",
@@ -1203,6 +1223,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
+            FileUpload.Posted(4, "foo-bar-ref-4"),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(1, "foo-bar-ref-1"),
@@ -1216,7 +1237,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", UpscanNotification.REJECTED, "some failure reason")
+                FileUpload.Posted(4, "foo-bar-ref-4")
               )
             )
           )
@@ -1271,7 +1292,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "goto FileUploaded when upscanCallbackArrived and rejected, and reference matches" in {
+      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           UploadFile(
             importDeclarationDetails,
@@ -1309,7 +1330,75 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               )
             ),
             FileUploads(files =
-              Seq(FileUpload.Rejected(1, "foo-bar-ref-1", UpscanNotification.UNKNOWN, "e.g. This file has a virus"))
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+                )
+              )
+            ),
+            Some(
+              FileVerificationFailed(
+                UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile with error when fileUploadWasRejected" in {
+        val state =
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+          )
+
+        given(state) when fileUploadWasRejected(eoriNumber)(
+          S3UploadError(
+            key = "foo-bar-ref-1",
+            errorCode = "a",
+            errorMessage = "b",
+            errorResource = "c",
+            errorRequestId = "d"
+          )
+        ) should thenGo(
+          state.copy(
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "foo-bar-ref-1",
+                  S3UploadError(
+                    key = "foo-bar-ref-1",
+                    errorCode = "a",
+                    errorMessage = "b",
+                    errorResource = "c",
+                    errorRequestId = "d"
+                  )
+                )
+              )
+            ),
+            maybeUploadError = Some(
+              FileTransmissionFailed(
+                S3UploadError(
+                  key = "foo-bar-ref-1",
+                  errorCode = "a",
+                  errorMessage = "b",
+                  errorResource = "c",
+                  errorRequestId = "d"
+                )
+              )
             )
           )
         )
@@ -1447,7 +1536,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "go to UploadFile when waitForFileVerification and file already rejected" in {
+      "go to UploadFile when waitForFileVerification and file already failed" in {
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
@@ -1461,19 +1550,17 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Rejected(
+            FileUpload.Failed(
               1,
               "foo-bar-ref-1",
-              UpscanNotification.QUARANTINE,
-              "some reason"
+              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Rejected(
+                FileUpload.Failed(
                   1,
                   "foo-bar-ref-1",
-                  UpscanNotification.QUARANTINE,
-                  "some reason"
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
               )
             )
@@ -1495,13 +1582,15 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Rejected(
+                FileUpload.Failed(
                   1,
                   "foo-bar-ref-1",
-                  UpscanNotification.QUARANTINE,
-                  "some reason"
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
               )
+            ),
+            Some(
+              FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
             )
           )
         )
@@ -1556,7 +1645,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "goto UploadFile when upscanCallbackArrived and rejected, and reference matches" in {
+      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
@@ -1596,12 +1685,16 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Rejected(
+                FileUpload.Failed(
                   1,
                   "foo-bar-ref-1",
-                  UpscanNotification.QUARANTINE,
-                  "e.g. This file has a virus"
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
                 )
+              )
+            ),
+            Some(
+              FileVerificationFailed(
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
               )
             )
           )
@@ -1650,11 +1743,10 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             FileUploads(files =
               Seq(
                 FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Rejected(
+                FileUpload.Failed(
                   2,
                   "foo-bar-ref-2",
-                  UpscanNotification.QUARANTINE,
-                  "e.g. This file has a virus"
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
                 )
               )
             )

@@ -19,7 +19,7 @@ $(document).ready(function () {
   Upload.prototype.requestUploadStatus = function () {
     var self = this;
 
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       $.ajax({
         url: self.config.checkStatusUrl,
         type: "GET",
@@ -28,18 +28,19 @@ $(document).ready(function () {
         contentType: false,
         crossDomain: true
       })
-      .fail($.proxy(self.requestUploadStatus, self))
-      .done($.proxy(self.handleRequestCompleted, self));
+        .fail($.proxy(self.requestUploadStatus, self))
+        .done($.proxy(self.handleRequestCompleted, self));
 
     }, this.config.retryTimeoutMs);
   };
 
-  Upload.prototype.handleRequestCompleted = function(response) {
+  Upload.prototype.handleRequestCompleted = function (response) {
     switch (response['fileStatus']) {
       case 'ACCEPTED':
         window.location.href = this.config.successUrl;
         break;
 
+      case 'FAILED':
       case 'REJECTED':
         window.location.href = this.config.failureUrl;
         break;

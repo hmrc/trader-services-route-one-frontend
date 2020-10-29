@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.{FileUploads,UploadRequest}
+@import uk.gov.hmrc.traderservices.models.{FileUploads,UploadRequest,FileUploadError}
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
@@ -29,76 +29,64 @@
         appConfig: AppConfig
 )
 
-@(uploadReference: String, uploadRequest: UploadRequest, fileUploads: FileUploads, 
-  successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call, waiting: Boolean)(implicit request: Request[_], messages: Messages)
+@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
-  backLink = Some(backLink.url),
-  refresh = if(waiting) 3 else 0) {
+  backLink = Some(backLink.url)
+) {
 
-  @if(waiting) {
-    <div class="upload-status"
-      data-upload-status-redirect-success-url="@successAction.url"
-      data-upload-status-redirect-failure-url="@failureAction.url"
-      data-upload-status-check-status-url="@checkStatusAction.url"
-    >
-      <h1 class="govuk-heading-l">@messages("view.upload-file.waiting")</h1>
-      <div class="ccms-loader"></div>
-    </div>
-  } else {
-    <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
+  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
 
-      @forms.fieldset(
-        legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
-      ) {
-        @uploadRequest.fields.map { case (key, value) =>
-          @forms.inputHidden(key, value)
-        }
+    @forms.fieldset(
+      legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
+    ) {
 
-        @govukFileUpload(FileUpload(
-          name = "file",
-          id = "upload-file",
-          value = Some(""),
-          describedBy = None,
-          label = Label(),
-          hint = None,
-          errorMessage = None,
-          formGroupClasses = "",
-          classes = "",
-          attributes = Map(
-            "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
-            "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
-            "accept" -> appConfig.fileFormats.approvedFileTypes,
-            "required" -> "",
-            "data-msg-required" -> messages("error.upload-file.required"),
-            "data-msg-filesize" -> messages("error.upload-file.filesize"),
-            "data-msg-accept" -> messages("error.upload-file.accept")
-          ) ++ (if(waiting) Map("disabled" -> "") else Map.empty)
-        ))
-
-        @details(messages("view.upload-file.help.linkText")) {
-          @html.p{ @messages("view.upload-file.help.line1") }
-          @html.p{ @messages("view.upload-file.help.line2") }
-          @html.p{ @messages("view.upload-file.help.line3") }
-          @html.ul(
-            messages("view.upload-file.help.fileFormat1"),
-            messages("view.upload-file.help.fileFormat2"),
-            messages("view.upload-file.help.fileFormat3"),
-            messages("view.upload-file.help.fileFormat4"),
-            messages("view.upload-file.help.fileFormat5"),
-            messages("view.upload-file.help.fileFormat6")
-          )
-          @html.p{ @messages("view.upload-file.help.line4") }
-        }
-
-        @govukButton(Button(
-          content = Text(messages("form.upload-file.submit")),
-          preventDoubleClick = true,
-          disabled = waiting
-        ))
+      @uploadRequest.fields.map { case (key, value) =>
+        @forms.inputHidden(key, value)
       }
 
-    </form>
-  }
+      @govukFileUpload(FileUpload(
+        name = "file",
+        id = "upload-file",
+        value = Some(""),
+        describedBy = None,
+        label = Label(),
+        hint = None,
+        errorMessage = None,
+        formGroupClasses = "",
+        classes = "",
+        attributes = Map(
+          "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
+          "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
+          "accept" -> appConfig.fileFormats.approvedFileTypes,
+          "required" -> "",
+          "data-msg-required" -> messages("error.upload-file.required"),
+          "data-msg-filesize" -> messages("error.upload-file.filesize"),
+          "data-msg-accept" -> messages("error.upload-file.accept")
+        ))
+      )
+
+      @details(messages("view.upload-file.help.linkText")) {
+        @html.p{ @messages("view.upload-file.help.line1") }
+        @html.p{ @messages("view.upload-file.help.line2") }
+        @html.p{ @messages("view.upload-file.help.line3") }
+        @html.ul(
+          messages("view.upload-file.help.fileFormat1"),
+          messages("view.upload-file.help.fileFormat2"),
+          messages("view.upload-file.help.fileFormat3"),
+          messages("view.upload-file.help.fileFormat4"),
+          messages("view.upload-file.help.fileFormat5"),
+          messages("view.upload-file.help.fileFormat6")
+        )
+        @html.p{ @messages("view.upload-file.help.line4") }
+      }
+
+      @govukButton(Button(
+        content = Text(messages("form.upload-file.submit")),
+        preventDoubleClick = true
+      ))
+    }
+
+  </form>
 }

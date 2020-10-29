@@ -68,7 +68,7 @@ case class UpscanFileReady(reference: String, downloadUrl: String, uploadDetails
   *    "reference" : "11370e18-6e24-453e-b45a-76d3e32ea33d",
   *    "fileStatus" : "FAILED",
   *    "failureDetails": {
-  *        "failureReason": "REJECTED",
+  *        "failureReason": "FAILED",
   *        "message": "MIME type $mime is not allowed for service $service-name"
   *    }
   * }

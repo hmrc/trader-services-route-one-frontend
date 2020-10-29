@@ -43,6 +43,7 @@ class Views @Inject() (
   val importQuestionsContactInfoView: ImportQuestionsContactInfoView,
   val importQuestionsSummaryView: ImportQuestionsSummaryView,
   val uploadFileView: UploadFileView,
+  val waitingForFileVerificationView: WaitingForFileVerificationView,
   val fileUploadedView: FileUploadedView,
   val fileUploadedSummaryView: FileUploadedSummaryView
 )

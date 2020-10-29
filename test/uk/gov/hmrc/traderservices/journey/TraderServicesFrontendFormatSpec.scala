@@ -346,12 +346,12 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"reference":"foo-bar-ref",
           |"uploadRequest":{"href":"https://foo.bar","fields":{}},
           |"fileUploads":{"files":[
-          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"posted":{"orderNumber":3,"reference":"foo3"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"Posted":{"orderNumber":3,"reference":"foo3"}},
+          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}}
-          |]}}}""".stripMargin,
+          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
+          |]},"maybeUploadError":{"FileVerificationFailed":{"details":{"failureReason":"QUARANTINE","message":"some reason"}}}}}""".stripMargin,
         State.UploadFile(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           ImportQuestions(
@@ -391,9 +391,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
                 "test.pdf",
                 "application/pdf"
               ),
-              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason")
+              FileUpload
+                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
             )
-          )
+          ),
+          Some(FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")))
         )
       )
       validateJsonFormat(
@@ -404,11 +406,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
-          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
-          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
         State.UploadFile(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
@@ -427,7 +429,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
                 "test.pdf",
                 "application/pdf"
               ),
-              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
+              FileUpload
+                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
               FileUpload.Posted(3, "foo3")
             )
           )
@@ -439,11 +442,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"fileUploads":{"files":[
-          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
-          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]},
           |"acknowledged":false}}""".stripMargin,
         State.FileUploaded(
@@ -461,7 +464,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
                 "test.pdf",
                 "application/pdf"
               ),
-              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
+              FileUpload
+                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
               FileUpload.Posted(3, "foo3")
             )
           )
@@ -474,13 +478,13 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
-          |"currentFileUpload":{"posted":{"orderNumber":3,"reference":"foo3"}},
+          |"currentFileUpload":{"Posted":{"orderNumber":3,"reference":"foo3"}},
           |"fileUploads":{"files":[
-          |{"initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
+          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"rejected":{"orderNumber":2,"reference":"foo2","failureReason":"QUARANTINE","failureMessage":"some reason"}},
-          |{"posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
         State.WaitingForFileVerification(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
@@ -500,7 +504,8 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
                 "test.pdf",
                 "application/pdf"
               ),
-              FileUpload.Rejected(2, "foo2", UpscanNotification.QUARANTINE, "some reason"),
+              FileUpload
+                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
               FileUpload.Posted(3, "foo3")
             )
           )

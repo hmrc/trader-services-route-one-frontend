@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, S3UploadError, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -319,7 +319,7 @@ class TraderServicesFrontendController @Inject() (
     appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
 
   val errorRedirect =
-    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
+    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.markFileUploadAsRejected
 
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
@@ -335,6 +335,12 @@ class TraderServicesFrontendController @Inject() (
           )
       }
       .redirectOrDisplayIf[State.UploadFile]
+
+  // GET
+  val markFileUploadAsRejected: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(UpscanUploadErrorForm)
+      .apply(Transitions.fileUploadWasRejected)
 
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
@@ -670,37 +676,30 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case UploadFile(_, _, reference, uploadRequest, fileUploads) =>
+      case UploadFile(_, _, _, uploadRequest, fileUploads, maybeUploadError) =>
         Ok(
           views.uploadFileView(
-            reference,
             uploadRequest,
             fileUploads,
-            routes.TraderServicesFrontendController.showFileUploaded,
-            routes.TraderServicesFrontendController.showFileUpload,
-            routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
-            if (fileUploads.isEmpty)
-              backLinkToMostRecent[State.SummaryState](breadcrumbs)
-            else
-              backLinkToMostRecent[State.FileUploaded](
-                breadcrumbs,
-                Some(backLinkToMostRecent[State.SummaryState](breadcrumbs))
-              ),
-            waiting = false
+            maybeUploadError,
+            backLink =
+              if (fileUploads.isEmpty)
+                backLinkToMostRecent[State.SummaryState](breadcrumbs)
+              else
+                backLinkToMostRecent[State.FileUploaded](
+                  breadcrumbs,
+                  Some(backLinkToMostRecent[State.SummaryState](breadcrumbs))
+                )
           )
         )
 
-      case WaitingForFileVerification(_, _, reference, uploadRequest, _, fileUploads) =>
+      case WaitingForFileVerification(_, _, reference, _, _, _) =>
         Ok(
-          views.uploadFileView(
-            reference,
-            uploadRequest,
-            fileUploads,
-            routes.TraderServicesFrontendController.showFileUploaded,
-            routes.TraderServicesFrontendController.showFileUpload,
-            routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
-            backLinkFor(breadcrumbs),
-            waiting = true
+          views.waitingForFileVerificationView(
+            successAction = routes.TraderServicesFrontendController.showFileUploaded,
+            failureAction = routes.TraderServicesFrontendController.showFileUpload,
+            checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
+            backLink = routes.TraderServicesFrontendController.showFileUpload
           )
         )
 
@@ -852,5 +851,15 @@ object TraderServicesFrontendController {
 
   val UploadAnotherFileChoiceForm = Form[Boolean](
     mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)
+  )
+
+  val UpscanUploadErrorForm = Form[S3UploadError](
+    mapping(
+      "key"            -> nonEmptyText,
+      "errorCode"      -> text,
+      "errorMessage"   -> text,
+      "errorResource"  -> text,
+      "errorRequestId" -> text
+    )(S3UploadError.apply)(S3UploadError.unapply)
   )
 }

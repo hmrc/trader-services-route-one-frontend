@@ -1512,7 +1512,11 @@ class TraderServicesFrontendISpec
               "test.pdf",
               "application/pdf"
             ),
-            FileUpload.Rejected(3, "4b1e15a4-4152-4328-9448-4924d9aee6e2", UpscanNotification.QUARANTINE, "some reason")
+            FileUpload.Failed(
+              3,
+              "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+            )
           )
         ),
         acknowledged = false
@@ -1537,7 +1541,7 @@ class TraderServicesFrontendISpec
 
       val result4 = await(request("/pre-clearance/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
       result4.status shouldBe 200
-      result4.body shouldBe """{"fileStatus":"REJECTED"}"""
+      result4.body shouldBe """{"fileStatus":"FAILED"}"""
       journey.getState shouldBe state
 
       val result5 = await(request("/pre-clearance/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())

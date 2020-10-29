@@ -17,11 +17,6 @@
 package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsError
-import play.api.libs.json.Writes
-import play.api.libs.json.Reads
-import play.api.libs.json.JsValue
 import java.time.ZonedDateTime
 
 case class FileUploads(
@@ -41,36 +36,40 @@ object FileUploads {
   implicit val formats: Format[FileUploads] = Json.format[FileUploads]
 }
 
+/** File upload status */
 sealed trait FileUpload {
   def orderNumber: Int
   def reference: String
 }
 
-object FileUpload {
+object FileUpload extends SealedTraitFormats[FileUpload] {
 
   def unapply(fileUpload: FileUpload): Option[(Int, String)] =
     Some((fileUpload.orderNumber, fileUpload.reference))
 
+  /**
+    * Status when file upload attributes has been requested from upscan-initiate
+    * but the file itself has not been yet transmitted to S3 bucket.
+    */
   case class Initiated(
     orderNumber: Int,
     reference: String
   ) extends FileUpload
 
-  object Initiated {
-    val tag = "initiated"
-    implicit val formats: Format[Initiated] = Json.format[Initiated]
-  }
+  /** Status when file transmission has been rejected by AWS S3. */
+  case class Rejected(
+    orderNumber: Int,
+    reference: String,
+    details: S3UploadError
+  ) extends FileUpload
 
+  /** Status when file has successfully arrived to AWS S3 for verification. */
   case class Posted(
     orderNumber: Int,
     reference: String
   ) extends FileUpload
 
-  object Posted {
-    val tag = "posted"
-    implicit val formats: Format[Posted] = Json.format[Posted]
-  }
-
+  /** Status when file has been positively verified and is ready for further actions. */
   case class Accepted(
     orderNumber: Int,
     reference: String,
@@ -81,41 +80,19 @@ object FileUpload {
     fileMimeType: String
   ) extends FileUpload
 
-  object Accepted {
-    val tag = "accepted"
-    implicit val formats: Format[Accepted] = Json.format[Accepted]
-  }
-
-  case class Rejected(
+  /** When file has failed verification and may not be used. */
+  case class Failed(
     orderNumber: Int,
     reference: String,
-    failureReason: UpscanNotification.FailureReason,
-    failureMessage: String
+    details: UpscanNotification.FailureDetails
   ) extends FileUpload
 
-  object Rejected {
-    val tag = "rejected"
-    implicit val formats: Format[Rejected] = Json.format[Rejected]
-  }
-
-  implicit def reads: Reads[FileUpload] =
-    Reads {
-      case o: JsObject if (o \ Initiated.tag).isDefined => Initiated.formats.reads((o \ Initiated.tag).get)
-      case o: JsObject if (o \ Posted.tag).isDefined    => Posted.formats.reads((o \ Posted.tag).get)
-      case o: JsObject if (o \ Accepted.tag).isDefined  => Accepted.formats.reads((o \ Accepted.tag).get)
-      case o: JsObject if (o \ Rejected.tag).isDefined  => Rejected.formats.reads((o \ Rejected.tag).get)
-      case _                                            => JsError("Invalid format of FileUpload")
-    }
-
-  implicit def writes: Writes[FileUpload] =
-    new Writes[FileUpload] {
-      override def writes(o: FileUpload): JsValue =
-        o match {
-          case i: Initiated => Initiated.formats.transform(v => Json.obj(Initiated.tag -> v)).writes(i)
-          case i: Posted    => Posted.formats.transform(v => Json.obj(Posted.tag -> v)).writes(i)
-          case i: Accepted  => Accepted.formats.transform(v => Json.obj(Accepted.tag -> v)).writes(i)
-          case i: Rejected  => Rejected.formats.transform(v => Json.obj(Rejected.tag -> v)).writes(i)
-        }
-    }
+  override val formats = Set(
+    Case[Initiated](Json.format[Initiated]),
+    Case[Rejected](Json.format[Rejected]),
+    Case[Posted](Json.format[Posted]),
+    Case[Accepted](Json.format[Accepted]),
+    Case[Failed](Json.format[Failed])
+  )
 
 }
