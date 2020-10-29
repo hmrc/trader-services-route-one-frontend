@@ -35,17 +35,16 @@ $(document).ready(function () {
   };
 
   Upload.prototype.handleRequestCompleted = function(response) {
-    //TODO get the correct response property and its values
-    switch (response.status) {
-      case 'success':
+    switch (response['fileStatus']) {
+      case 'ACCEPTED':
         window.location.href = this.config.successUrl;
         break;
 
-      case 'failure':
+      case 'REJECTED':
         window.location.href = this.config.failureUrl;
         break;
 
-      case 'pending':
+      case 'WAITING':
       default:
         this.requestUploadStatus();
         break;
