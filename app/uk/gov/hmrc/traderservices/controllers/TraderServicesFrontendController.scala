@@ -316,17 +316,19 @@ class TraderServicesFrontendController @Inject() (
   // ----------------------- FILES UPLOAD -----------------------
 
   val successRedirect =
-    appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
+    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
 
   val errorRedirect =
-    appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
+    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showFileUpload
 
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         val callbackUrl =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
         Transitions
           .initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(
             upscanInitiateConnector.initiate(_)
@@ -363,7 +365,9 @@ class TraderServicesFrontendController @Inject() (
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
         val callbackUrl =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
         Transitions.submitedUploadAnotherFileChoice(callbackUrl, successRedirect, errorRedirect)(
           upscanInitiateConnector.initiate(_)
         ) _
@@ -374,7 +378,9 @@ class TraderServicesFrontendController @Inject() (
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         val callbackUrl =
-          appConfig.baseCallbackUrl + routes.TraderServicesFrontendController.callbackFromUpscan(currentJourneyId).url
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
         Transitions.removeFileUploadByReference(reference)(callbackUrl, successRedirect, errorRedirect)(
           upscanInitiateConnector.initiate(_)
         ) _

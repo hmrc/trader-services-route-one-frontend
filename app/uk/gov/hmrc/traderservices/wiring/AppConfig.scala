@@ -34,7 +34,8 @@ trait AppConfig {
 
   val host: String
   val appName: String
-  val baseCallbackUrl: String
+  val baseInternalCallbackUrl: String
+  val baseExternalCallbackUrl: String
   val authBaseUrl: String
   val traderServicesApiBaseUrl: String
   val upscanInitiateBaseUrl: String
@@ -71,37 +72,36 @@ trait AppConfig {
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
-  val host: String = config.getString("host")
+  override val host: String = config.getString("host")
 
-  val appName: String = config.getString("appName")
+  override val appName: String = config.getString("appName")
 
-  val baseCallbackUrl: String = config.getString("urls.callback")
+  override val baseExternalCallbackUrl: String = config.getString("urls.callback.internal")
+  override val baseInternalCallbackUrl: String = config.getString("urls.callback.external")
+  override val authBaseUrl: String = config.baseUrl("auth")
+  override val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
+  override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
 
-  val authBaseUrl: String = config.baseUrl("auth")
+  override val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
 
-  val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
+  override val authorisedServiceName: String = config.getString("authorisedServiceName")
+  override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
 
-  val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
+  override val authorisedStrideGroup: String = config.getString("authorisedStrideGroup")
 
-  val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
+  override val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
 
-  val authorisedServiceName: String = config.getString("authorisedServiceName")
+  override val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
 
-  val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
+  override val contactHost: String = config.getString("contact-frontend.host")
+  override val contactFormServiceIdentifier: String = config.getString("feedback-frontend.formIdentifier")
 
-  val authorisedStrideGroup: String = config.getString("authorisedStrideGroup")
+  private val exitSurveyBaseUrl =
+    config.getString("feedback-frontend.host") + config.getString("feedback-frontend.url")
+  override val exitSurveyUrl = s"$exitSurveyBaseUrl/$contactFormServiceIdentifier"
 
-  val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
-
-  val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
-
-  val contactHost: String = config.getString("contact-frontend.host")
-  val contactFormServiceIdentifier: String = config.getString("feedback-frontend.formIdentifier")
-  val exitSurveyBaseUrl = config.getString("feedback-frontend.host") + config.getString("feedback-frontend.url")
-  val exitSurveyUrl = s"$exitSurveyBaseUrl/$contactFormServiceIdentifier"
-
-  val signOutUrl: String = config.getString("urls.signOut")
-  val researchBannerUrl: String = config.getString("urls.researchBanner")
+  override val signOutUrl: String = config.getString("urls.signOut")
+  override val researchBannerUrl: String = config.getString("urls.researchBanner")
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),
