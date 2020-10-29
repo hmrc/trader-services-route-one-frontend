@@ -23,6 +23,7 @@
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
+        details: uk.gov.hmrc.traderservices.views.html.components.details,
         govukFileUpload: GovukFileUpload,
         govukButton: GovukButton,
         appConfig: AppConfig
@@ -75,6 +76,21 @@
             "data-msg-accept" -> messages("error.upload-file.accept")
           ) ++ (if(waiting) Map("disabled" -> "") else Map.empty)
         ))
+
+        @details(messages("view.upload-file.help.linkText")) {
+          @html.p{ @messages("view.upload-file.help.line1") }
+          @html.p{ @messages("view.upload-file.help.line2") }
+          @html.p{ @messages("view.upload-file.help.line3") }
+          @html.ul(
+            messages("view.upload-file.help.fileFormat1"),
+            messages("view.upload-file.help.fileFormat2"),
+            messages("view.upload-file.help.fileFormat3"),
+            messages("view.upload-file.help.fileFormat4"),
+            messages("view.upload-file.help.fileFormat5"),
+            messages("view.upload-file.help.fileFormat6")
+          )
+          @html.p{ @messages("view.upload-file.help.line4") }
+        }
 
         @govukButton(Button(
           content = Text(messages("form.upload-file.submit")),

@@ -16,10 +16,15 @@
 
 @this()
 
-@(content: Html, classes: String = "govuk-body", id: Option[String] = None)(implicit messages: Messages)
+@(summaryText: String)(text: Html)(implicit messages: Messages)
 
-@if(id.isDefined){
-    <p class="@classes" id ="@id">@content</p>
-} else {
-    <p class="@classes">@content</p>
-    }
+<details class="govuk-details" data-module="govuk-details">
+  <summary class="govuk-details__summary">
+    <span class="govuk-details__summary-text">
+      @summaryText
+    </span>
+  </summary>
+  <div class="govuk-details__text">
+  @text
+  </div>
+</details>
