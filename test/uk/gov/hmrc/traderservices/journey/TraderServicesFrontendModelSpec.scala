@@ -974,7 +974,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ExportQuestionsSummary(
             ExportQuestionsStateModel(exportDeclarationDetails, fullExportQuestions)
           )
-        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
           mockUpscanInitiate
         )(eoriNumber) should thenGo(
           UploadFile(
@@ -999,7 +999,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 fields = Map(
                   "callbackUrl"     -> request.callbackUrl,
                   "successRedirect" -> request.successRedirect.getOrElse(""),
-                  "errorRedirect"   -> request.errorRedirect.getOrElse("")
+                  "errorRedirect"   -> request.errorRedirect.getOrElse(""),
+                  "maximumFileSize" -> request.maximumFileSize.getOrElse(0).toString
                 )
               )
             )
@@ -1009,7 +1010,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ImportQuestionsSummary(
             ImportQuestionsStateModel(importDeclarationDetails, fullImportQuestions)
           )
-        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure")(
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
           mockUpscanInitiate
         )(
           eoriNumber
@@ -1023,7 +1024,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               fields = Map(
                 "callbackUrl"     -> "https://foo.bar/callback",
                 "successRedirect" -> "https://foo.bar/success",
-                "errorRedirect"   -> "https://foo.bar/failure"
+                "errorRedirect"   -> "https://foo.bar/failure",
+                "maximumFileSize" -> "10485760"
               )
             ),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))

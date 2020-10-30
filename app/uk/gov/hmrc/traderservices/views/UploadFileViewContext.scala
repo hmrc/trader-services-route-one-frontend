@@ -17,28 +17,22 @@
 package uk.gov.hmrc.traderservices.views
 
 import javax.inject.Singleton
-import play.api.data.Form
-import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-import uk.gov.hmrc.traderservices.models.FileUploads
-import uk.gov.hmrc.traderservices.models.FileUpload
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import play.api.mvc.Call
 import uk.gov.hmrc.traderservices.models.FileUploadError
 import play.api.data.FormError
 import uk.gov.hmrc.traderservices.models.FileTransmissionFailed
 import uk.gov.hmrc.traderservices.models.FileVerificationFailed
 import uk.gov.hmrc.traderservices.models.S3UploadError
 import uk.gov.hmrc.traderservices.models.UpscanNotification
+import com.google.inject.Inject
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 @Singleton
-class UploadFileViewContext {
+class UploadFileViewContext @Inject() (appConfig: AppConfig) {
 
   def toFormError(error: FileUploadError): FormError =
     error match {
       case FileTransmissionFailed(error) =>
-        FormError("file", Seq(toMessageKey(error)))
+        FormError("file", Seq(toMessageKey(error)), Seq(appConfig.fileFormats.maxFileSizeMb))
 
       case FileVerificationFailed(details) =>
         FormError("file", Seq(toMessageKey(details)))

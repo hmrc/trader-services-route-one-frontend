@@ -330,7 +330,7 @@ class TraderServicesFrontendController @Inject() (
             .callbackFromUpscan(currentJourneyId)
             .url
         Transitions
-          .initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(
+          .initiateFileUpload(callbackUrl, successRedirect, errorRedirect, appConfig.fileFormats.maxFileSizeMb)(
             upscanInitiateConnector.initiate(_)
           )
       }
@@ -345,7 +345,7 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
-      .waitForStateAndRedirect[State.FileUploaded](3)
+      .waitForStateThenRedirect[State.FileUploaded](3)
       .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
       .redirectOrDisplayIf[State.WaitingForFileVerification]
 
@@ -374,7 +374,12 @@ class TraderServicesFrontendController @Inject() (
           appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
             .callbackFromUpscan(currentJourneyId)
             .url
-        Transitions.submitedUploadAnotherFileChoice(callbackUrl, successRedirect, errorRedirect)(
+        Transitions.submitedUploadAnotherFileChoice(
+          callbackUrl,
+          successRedirect,
+          errorRedirect,
+          appConfig.fileFormats.maxFileSizeMb
+        )(
           upscanInitiateConnector.initiate(_)
         ) _
       }
@@ -387,15 +392,20 @@ class TraderServicesFrontendController @Inject() (
           appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
             .callbackFromUpscan(currentJourneyId)
             .url
-        Transitions.removeFileUploadByReference(reference)(callbackUrl, successRedirect, errorRedirect)(
+        Transitions.removeFileUploadByReference(reference)(
+          callbackUrl,
+          successRedirect,
+          errorRedirect,
+          appConfig.fileFormats.maxFileSizeMb
+        )(
           upscanInitiateConnector.initiate(_)
         ) _
       }
 
   // GET /pre-clearance/file-verification/:reference/status
   def checkFileVerificationStatus(reference: String): Action[AnyContent] =
-    whenAuthorisedAsUser
-      .showCurrentStateUsing(implicit request => renderFileVerificationStatus(reference))
+    whenAuthorisedAsUser.showCurrentState
+      .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
   /**
     * Function from the `State` to the `Call` (route),

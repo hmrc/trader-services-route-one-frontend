@@ -29,6 +29,7 @@ object AppConfig {
 
   case class FileFormats(maxFileSizeMb: Int, approvedFileTypes: String, approvedFileExtensions: String)
 }
+
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
 

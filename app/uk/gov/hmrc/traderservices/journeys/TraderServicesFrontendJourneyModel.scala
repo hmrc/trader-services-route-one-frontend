@@ -529,7 +529,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def initiateFileUpload(
       callbackUrl: String,
       successRedirect: String,
-      errorRedirect: String
+      errorRedirect: String,
+      maxFileSizeMb: Int
     )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case ExportQuestionsSummary(model) =>
@@ -548,7 +549,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                                   UpscanInitiateRequest(
                                     callbackUrl = callbackUrl,
                                     successRedirect = Some(successRedirect),
-                                    errorRedirect = Some(errorRedirect)
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
                                   )
                                 )
             } yield UploadFile(
@@ -577,7 +579,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                                   UpscanInitiateRequest(
                                     callbackUrl = callbackUrl,
                                     successRedirect = Some(successRedirect),
-                                    errorRedirect = Some(errorRedirect)
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
                                   )
                                 )
             } yield UploadFile(
@@ -609,7 +612,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                                   UpscanInitiateRequest(
                                     callbackUrl = callbackUrl,
                                     successRedirect = Some(successRedirect),
-                                    errorRedirect = Some(errorRedirect)
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
                                   )
                                 )
             } yield UploadFile(
@@ -833,12 +837,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submitedUploadAnotherFileChoice(
       callbackUrl: String,
       successRedirect: String,
-      errorRedirect: String
+      errorRedirect: String,
+      maxFileSizeMb: Int
     )(upscanInitiate: UpscanInitiate)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
       Transition {
         case current @ FileUploaded(declarationDetails, questionsAnswers, fileUploads, acknowledged) =>
           if (uploadAnotherFile && fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
-            initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(upscanInitiate)(user).apply(current)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
+              .apply(current)
           else
             goto(WorkInProgressDeadEnd)
       }
@@ -846,7 +852,8 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def removeFileUploadByReference(reference: String)(
       callbackUrl: String,
       successRedirect: String,
-      errorRedirect: String
+      errorRedirect: String,
+      maxFileSizeMb: Int
     )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case current: FileUploaded =>
@@ -854,7 +861,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
           val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
           if (updatedFileUploads.isEmpty)
-            initiateFileUpload(callbackUrl, successRedirect, errorRedirect)(upscanInitiate)(user)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
               .apply(updatedCurrentState)
           else
             goto(updatedCurrentState)
