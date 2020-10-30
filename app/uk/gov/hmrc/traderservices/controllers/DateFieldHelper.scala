@@ -105,8 +105,13 @@ object DateFieldHelper {
           else if (isValidYear(y)) None
           else Some(ValidationError(s"error.$fieldName.year.invalid-value"))
         ).collect { case Some(e) => e }
-
-        if (errors.isEmpty) Valid else Invalid(errors)
+        val filteredErrors =
+          if (errors.filter(_.message.endsWith(".invalid-value")).size > 1)
+            errors
+              .filter(!_.message.endsWith(".invalid-value")) :+
+              ValidationError(s"error.$fieldName.all.invalid-value")
+          else errors
+        if (filteredErrors.isEmpty) Valid else Invalid(filteredErrors)
     }
 
   def dateFieldsMapping(fieldName: String): Mapping[LocalDate] =

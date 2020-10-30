@@ -143,8 +143,7 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
       "error.foo.year.invalid-digits",
-      "error.foo.month.invalid-value",
-      "error.foo.day.invalid-value"
+      "error.foo.all.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")) should haveOnlyErrors(
       "error.foo.year.invalid-digits",
@@ -152,9 +151,7 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       "error.foo.day.invalid-digits"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
-      "error.foo.year.invalid-value",
-      "error.foo.month.invalid-value",
-      "error.foo.day.invalid-value"
+      "error.foo.all.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
       "error.foo.day.invalid-value"
@@ -193,8 +190,7 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
       "error.bar.year.invalid-digits",
-      "error.bar.month.invalid-value",
-      "error.bar.day.invalid-value"
+      "error.bar.all.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(
       Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")
@@ -204,9 +200,7 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       "error.bar.day.invalid-digits"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
-      "error.bar.year.invalid-value",
-      "error.bar.month.invalid-value",
-      "error.bar.day.invalid-value"
+      "error.bar.all.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2000", "month" -> "02", "day" -> "30")) should haveOnlyErrors(
       "error.bar.day.invalid-value"

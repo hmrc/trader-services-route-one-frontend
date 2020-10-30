@@ -129,12 +129,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.entryDate.month.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "13", "day" -> "32")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.day.invalid-value",
-        "error.entryDate.month.invalid-value"
+        "error.entryDate.all.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "20", "month" -> "13", "day" -> "32")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.day.invalid-value",
-        "error.entryDate.month.invalid-value"
+        "error.entryDate.all.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "2", "day" -> "30")) should haveOnlyError[LocalDate](
         "error.entryDate.day.invalid-value"

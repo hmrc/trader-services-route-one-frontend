@@ -184,6 +184,7 @@ error.entryDate.all.required=Enter the entry date
 error.entryDate.year.required=Entry date must include a year
 error.entryDate.month.required=Entry date must include a month
 error.entryDate.day.required=Entry date must include a day
+error.entryDate.all.invalid-value=Entry date must be a real date
 error.entryDate.year.invalid-value=Entry date must be a real date
 error.entryDate.month.invalid-value=Entry date must be a real date
 error.entryDate.day.invalid-value=Entry date must be a real date
