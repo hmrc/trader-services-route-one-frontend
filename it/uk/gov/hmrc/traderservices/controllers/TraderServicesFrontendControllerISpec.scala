@@ -59,8 +59,10 @@ class TraderServicesFrontendControllerISpec
         journey.get shouldBe Some(
           (
             AnswerExportQuestionsRequestType(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-              ExportQuestions()
+              ExportQuestionsStateModel(
+                DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+                ExportQuestions()
+              )
             ),
             List(EnterDeclarationDetails(None), Start)
           )
@@ -84,8 +86,10 @@ class TraderServicesFrontendControllerISpec
         journey.get shouldBe Some(
           (
             AnswerImportQuestionsRequestType(
-              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-              ImportQuestions()
+              ImportQuestionsStateModel(
+                DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+                ImportQuestions()
+              )
             ),
             List(EnterDeclarationDetails(None), Start)
           )

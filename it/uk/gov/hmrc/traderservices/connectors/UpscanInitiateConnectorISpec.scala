@@ -14,7 +14,7 @@ class UpscanInitiateConnectorISpec extends UpscanInitiateConnectorISpecSetup {
     "/upscan/v2/initiate" should {
       "return upload request metadata" in {
 
-        givenUpscanInitiateSucceeds()
+        givenUpscanInitiateSucceeds("https://myservice.com/callback")
         givenAuditConnector()
 
         val result: UpscanInitiateResponse =

@@ -27,8 +27,15 @@ case class ImportQuestions(
   freightType: Option[ImportFreightType] = None,
   vesselDetails: Option[VesselDetails] = None,
   contactInfo: Option[ImportContactInfo] = None
-)
+) extends QuestionsAnswers
 
 object ImportQuestions {
+  val tag = "import"
   implicit val formats: Format[ImportQuestions] = Json.format[ImportQuestions]
+
+  def from(questionsAnswers: QuestionsAnswers): ImportQuestions =
+    questionsAnswers match {
+      case i: ImportQuestions => i
+      case e: ExportQuestions => ImportQuestions()
+    }
 }

@@ -11,9 +11,9 @@ import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -21,8 +21,10 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
+import java.time.ZonedDateTime
 
-class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with TraderServicesStubs {
+class TraderServicesFrontendISpec
+    extends TraderServicesFrontendISpecSetup with TraderServicesStubs with UpscanInitiateStubs {
 
   import journey.model.State._
 
@@ -61,8 +63,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRequestType(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions()
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions()
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -101,8 +105,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRequestType(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions()
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
         )
       }
 
@@ -123,8 +129,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         result.status shouldBe 200
         journey.getState shouldBe AnswerImportQuestionsRequestType(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions()
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions()
+          )
         )
       }
     }
@@ -133,8 +141,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export request type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRequestType(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions()
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -154,8 +164,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRequestType(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions()
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions()
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -168,8 +180,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRouteType(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.New))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.New))
+          )
         )
       }
 
@@ -177,8 +191,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRequestType(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions()
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions()
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -191,8 +207,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.Hold))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.Hold))
+          )
         )
       }
     }
@@ -201,8 +219,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export route type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRouteType(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.C1601))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1601))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -222,8 +242,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRouteType(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions(requestType = Some(ExportRequestType.C1602))
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions(requestType = Some(ExportRequestType.C1602))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -236,8 +258,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route3))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route3))
+          )
         )
       }
     }
@@ -246,8 +270,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export has priority goods page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -266,8 +292,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -280,11 +308,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(true)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route2),
+              hasPriorityGoods = Some(true)
+            )
           )
         )
       }
@@ -293,10 +323,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route2)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route2)
+              )
             )
           )
         )
@@ -310,11 +342,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(false)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route2),
+              hasPriorityGoods = Some(false)
+            )
           )
         )
       }
@@ -324,8 +358,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export which priority goods page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsWhichPriorityGoods(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -344,8 +380,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsWhichPriorityGoods(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -358,11 +396,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
-          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1603),
-            routeType = Some(ExportRouteType.Route3),
-            priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+            )
           )
         )
       }
@@ -372,11 +412,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export transport type page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsFreightType(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1603),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt)
+            )
           )
         )
         journey.setState(state)
@@ -396,11 +438,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsFreightType(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1603),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1603),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
+              )
             )
           )
         )
@@ -413,12 +457,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
-          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1603),
-            routeType = Some(ExportRouteType.Route3),
-            priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
-            freightType = Some(ExportFreightType.RORO)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+              freightType = Some(ExportFreightType.RORO)
+            )
           )
         )
       }
@@ -427,11 +473,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsFreightType(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+              )
             )
           )
         )
@@ -444,12 +492,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsMandatoryVesselInfo(
-          DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
-            routeType = Some(ExportRouteType.Route3),
-            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-            freightType = Some(ExportFreightType.Air)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
           )
         )
       }
@@ -459,12 +509,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export vessel details page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsMandatoryVesselInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
           )
         )
 
@@ -485,12 +537,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsMandatoryVesselInfo(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route6),
+                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         )
@@ -512,17 +566,19 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                )
               )
             )
           )
@@ -534,12 +590,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the export vessel details page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsOptionalVesselInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air)
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
           )
         )
         journey.setState(state)
@@ -559,12 +617,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route6),
+                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         )
@@ -586,17 +646,19 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                )
               )
             )
           )
@@ -607,12 +669,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route6),
+                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         )
@@ -625,13 +689,15 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = None
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air),
+              vesselDetails = None
+            )
           )
         )
       }
@@ -642,8 +708,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsContactInfo(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions()
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions()
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -654,8 +722,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions()
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
         )
       }
     }
@@ -665,12 +735,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsContactInfo(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route6),
+                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         )
@@ -684,13 +756,15 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
 
         result.status shouldBe 200
         journey.getState shouldBe ExportQuestionsSummary(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air),
+              contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+            )
           )
         )
       }
@@ -701,21 +775,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(
-            requestType = Some(ExportRequestType.New),
-            routeType = Some(ExportRouteType.Route6),
-            priorityGoods = Some(ExportPriorityGoods.HighValueArt),
-            freightType = Some(ExportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-              )
-            ),
-            contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
-          )
+          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -733,8 +793,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import request type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsRequestType(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions()
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions()
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -753,10 +815,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsRequestType(
-            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.Cancellation),
-              routeType = Some(ImportRouteType.Route6)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.Cancellation),
+                routeType = Some(ImportRouteType.Route6)
+              )
             )
           )
         )
@@ -770,8 +834,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe AnswerImportQuestionsRouteType(
-          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          )
         )
       }
 
@@ -779,10 +845,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsRequestType(
-            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route6)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route6)
+              )
             )
           )
         )
@@ -796,8 +864,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-          ImportQuestions(requestType = Some(ImportRequestType.Hold))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(requestType = Some(ImportRequestType.Hold))
+          )
         )
       }
     }
@@ -806,8 +876,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import route type question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsRouteType(
-          DeclarationDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
-          ImportQuestions(requestType = Some(ImportRequestType.New))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
+            ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -826,8 +898,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsRouteType(
-            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-            ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+              ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -840,8 +914,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-          ImportQuestions(requestType = Some(ImportRequestType.Cancellation), routeType = Some(ImportRouteType.Route6))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
         )
       }
     }
@@ -850,8 +929,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import has priority goods page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsHasPriorityGoods(
-          DeclarationDetails(EPU(110), EntryNumber("911111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(110), EntryNumber("911111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -870,8 +951,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
-            DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -884,11 +967,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
-          DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route2),
-            hasPriorityGoods = Some(true)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route2),
+              hasPriorityGoods = Some(true)
+            )
           )
         )
       }
@@ -897,8 +982,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
-            DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -911,11 +998,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
-          DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route2),
-            hasPriorityGoods = Some(false)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route2),
+              hasPriorityGoods = Some(false)
+            )
           )
         )
       }
@@ -925,8 +1014,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import which priority goods page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsWhichPriorityGoods(
-          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -945,8 +1036,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
-            DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -959,11 +1052,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
-          DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route3),
-            priorityGoods = Some(ImportPriorityGoods.LiveAnimals)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.LiveAnimals)
+            )
           )
         )
       }
@@ -973,8 +1068,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import has ALVS page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsALVS(
-          DeclarationDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -994,8 +1091,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
           implicit val journeyId: JourneyId = JourneyId()
           journey.setState(
             AnswerImportQuestionsALVS(
-              DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
-              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+              ImportQuestionsStateModel(
+                DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
+                ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
+              )
             )
           )
           givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1008,11 +1107,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
           journey.getState shouldBe AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route2),
-              hasALVS = Some(hasALVS)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route2),
+                hasALVS = Some(hasALVS)
+              )
             )
           )
         }
@@ -1022,10 +1123,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import transport type page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsFreightType(
-          DeclarationDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6)
+            )
           )
         )
         journey.setState(state)
@@ -1045,10 +1148,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3)
+              )
             )
           )
         )
@@ -1061,11 +1166,13 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
-          DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route3),
-            freightType = Some(ImportFreightType.RORO)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              freightType = Some(ImportFreightType.RORO)
+            )
           )
         )
       }
@@ -1074,9 +1181,11 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsFreightType(
-            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.Hold)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.Hold)
+              )
             )
           )
         )
@@ -1089,10 +1198,12 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
-          DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.Hold),
-            freightType = Some(ImportFreightType.Maritime)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Hold),
+              freightType = Some(ImportFreightType.Maritime)
+            )
           )
         )
       }
@@ -1103,12 +1214,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
     "show the import vessel details page" in {
       implicit val journeyId: JourneyId = JourneyId()
       val state = AnswerImportQuestionsOptionalVesselInfo(
-        DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-        ImportQuestions(
-          requestType = Some(ImportRequestType.New),
-          routeType = Some(ImportRouteType.Route6),
-          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-          freightType = Some(ImportFreightType.Air)
+        ImportQuestionsStateModel(
+          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air)
+          )
         )
       )
 
@@ -1129,12 +1242,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       implicit val journeyId: JourneyId = JourneyId()
       journey.setState(
         AnswerImportQuestionsOptionalVesselInfo(
-          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6),
+              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              freightType = Some(ImportFreightType.Air)
+            )
           )
         )
       )
@@ -1156,17 +1271,19 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       result.status shouldBe 200
 
       journey.getState shouldBe AnswerImportQuestionsContactInfo(
-        DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-        ImportQuestions(
-          requestType = Some(ImportRequestType.New),
-          routeType = Some(ImportRouteType.Route6),
-          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-          freightType = Some(ImportFreightType.Air),
-          vesselDetails = Some(
-            VesselDetails(
-              vesselName = Some("Foo Bar"),
-              dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-              timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+        ImportQuestionsStateModel(
+          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air),
+            vesselDetails = Some(
+              VesselDetails(
+                vesselName = Some("Foo Bar"),
+                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+              )
             )
           )
         )
@@ -1177,12 +1294,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       implicit val journeyId: JourneyId = JourneyId()
       journey.setState(
         AnswerImportQuestionsOptionalVesselInfo(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air)
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6),
+              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              freightType = Some(ImportFreightType.Air)
+            )
           )
         )
       )
@@ -1195,13 +1314,15 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       result.status shouldBe 200
 
       journey.getState shouldBe AnswerImportQuestionsContactInfo(
-        DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-        ImportQuestions(
-          requestType = Some(ImportRequestType.New),
-          routeType = Some(ImportRouteType.Route6),
-          priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-          freightType = Some(ImportFreightType.Air),
-          vesselDetails = None
+        ImportQuestionsStateModel(
+          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+          ImportQuestions(
+            requestType = Some(ImportRequestType.New),
+            routeType = Some(ImportRouteType.Route6),
+            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+            freightType = Some(ImportFreightType.Air),
+            vesselDetails = None
+          )
         )
       )
     }
@@ -1210,8 +1331,10 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
       "show the import contact information question page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsContactInfo(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions()
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions()
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1230,12 +1353,14 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsContactInfo(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route6),
-              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-              freightType = Some(ImportFreightType.Air)
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route6),
+                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                freightType = Some(ImportFreightType.Air)
+              )
             )
           )
         )
@@ -1251,13 +1376,15 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.status shouldBe 200
 
         journey.getState shouldBe ImportQuestionsSummary(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air),
-            contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6),
+              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              freightType = Some(ImportFreightType.Air),
+              contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+            )
           )
         )
       }
@@ -1268,21 +1395,7 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
-          DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-              )
-            ),
-            contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
-          )
+          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1294,6 +1407,147 @@ class TraderServicesFrontendISpec extends TraderServicesFrontendISpecSetup with 
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
         journey.getState shouldBe state
       }
+    }
+
+    "GET /pre-clearance/file-upload" should {
+      "show the upload first document page for the importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ImportQuestionsSummary(
+          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/pre-clearance/file-upload").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          TestData.importDeclarationDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+        )
+      }
+
+      "show the upload first document page for the exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ExportQuestionsSummary(
+          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/pre-clearance/file-upload").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+        )
+      }
+    }
+
+    "return file verification status" in {
+      implicit val journeyId: JourneyId = JourneyId()
+      val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+      val state = FileUploaded(
+        TestData.importDeclarationDetails,
+        TestData.fullImportQuestions(dateTimeOfArrival),
+        FileUploads(files =
+          Seq(
+            FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+            FileUpload.Accepted(
+              4,
+              "f029444f-415c-4dec-9cf2-36774ec63ab8",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUpload.Failed(
+              3,
+              "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+            )
+          )
+        ),
+        acknowledged = false
+      )
+      journey.setState(state)
+      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+      val result1 = await(request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status").get())
+      result1.status shouldBe 200
+      result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+      journey.getState shouldBe state
+
+      val result2 = await(request("/pre-clearance/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
+      result2.status shouldBe 200
+      result2.body shouldBe """{"fileStatus":"WAITING"}"""
+      journey.getState shouldBe state
+
+      val result3 = await(request("/pre-clearance/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
+      result3.status shouldBe 200
+      result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+      journey.getState shouldBe state
+
+      val result4 = await(request("/pre-clearance/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
+      result4.status shouldBe 200
+      result4.body shouldBe """{"fileStatus":"FAILED"}"""
+      journey.getState shouldBe state
+
+      val result5 = await(request("/pre-clearance/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
+      result5.status shouldBe 404
+      journey.getState shouldBe state
+
     }
 
     "GET /trader-services/foo" should {
@@ -1350,5 +1604,48 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
         )
       )
   }
+
+}
+
+object TestData {
+
+  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
+  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+
+  def fullExportQuestions(dateTimeOfArrival: LocalDateTime) =
+    ExportQuestions(
+      requestType = Some(ExportRequestType.New),
+      routeType = Some(ExportRouteType.Route3),
+      hasPriorityGoods = Some(true),
+      priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+      freightType = Some(ExportFreightType.Air),
+      vesselDetails = Some(
+        VesselDetails(
+          vesselName = Some("Foo"),
+          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+        )
+      ),
+      contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+    )
+
+  def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
+    ImportQuestions(
+      requestType = Some(ImportRequestType.New),
+      routeType = Some(ImportRouteType.Route3),
+      hasPriorityGoods = Some(true),
+      priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+      hasALVS = Some(true),
+      freightType = Some(ImportFreightType.Air),
+      contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
+      vesselDetails = Some(
+        VesselDetails(
+          vesselName = Some("Foo"),
+          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+        )
+      )
+    )
 
 }

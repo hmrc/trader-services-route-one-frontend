@@ -1,0 +1,101 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.models.{FileUploads,UploadRequest,FileUploadError}
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+@import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+
+@this(
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        details: uk.gov.hmrc.traderservices.views.html.components.details,
+        govukFileUpload: GovukFileUpload,
+        govukButton: GovukButton,
+        appConfig: AppConfig,
+        context: UploadFileViewContext
+)
+
+@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], backLink: Call)(implicit request: Request[_], messages: Messages)
+
+@govukLayout(
+  pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
+  backLink = Some(backLink.url)
+) {
+
+  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
+
+    @forms.fieldset(
+      legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
+    ) {
+
+      @maybeUploadError.map { fileUploadError =>
+        @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
+      }
+
+      @uploadRequest.fields.map { case (key, value) =>
+        @forms.inputHidden(key, value)
+      }
+
+      @govukFileUpload(FileUpload(
+        name = "file",
+        id = "upload-file",
+        value = Some(""),
+        describedBy = None,
+        label = Label(
+          content = Text(messages("form.upload-file.file")),
+          isPageHeading = false,
+          classes = "govuk-label"
+        ),
+        hint = None,
+        errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
+        formGroupClasses = "",
+        classes = "",
+        attributes = Map(
+          "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
+          "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
+          "accept" -> appConfig.fileFormats.approvedFileTypes,
+          "required" -> "",
+          "data-msg-required" -> messages("error.file-upload.required"),
+          "data-msg-filesize" -> messages("error.file-upload.invalid-size-large",appConfig.fileFormats.maxFileSizeMb),
+          "data-msg-accept" -> messages("error.upload-file.other")
+        ))
+      )
+
+      @details(messages("view.upload-file.help.linkText")) {
+        @html.p{ @messages("view.upload-file.help.line1") }
+        @html.p{ @messages("view.upload-file.help.line2") }
+        @html.p{ @messages("view.upload-file.help.line3") }
+        @html.ul(
+          messages("view.upload-file.help.fileFormat1"),
+          messages("view.upload-file.help.fileFormat2"),
+          messages("view.upload-file.help.fileFormat3"),
+          messages("view.upload-file.help.fileFormat4"),
+          messages("view.upload-file.help.fileFormat5"),
+          messages("view.upload-file.help.fileFormat6")
+        )
+        @html.p{ @messages("view.upload-file.help.line4") }
+      }
+
+      @govukButton(Button(
+        content = Text(messages("form.upload-file.submit")),
+        preventDoubleClick = true
+      ))
+    }
+
+  </form>
+}

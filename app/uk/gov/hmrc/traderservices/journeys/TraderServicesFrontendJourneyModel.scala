@@ -18,142 +18,18 @@ package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.play.fsm.JourneyModel
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
+import scala.concurrent.ExecutionContext
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
   sealed trait State
   sealed trait IsError
+  sealed trait IsTransient
 
   override val root: State = State.Start
-
-  object State {
-
-    case object Start extends State
-
-    case class EnterDeclarationDetails(
-      declarationDetailsOpt: Option[DeclarationDetails] = None,
-      exportQuestionsAnswersOpt: Option[ExportQuestions] = None,
-      importQuestionsAnswersOpt: Option[ImportQuestions] = None
-    ) extends State
-
-    trait HasDeclarationDetails {
-      def declarationDetails: DeclarationDetails
-    }
-
-    case object WorkInProgressDeadEnd extends State
-
-    // EXPORT QUESTIONS
-
-    trait HasExportQuestions {
-      val exportQuestionsAnswers: ExportQuestions
-    }
-
-    sealed trait ExportQuestionsState extends State with HasDeclarationDetails with HasExportQuestions
-
-    case class AnswerExportQuestionsRequestType(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsRouteType(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsHasPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsWhichPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsFreightType(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsMandatoryVesselInfo(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsOptionalVesselInfo(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class AnswerExportQuestionsContactInfo(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    case class ExportQuestionsSummary(
-      declarationDetails: DeclarationDetails,
-      exportQuestionsAnswers: ExportQuestions
-    ) extends ExportQuestionsState
-
-    // IMPORT QUESTIONS
-
-    trait HasImportQuestions {
-      val importQuestionsAnswers: ImportQuestions
-    }
-
-    sealed trait ImportQuestionsState extends State with HasDeclarationDetails with HasImportQuestions
-
-    case class AnswerImportQuestionsRequestType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsRouteType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsHasPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsWhichPriorityGoods(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsALVS(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsFreightType(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsOptionalVesselInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsMandatoryVesselInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class AnswerImportQuestionsContactInfo(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-    case class ImportQuestionsSummary(
-      declarationDetails: DeclarationDetails,
-      importQuestionsAnswers: ImportQuestions
-    ) extends ImportQuestionsState
-
-  }
 
   object Rules {
 
@@ -172,39 +48,235 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
       importQuestions.requestType.contains(ImportRequestType.Hold)
 
+    val maxFileUploadsNumber = 3
+
   }
 
+  object State {
+
+    /** Root state of the journey. */
+    case object Start extends State
+
+    /** State intended to use only in the development of the model to fill loose ends. */
+    case object WorkInProgressDeadEnd extends State
+
+    // MARKER TRAITS
+
+    sealed trait HasDeclarationDetails {
+      def declarationDetails: DeclarationDetails
+    }
+
+    sealed trait HasQuestionsAnswers {
+      def questionsAnswers: QuestionsAnswers
+    }
+
+    sealed trait HasExportQuestionsStateModel {
+      val model: ExportQuestionsStateModel
+    }
+
+    sealed trait HasImportQuestionsStateModel {
+      val model: ImportQuestionsStateModel
+    }
+
+    sealed trait HasFileUploads {
+      val fileUploads: FileUploads
+    }
+
+    // SPECIALIZED STATE TRAITS
+
+    sealed trait ExportQuestionsState
+        extends State with HasDeclarationDetails with HasExportQuestionsStateModel with HasQuestionsAnswers {
+      def declarationDetails: DeclarationDetails = model.declarationDetails
+      def exportQuestionsAnswers: ExportQuestions = model.exportQuestionsAnswers
+      def questionsAnswers: QuestionsAnswers = exportQuestionsAnswers
+    }
+
+    sealed trait ImportQuestionsState
+        extends State with HasDeclarationDetails with HasImportQuestionsStateModel with HasQuestionsAnswers {
+      def declarationDetails: DeclarationDetails = model.declarationDetails
+      def importQuestionsAnswers: ImportQuestions = model.importQuestionsAnswers
+      def questionsAnswers: QuestionsAnswers = importQuestionsAnswers
+    }
+
+    sealed trait SummaryState extends State
+
+    sealed trait FileUploadState extends State with HasDeclarationDetails with HasFileUploads with HasQuestionsAnswers
+
+    // DECLARATION DETAILS
+
+    case class EnterDeclarationDetails(
+      declarationDetailsOpt: Option[DeclarationDetails] = None,
+      exportQuestionsAnswersOpt: Option[ExportQuestions] = None,
+      importQuestionsAnswersOpt: Option[ImportQuestions] = None,
+      fileUploadsOpt: Option[FileUploads] = None
+    ) extends State
+
+    // EXPORT QUESTIONS
+
+    case class AnswerExportQuestionsRequestType(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsRouteType(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsHasPriorityGoods(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsWhichPriorityGoods(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsFreightType(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsMandatoryVesselInfo(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsOptionalVesselInfo(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class AnswerExportQuestionsContactInfo(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
+    case class ExportQuestionsSummary(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState with SummaryState
+
+    // IMPORT QUESTIONS
+
+    case class AnswerImportQuestionsRequestType(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsRouteType(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsHasPriorityGoods(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsWhichPriorityGoods(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsALVS(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsFreightType(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsOptionalVesselInfo(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsMandatoryVesselInfo(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class AnswerImportQuestionsContactInfo(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
+
+    case class ImportQuestionsSummary(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState with SummaryState
+
+    // FILE UPLOAD
+
+    case class UploadFile(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      reference: String,
+      uploadRequest: UploadRequest,
+      fileUploads: FileUploads,
+      maybeUploadError: Option[FileUploadError] = None
+    ) extends FileUploadState
+
+    case class WaitingForFileVerification(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      reference: String,
+      uploadRequest: UploadRequest,
+      currentFileUpload: FileUpload,
+      fileUploads: FileUploads
+    ) extends FileUploadState with IsTransient
+
+    case class FileUploaded(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      fileUploads: FileUploads,
+      acknowledged: Boolean = false
+    ) extends FileUploadState
+
+  }
+
+  /** Functions responsible of preserving the model when walking the journey backward. */
   object Mergers {
 
     val copyDeclarationDetails = Merger[State.EnterDeclarationDetails] {
-      case (s, d: State with State.HasDeclarationDetails with State.HasExportQuestions) =>
+      case (s, d: State.ExportQuestionsState) =>
         s.copy(
-          declarationDetailsOpt = Some(d.declarationDetails),
-          exportQuestionsAnswersOpt = Some(d.exportQuestionsAnswers)
+          declarationDetailsOpt = Some(d.model.declarationDetails),
+          exportQuestionsAnswersOpt = Some(d.model.exportQuestionsAnswers),
+          fileUploadsOpt = d.model.fileUploadsOpt
         )
 
-      case (s, d: State with State.HasDeclarationDetails with State.HasImportQuestions) =>
+      case (s, d: State.ImportQuestionsState) =>
         s.copy(
-          declarationDetailsOpt = Some(d.declarationDetails),
-          importQuestionsAnswersOpt = Some(d.importQuestionsAnswers)
+          declarationDetailsOpt = Some(d.model.declarationDetails),
+          importQuestionsAnswersOpt = Some(d.model.importQuestionsAnswers),
+          fileUploadsOpt = d.model.fileUploadsOpt
         )
 
-      case (s, d: State with State.HasDeclarationDetails) =>
+      case (s, d: State.FileUploadState) =>
         s.copy(
-          declarationDetailsOpt = Some(d.declarationDetails)
+          declarationDetailsOpt = Some(d.declarationDetails),
+          fileUploadsOpt = Some(d.fileUploads)
         )
     }
 
-    def copyExportQuestions[S <: State: Setters.SetExportQuestions] =
+    def copyExportQuestionsStateModel[S <: State: Setters.SetExportQuestionsStateModel] =
       Merger[S] {
-        case (s, d: State with State.HasExportQuestions) =>
-          implicitly[Setters.SetExportQuestions[S]].set(s, d.exportQuestionsAnswers)
+        case (s, d: State.ExportQuestionsState) =>
+          implicitly[Setters.SetExportQuestionsStateModel[S]].set(s, d.model)
+
+        case (s, d: State.FileUploadState) =>
+          implicitly[Setters.SetExportQuestionsStateModel[S]]
+            .set(
+              s,
+              ExportQuestionsStateModel(
+                declarationDetails = d.declarationDetails,
+                exportQuestionsAnswers = ExportQuestions.from(d.questionsAnswers),
+                fileUploadsOpt = Some(d.fileUploads)
+              )
+            )
       }
 
-    def copyImportQuestions[S <: State: Setters.SetImportQuestions] =
+    def copyImportQuestionsStateModel[S <: State: Setters.SetImportQuestionsStateModel] =
       Merger[S] {
-        case (s, d: State with State.HasImportQuestions) =>
-          implicitly[Setters.SetImportQuestions[S]].set(s, d.importQuestionsAnswers)
+        case (s, d: State.ImportQuestionsState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]].set(s, d.model)
+
+        case (s, d: State.FileUploadState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]]
+            .set(
+              s,
+              ImportQuestionsStateModel(
+                declarationDetails = d.declarationDetails,
+                importQuestionsAnswers = ImportQuestions.from(d.questionsAnswers),
+                fileUploadsOpt = Some(d.fileUploads)
+              )
+            )
       }
   }
 
@@ -228,262 +300,620 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
       Transition {
-        case EnterDeclarationDetails(_, exportQuestionsOpt, importQuestionsOpt) =>
+        case EnterDeclarationDetails(_, exportQuestionsOpt, importQuestionsOpt, fileUploadsOpt) =>
           if (declarationDetails.isExportDeclaration)
-            goto(AnswerExportQuestionsRequestType(declarationDetails, exportQuestionsOpt.getOrElse(ExportQuestions())))
+            goto(
+              AnswerExportQuestionsRequestType(
+                ExportQuestionsStateModel(
+                  declarationDetails,
+                  exportQuestionsOpt.getOrElse(ExportQuestions()),
+                  fileUploadsOpt
+                )
+              )
+            )
           else
-            goto(AnswerImportQuestionsRequestType(declarationDetails, importQuestionsOpt.getOrElse(ImportQuestions())))
+            goto(
+              AnswerImportQuestionsRequestType(
+                ImportQuestionsStateModel(
+                  declarationDetails,
+                  importQuestionsOpt.getOrElse(ImportQuestions()),
+                  fileUploadsOpt
+                )
+              )
+            )
       }
 
     def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
       Transition {
-        case AnswerExportQuestionsRequestType(declarationDetails, exportQuestions) =>
-          val updatedExportQuestions = exportQuestions.copy(requestType = Some(exportRequestType))
+        case AnswerExportQuestionsRequestType(model) =>
+          val updatedExportQuestions = model.exportQuestionsAnswers.copy(requestType = Some(exportRequestType))
           if (Rules.shouldAskRouteQuestion(updatedExportQuestions))
-            goto(AnswerExportQuestionsRouteType(declarationDetails, updatedExportQuestions))
+            goto(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
           else
             goto(
-              AnswerExportQuestionsHasPriorityGoods(declarationDetails, updatedExportQuestions.copy(routeType = None))
+              AnswerExportQuestionsHasPriorityGoods(model.updated(updatedExportQuestions.copy(routeType = None)))
             )
-
       }
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
       Transition {
-        case AnswerExportQuestionsRouteType(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsRouteType(model) =>
           goto(
             AnswerExportQuestionsHasPriorityGoods(
-              declarationDetails,
-              exportQuestions.copy(routeType = Some(exportRouteType))
+              model.updated(model.exportQuestionsAnswers.copy(routeType = Some(exportRouteType)))
             )
           )
       }
 
     def submittedExportQuestionsAnswerHasPriorityGoods(user: String)(exportHasPriorityGoods: Boolean) =
       Transition {
-        case AnswerExportQuestionsHasPriorityGoods(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsHasPriorityGoods(model) =>
           if (exportHasPriorityGoods)
             goto(
               AnswerExportQuestionsWhichPriorityGoods(
-                declarationDetails,
-                exportQuestions.copy(hasPriorityGoods = Some(exportHasPriorityGoods))
+                model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
               )
             )
           else
             goto(
               AnswerExportQuestionsFreightType(
-                declarationDetails,
-                exportQuestions.copy(hasPriorityGoods = Some(exportHasPriorityGoods))
+                model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
               )
             )
       }
 
     def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
       Transition {
-        case AnswerExportQuestionsWhichPriorityGoods(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsWhichPriorityGoods(model) =>
           goto(
             AnswerExportQuestionsFreightType(
-              declarationDetails,
-              exportQuestions.copy(priorityGoods = Some(exportPriorityGoods))
+              model.updated(model.exportQuestionsAnswers.copy(priorityGoods = Some(exportPriorityGoods)))
             )
           )
       }
 
     def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
       Transition {
-        case AnswerExportQuestionsFreightType(declarationDetails, exportQuestions) =>
-          val updatedExportQuestions = exportQuestions.copy(freightType = Some(exportFreightType))
+        case AnswerExportQuestionsFreightType(model) =>
+          val updatedExportQuestions = model.exportQuestionsAnswers.copy(freightType = Some(exportFreightType))
           if (Rules.isVesselDetailsAnswerMandatory(updatedExportQuestions))
-            goto(AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, updatedExportQuestions))
+            goto(AnswerExportQuestionsMandatoryVesselInfo(model.updated(updatedExportQuestions)))
           else
-            goto(AnswerExportQuestionsOptionalVesselInfo(declarationDetails, updatedExportQuestions))
+            goto(AnswerExportQuestionsOptionalVesselInfo(model.updated(updatedExportQuestions)))
       }
 
     def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerExportQuestionsMandatoryVesselInfo(declarationDetails, exportQuestions)
-            if vesselDetails.isComplete =>
+        case AnswerExportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           goto(
             AnswerExportQuestionsContactInfo(
-              declarationDetails,
-              exportQuestions.copy(vesselDetails = Some(vesselDetails))
+              model.updated(model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)))
             )
           )
       }
 
     def submittedExportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerExportQuestionsOptionalVesselInfo(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsOptionalVesselInfo(model) =>
           goto(
             AnswerExportQuestionsContactInfo(
-              declarationDetails,
-              exportQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+              model.updated(
+                model.exportQuestionsAnswers.copy(vesselDetails =
+                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+                )
+              )
             )
           )
       }
 
     def submittedExportQuestionsContactInfo(user: String)(contactInfo: ExportContactInfo) =
       Transition {
-        case AnswerExportQuestionsContactInfo(declarationDetails, exportQuestions) =>
+        case AnswerExportQuestionsContactInfo(model) =>
           goto(
             ExportQuestionsSummary(
-              declarationDetails,
-              exportQuestions.copy(contactInfo = Some(contactInfo))
+              model.updated(model.exportQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
           )
       }
 
     def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
       Transition {
-        case AnswerImportQuestionsRequestType(declarationDetails, importQuestions) =>
-          val updatedImportQuestions = importQuestions.copy(requestType = Some(importRequestType))
+        case AnswerImportQuestionsRequestType(model) =>
+          val updatedImportQuestions = model.importQuestionsAnswers.copy(requestType = Some(importRequestType))
           if (Rules.shouldAskRouteQuestion(updatedImportQuestions))
-            goto(AnswerImportQuestionsRouteType(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
           else
             goto(
-              AnswerImportQuestionsHasPriorityGoods(declarationDetails, updatedImportQuestions.copy(routeType = None))
+              AnswerImportQuestionsHasPriorityGoods(model.updated(updatedImportQuestions.copy(routeType = None)))
             )
 
       }
 
     def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
       Transition {
-        case AnswerImportQuestionsRouteType(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsRouteType(model) =>
           goto(
             AnswerImportQuestionsHasPriorityGoods(
-              declarationDetails,
-              importQuestions.copy(routeType = Some(importRouteType))
+              model.updated(model.importQuestionsAnswers.copy(routeType = Some(importRouteType)))
             )
           )
       }
 
     def submittedImportQuestionsAnswerHasPriorityGoods(user: String)(importHasPriorityGoods: Boolean) =
       Transition {
-        case AnswerImportQuestionsHasPriorityGoods(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsHasPriorityGoods(model) =>
           if (importHasPriorityGoods)
             goto(
               AnswerImportQuestionsWhichPriorityGoods(
-                declarationDetails,
-                importQuestions.copy(hasPriorityGoods = Some(importHasPriorityGoods))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
             )
           else
             goto(
               AnswerImportQuestionsALVS(
-                declarationDetails,
-                importQuestions.copy(hasPriorityGoods = Some(importHasPriorityGoods))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
             )
       }
 
     def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
       Transition {
-        case AnswerImportQuestionsWhichPriorityGoods(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsWhichPriorityGoods(model) =>
           goto(
             AnswerImportQuestionsALVS(
-              declarationDetails,
-              importQuestions.copy(priorityGoods = Some(importPriorityGoods))
+              model.updated(model.importQuestionsAnswers.copy(priorityGoods = Some(importPriorityGoods)))
             )
           )
       }
 
     def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
       Transition {
-        case AnswerImportQuestionsALVS(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsALVS(model) =>
           goto(
-            AnswerImportQuestionsFreightType(declarationDetails, importQuestions.copy(hasALVS = Some(importHasALVS)))
+            AnswerImportQuestionsFreightType(
+              model.updated(model.importQuestionsAnswers.copy(hasALVS = Some(importHasALVS)))
+            )
           )
       }
 
     def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
       Transition {
-        case AnswerImportQuestionsFreightType(declarationDetails, importQuestions) =>
-          val updatedImportQuestions = importQuestions.copy(freightType = Some(importFreightType))
+        case AnswerImportQuestionsFreightType(model) =>
+          val updatedImportQuestions = model.importQuestionsAnswers.copy(freightType = Some(importFreightType))
           if (Rules.isVesselDetailsAnswerMandatory(updatedImportQuestions))
-            goto(AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsMandatoryVesselInfo(model.updated(updatedImportQuestions)))
           else
-            goto(AnswerImportQuestionsOptionalVesselInfo(declarationDetails, updatedImportQuestions))
+            goto(AnswerImportQuestionsOptionalVesselInfo(model.updated(updatedImportQuestions)))
       }
 
     def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsMandatoryVesselInfo(declarationDetails, importQuestions)
-            if vesselDetails.isComplete =>
+        case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           goto(
             AnswerImportQuestionsContactInfo(
-              declarationDetails,
-              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+              model.updated(
+                model.importQuestionsAnswers.copy(vesselDetails =
+                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+                )
+              )
             )
           )
       }
 
     def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsOptionalVesselInfo(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsOptionalVesselInfo(model) =>
           goto(
             AnswerImportQuestionsContactInfo(
-              declarationDetails,
-              importQuestions.copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+              model.updated(
+                model.importQuestionsAnswers.copy(vesselDetails =
+                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+                )
+              )
             )
           )
       }
 
     def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
       Transition {
-        case AnswerImportQuestionsContactInfo(declarationDetails, importQuestions) =>
+        case AnswerImportQuestionsContactInfo(model) =>
           goto(
             ImportQuestionsSummary(
-              declarationDetails,
-              importQuestions.copy(contactInfo = Some(contactInfo))
+              model.updated(model.importQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
           )
+      }
+
+    type UpscanInitiate = UpscanInitiateRequest => Future[UpscanInitiateResponse]
+
+    def initiateFileUpload(
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String,
+      maxFileSizeMb: Int
+    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+      Transition {
+        case ExportQuestionsSummary(model) =>
+          val fileUploads = model.fileUploadsOpt.getOrElse(FileUploads())
+          if (fileUploads.nonEmpty || fileUploads.acceptedCount >= Rules.maxFileUploadsNumber)
+            goto(
+              FileUploaded(
+                model.declarationDetails,
+                model.exportQuestionsAnswers,
+                fileUploads
+              )
+            )
+          else
+            for {
+              upscanResponse <- upscanInitiate(
+                                  UpscanInitiateRequest(
+                                    callbackUrl = callbackUrl,
+                                    successRedirect = Some(successRedirect),
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
+                                  )
+                                )
+            } yield UploadFile(
+              model.declarationDetails,
+              model.exportQuestionsAnswers,
+              upscanResponse.reference,
+              upscanResponse.uploadRequest,
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
+            )
+
+        case ImportQuestionsSummary(model) =>
+          val fileUploads = model.fileUploadsOpt.getOrElse(FileUploads())
+          if (fileUploads.nonEmpty || fileUploads.acceptedCount >= Rules.maxFileUploadsNumber)
+            goto(
+              FileUploaded(
+                model.declarationDetails,
+                model.importQuestionsAnswers,
+                fileUploads
+              )
+            )
+          else
+            for {
+              upscanResponse <- upscanInitiate(
+                                  UpscanInitiateRequest(
+                                    callbackUrl = callbackUrl,
+                                    successRedirect = Some(successRedirect),
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
+                                  )
+                                )
+            } yield UploadFile(
+              model.declarationDetails,
+              model.importQuestionsAnswers,
+              upscanResponse.reference,
+              upscanResponse.uploadRequest,
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
+            )
+
+        case WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
+
+        case current @ FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
+          if (fileUploads.acceptedCount >= Rules.maxFileUploadsNumber)
+            goto(current)
+          else
+            for {
+              upscanResponse <- upscanInitiate(
+                                  UpscanInitiateRequest(
+                                    callbackUrl = callbackUrl,
+                                    successRedirect = Some(successRedirect),
+                                    errorRedirect = Some(errorRedirect),
+                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
+                                  )
+                                )
+            } yield UploadFile(
+              declarationDetails,
+              questionsAnswers,
+              upscanResponse.reference,
+              upscanResponse.uploadRequest,
+              fileUploads.copy(files =
+                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+              )
+            )
+      }
+
+    def fileUploadWasRejected(user: String)(error: S3UploadError) =
+      Transition {
+        case current @ UploadFile(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              fileUploads,
+              maybeUploadError
+            ) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case FileUpload.Initiated(orderNumber, ref) if ref == error.key =>
+              FileUpload.Rejected(orderNumber, reference, error)
+            case u => u
+          })
+          goto(current.copy(fileUploads = updatedFileUploads, maybeUploadError = Some(FileTransmissionFailed(error))))
+      }
+
+    def waitForFileVerification(user: String) =
+      Transition {
+        case current @ UploadFile(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              fileUploads,
+              errorOpt
+            ) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case f: FileUpload.Accepted => f
+            case FileUpload(orderNumber, ref) if ref == reference =>
+              FileUpload.Posted(orderNumber, reference)
+            case f => f
+          })
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case Some(upload: FileUpload.Posted) =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  upload,
+                  updatedFileUploads
+                )
+              )
+
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, updatedFileUploads))
+
+            case Some(failedFile: FileUpload.Failed) =>
+              goto(
+                UploadFile(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  updatedFileUploads,
+                  Some(FileVerificationFailed(failedFile.details))
+                )
+              )
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
+          }
+
+        case current @ WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          fileUploads.files.find(_.reference == reference) match {
+            case Some(upload: FileUpload.Posted) =>
+              goto(current)
+
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, fileUploads))
+
+            case Some(failedFile: FileUpload.Failed) =>
+              goto(
+                UploadFile(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  fileUploads,
+                  Some(FileVerificationFailed(failedFile.details))
+                )
+              )
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads))
+          }
+
+        case state: FileUploaded =>
+          goto(state.copy(acknowledged = true))
+      }
+
+    def upscanCallbackArrived(notification: UpscanNotification) = {
+
+      def updateFileUploads(fileUploads: FileUploads) =
+        fileUploads.copy(files = fileUploads.files.map {
+          case FileUpload(orderNumber, ref) if ref == notification.reference =>
+            notification match {
+              case UpscanFileReady(_, url, uploadDetails) =>
+                FileUpload.Accepted(
+                  orderNumber,
+                  ref,
+                  url,
+                  uploadDetails.uploadTimestamp,
+                  uploadDetails.checksum,
+                  uploadDetails.fileName,
+                  uploadDetails.fileMimeType
+                )
+              case UpscanFileFailed(_, failureDetails) =>
+                FileUpload.Failed(
+                  orderNumber,
+                  ref,
+                  failureDetails
+                )
+            }
+          case u => u
+        })
+
+      Transition {
+        case WaitingForFileVerification(
+              declarationDetails,
+              questionsAnswers,
+              reference,
+              uploadRequest,
+              currentFileUpload,
+              fileUploads
+            ) =>
+          val updatedFileUploads = updateFileUploads(fileUploads)
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case None =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  currentFileUpload,
+                  updatedFileUploads
+                )
+              )
+
+            case Some(upload: FileUpload.Posted) =>
+              goto(
+                WaitingForFileVerification(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  upload,
+                  updatedFileUploads
+                )
+              )
+
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, updatedFileUploads))
+
+            case Some(failedFile: FileUpload.Failed) =>
+              goto(
+                UploadFile(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  updatedFileUploads,
+                  Some(FileVerificationFailed(failedFile.details))
+                )
+              )
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
+
+          }
+
+        case UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, fileUploads, errorOpt) =>
+          val updatedFileUploads = updateFileUploads(fileUploads)
+          updatedFileUploads.files.find(_.reference == reference) match {
+            case Some(acceptedFile: FileUpload.Accepted) =>
+              goto(FileUploaded(declarationDetails, questionsAnswers, updatedFileUploads))
+
+            case Some(failedFile: FileUpload.Failed) =>
+              goto(
+                UploadFile(
+                  declarationDetails,
+                  questionsAnswers,
+                  reference,
+                  uploadRequest,
+                  updatedFileUploads,
+                  Some(FileVerificationFailed(failedFile.details))
+                )
+              )
+
+            case _ =>
+              goto(UploadFile(declarationDetails, questionsAnswers, reference, uploadRequest, updatedFileUploads))
+
+          }
+      }
+    }
+
+    def submitedUploadAnotherFileChoice(
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String,
+      maxFileSizeMb: Int
+    )(upscanInitiate: UpscanInitiate)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
+      Transition {
+        case current @ FileUploaded(declarationDetails, questionsAnswers, fileUploads, acknowledged) =>
+          if (uploadAnotherFile && fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
+              .apply(current)
+          else
+            goto(WorkInProgressDeadEnd)
+      }
+
+    def removeFileUploadByReference(reference: String)(
+      callbackUrl: String,
+      successRedirect: String,
+      errorRedirect: String,
+      maxFileSizeMb: Int
+    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+      Transition {
+        case current: FileUploaded =>
+          val updatedFileUploads = current.fileUploads
+            .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
+          val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
+          if (updatedFileUploads.isEmpty)
+            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
+              .apply(updatedCurrentState)
+          else
+            goto(updatedCurrentState)
       }
   }
 
   object Setters {
     import State._
 
-    /** Typeclass of exportQuestions setters */
-    trait SetExportQuestions[S <: State] {
-      def set(state: S, exportQuestions: ExportQuestions): S
+    /** Typeclass of exportQuestionsStateModel setters */
+    trait SetExportQuestionsStateModel[S <: State] {
+      def set(state: S, exportQuestionsStateModel: ExportQuestionsStateModel): S
     }
 
     /** Typeclass of importQuestions setters */
-    trait SetImportQuestions[S <: State] {
-      def set(state: S, importQuestions: ImportQuestions): S
+    trait SetImportQuestionsStateModel[S <: State] {
+      def set(state: S, importQuestionsStateModel: ImportQuestionsStateModel): S
     }
 
-    object SetExportQuestions {
-      private def of[S <: State](fx: (S, ExportQuestions) => S): SetExportQuestions[S] =
-        new SetExportQuestions[S] {
-          override def set(state: S, exportQuestions: ExportQuestions): S = fx(state, exportQuestions)
+    object SetExportQuestionsStateModel {
+      private def of[S <: State](fx: (S, ExportQuestionsStateModel) => S): SetExportQuestionsStateModel[S] =
+        new SetExportQuestionsStateModel[S] {
+          override def set(state: S, model: ExportQuestionsStateModel): S = fx(state, model)
         }
 
-      implicit val s1 = of[AnswerExportQuestionsRequestType]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s2 = of[AnswerExportQuestionsRouteType]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s3 = of[AnswerExportQuestionsHasPriorityGoods]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s4 = of[AnswerExportQuestionsWhichPriorityGoods]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s5 = of[AnswerExportQuestionsFreightType]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s6 = of[AnswerExportQuestionsMandatoryVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s7 = of[AnswerExportQuestionsOptionalVesselInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
-      implicit val s8 = of[AnswerExportQuestionsContactInfo]((s, e) => s.copy(exportQuestionsAnswers = e))
+      implicit val s1 = of[AnswerExportQuestionsRequestType]((s, e) => s.copy(model = e))
+      implicit val s2 = of[AnswerExportQuestionsRouteType]((s, e) => s.copy(model = e))
+      implicit val s3 = of[AnswerExportQuestionsHasPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s4 = of[AnswerExportQuestionsWhichPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s5 = of[AnswerExportQuestionsFreightType]((s, e) => s.copy(model = e))
+      implicit val s6 = of[AnswerExportQuestionsMandatoryVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s7 = of[AnswerExportQuestionsOptionalVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s8 = of[AnswerExportQuestionsContactInfo]((s, e) => s.copy(model = e))
+      implicit val s9 = of[ExportQuestionsSummary]((s, e) => s.copy(model = e))
     }
 
-    object SetImportQuestions {
-      private def of[S <: State](fx: (S, ImportQuestions) => S): SetImportQuestions[S] =
-        new SetImportQuestions[S] {
-          override def set(state: S, importQuestions: ImportQuestions): S = fx(state, importQuestions)
+    object SetImportQuestionsStateModel {
+      private def of[S <: State](fx: (S, ImportQuestionsStateModel) => S): SetImportQuestionsStateModel[S] =
+        new SetImportQuestionsStateModel[S] {
+          override def set(state: S, model: ImportQuestionsStateModel): S = fx(state, model)
         }
 
-      implicit val s1 = of[AnswerImportQuestionsRequestType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s2 = of[AnswerImportQuestionsRouteType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s3 = of[AnswerImportQuestionsHasPriorityGoods]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s4 = of[AnswerImportQuestionsWhichPriorityGoods]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s5 = of[AnswerImportQuestionsFreightType]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s6 = of[AnswerImportQuestionsALVS]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s7 = of[AnswerImportQuestionsOptionalVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s8 = of[AnswerImportQuestionsContactInfo]((s, e) => s.copy(importQuestionsAnswers = e))
-      implicit val s9 = of[AnswerImportQuestionsMandatoryVesselInfo]((s, e) => s.copy(importQuestionsAnswers = e))
+      implicit val s1 = of[AnswerImportQuestionsRequestType]((s, e) => s.copy(model = e))
+      implicit val s2 = of[AnswerImportQuestionsRouteType]((s, e) => s.copy(model = e))
+      implicit val s3 = of[AnswerImportQuestionsHasPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s4 = of[AnswerImportQuestionsWhichPriorityGoods]((s, e) => s.copy(model = e))
+      implicit val s5 = of[AnswerImportQuestionsFreightType]((s, e) => s.copy(model = e))
+      implicit val s6 = of[AnswerImportQuestionsALVS]((s, e) => s.copy(model = e))
+      implicit val s7 = of[AnswerImportQuestionsOptionalVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s8 = of[AnswerImportQuestionsContactInfo]((s, e) => s.copy(model = e))
+      implicit val s9 = of[AnswerImportQuestionsMandatoryVesselInfo]((s, e) => s.copy(model = e))
+      implicit val s10 = of[ImportQuestionsSummary]((s, e) => s.copy(model = e))
     }
   }
 }

@@ -242,4 +242,6 @@ object FormFieldMappings {
   val exportContactNumberMapping: Mapping[Option[String]] = optional(
     of[String].verifying(ContactFieldHelper.contactNumber())
   )
+
+  val uploadAnotherFileMapping: Mapping[Boolean] = booleanMapping("uploadAnotherFile", "yes", "no")
 }

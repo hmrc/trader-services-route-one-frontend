@@ -31,8 +31,15 @@ import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalTime
 import scala.reflect.ClassTag
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
+import scala.concurrent.Future
+import java.time.ZonedDateTime
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
+
+  import scala.concurrent.duration._
+  override implicit val defaultTimeout: FiniteDuration = 60 seconds
 
   // dummy journey context
   case class DummyContext()
@@ -62,19 +69,25 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
-        ) should thenGo(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions()))
+        ) should thenGo(
+          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+        )
       }
 
       "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
-        ) should thenGo(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions()))
+        ) should thenGo(
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+        )
       }
 
       "copy declaration and export details if coming back from the advanced export state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
-          exportDeclarationDetails,
-          ExportQuestions(requestType = Some(ExportRequestType.C1603))
+          ExportQuestionsStateModel(
+            exportDeclarationDetails,
+            ExportQuestions(requestType = Some(ExportRequestType.C1603))
+          )
         )) should thenGo(
           EnterDeclarationDetails(
             declarationDetailsOpt = Some(exportDeclarationDetails),
@@ -85,8 +98,10 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       "copy declaration and import details if coming back from the advanced import state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerImportQuestionsRequestType(
-          importDeclarationDetails,
-          ImportQuestions(requestType = Some(ImportRequestType.New))
+          ImportQuestionsStateModel(
+            importDeclarationDetails,
+            ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
         )) should thenGo(
           EnterDeclarationDetails(
             declarationDetailsOpt = Some(importDeclarationDetails),
@@ -100,40 +115,47 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       for (requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.Hold))
         s"go to AnswerExportQuestionsRouteType when submitted requestType of ${ExportRequestType.keyOf(requestType).get}" in {
           given(
-            AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions())
+            AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
           ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
             requestType
           ) should thenGo(
             AnswerExportQuestionsRouteType(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(requestType))
+              ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions(requestType = Some(requestType)))
             )
           )
         }
 
       "go to AnswerExportQuestionsGoodsPriority when submitted requestType of Hold" in {
         given(
-          AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions())
+          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
         ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
           ExportRequestType.Hold
         ) should thenGo(
           AnswerExportQuestionsHasPriorityGoods(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.Hold))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.Hold))
+            )
           )
         )
       }
 
       "copy export details if coming back from the advanced state" in {
-        given(AnswerExportQuestionsRequestType(exportDeclarationDetails, ExportQuestions())) when (copyExportQuestions[
+        given(
+          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+        ) when (copyExportQuestionsStateModel[
           AnswerExportQuestionsRequestType
         ], AnswerExportQuestionsRouteType(
-          exportDeclarationDetails,
-          ExportQuestions(requestType = Some(ExportRequestType.C1603))
-        )) should thenGo(
-          AnswerExportQuestionsRequestType(
+          ExportQuestionsStateModel(
             exportDeclarationDetails,
             ExportQuestions(requestType = Some(ExportRequestType.C1603))
+          )
+        )) should thenGo(
+          AnswerExportQuestionsRequestType(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.C1603))
+            )
           )
         )
       }
@@ -144,29 +166,37 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         s"go to AnswerExportQuestionsHasPriorityGoods when submitted routeType of ${ExportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerExportQuestionsRouteType(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.New))
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(requestType = Some(ExportRequestType.New))
+              )
             )
           ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
             routeType
           ) should thenGo(
             AnswerExportQuestionsHasPriorityGoods(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(routeType))
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(routeType))
+              )
             )
           )
         }
 
       "copy export details if coming back from the advanced state" in {
         given(
-          AnswerExportQuestionsRouteType(exportDeclarationDetails, ExportQuestions())
-        ) when (copyExportQuestions[AnswerExportQuestionsRouteType], AnswerExportQuestionsHasPriorityGoods(
-          exportDeclarationDetails,
-          ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route1))
-        )) should thenGo(
-          AnswerExportQuestionsRouteType(
+          AnswerExportQuestionsRouteType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+        ) when (copyExportQuestionsStateModel[AnswerExportQuestionsRouteType], AnswerExportQuestionsHasPriorityGoods(
+          ExportQuestionsStateModel(
             exportDeclarationDetails,
             ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route1))
+          )
+        )) should thenGo(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route1))
+            )
           )
         )
       }
@@ -176,16 +206,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsWhichPriorityGoods when selected YES" in {
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+            )
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route1),
-              hasPriorityGoods = Some(true)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route1),
+                hasPriorityGoods = Some(true)
+              )
             )
           )
         )
@@ -193,16 +227,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsWhichPriorityGoods when selected NO" in {
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
+            )
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
           AnswerExportQuestionsFreightType(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route1),
-              hasPriorityGoods = Some(false)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route1),
+                hasPriorityGoods = Some(false)
+              )
             )
           )
         )
@@ -210,21 +248,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       "copy export details if coming back from the advanced state" in {
         given(
-          AnswerExportQuestionsHasPriorityGoods(exportDeclarationDetails, ExportQuestions())
-        ) when (copyExportQuestions[AnswerExportQuestionsHasPriorityGoods], AnswerExportQuestionsWhichPriorityGoods(
-          exportDeclarationDetails,
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1602),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(true)
-          )
-        )) should thenGo(
-          AnswerExportQuestionsHasPriorityGoods(
+          AnswerExportQuestionsHasPriorityGoods(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+        ) when (copyExportQuestionsStateModel[
+          AnswerExportQuestionsHasPriorityGoods
+        ], AnswerExportQuestionsWhichPriorityGoods(
+          ExportQuestionsStateModel(
             exportDeclarationDetails,
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route2),
               hasPriorityGoods = Some(true)
+            )
+          )
+        )) should thenGo(
+          AnswerExportQuestionsHasPriorityGoods(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1602),
+                routeType = Some(ExportRouteType.Route2),
+                hasPriorityGoods = Some(true)
+              )
             )
           )
         )
@@ -235,18 +279,22 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsFreightType when submittedExportQuestionsAnswerWhichPriorityGoods" in {
         given(
           AnswerExportQuestionsWhichPriorityGoods(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
+            )
           )
         ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
           ExportPriorityGoods.ExplosivesOrFireworks
         ) should thenGo(
           AnswerExportQuestionsFreightType(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+              )
             )
           )
         )
@@ -254,23 +302,31 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       "copy export details if coming back from the advanced state" in {
         given(
-          AnswerExportQuestionsWhichPriorityGoods(exportDeclarationDetails, ExportQuestions())
-        ) when (copyExportQuestions[AnswerExportQuestionsWhichPriorityGoods], AnswerExportQuestionsFreightType(
-          exportDeclarationDetails,
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1602),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(true),
-            freightType = Some(ExportFreightType.Maritime)
-          )
-        )) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
+            ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions())
+          )
+        ) when (copyExportQuestionsStateModel[
+          AnswerExportQuestionsWhichPriorityGoods
+        ], AnswerExportQuestionsFreightType(
+          ExportQuestionsStateModel(
             exportDeclarationDetails,
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route2),
               hasPriorityGoods = Some(true),
               freightType = Some(ExportFreightType.Maritime)
+            )
+          )
+        )) should thenGo(
+          AnswerExportQuestionsWhichPriorityGoods(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1602),
+                routeType = Some(ExportRouteType.Route2),
+                hasPriorityGoods = Some(true),
+                freightType = Some(ExportFreightType.Maritime)
+              )
             )
           )
         )
@@ -287,23 +343,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerExportQuestionsFreightType(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                )
               )
             )
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerExportQuestionsOptionalVesselInfo(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
-                freightType = Some(freightType)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  freightType = Some(freightType)
+                )
               )
             )
           )
@@ -318,23 +378,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerExportQuestionsFreightType(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                )
               )
             )
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
-                freightType = Some(freightType)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  freightType = Some(freightType)
+                )
               )
             )
           )
@@ -342,19 +406,11 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       "copy export details if coming back from the advanced state" in {
         given(
-          AnswerExportQuestionsFreightType(exportDeclarationDetails, ExportQuestions())
-        ) when (copyExportQuestions[AnswerExportQuestionsFreightType], AnswerExportQuestionsMandatoryVesselInfo(
-          exportDeclarationDetails,
-          ExportQuestions(
-            requestType = Some(ExportRequestType.C1601),
-            routeType = Some(ExportRouteType.Route2),
-            hasPriorityGoods = Some(true),
-            freightType = Some(ExportFreightType.Maritime),
-            vesselDetails =
-              Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
-          )
-        )) should thenGo(
-          AnswerExportQuestionsFreightType(
+          AnswerExportQuestionsFreightType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+        ) when (copyExportQuestionsStateModel[
+          AnswerExportQuestionsFreightType
+        ], AnswerExportQuestionsMandatoryVesselInfo(
+          ExportQuestionsStateModel(
             exportDeclarationDetails,
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
@@ -365,6 +421,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
             )
           )
+        )) should thenGo(
+          AnswerExportQuestionsFreightType(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route2),
+                hasPriorityGoods = Some(true),
+                freightType = Some(ExportFreightType.Maritime),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
+            )
+          )
         )
       }
     }
@@ -373,26 +443,30 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsMandatoryVesselDetails with complete vessel details" in {
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
@@ -402,12 +476,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         an[TransitionNotAllowed] shouldBe thrownBy {
           given(
             AnswerExportQuestionsMandatoryVesselInfo(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-                freightType = Some(ExportFreightType.Air)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(ExportRequestType.C1601),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                  freightType = Some(ExportFreightType.Air)
+                )
               )
             )
           ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
@@ -421,26 +497,30 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails with some vessel details" in {
         given(
           AnswerExportQuestionsOptionalVesselInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
@@ -449,25 +529,29 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails without vessel details" in {
         given(
           AnswerExportQuestionsOptionalVesselInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air)
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
+              )
             )
           )
         ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails()
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air),
-              vesselDetails = None
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails = None
+              )
             )
           )
         )
@@ -478,29 +562,33 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to ExportQuestionsSummary when submittedExportQuestionsContactInfo with some contact details" in {
         given(
           AnswerExportQuestionsContactInfo(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         ) when submittedExportQuestionsContactInfo(eoriNumber)(
           ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
         ) should thenGo(
           ExportQuestionsSummary(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.New),
-              routeType = Some(ExportRouteType.Route3),
-              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ExportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-              contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com"))
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+                contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com"))
+              )
             )
           )
         )
@@ -511,40 +599,47 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       for (requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold))
         s"go to AnswerImportQuestionsRequestType when submitted requestType of ${ImportRequestType.keyOf(requestType).get}" in {
           given(
-            AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+            AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
           ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
             requestType
           ) should thenGo(
             AnswerImportQuestionsRouteType(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(requestType))
+              ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions(requestType = Some(requestType)))
             )
           )
         }
 
       "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
         given(
-          AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
         ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
           ImportRequestType.Hold
         ) should thenGo(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.Hold))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.Hold))
+            )
           )
         )
       }
 
       "copy import details if coming back from the advanced state" in {
-        given(AnswerImportQuestionsRequestType(importDeclarationDetails, ImportQuestions())) when (copyImportQuestions[
+        given(
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+        ) when (copyImportQuestionsStateModel[
           AnswerImportQuestionsRequestType
         ], AnswerImportQuestionsRouteType(
-          importDeclarationDetails,
-          ImportQuestions(requestType = Some(ImportRequestType.New))
-        )) should thenGo(
-          AnswerImportQuestionsRequestType(
+          ImportQuestionsStateModel(
             importDeclarationDetails,
             ImportQuestions(requestType = Some(ImportRequestType.New))
+          )
+        )) should thenGo(
+          AnswerImportQuestionsRequestType(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New))
+            )
           )
         )
       }
@@ -555,15 +650,19 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         s"go to AnswerImportQuestionsHasPriorityGoods when submitted routeType of ${ImportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerImportQuestionsRouteType(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New))
+              )
             )
           ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
             routeType
           ) should thenGo(
             AnswerImportQuestionsHasPriorityGoods(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(routeType))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(routeType))
+              )
             )
           )
         }
@@ -573,16 +672,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsWhichPriorityGoods when selected YES" in {
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasPriorityGoods = Some(true)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasPriorityGoods = Some(true)
+              )
             )
           )
         )
@@ -590,16 +693,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsWhichPriorityGoods when selected NO" in {
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasPriorityGoods = Some(false)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasPriorityGoods = Some(false)
+              )
             )
           )
         )
@@ -611,18 +718,22 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         s"go to AnswerImportQuestionsALVS when submittedImportQuestionsAnswerWhichPriorityGoods with ${ImportPriorityGoods.keyOf(priorityGoods).get}" in {
           given(
             AnswerImportQuestionsWhichPriorityGoods(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+              )
             )
           ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
             priorityGoods
           ) should thenGo(
             AnswerImportQuestionsALVS(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(ImportRequestType.New),
-                routeType = Some(ImportRouteType.Route3),
-                priorityGoods = Some(priorityGoods)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(ImportRequestType.New),
+                  routeType = Some(ImportRouteType.Route3),
+                  priorityGoods = Some(priorityGoods)
+                )
               )
             )
           )
@@ -633,16 +744,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected YES" in {
         given(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
           AnswerImportQuestionsFreightType(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasALVS = Some(true)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasALVS = Some(true)
+              )
             )
           )
         )
@@ -651,16 +766,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsFreightType when selected NO" in {
         given(
           AnswerImportQuestionsALVS(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+            )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
           AnswerImportQuestionsFreightType(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route1),
-              hasALVS = Some(false)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route1),
+                hasALVS = Some(false)
+              )
             )
           )
         )
@@ -677,23 +796,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerImportQuestionsFreightType(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  hasALVS = Some(false)
+                )
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsOptionalVesselInfo(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                freightType = Some(freightType),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
               )
             )
           )
@@ -708,23 +831,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
           given(
             AnswerImportQuestionsFreightType(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  hasALVS = Some(false)
+                )
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsMandatoryVesselInfo(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(ImportRouteType.Route3),
-                freightType = Some(freightType),
-                hasALVS = Some(false)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
               )
             )
           )
@@ -735,26 +862,30 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails with some vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air)
+              )
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
@@ -763,25 +894,29 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails without vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air)
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air)
+              )
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
           VesselDetails()
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails = None
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails = None
+              )
             )
           )
         )
@@ -792,32 +927,860 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to ImportQuestionsSummary when submittedImportQuestionsContactInfo with some contact details" in {
         given(
           AnswerImportQuestionsContactInfo(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         ) when submittedImportQuestionsContactInfo(eoriNumber)(
           ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
         ) should thenGo(
           ImportQuestionsSummary(
-            importDeclarationDetails,
-            ImportQuestions(
-              requestType = Some(ImportRequestType.New),
-              routeType = Some(ImportRouteType.Route3),
-              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-              freightType = Some(ImportFreightType.Air),
-              contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
             )
           )
         )
+      }
+    }
+
+    "at state ExportQuestionsSummary" should {
+      "go to UploadFile when initiateFileUpload" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+            )
+          )
+        given(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(exportDeclarationDetails, fullExportQuestions)
+          )
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
+          mockUpscanInitiate
+        )(eoriNumber) should thenGo(
+          UploadFile(
+            exportDeclarationDetails,
+            fullExportQuestions,
+            "foo-bar-ref",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+    }
+
+    "at state ImportQuestionsSummary" should {
+      "go to UploadFile when initiateFileUpload" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest = UploadRequest(
+                href = "https://s3.bucket",
+                fields = Map(
+                  "callbackUrl"     -> request.callbackUrl,
+                  "successRedirect" -> request.successRedirect.getOrElse(""),
+                  "errorRedirect"   -> request.errorRedirect.getOrElse(""),
+                  "maximumFileSize" -> request.maximumFileSize.getOrElse(0).toString
+                )
+              )
+            )
+          )
+
+        given(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(importDeclarationDetails, fullImportQuestions)
+          )
+        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
+          mockUpscanInitiate
+        )(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure",
+                "maximumFileSize" -> "10485760"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+    }
+
+    "at state UploadFile" should {
+      "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(2, "foo-bar-ref-2"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and accepted already" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-3",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "go to UploadFile when waitForFileVerification and rejected already" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(4, "foo-bar-ref-4"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Posted(4, "foo-bar-ref-4")
+              )
+            )
+          )
+        )
+      }
+
+      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+        given(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.UNKNOWN,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+                )
+              )
+            ),
+            Some(
+              FileVerificationFailed(
+                UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile with error when fileUploadWasRejected" in {
+        val state =
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+          )
+
+        given(state) when fileUploadWasRejected(eoriNumber)(
+          S3UploadError(
+            key = "foo-bar-ref-1",
+            errorCode = "a",
+            errorMessage = "b",
+            errorResource = "c",
+            errorRequestId = "d"
+          )
+        ) should thenGo(
+          state.copy(
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "foo-bar-ref-1",
+                  S3UploadError(
+                    key = "foo-bar-ref-1",
+                    errorCode = "a",
+                    errorMessage = "b",
+                    errorResource = "c",
+                    errorRequestId = "d"
+                  )
+                )
+              )
+            ),
+            maybeUploadError = Some(
+              FileTransmissionFailed(
+                S3UploadError(
+                  key = "foo-bar-ref-1",
+                  errorCode = "a",
+                  errorMessage = "b",
+                  errorResource = "c",
+                  errorRequestId = "d"
+                )
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "at state WaitingForFileVerification" should {
+      "stay when waitForFileVerification and not verified yet" in {
+        val state = WaitingForFileVerification(
+          importDeclarationDetails,
+          fullImportQuestions,
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(1, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1")
+            )
+          )
+        )
+        given(state) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(state)
+      }
+
+      "go to UploadFile when waitForFileVerification and reference unknown" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1")
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-2",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1")
+              )
+            )
+          )
+        )
+      }
+
+      "go to FileUploaded when waitForFileVerification and file already accepted" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Accepted(
+              1,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf"
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "go to UploadFile when waitForFileVerification and file already failed" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Failed(
+              1,
+              "foo-bar-ref-1",
+              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                )
+              )
+            )
+          )
+        ) when waitForFileVerification(
+          eoriNumber
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                )
+              )
+            ),
+            Some(
+              FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
+            )
+          )
+        )
+      }
+
+      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(
+          FileUploaded(
+            importDeclarationDetails,
+            fullImportQuestions,
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          UploadFile(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+                )
+              )
+            ),
+            Some(
+              FileVerificationFailed(
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+              )
+            )
+          )
+        )
+      }
+
+      "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
+        given(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-2",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          WaitingForFileVerification(
+            importDeclarationDetails,
+            fullImportQuestions,
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Failed(
+                  2,
+                  "foo-bar-ref-2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+                )
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "at state FileUploaded" should {
+      "goto acknowledged FileUploaded when waitForFileVerification" in {
+        val state = FileUploaded(
+          importDeclarationDetails,
+          fullImportQuestions,
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            )
+          ),
+          acknowledged = false
+        )
+
+        given(state) when
+          waitForFileVerification(eoriNumber) should
+          thenGo(state.copy(acknowledged = true))
       }
     }
   }
@@ -850,5 +1813,28 @@ trait TestData {
   val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
   val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
   val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+
+  val fullExportQuestions = ExportQuestions(
+    requestType = Some(ExportRequestType.New),
+    routeType = Some(ExportRouteType.Route3),
+    hasPriorityGoods = Some(true),
+    priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+    freightType = Some(ExportFreightType.Air),
+    vesselDetails =
+      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+    contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+  )
+
+  val fullImportQuestions = ImportQuestions(
+    requestType = Some(ImportRequestType.New),
+    routeType = Some(ImportRouteType.Route3),
+    hasPriorityGoods = Some(true),
+    priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+    hasALVS = Some(true),
+    freightType = Some(ImportFreightType.Air),
+    contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
+    vesselDetails =
+      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+  )
 
 }

@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import java.time.LocalDate
+import play.api.libs.json.Json
 
-import play.api.libs.json.{Format, Json}
+sealed trait FileUploadError
 
-case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate) {
+case class FileTransmissionFailed(error: S3UploadError) extends FileUploadError
+case class FileVerificationFailed(details: UpscanNotification.FailureDetails) extends FileUploadError
 
-  val isExportDeclaration: Boolean =
-    entryNumber.value.headOption.forall(_.isLetter) && entryNumber.value.lastOption.forall(_.isLetter)
-  val isImportDeclaration: Boolean =
-    entryNumber.value.headOption.forall(_.isDigit) && entryNumber.value.lastOption.forall(_.isLetter)
-}
+object FileUploadError extends SealedTraitFormats[FileUploadError] {
 
-object DeclarationDetails {
-  implicit val formats: Format[DeclarationDetails] = Json.format[DeclarationDetails]
+  override val formats = Set(
+    Case[FileTransmissionFailed](Json.format[FileTransmissionFailed]),
+    Case[FileVerificationFailed](Json.format[FileVerificationFailed])
+  )
 }

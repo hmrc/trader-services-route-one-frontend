@@ -52,7 +52,5 @@
   @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
     TraderServicesFrontendController.showAnswerExportQuestionsContactInfo))
 
-  @forms.formWithCSRF(action = postAction, 'autoComplete -> "off") {
-      @html.button("form.export-questions.summary.continue")
-  }
+  @html.a(postAction.url, messages("form.export-questions.summary.continue"), useButtonStyle = true)
 }

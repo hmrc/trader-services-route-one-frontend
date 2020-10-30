@@ -28,6 +28,7 @@ site.opensInNewWindowOrTab = (opens in new tab)
 site.change = Change
 site.logOut = log out
 site.youCan = You can:
+site.file.remove = Remove
 
 site.Jan = January
 site.Feb = February
@@ -401,6 +402,48 @@ summary.contact-details=Contact details
 summary.contact-details.contactName=Full name
 summary.contact-details.contactEmail=Email address
 summary.contact-details.contactNumber=Phone number
+
+# File upload messages
+# ----------------------------------------------------------
+view.upload-file.first.title=Upload your first document
+view.upload-file.first.heading=Upload your first document
+view.upload-file.next.title=Upload another document
+view.upload-file.next.heading=Upload another document
+view.upload-file.waiting=Your file is being processed
+view.upload-file.help.linkText=Help with documents
+view.upload-file.help.line1=You can upload up to 10 documents.
+view.upload-file.help.line2=Each document must be smaller than 10MB.
+view.upload-file.help.line3=These file types are allowed:
+view.upload-file.help.fileFormat1=JPG
+view.upload-file.help.fileFormat2=PNG
+view.upload-file.help.fileFormat3=PDF
+view.upload-file.help.fileFormat4=TIFF
+view.upload-file.help.fileFormat5=Open Document Format (ODF)
+view.upload-file.help.fileFormat6=Microsoft Office formats
+view.upload-file.help.line4=You cannot upload zip files.
+
+view.file-uploaded.singular.title=You have uploaded {0} document
+view.file-uploaded.singular.heading=You have uploaded {0} document
+view.file-uploaded.plural.title=You have uploaded {0} documents
+view.file-uploaded.plural.heading=You have uploaded {0} documents
+view.file-uploaded.uploadAnotherFile.heading=Do you want to upload another document?
+view.file-uploaded.list.heading=Documents you have uploaded
+view.file-uploaded.maximum=You have uploaded the maximum number of files and cannot add any more.
+
+form.upload-file.file=Upload a file
+form.upload-file.submit=Upload
+form.file-uploaded.uploadAnotherFile.yes=Yes
+form.file-uploaded.uploadAnotherFile.no=No
+form.file-uploaded.continue=Continue
+
+error.file-upload.required=Select a file
+error.file-upload.invalid-size-small=The selected file is empty
+error.file-upload.invalid-size-large=The selected file must be smaller than {0}MB
+error.file-upload.invalid-type=The selected file must be a JPG, PNG, PDF, TIFF, Open Document Format (ODF), or Microsoft Office formats
+error.file-upload.quarantine=The selected file contains a virus - upload a different one
+error.file-upload.unknown=The selected file could not be uploaded
+error.file-upload.try-again=The selected file could not be uploaded - try again
+error.uploadAnotherFile.required=Select yes if you want to upload another document
 
 # Common form messages
 # ----------------------------------------------------------

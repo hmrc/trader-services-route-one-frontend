@@ -27,17 +27,20 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, S3UploadError, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
+import play.api.libs.json.Json
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
   appConfig: AppConfig,
   override val messagesApi: MessagesApi,
   traderServicesApiConnector: TraderServicesApiConnector,
+  upscanInitiateConnector: UpscanInitiateConnector,
   val authConnector: FrontendAuthConnector,
   val env: Environment,
   override val journeyService: TraderServicesFrontendJourneyServiceWithHeaderCarrier,
@@ -58,7 +61,7 @@ class TraderServicesFrontendController @Inject() (
   /** Base authorized action builder */
   val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
 
-  /** Dummy action to use when developing with loose-ends. */
+  /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
 
   def toSubscriptionJourney(continueUrl: String): Result =
@@ -96,7 +99,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsRequestType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsRequestType]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsRequestType])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRequestType])
 
   // POST /pre-clearance/export-questions/request-type
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
@@ -108,7 +111,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsRouteType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsRouteType]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsRouteType])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRouteType])
 
   // POST /pre-clearance/export-questions/route-type
   val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
@@ -120,7 +123,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsHasPriorityGoods]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsHasPriorityGoods])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsHasPriorityGoods])
 
   // POST /pre-clearance/export-questions/has-priority-goods
   val submitExportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
@@ -132,7 +135,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsWhichPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsWhichPriorityGoods]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsWhichPriorityGoods])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsWhichPriorityGoods])
 
   // POST /pre-clearance/export-questions/which-priority-goods
   val submitExportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
@@ -144,7 +147,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsFreightType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsFreightType]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsFreightType])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsFreightType])
 
   // POST /pre-clearance/export-questions/transport-type
   val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -156,7 +159,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsMandatoryVesselInfo]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsMandatoryVesselInfo])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsMandatoryVesselInfo])
 
   // POST /pre-clearance/export-questions/vessel-info-required
   val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -168,7 +171,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsOptionalVesselInfo]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsOptionalVesselInfo])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsOptionalVesselInfo])
 
   // POST /pre-clearance/export-questions/vessel-info
   val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -180,7 +183,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsContactInfo]
-      .using(Mergers.copyExportQuestions[AnswerExportQuestionsContactInfo])
+      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsContactInfo])
 
   // POST /pre-clearance/export-questions/contact-info
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
@@ -190,7 +193,9 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/export-questions/summary
   val showExportQuestionsSummary: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.ExportQuestionsSummary]
+    whenAuthorisedAsUser
+      .show[State.ExportQuestionsSummary]
+      .using(Mergers.copyExportQuestionsStateModel[ExportQuestionsSummary])
 
   // ----------------------- IMPORT QUESTIONS -----------------------
 
@@ -198,7 +203,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsRequestType]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsRequestType])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRequestType])
 
   // POST /pre-clearance/import-questions/request-type
   val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
@@ -210,7 +215,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsRouteType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsRouteType]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsRouteType])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRouteType])
 
   // POST /pre-clearance/import-questions/route-type
   val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
@@ -222,7 +227,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsHasPriorityGoods]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsHasPriorityGoods])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsHasPriorityGoods])
 
   // POST /pre-clearance/import-questions/has-priority-goods
   val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
@@ -234,7 +239,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsWhichPriorityGoods]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsWhichPriorityGoods])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsWhichPriorityGoods])
 
   // POST /pre-clearance/import-questions/which-priority-goods
   val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
@@ -246,7 +251,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsALVS]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsALVS])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsALVS])
 
   // POST /pre-clearance/import-questions/automatic-licence-verification
   val submitImportQuestionsALVSAnswer: Action[AnyContent] =
@@ -258,7 +263,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsFreightType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsFreightType]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsFreightType])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsFreightType])
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -270,7 +275,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsMandatoryVesselInfo]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsMandatoryVesselInfo])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsMandatoryVesselInfo])
 
   // POST /pre-clearance/import-questions/vessel-info-required
   val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -282,7 +287,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsOptionalVesselInfo]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsOptionalVesselInfo])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsOptionalVesselInfo])
 
   // POST /pre-clearance/import-questions/vessel-info
   val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -294,7 +299,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsContactInfo]
-      .using(Mergers.copyImportQuestions[AnswerImportQuestionsContactInfo])
+      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsContactInfo])
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
@@ -304,7 +309,103 @@ class TraderServicesFrontendController @Inject() (
 
   // GET /pre-clearance/import-questions/summary
   val showImportQuestionsSummary: Action[AnyContent] =
-    whenAuthorisedAsUser.show[State.ImportQuestionsSummary]
+    whenAuthorisedAsUser
+      .show[State.ImportQuestionsSummary]
+      .using(Mergers.copyImportQuestionsStateModel[ImportQuestionsSummary])
+
+  // ----------------------- FILES UPLOAD -----------------------
+
+  val successRedirect =
+    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
+
+  val errorRedirect =
+    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.markFileUploadAsRejected
+
+  // GET /pre-clearance/file-upload
+  val showFileUpload: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
+        Transitions
+          .initiateFileUpload(callbackUrl, successRedirect, errorRedirect, appConfig.fileFormats.maxFileSizeMb)(
+            upscanInitiateConnector.initiate(_)
+          )
+      }
+      .redirectOrDisplayIf[State.UploadFile]
+
+  // GET
+  val markFileUploadAsRejected: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(UpscanUploadErrorForm)
+      .apply(Transitions.fileUploadWasRejected)
+
+  // GET /pre-clearance/file-verification
+  val showWaitingForFileVerification: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .waitForStateThenRedirect[State.FileUploaded](3)
+      .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
+      .redirectOrDisplayIf[State.WaitingForFileVerification]
+
+  // POST /pre-clearance/journey/:journeyId/callback-from-upscan
+  def callbackFromUpscan(journeyId: String): Action[AnyContent] =
+    actions
+      .parseJson[UpscanNotification]
+      .apply(Transitions.upscanCallbackArrived)
+      .transform { case _ => Accepted }
+      .recover {
+        case e: IllegalArgumentException => BadRequest
+        case e                           => InternalServerError
+      }
+
+  // GET /pre-clearance/file-uploaded
+  val showFileUploaded: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.FileUploaded]
+
+  // POST /pre-clearance/file-uploaded
+  val submitUploadAnotherFileChoice: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm[Boolean](UploadAnotherFileChoiceForm)
+      .applyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
+        Transitions.submitedUploadAnotherFileChoice(
+          callbackUrl,
+          successRedirect,
+          errorRedirect,
+          appConfig.fileFormats.maxFileSizeMb
+        )(
+          upscanInitiateConnector.initiate(_)
+        ) _
+      }
+
+  // GET /pre-clearance/file-uploaded/:reference/remove
+  def removeFileUploadByReference(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+            .callbackFromUpscan(currentJourneyId)
+            .url
+        Transitions.removeFileUploadByReference(reference)(
+          callbackUrl,
+          successRedirect,
+          errorRedirect,
+          appConfig.fileFormats.maxFileSizeMb
+        )(
+          upscanInitiateConnector.initiate(_)
+        ) _
+      }
+
+  // GET /pre-clearance/file-verification/:reference/status
+  def checkFileVerificationStatus(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -375,6 +476,15 @@ class TraderServicesFrontendController @Inject() (
       case _: ImportQuestionsSummary =>
         routes.TraderServicesFrontendController.showImportQuestionsSummary()
 
+      case _: UploadFile =>
+        routes.TraderServicesFrontendController.showFileUpload()
+
+      case _: WaitingForFileVerification =>
+        routes.TraderServicesFrontendController.showWaitingForFileVerification()
+
+      case _: FileUploaded =>
+        routes.TraderServicesFrontendController.showFileUploaded()
+
       case _ =>
         workInProgresDeadEndCall
 
@@ -394,7 +504,7 @@ class TraderServicesFrontendController @Inject() (
       case Start =>
         Ok(views.startView(routes.TraderServicesFrontendController.showEnterDeclarationDetails()))
 
-      case EnterDeclarationDetails(declarationDetailsOpt, _, _) =>
+      case EnterDeclarationDetails(declarationDetailsOpt, _, _, _) =>
         Ok(
           views.declarationDetailsEntryView(
             formWithErrors.or(DeclarationDetailsForm, declarationDetailsOpt),
@@ -403,182 +513,254 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case AnswerExportQuestionsRequestType(_, exportQuestions) =>
+      case AnswerExportQuestionsRequestType(model) =>
         Ok(
           views.exportQuestionsRequestTypeView(
-            formWithErrors.or(ExportRequestTypeForm, exportQuestions.requestType),
+            formWithErrors.or(ExportRequestTypeForm, model.exportQuestionsAnswers.requestType),
             routes.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsRouteType(_, exportQuestions) =>
+      case AnswerExportQuestionsRouteType(model) =>
         Ok(
           views.exportQuestionsRouteTypeView(
-            formWithErrors.or(ExportRouteTypeForm, exportQuestions.routeType),
+            formWithErrors.or(ExportRouteTypeForm, model.exportQuestionsAnswers.routeType),
             routes.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsHasPriorityGoods(_, exportQuestions) =>
+      case AnswerExportQuestionsHasPriorityGoods(model) =>
         Ok(
           views.exportQuestionsHasPriorityGoodsView(
-            formWithErrors.or(ExportHasPriorityGoodsForm, exportQuestions.hasPriorityGoods),
+            formWithErrors.or(ExportHasPriorityGoodsForm, model.exportQuestionsAnswers.hasPriorityGoods),
             routes.TraderServicesFrontendController.submitExportQuestionsHasPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsWhichPriorityGoods(_, exportQuestions) =>
+      case AnswerExportQuestionsWhichPriorityGoods(model) =>
         Ok(
           views.exportQuestionsWhichPriorityGoodsView(
-            formWithErrors.or(ExportPriorityGoodsForm, exportQuestions.priorityGoods),
+            formWithErrors.or(ExportPriorityGoodsForm, model.exportQuestionsAnswers.priorityGoods),
             routes.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsFreightType(_, exportQuestions) =>
+      case AnswerExportQuestionsFreightType(model) =>
         Ok(
           views.exportQuestionsFreightTypeView(
-            formWithErrors.or(ExportFreightTypeForm, exportQuestions.freightType),
+            formWithErrors.or(ExportFreightTypeForm, model.exportQuestionsAnswers.freightType),
             routes.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsMandatoryVesselInfo(_, exportQuestions) =>
+      case AnswerExportQuestionsMandatoryVesselInfo(model) =>
         Ok(
           views.exportQuestionsMandatoryVesselDetailsView(
-            formWithErrors.or(MandatoryVesselDetailsForm, exportQuestions.vesselDetails),
+            formWithErrors.or(MandatoryVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
             routes.TraderServicesFrontendController.submitExportQuestionsMandatoryVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsOptionalVesselInfo(_, exportQuestions) =>
+      case AnswerExportQuestionsOptionalVesselInfo(model) =>
         Ok(
           views.exportQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(OptionalVesselDetailsForm, exportQuestions.vesselDetails),
+            formWithErrors.or(OptionalVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
             routes.TraderServicesFrontendController.submitExportQuestionsOptionalVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case ExportQuestionsSummary(declarationDetails, exportQuestions) =>
+      case ExportQuestionsSummary(model) =>
         Ok(
           views.exportQuestionsSummaryView(
-            declarationDetails,
-            exportQuestions,
-            workInProgresDeadEndCall,
+            model.declarationDetails,
+            model.exportQuestionsAnswers,
+            routes.TraderServicesFrontendController.showFileUpload,
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerExportQuestionsContactInfo(_, exportQuestions) =>
+      case AnswerExportQuestionsContactInfo(model) =>
         Ok(
           views.exportQuestionsContactInfoView(
-            formWithErrors.or(ExportContactForm, exportQuestions.contactInfo),
+            formWithErrors.or(ExportContactForm, model.exportQuestionsAnswers.contactInfo),
             routes.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsRequestType(_, importQuestions) =>
+      case AnswerImportQuestionsRequestType(model) =>
         Ok(
           views.importQuestionsRequestTypeView(
-            formWithErrors.or(ImportRequestTypeForm, importQuestions.requestType),
+            formWithErrors.or(ImportRequestTypeForm, model.importQuestionsAnswers.requestType),
             routes.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsRouteType(_, importQuestions) =>
+      case AnswerImportQuestionsRouteType(model) =>
         Ok(
           views.importQuestionsRouteTypeView(
-            formWithErrors.or(ImportRouteTypeForm, importQuestions.routeType),
+            formWithErrors.or(ImportRouteTypeForm, model.importQuestionsAnswers.routeType),
             routes.TraderServicesFrontendController.submitImportQuestionsRouteTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsHasPriorityGoods(_, importQuestions) =>
+      case AnswerImportQuestionsHasPriorityGoods(model) =>
         Ok(
           views.importQuestionsHasPriorityGoodsView(
-            formWithErrors.or(ImportHasPriorityGoodsForm, importQuestions.hasPriorityGoods),
+            formWithErrors.or(ImportHasPriorityGoodsForm, model.importQuestionsAnswers.hasPriorityGoods),
             routes.TraderServicesFrontendController.submitImportQuestionsHasPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsWhichPriorityGoods(_, importQuestions) =>
+      case AnswerImportQuestionsWhichPriorityGoods(model) =>
         Ok(
           views.importQuestionsWhichPriorityGoodsView(
-            formWithErrors.or(ImportPriorityGoodsForm, importQuestions.priorityGoods),
+            formWithErrors.or(ImportPriorityGoodsForm, model.importQuestionsAnswers.priorityGoods),
             routes.TraderServicesFrontendController.submitImportQuestionsWhichPriorityGoodsAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsALVS(_, importQuestions) =>
+      case AnswerImportQuestionsALVS(model) =>
         Ok(
           views.importQuestionsALVSView(
-            formWithErrors.or(ImportHasALVSForm, importQuestions.hasALVS),
+            formWithErrors.or(ImportHasALVSForm, model.importQuestionsAnswers.hasALVS),
             routes.TraderServicesFrontendController.submitImportQuestionsALVSAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsFreightType(_, importQuestions) =>
+      case AnswerImportQuestionsFreightType(model) =>
         Ok(
           views.importQuestionsFreightTypeView(
-            formWithErrors.or(ImportFreightTypeForm, importQuestions.freightType),
+            formWithErrors.or(ImportFreightTypeForm, model.importQuestionsAnswers.freightType),
             routes.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsMandatoryVesselInfo(_, importQuestions) =>
+      case AnswerImportQuestionsMandatoryVesselInfo(model) =>
         Ok(
           views.importQuestionsMandatoryVesselDetailsView(
-            formWithErrors.or(MandatoryVesselDetailsForm, importQuestions.vesselDetails),
+            formWithErrors.or(MandatoryVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
             routes.TraderServicesFrontendController.submitImportQuestionsMandatoryVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsOptionalVesselInfo(_, importQuestions) =>
+      case AnswerImportQuestionsOptionalVesselInfo(model) =>
         Ok(
           views.importQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(OptionalVesselDetailsForm, importQuestions.vesselDetails),
+            formWithErrors.or(OptionalVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
             routes.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case AnswerImportQuestionsContactInfo(_, importQuestions) =>
+      case AnswerImportQuestionsContactInfo(model) =>
         Ok(
           views.importQuestionsContactInfoView(
-            formWithErrors.or(ImportContactForm, importQuestions.contactInfo),
+            formWithErrors.or(ImportContactForm, model.importQuestionsAnswers.contactInfo),
             routes.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer(),
             backLinkFor(breadcrumbs)
           )
         )
 
-      case ImportQuestionsSummary(declarationDetails, importQuestions) =>
+      case ImportQuestionsSummary(model) =>
         Ok(
           views.importQuestionsSummaryView(
-            declarationDetails,
-            importQuestions,
-            workInProgresDeadEndCall,
+            model.declarationDetails,
+            model.importQuestionsAnswers,
+            routes.TraderServicesFrontendController.showFileUpload,
             backLinkFor(breadcrumbs)
           )
+        )
+
+      case UploadFile(_, _, _, uploadRequest, fileUploads, maybeUploadError) =>
+        Ok(
+          views.uploadFileView(
+            uploadRequest,
+            fileUploads,
+            maybeUploadError,
+            backLink =
+              if (fileUploads.isEmpty)
+                backLinkToMostRecent[State.SummaryState](breadcrumbs)
+              else
+                backLinkToMostRecent[State.FileUploaded](
+                  breadcrumbs,
+                  Some(backLinkToMostRecent[State.SummaryState](breadcrumbs))
+                )
+          )
+        )
+
+      case WaitingForFileVerification(_, _, reference, _, _, _) =>
+        Ok(
+          views.waitingForFileVerificationView(
+            successAction = routes.TraderServicesFrontendController.showFileUploaded,
+            failureAction = routes.TraderServicesFrontendController.showFileUpload,
+            checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
+            backLink = routes.TraderServicesFrontendController.showFileUpload
+          )
+        )
+
+      case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
+        Ok(
+          if (fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
+            views.fileUploadedView(
+              formWithErrors.or(UploadAnotherFileChoiceForm),
+              fileUploads,
+              routes.TraderServicesFrontendController.submitUploadAnotherFileChoice,
+              routes.TraderServicesFrontendController.removeFileUploadByReference,
+              backLinkToMostRecent[State.SummaryState](breadcrumbs)
+            )
+          else
+            views.fileUploadedSummaryView(
+              fileUploads,
+              workInProgresDeadEndCall,
+              routes.TraderServicesFrontendController.removeFileUploadByReference,
+              backLinkToMostRecent[State.SummaryState](breadcrumbs)
+            )
         )
 
       case _ => NotImplemented
 
     }
+
+  def renderFileVerificationStatus(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: State.HasFileUploads =>
+        s.fileUploads.files.find(_.reference == reference) match {
+          case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
+          case None    => NotFound
+        }
+      case _ => NotFound
+    }
+
+  private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
+
+  override def journeyId(implicit rh: RequestHeader): Option[String] = {
+    val journeyIdFromPath = rh.path match {
+      case journeyIdPathParamRegex(id) => Some(id)
+      case _                           => None
+    }
+    journeyIdFromPath.orElse(rh.session.get(journeyService.journeyKey))
+  }
+
+  def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get
 
   override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
     appendJourneyId(super.hc)
@@ -675,5 +857,19 @@ object TraderServicesFrontendController {
         .verifying(dateOfArrivalRangeConstraint),
       "timeOfArrival" -> optionalTimeOfArrivalMapping
     )(VesselDetails.apply)(VesselDetails.unapply)
+  )
+
+  val UploadAnotherFileChoiceForm = Form[Boolean](
+    mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)
+  )
+
+  val UpscanUploadErrorForm = Form[S3UploadError](
+    mapping(
+      "key"            -> nonEmptyText,
+      "errorCode"      -> text,
+      "errorMessage"   -> text,
+      "errorResource"  -> text,
+      "errorRequestId" -> text
+    )(S3UploadError.apply)(S3UploadError.unapply)
   )
 }
