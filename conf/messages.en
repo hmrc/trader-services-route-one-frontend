@@ -311,6 +311,7 @@ error.dateOfArrival.all.required=Enter the date of arrival
 error.dateOfArrival.year.required=Date of arrival must include a year
 error.dateOfArrival.month.required=Date of arrival must include a month
 error.dateOfArrival.day.required=Date of arrival must include a day
+error.dateOfArrival.all.invalid-value=Date of arrival must be a real date
 error.dateOfArrival.year.invalid-value=Date of arrival must be a real date
 error.dateOfArrival.month.invalid-value=Date of arrival must be a real date
 error.dateOfArrival.day.invalid-value=Date of arrival must be a real date
