@@ -108,7 +108,7 @@ object DateFieldHelper {
         val filteredErrors =
           if (errors.filter(_.message.endsWith(".invalid-value")).size > 1)
             errors
-              .filter(!_.message.endsWith(".invalid-value")) :+
+              .filterNot(_.message.endsWith(".invalid-value")) :+
               ValidationError(s"error.$fieldName.all.invalid-value")
           else errors
         if (filteredErrors.isEmpty) Valid else Invalid(filteredErrors)
