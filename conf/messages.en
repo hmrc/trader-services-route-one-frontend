@@ -431,7 +431,7 @@ view.file-uploaded.list.heading=Documents you have uploaded
 view.file-uploaded.maximum=You have uploaded the maximum number of files and cannot add any more.
 
 form.upload-file.file=Select the file to upload
-form.upload-file.submit=Continue
+form.upload-file.submit=Upload
 form.file-uploaded.uploadAnotherFile.yes=Yes
 form.file-uploaded.uploadAnotherFile.no=No
 form.file-uploaded.continue=Continue
