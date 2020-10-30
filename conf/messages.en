@@ -430,13 +430,19 @@ view.file-uploaded.uploadAnotherFile.heading=Do you want to upload another docum
 view.file-uploaded.list.heading=Documents you have uploaded
 view.file-uploaded.maximum=You have uploaded the maximum number of files and cannot add any more.
 
+form.upload-file.file=Select the file to upload
 form.upload-file.submit=Continue
 form.file-uploaded.uploadAnotherFile.yes=Yes
 form.file-uploaded.uploadAnotherFile.no=No
 form.file-uploaded.continue=Continue
-error.upload-file.required=The selected file must be a [list of file types]
-error.upload-file.filesize=The selected file must be smaller than 10MB
-error.upload-file.accept=The selected file contains a virus - upload a different one
+
+error.file-upload.required=Select a file
+error.file-upload.invalid-size-small=The selected file is empty
+error.file-upload.invalid-size-large=The selected file must be smaller than 10MB
+error.file-upload.invalid-type=The selected file must be a JPG, PNG, PDF, TIFF, Open Document Format (ODF), or Microsoft Office formats
+error.file-upload.quarantine=The selected file contains a virus - upload a different one
+error.file-upload.unknown=The selected file could not be uploaded
+error.file-upload.try-again=The selected file could not be uploaded - try again
 error.uploadAnotherFile.required=Select yes if you want to upload another document
 
 # Common form messages

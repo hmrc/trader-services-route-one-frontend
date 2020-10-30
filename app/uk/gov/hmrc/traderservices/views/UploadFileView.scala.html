@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.traderservices.models.{FileUploads,UploadRequest,FileUploadError}
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
-@import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
+@import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
 
 @this(
@@ -26,7 +26,8 @@
         details: uk.gov.hmrc.traderservices.views.html.components.details,
         govukFileUpload: GovukFileUpload,
         govukButton: GovukButton,
-        appConfig: AppConfig
+        appConfig: AppConfig,
+        context: UploadFileViewContext
 )
 
 @(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], backLink: Call)(implicit request: Request[_], messages: Messages)
@@ -42,6 +43,10 @@
       legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
     ) {
 
+      @maybeUploadError.map { fileUploadError =>
+        @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
+      }
+
       @uploadRequest.fields.map { case (key, value) =>
         @forms.inputHidden(key, value)
       }
@@ -51,9 +56,13 @@
         id = "upload-file",
         value = Some(""),
         describedBy = None,
-        label = Label(),
+        label = Label(
+          content = Text(messages("form.upload-file.file")),
+          isPageHeading = false,
+          classes = "govuk-label"
+        ),
         hint = None,
-        errorMessage = None,
+        errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
         formGroupClasses = "",
         classes = "",
         attributes = Map(
@@ -61,9 +70,9 @@
           "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
           "accept" -> appConfig.fileFormats.approvedFileTypes,
           "required" -> "",
-          "data-msg-required" -> messages("error.upload-file.required"),
-          "data-msg-filesize" -> messages("error.upload-file.filesize"),
-          "data-msg-accept" -> messages("error.upload-file.accept")
+          "data-msg-required" -> messages("error.file-upload.required"),
+          "data-msg-filesize" -> messages("error.file-upload.invalid-size-large"),
+          "data-msg-accept" -> messages("error.upload-file.other")
         ))
       )
 
