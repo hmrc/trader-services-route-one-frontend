@@ -868,8 +868,8 @@ object TraderServicesFrontendController {
       "key"            -> nonEmptyText,
       "errorCode"      -> text,
       "errorMessage"   -> text,
-      "errorResource"  -> text,
-      "errorRequestId" -> text
+      "errorRequestId" -> optional(text),
+      "errorResource"  -> optional(text)
     )(S3UploadError.apply)(S3UploadError.unapply)
   )
 }

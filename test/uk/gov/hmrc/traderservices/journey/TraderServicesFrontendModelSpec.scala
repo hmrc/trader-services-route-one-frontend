@@ -1371,8 +1371,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             key = "foo-bar-ref-1",
             errorCode = "a",
             errorMessage = "b",
-            errorResource = "c",
-            errorRequestId = "d"
+            errorResource = Some("c"),
+            errorRequestId = Some("d")
           )
         ) should thenGo(
           state.copy(
@@ -1385,8 +1385,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                     key = "foo-bar-ref-1",
                     errorCode = "a",
                     errorMessage = "b",
-                    errorResource = "c",
-                    errorRequestId = "d"
+                    errorResource = Some("c"),
+                    errorRequestId = Some("d")
                   )
                 )
               )
@@ -1397,8 +1397,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                   key = "foo-bar-ref-1",
                   errorCode = "a",
                   errorMessage = "b",
-                  errorResource = "c",
-                  errorRequestId = "d"
+                  errorResource = Some("c"),
+                  errorRequestId = Some("d")
                 )
               )
             )

@@ -45,8 +45,8 @@ case class S3UploadError(
   key: String,
   errorCode: String,
   errorMessage: String,
-  errorResource: String,
-  errorRequestId: String
+  errorRequestId: Option[String] = None,
+  errorResource: Option[String] = None
 )
 
 object S3UploadError {
