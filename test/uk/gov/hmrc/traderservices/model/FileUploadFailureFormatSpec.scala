@@ -26,8 +26,8 @@ class FileUploadFailureFormatSpec extends UnitSpec {
 
     "serialize and deserialize FileTransmissionFailed" in new JsonFormatTest[FileUploadError](info) {
       validateJsonFormat(
-        """{"FileTransmissionFailed":{"error":{"key":"a","errorCode":"b","errorMessage":"c","errorResource":"d","errorRequestId":"e"}}}""".stripMargin,
-        FileTransmissionFailed(error = S3UploadError("a", "b", "c", "d", "e"))
+        """{"FileTransmissionFailed":{"error":{"key":"a","errorCode":"b","errorMessage":"c","errorRequestId":"e","errorResource":"d"}}}""".stripMargin,
+        FileTransmissionFailed(error = S3UploadError("a", "b", "c", Some("e"), Some("d")))
       )
     }
 
