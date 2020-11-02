@@ -33,7 +33,6 @@ object AppConfig {
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
 
-  val host: String
   val appName: String
   val baseInternalCallbackUrl: String
   val baseExternalCallbackUrl: String
@@ -60,7 +59,8 @@ trait AppConfig {
   val contactHost: String
   val contactFormServiceIdentifier: String
   val exitSurveyUrl: String
-  def requestUri(implicit request: RequestHeader): String = SafeRedirectUrl(host + request.uri).encodedUrl
+  def requestUri(implicit request: RequestHeader): String =
+    SafeRedirectUrl(baseExternalCallbackUrl + request.uri).encodedUrl
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
 
@@ -73,12 +73,10 @@ trait AppConfig {
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
-  override val host: String = config.getString("host")
-
   override val appName: String = config.getString("appName")
 
-  override val baseExternalCallbackUrl: String = config.getString("urls.callback.internal")
-  override val baseInternalCallbackUrl: String = config.getString("urls.callback.external")
+  override val baseExternalCallbackUrl: String = config.getString("urls.callback.external")
+  override val baseInternalCallbackUrl: String = config.getString("urls.callback.internal")
   override val authBaseUrl: String = config.baseUrl("auth")
   override val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
   override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
