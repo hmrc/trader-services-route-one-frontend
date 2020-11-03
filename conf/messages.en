@@ -451,10 +451,11 @@ error.uploadAnotherFile.required=Select yes if you want to upload another docume
 # ----------------------------------------------------------
 view.create-case-confirmation.title=You''ve submitted your documents
 view.create-case-confirmation.heading=You''ve submitted your documents
-view.create-case-confirmation.reference=Save your case reference number:
+view.create-case-confirmation.reference=Your case reference number:
+view.create-case-confirmation.save.heading=Save your case reference number
+view.create-case-confirmation.save.description=You might need it if you contact us with any queries.
 view.create-case-confirmation.next.heading=Next steps
-view.create-case-confirmation.next.description.1=When the document checks are complete and your goods can be cleared, you will hear from us through CHIEF or your declaration software.
-view.create-case-confirmation.next.description.2=If we need to ask for further documents we''ll let you know by sending a message through CHIEF or your declaration software. You will need to provide your case reference number to send extra documents.
+view.create-case-confirmation.next.description=You will hear from us soon via CHIEF or your declaration software.
 view.create-case-confirmation.continue=Submit documents for a new case
 view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">pre-clearance checks</a> or <a href="#">C1601, C1602, C1603 forms</a>.
 

@@ -739,7 +739,7 @@ class TraderServicesFrontendController @Inject() (
           else
             views.fileUploadedSummaryView(
               fileUploads,
-              workInProgresDeadEndCall,
+              routes.TraderServicesFrontendController.createCase,
               routes.TraderServicesFrontendController.removeFileUploadByReference,
               backLinkToMostRecent[State.SummaryState](breadcrumbs)
             )

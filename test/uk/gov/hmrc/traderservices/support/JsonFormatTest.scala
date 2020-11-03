@@ -33,6 +33,18 @@ abstract class JsonFormatTest[A: Format](info: Informer) {
     Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json.filter(_ >= ' ')
   }
 
+  def validateJsonReads(value: String, entity: A): Assertion = {
+    info(nameOf(entity))
+    val json = s"""{"entity":${if (value.startsWith("{")) value else s""""$value""""}}"""
+    Json.parse(json).as[TestEntity].entity shouldBe entity
+  }
+
+  def validateJsonWrites(value: String, entity: A): Assertion = {
+    info(nameOf(entity))
+    val json = s"""{"entity":${if (value.startsWith("{")) value else s""""$value""""}}"""
+    Json.stringify(Json.toJson(TestEntity(entity))) shouldBe json.filter(_ >= ' ')
+  }
+
   val localPackagePrefix = "class uk.gov.hmrc.traderservices."
 
   def nameOf(entity: A): String = {

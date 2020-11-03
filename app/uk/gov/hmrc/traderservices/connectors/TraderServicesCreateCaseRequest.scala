@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Json
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, QuestionsAnswers, UploadedFile}
 
-case class TraderServicesCreateCaseResponse(
-  // Identifier associated with a request,
-  correlationId: String,
-  // Represents an error occurred
-  error: Option[ApiError] = None,
-  // Represents the result
-  result: Option[String] = None
+case class TraderServicesCreateCaseRequest(
+  declarationDetails: DeclarationDetails,
+  questionsAnswers: QuestionsAnswers,
+  uploadedFiles: Seq[UploadedFile]
 )
 
-object TraderServicesCreateCaseResponse {
-  implicit val formats: Format[TraderServicesCreateCaseResponse] =
-    Json.format[TraderServicesCreateCaseResponse]
+object TraderServicesCreateCaseRequest {
+  implicit val formats = Json.format[TraderServicesCreateCaseRequest]
 }

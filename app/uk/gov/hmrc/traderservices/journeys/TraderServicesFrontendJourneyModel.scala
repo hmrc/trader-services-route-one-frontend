@@ -222,7 +222,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     case class CreateCaseConfirmation(
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
-      fileUploads: FileUploads,
+      uploadedFiles: Seq[UploadedFile],
       caseReferenceId: String
     ) extends State
 
@@ -879,7 +879,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def createCase(user: String) =
       Transition {
         case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
-          goto(CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads, "TBC"))
+          goto(CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles, "TBC"))
       }
   }
 

@@ -51,6 +51,32 @@ class UpscanNotificationFormatSpec extends UnitSpec {
       )
     }
 
+    "deserialize UpscanFileReady with encoded word" in new JsonFormatTest[UpscanNotification](info) {
+      validateJsonReads(
+        """{
+          |"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d",
+          |"fileStatus":"READY",
+          |"downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadDetails":{
+          |"uploadTimestamp":"2018-04-24T09:30:00Z",
+          |"checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+          |"fileName":"=?UTF-8?Q?sample=5F640=C3=97426.tiff?=",
+          |"fileMimeType":"application/pdf"
+          |}
+          |}""".stripMargin,
+        UpscanFileReady(
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "sample_640×426.tiff",
+            fileMimeType = "application/pdf"
+          )
+        )
+      )
+    }
+
     "serialize and deserialize UpscanFileFailed when QUARANTINE" in new JsonFormatTest[UpscanNotification](info) {
       validateJsonFormat(
         """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"FAILED","failureDetails":{"failureReason":"QUARANTINE","message":"e.g. This file has a virus"}}""",

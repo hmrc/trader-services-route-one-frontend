@@ -17,13 +17,10 @@
 package uk.gov.hmrc.traderservices.models
 
 import java.time.ZonedDateTime
-import play.api.libs.json.{Format, Json}
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsError
-import play.api.libs.json.Writes
-import play.api.libs.json.Reads
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsString
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
+import javax.mail.internet.MimeUtility
+import scala.util.Try
 
 /** Upscan service notification */
 sealed trait UpscanNotification {
@@ -121,7 +118,20 @@ object UpscanNotification {
   case object UNKNOWN extends FailureReason
 
   object UploadDetails {
-    implicit val formats: Format[UploadDetails] = Json.format[UploadDetails]
+
+    implicit val formats: Format[UploadDetails] = Format(
+      ((__ \ "uploadTimestamp").read[ZonedDateTime] and
+        (__ \ "checksum").read[String] and
+        (__ \ "fileName").read[String].map(decodeMimeEncodedWord) and
+        (__ \ "fileMimeType").read[String])(UploadDetails.apply _),
+      ((__ \ "uploadTimestamp").write[ZonedDateTime] and
+        (__ \ "checksum").write[String] and
+        (__ \ "fileName").write[String] and
+        (__ \ "fileMimeType").write[String])(unlift(UploadDetails.unapply))
+    )
+
+    def decodeMimeEncodedWord(word: String): String =
+      Try(MimeUtility.decodeWord(word)).getOrElse(word)
   }
 
   object FailureDetails {

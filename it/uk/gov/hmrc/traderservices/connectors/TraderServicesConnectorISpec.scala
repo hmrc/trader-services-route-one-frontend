@@ -1,121 +1,48 @@
 package uk.gov.hmrc.traderservices.connectors
 
-import java.time.{LocalDate, ZoneId}
-
 import play.api.Application
-import uk.gov.hmrc.domain.Nino
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.stubs.TraderServicesStubs
+import uk.gov.hmrc.traderservices.stubs.TraderServicesApiStubs
 import uk.gov.hmrc.traderservices.support.AppISpec
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.traderservices.support.TestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+import java.time.ZonedDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
-class TraderServicesConnectorISpec extends TraderServicesConnectorISpecSetup {
+class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSetup {
 
   "TraderServicesApiConnector" when {
 
-    "someApi" should {
+    "createCase" should {
 
-      "return status when range provided" in {
-        givenSomeApiRequestSucceeds()
+      "return case reference id" in {
+        givenCreateCaseApiRequestSucceeds()
 
-        val result: TraderServicesApiResponse =
-          await(connector.someApi(request))
+        val result: TraderServicesCreateCaseResponse =
+          await(connector.createCase(request))
 
-        result.result shouldBe defined
+        result.result shouldBe Some("1234567890")
         result.error shouldBe None
       }
 
-      "return status when no range provided" in {
-        givenSomeApiRequestSucceeds()
+      "throw an exception if 5xx response" in {
+        givenCreateCaseApiStub(500, validRequestOfCreateCaseApi(), "")
 
-        val result: TraderServicesApiResponse =
-          await(connector.someApi(request))
-
-        result.result shouldBe defined
-        result.error shouldBe None
-      }
-
-      "return check error when 400 response ERR_REQUEST_INVALID" in {
-        givenSomeApiErrorWhenMissingInputField()
-
-        val result: TraderServicesApiResponse =
-          await(connector.someApi(request))
-
-        result.result shouldBe None
-        result.error shouldBe defined
-        result.error.get.errCode shouldBe "ERR_REQUEST_INVALID"
-      }
-
-      "return check error when 404 response ERR_NOT_FOUND" in {
-        givenSomeApiErrorWhenStatusNotFound()
-
-        val result: TraderServicesApiResponse =
-          await(connector.someApi(request))
-
-        result.result shouldBe None
-        result.error shouldBe defined
-        result.error.get.errCode shouldBe "ERR_NOT_FOUND"
-      }
-
-      "return check error when 400 response ERR_VALIDATION" in {
-        givenSomeApiErrorWhenDOBInvalid()
-
-        val result: TraderServicesApiResponse =
-          await(connector.someApi(request))
-
-        result.result shouldBe None
-        result.error shouldBe defined
-        result.error.get.errCode shouldBe "ERR_VALIDATION"
-      }
-
-      "throw exception if other 4xx response" in {
-        givenSomeApiStub(429, validRequestOfSomeApi(), "")
-
-        an[TraderServicesProxyError] shouldBe thrownBy {
-          await(connector.someApi(request))
+        an[TraderServicesApiError] shouldBe thrownBy {
+          await(connector.createCase(request))
         }
       }
-
-      "throw exception if 5xx response" in {
-        givenSomeApiStub(500, validRequestOfSomeApi(), "")
-
-        an[TraderServicesProxyError] shouldBe thrownBy {
-          await(connector.someApi(request))
-        }
-      }
-    }
-  }
-
-  val errorGenerator: HttpErrorFunctions = new HttpErrorFunctions {}
-
-  "extractResponseBody" should {
-    "return the json notFoundMessage if the prefix present" in {
-      val responseBody = """{"bar":"foo"}"""
-      val errorMessage = errorGenerator.notFoundMessage("GET", "/test/foo/bar", responseBody)
-      TraderServicesApiConnector
-        .extractResponseBody(errorMessage, "Response body: '") shouldBe responseBody
-    }
-
-    "return the json badRequestMessage if the prefix present" in {
-      val responseBody = """{"bar":"foo"}"""
-      val errorMessage = errorGenerator.badRequestMessage("GET", "/test/foo/bar", responseBody)
-      TraderServicesApiConnector
-        .extractResponseBody(errorMessage, "Response body '") shouldBe responseBody
-    }
-
-    "return the whole message if prefix missing" in {
-      val responseBody = """{"bar":"foo"}"""
-      val errorMessage = errorGenerator.notFoundMessage("GET", "/test/foo/bar", responseBody)
-      TraderServicesApiConnector
-        .extractResponseBody(errorMessage, "::: '") shouldBe s"""{"error":{"errCode":"$errorMessage"}}"""
     }
   }
 
 }
 
-trait TraderServicesConnectorISpecSetup extends AppISpec with TraderServicesStubs {
+trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesApiStubs {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -124,10 +51,20 @@ trait TraderServicesConnectorISpecSetup extends AppISpec with TraderServicesStub
   lazy val connector: TraderServicesApiConnector =
     app.injector.instanceOf[TraderServicesApiConnector]
 
-  val request = TraderServicesApiRequest(
-    Nino("RJ301829A"),
-    "Doe",
-    "Jane",
-    "2001-01-31"
-  )
+  def request = {
+    val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+    TraderServicesCreateCaseRequest(
+      declarationDetails = TestData.exportDeclarationDetails,
+      questionsAnswers = TestData.fullExportQuestions(dateTimeOfArrival),
+      uploadedFiles = Seq(
+        UploadedFile(
+          "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
+          "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+          "test.pdf",
+          "application/pdf"
+        )
+      )
+    )
+  }
 }

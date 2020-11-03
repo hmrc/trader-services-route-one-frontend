@@ -40,7 +40,7 @@ import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesProxyError
+import uk.gov.hmrc.traderservices.connectors.TraderServicesApiError
 import uk.gov.hmrc.traderservices.views.html.components.h1
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
 import uk.gov.hmrc.play.HeaderCarrierConverter
@@ -74,10 +74,10 @@ class ErrorHandler @Inject() (
     auditServerError(request, exception)
     implicit val r = Request(request, "")
     exception match {
-      case _: NoActiveSession          => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments   => Forbidden
-      case _: TraderServicesProxyError => Ok(externalErrorTemplate())
-      case _                           => Ok(internalErrorTemplate())
+      case _: NoActiveSession        => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
+      case _: InsufficientEnrolments => Forbidden
+      case _: TraderServicesApiError => Ok(externalErrorTemplate())
+      case _                         => Ok(internalErrorTemplate())
     }
   }
 
