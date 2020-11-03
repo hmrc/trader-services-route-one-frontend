@@ -42,8 +42,7 @@
         label = "form.export-questions.vessel-details.vesselNameOptional",
         isPageHeading = false,
         isInFieldset = true,
-        classes = Some("govuk-input--width-20"),
-        attributes = Map("maxlength" -> "128")
+        classes = Some("govuk-input--width-20")
       )
 
       @forms.inputDate(
@@ -53,9 +52,9 @@
         legendClasses = "",
         legendAsPageHeading = false,
         hintText = None,
-        attributesDay = Map("aria-label" -> "Day of arrival date", "maxlength" -> "2"),
-        attributesMonth = Map("aria-label" -> "Month of arrival date", "maxlength" -> "2"),
-        attributesYear = Map("aria-label" -> "Year of arrival date", "maxlength" -> "4")
+        attributesDay = Map("aria-label" -> "Day of arrival date"),
+        attributesMonth = Map("aria-label" -> "Month of arrival date"),
+        attributesYear = Map("aria-label" -> "Year of arrival date")
       )
 
       @forms.inputTime(
@@ -64,8 +63,8 @@
         legendContent = "form.export-questions.vessel-details.timeOfArrivalOptional",
         legendClasses = "",
         legendAsPageHeading = false,
-        attributesHour = Map("aria-label" -> "Hour of arrival time", "maxlength" -> "2"),
-        attributesMinutes = Map("aria-label" -> "Minutes of arrival time", "maxlength" -> "2"),
+        attributesHour = Map("aria-label" -> "Hour of arrival time"),
+        attributesMinutes = Map("aria-label" -> "Minutes of arrival time"),
         attributesPeriod = Map("aria-label" -> "Day period of arrival time"),
         showSelectPeriod = false,
         hintText = Some("form.export-questions.vessel-details.timeOfArrivalOptional.hint")
