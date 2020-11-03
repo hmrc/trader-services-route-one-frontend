@@ -29,13 +29,13 @@
 @govukLayout(
   pageTitle = Some(messages("view.create-case-confirmation.title")),
   backLink = None) {
-  
+
     <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">
             @messages("view.create-case-confirmation.heading")
         </h1>
         <div class="govuk-panel__body">
-            <div>@messages("view.create-case-confirmation.reference")</div>
+            @messages("view.create-case-confirmation.reference")<br>
             <strong>@caseReferenceId</strong>
         </div>
     </div>
@@ -55,6 +55,6 @@
     @html.p {
       @Html(messages("view.create-case-confirmation.footnote"))
     }
-  
+
 
 }
