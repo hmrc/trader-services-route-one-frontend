@@ -407,6 +407,16 @@ class TraderServicesFrontendController @Inject() (
     whenAuthorisedAsUser.showCurrentState
       .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
+  // POST /pre-clearance/create-case
+  def createCase: Action[AnyContent] =
+    whenAuthorisedAsUser.apply(Transitions.createCase)
+
+  // GET /pre-clearance/confirmation
+  def showCreateCaseConfirmation: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.CreateCaseConfirmation]
+      .andCleanBreadcrumbs() // forget journey history
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -484,6 +494,9 @@ class TraderServicesFrontendController @Inject() (
 
       case _: FileUploaded =>
         routes.TraderServicesFrontendController.showFileUploaded()
+
+      case _: CreateCaseConfirmation =>
+        routes.TraderServicesFrontendController.showCreateCaseConfirmation()
 
       case _ =>
         workInProgresDeadEndCall
@@ -730,6 +743,14 @@ class TraderServicesFrontendController @Inject() (
               routes.TraderServicesFrontendController.removeFileUploadByReference,
               backLinkToMostRecent[State.SummaryState](breadcrumbs)
             )
+        )
+
+      case CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads, caseReferenceId) =>
+        Ok(
+          views.createCaseConfirmationView(
+            caseReferenceId,
+            routes.TraderServicesFrontendController.showEnterDeclarationDetails()
+          )
         )
 
       case _ => NotImplemented

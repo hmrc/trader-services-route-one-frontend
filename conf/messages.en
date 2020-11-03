@@ -447,6 +447,17 @@ error.file-upload.unknown=The selected file could not be uploaded
 error.file-upload.try-again=The selected file could not be uploaded - try again
 error.uploadAnotherFile.required=Select yes if you want to upload another document
 
+# Confirmation messages
+# ----------------------------------------------------------
+view.create-case-confirmation.title=You''ve submitted your documents
+view.create-case-confirmation.heading=You''ve submitted your documents
+view.create-case-confirmation.reference=Save your case reference number:
+view.create-case-confirmation.next.heading=Next steps
+view.create-case-confirmation.next.description.1=When the document checks are complete and your goods can be cleared, you will hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.description.2=If we need to ask for further documents we''ll let you know by sending a message through CHIEF or your declaration software. You will need to provide your case reference number to send extra documents.
+view.create-case-confirmation.continue=Submit documents for a new case
+view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">pre-clearance checks</a> or <a href="#">C1601, C1602, C1603 forms</a>.
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:

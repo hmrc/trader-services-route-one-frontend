@@ -1491,6 +1491,92 @@ class TraderServicesFrontendISpec
           fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
       }
+
+      "POST /pre-clearance/create-case" should {
+        "create case and show the confirmation page" in {
+          implicit val journeyId: JourneyId = JourneyId()
+          val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+          journey.setState(
+            FileUploaded(
+              TestData.exportDeclarationDetails,
+              TestData.fullExportQuestions(dateTimeOfArrival),
+              FileUploads(files =
+                Seq(
+                  FileUpload.Accepted(
+                    1,
+                    "foo-bar-ref-1",
+                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                    "test.pdf",
+                    "application/pdf"
+                  )
+                )
+              ),
+              acknowledged = true
+            )
+          )
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/pre-clearance/create-case").post(""))
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+          journey.getState shouldBe CreateCaseConfirmation(
+            TestData.exportDeclarationDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            "TBC"
+          )
+        }
+      }
+
+      "GET /pre-clearance/confirmation" should {
+        "show the confirmation page" in {
+          implicit val journeyId: JourneyId = JourneyId()
+          val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+          val state = CreateCaseConfirmation(
+            TestData.exportDeclarationDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            "TBC"
+          )
+          journey.setState(state)
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/pre-clearance/confirmation").get)
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+          journey.getState shouldBe state
+        }
+      }
     }
 
     "return file verification status" in {
