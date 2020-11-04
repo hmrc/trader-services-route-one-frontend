@@ -812,7 +812,7 @@ class TraderServicesFrontendISpec
     }
 
     "POST /pre-clearance/import-questions/request-type" should {
-      "submit the form and ask next for route type if not Hold" in {
+      "submit the form and ask next for route type" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsRequestType(
@@ -1178,36 +1178,38 @@ class TraderServicesFrontendISpec
         )
       }
 
-//      "submit selected transport type and ask next for mandatory vessel details" in {
-//        implicit val journeyId: JourneyId = JourneyId()
-//        journey.setState(
-//          AnswerImportQuestionsFreightType(
-//            ImportQuestionsStateModel(
-//              DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-//              ImportQuestions(
-//                requestType = Some(ImportRequestType.New)
-//              )
-//            )
-//          )
-//        )
-//        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-//
-//        val payload = Map("freightType" -> "Maritime")
-//
-//        val result = await(request("/pre-clearance/import-questions/transport-type").post(payload))
-//
-//        result.status shouldBe 200
-//
-//        journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
-//          ImportQuestionsStateModel(
-//            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
-//            ImportQuestions(
-//              requestType = Some(ImportRequestType.New),
-//              freightType = Some(ImportFreightType.Maritime)
-//            )
-//          )
-//        )
-//      }
+      "submit selected transport type and ask next for mandatory vessel details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsFreightType(
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+              ImportQuestions(
+                routeType = Some(ImportRouteType.Hold),
+                requestType = Some(ImportRequestType.New)
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "Maritime")
+
+        val result = await(request("/pre-clearance/import-questions/transport-type").post(payload))
+
+        result.status shouldBe 200
+
+        journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            ImportQuestions(
+              routeType = Some(ImportRouteType.Hold),
+              requestType = Some(ImportRequestType.New),
+              freightType = Some(ImportFreightType.Maritime)
+            )
+          )
+        )
+      }
     }
   }
 
