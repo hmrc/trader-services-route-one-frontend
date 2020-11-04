@@ -26,7 +26,8 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
   "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.51.0-play-26",
   "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.20.0-play-26",
-  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.11"
+  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.11",
+  "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )
 
 def testDeps(scope: String) =

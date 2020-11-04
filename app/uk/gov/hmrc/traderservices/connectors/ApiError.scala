@@ -19,8 +19,7 @@ package uk.gov.hmrc.traderservices.connectors
 import play.api.libs.json.{Format, Json}
 
 case class ApiError(
-  // Top level error code
-  errCode: String
+  errorCode: String
 )
 
 object ApiError {

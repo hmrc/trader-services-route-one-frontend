@@ -13,8 +13,9 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
+import uk.gov.hmrc.traderservices.support.TestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.temporal.ChronoField
@@ -24,7 +25,7 @@ import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
 
 class TraderServicesFrontendISpec
-    extends TraderServicesFrontendISpecSetup with TraderServicesStubs with UpscanInitiateStubs {
+    extends TraderServicesFrontendISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.State._
 
@@ -1491,6 +1492,84 @@ class TraderServicesFrontendISpec
           fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
       }
+
+      "POST /pre-clearance/create-case" should {
+        "create case and show the confirmation page" in {
+          implicit val journeyId: JourneyId = JourneyId()
+          val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+          journey.setState(
+            FileUploaded(
+              TestData.exportDeclarationDetails,
+              TestData.fullExportQuestions(dateTimeOfArrival),
+              FileUploads(files =
+                Seq(
+                  FileUpload.Accepted(
+                    1,
+                    "foo-bar-ref-1",
+                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                    "test.pdf",
+                    "application/pdf"
+                  )
+                )
+              ),
+              acknowledged = true
+            )
+          )
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/pre-clearance/create-case").post(""))
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+          journey.getState shouldBe CreateCaseConfirmation(
+            TestData.exportDeclarationDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Seq(
+              UploadedFile(
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            ),
+            "TBC"
+          )
+        }
+      }
+
+      "GET /pre-clearance/confirmation" should {
+        "show the confirmation page" in {
+          implicit val journeyId: JourneyId = JourneyId()
+          val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+          val state = CreateCaseConfirmation(
+            TestData.exportDeclarationDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Seq(
+              UploadedFile(
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            ),
+            "TBC"
+          )
+          journey.setState(state)
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/pre-clearance/confirmation").get)
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+          result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+          journey.getState shouldBe state
+        }
+      }
     }
 
     "return file verification status" in {
@@ -1604,48 +1683,5 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
         )
       )
   }
-
-}
-
-object TestData {
-
-  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
-  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
-  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
-
-  def fullExportQuestions(dateTimeOfArrival: LocalDateTime) =
-    ExportQuestions(
-      requestType = Some(ExportRequestType.New),
-      routeType = Some(ExportRouteType.Route3),
-      hasPriorityGoods = Some(true),
-      priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-      freightType = Some(ExportFreightType.Air),
-      vesselDetails = Some(
-        VesselDetails(
-          vesselName = Some("Foo"),
-          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-        )
-      ),
-      contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
-    )
-
-  def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
-    ImportQuestions(
-      requestType = Some(ImportRequestType.New),
-      routeType = Some(ImportRouteType.Route3),
-      hasPriorityGoods = Some(true),
-      priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
-      hasALVS = Some(true),
-      freightType = Some(ImportFreightType.Air),
-      contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
-      vesselDetails = Some(
-        VesselDetails(
-          vesselName = Some("Foo"),
-          dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-          timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
-        )
-      )
-    )
 
 }

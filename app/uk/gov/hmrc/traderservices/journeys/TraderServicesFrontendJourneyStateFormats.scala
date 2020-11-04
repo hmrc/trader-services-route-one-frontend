@@ -46,6 +46,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
   val uploadFileFormat = Json.format[UploadFile]
   val fileUploadedFormat = Json.format[FileUploaded]
   val waitingForFileVerificationFormat = Json.format[WaitingForFileVerification]
+  val createCaseConfirmationFormat = Json.format[CreateCaseConfirmation]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterDeclarationDetails                  => enterDeclarationDetailsFormat.writes(s)
@@ -71,6 +72,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
     case s: UploadFile                               => uploadFileFormat.writes(s)
     case s: FileUploaded                             => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification               => waitingForFileVerificationFormat.writes(s)
+    case s: CreateCaseConfirmation                   => createCaseConfirmationFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
@@ -101,6 +103,7 @@ object TraderServicesFrontendJourneyStateFormats extends JsonStateFormats[State]
       case "UploadFile"                       => uploadFileFormat.reads(properties)
       case "FileUploaded"                     => fileUploadedFormat.reads(properties)
       case "WaitingForFileVerification"       => waitingForFileVerificationFormat.reads(properties)
+      case "CreateCaseConfirmation"           => createCaseConfirmationFormat.reads(properties)
       case "WorkInProgressDeadEnd"            => JsSuccess(WorkInProgressDeadEnd)
       case _                                  => JsError(s"Unknown state name $stateName")
     }

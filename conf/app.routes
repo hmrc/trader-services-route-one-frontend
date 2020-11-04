@@ -52,6 +52,9 @@ GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc
 POST       /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitUploadAnotherFileChoice
 GET        /pre-clearance/file-uploaded/:reference/remove           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.removeFileUploadByReference(reference: String)
 
+POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.createCase
+GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showCreateCaseConfirmation
+
 + nocsrf
 POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.callbackFromUpscan(journeyId: String)
 

@@ -11,6 +11,8 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   override val traderServicesApiBaseUrl: String = wireMockBaseUrl
   override val upscanInitiateBaseUrl: String = wireMockBaseUrl
 
+  override val createCaseApiPath: String = "/create-case"
+
   override val mongoSessionExpiryTime: Int = 3600
   override val authorisedStrideGroup: String = "TBC"
 

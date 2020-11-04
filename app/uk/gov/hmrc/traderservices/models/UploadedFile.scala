@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.connectors
+package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, Json}
+import java.time.ZonedDateTime
+import play.api.libs.json.Format
+import play.api.libs.json.Json
 
-case class TraderServicesCreateCaseResponse(
-  // Identifier associated with a request,
-  correlationId: String,
-  // Represents an error occurred
-  error: Option[ApiError] = None,
-  // Represents the result
-  result: Option[String] = None
+case class UploadedFile(
+  downloadUrl: String,
+  uploadTimestamp: ZonedDateTime,
+  checksum: String,
+  fileName: String,
+  fileMimeType: String
 )
 
-object TraderServicesCreateCaseResponse {
-  implicit val formats: Format[TraderServicesCreateCaseResponse] =
-    Json.format[TraderServicesCreateCaseResponse]
+object UploadedFile {
+  implicit val formats: Format[UploadedFile] = Json.format[UploadedFile]
 }

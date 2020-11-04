@@ -48,10 +48,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
       importQuestions.requestType.contains(ImportRequestType.Hold)
 
-    val maxFileUploadsNumber = 3
+    val maxFileUploadsNumber: Int = 10
 
   }
 
+  /** All the possible states the journey can take. */
   object State {
 
     /** Root state of the journey. */
@@ -218,6 +219,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       acknowledged: Boolean = false
     ) extends FileUploadState
 
+    case class CreateCaseConfirmation(
+      declarationDetails: DeclarationDetails,
+      questionsAnswers: QuestionsAnswers,
+      uploadedFiles: Seq[UploadedFile],
+      caseReferenceId: String
+    ) extends State
+
   }
 
   /** Functions responsible of preserving the model when walking the journey backward. */
@@ -280,6 +288,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       }
   }
 
+  /** This is where things happen a.k.a bussiness logic of the service. */
   object Transitions {
     import State._
 
@@ -846,7 +855,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
               .apply(current)
           else
-            goto(WorkInProgressDeadEnd)
+            createCase(user).apply(current)
       }
 
     def removeFileUploadByReference(reference: String)(
@@ -866,18 +875,25 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           else
             goto(updatedCurrentState)
       }
+
+    def createCase(user: String) =
+      Transition {
+        case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
+          goto(CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles, "TBC"))
+      }
   }
 
+  /** Set of typeclasses with instances supplying generic set model function. */
   object Setters {
     import State._
 
     /** Typeclass of exportQuestionsStateModel setters */
-    trait SetExportQuestionsStateModel[S <: State] {
+    sealed trait SetExportQuestionsStateModel[S <: State] {
       def set(state: S, exportQuestionsStateModel: ExportQuestionsStateModel): S
     }
 
-    /** Typeclass of importQuestions setters */
-    trait SetImportQuestionsStateModel[S <: State] {
+    /** Typeclass of importQuestionsStateModel setters */
+    sealed trait SetImportQuestionsStateModel[S <: State] {
       def set(state: S, importQuestionsStateModel: ImportQuestionsStateModel): S
     }
 

@@ -17,14 +17,11 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import java.net.URL
-import java.util.UUID
 
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
-import uk.gov.hmrc.traderservices.connectors.TraderServicesApiConnector.extractResponseBody
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -35,52 +32,26 @@ import scala.concurrent.{ExecutionContext, Future}
 class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
     extends HttpAPIMonitor {
 
-  val HEADER_X_CORRELATION_ID = "X-Correlation-Id"
-
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
-  val someApiPath = "/v1/some-api"
+  val createCaseApiPath = appConfig.createCaseApiPath
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
-  def someApi(
-    request: TraderServicesApiRequest
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesApiResponse] =
-    monitor(s"ConsumedAPI-trader-services-some-api-POST") {
+  def createCase(
+    request: TraderServicesCreateCaseRequest
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCreateCaseResponse] =
+    monitor(s"ConsumedAPI-trader-services-create-case-api-POST") {
       http
-        .POST[TraderServicesApiRequest, TraderServicesApiResponse](
-          new URL(baseUrl + someApiPath).toExternalForm,
+        .POST[TraderServicesCreateCaseRequest, TraderServicesCreateCaseResponse](
+          new URL(baseUrl + createCaseApiPath).toExternalForm,
           request
-        )(
-          implicitly[Writes[TraderServicesApiRequest]],
-          implicitly[HttpReads[TraderServicesApiResponse]],
-          hc.withExtraHeaders(HEADER_X_CORRELATION_ID -> UUID.randomUUID().toString),
-          implicitly[ExecutionContext]
         )
-        .recover {
-          case UpstreamErrorResponse.Upstream4xxResponse(e) if e.statusCode == 400 =>
-            Json.parse(extractResponseBody(e.message, "Response body: '")).as[TraderServicesApiResponse]
-          case UpstreamErrorResponse.Upstream4xxResponse(e) if e.statusCode == 404 =>
-            Json.parse(extractResponseBody(e.message, "Response body: '")).as[TraderServicesApiResponse]
-          case UpstreamErrorResponse.Upstream4xxResponse(e) if e.statusCode == 409 =>
-            Json.parse(extractResponseBody(e.message, "Response body: '")).as[TraderServicesApiResponse]
-        }
         .recoverWith {
           case e: Throwable =>
-            Future.failed(TraderServicesProxyError(e))
+            Future.failed(TraderServicesApiError(e))
         }
     }
 
 }
 
-object TraderServicesApiConnector {
-
-  def extractResponseBody(message: String, prefix: String): String = {
-    val pos = message.indexOf(prefix)
-    val body =
-      if (pos >= 0) message.substring(pos + prefix.length, message.length - 1)
-      else s"""{"error":{"errCode":"$message"}}"""
-    body
-  }
-}
-
-case class TraderServicesProxyError(e: Throwable) extends RuntimeException(e)
+case class TraderServicesApiError(e: Throwable) extends RuntimeException(e)

@@ -30,6 +30,12 @@ case class FileUploads(
     files
       .count { case _: FileUpload.Accepted => true; case _ => false }
 
+  def toUploadedFiles: Seq[UploadedFile] =
+    files.collect {
+      case f: FileUpload.Accepted =>
+        UploadedFile(f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType)
+    }
+
 }
 
 object FileUploads {
