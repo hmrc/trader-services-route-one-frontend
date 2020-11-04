@@ -47,7 +47,7 @@ trait TraderServicesApiStubs {
 
   def givenCreateCaseApiStub(httpResponseCode: Int, requestBody: String, responseBody: String): StubMapping =
     stubFor(
-      post(urlEqualTo(s"/v1/create-case"))
+      post(urlEqualTo(s"/create-case"))
         .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
         .withRequestBody(equalToJson(requestBody, true, true))
         .willReturn(
@@ -60,7 +60,7 @@ trait TraderServicesApiStubs {
 
   def givenCreateCaseApiErrorStub(httpResponseCode: Int, requestBody: String): StubMapping =
     stubFor(
-      post(urlEqualTo(s"/v1/create-case"))
+      post(urlEqualTo(s"/create-case"))
         .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
         .withRequestBody(equalToJson(requestBody, true, true))
         .willReturn(

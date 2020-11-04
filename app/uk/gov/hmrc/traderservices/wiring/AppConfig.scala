@@ -40,6 +40,8 @@ trait AppConfig {
   val traderServicesApiBaseUrl: String
   val upscanInitiateBaseUrl: String
 
+  val createCaseApiPath: String
+
   val mongoSessionExpiryTime: Int
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
@@ -80,6 +82,9 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val authBaseUrl: String = config.baseUrl("auth")
   override val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
   override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
+
+  override val createCaseApiPath: String =
+    config.getConfString("trader-services-api.paths.create-case", "/create-case")
 
   override val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
 

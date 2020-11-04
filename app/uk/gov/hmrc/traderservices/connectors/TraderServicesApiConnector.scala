@@ -33,7 +33,7 @@ class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet 
     extends HttpAPIMonitor {
 
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
-  val createCaseApiPath = "/v1/create-case"
+  val createCaseApiPath = appConfig.createCaseApiPath
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
