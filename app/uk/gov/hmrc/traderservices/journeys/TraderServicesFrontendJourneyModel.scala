@@ -22,6 +22,8 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -533,14 +535,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           )
       }
 
-    type UpscanInitiate = UpscanInitiateRequest => Future[UpscanInitiateResponse]
+    type UpscanInitiateApi = UpscanInitiateRequest => Future[UpscanInitiateResponse]
 
     def initiateFileUpload(
       callbackUrl: String,
       successRedirect: String,
       errorRedirect: String,
       maxFileSizeMb: Int
-    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case ExportQuestionsSummary(model) =>
           val fileUploads = model.fileUploadsOpt.getOrElse(FileUploads())
@@ -843,19 +845,23 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       }
     }
 
+    type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCreateCaseResponse]
+
     def submitedUploadAnotherFileChoice(
       callbackUrl: String,
       successRedirect: String,
       errorRedirect: String,
       maxFileSizeMb: Int
-    )(upscanInitiate: UpscanInitiate)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
+    )(
+      upscanInitiate: UpscanInitiateApi
+    )(createCaseApi: CreateCaseApi)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
       Transition {
         case current @ FileUploaded(declarationDetails, questionsAnswers, fileUploads, acknowledged) =>
           if (uploadAnotherFile && fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
             initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
               .apply(current)
           else
-            createCase(user).apply(current)
+            createCase(createCaseApi)(user).apply(current)
       }
 
     def removeFileUploadByReference(reference: String)(
@@ -863,7 +869,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       successRedirect: String,
       errorRedirect: String,
       maxFileSizeMb: Int
-    )(upscanInitiate: UpscanInitiate)(user: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case current: FileUploaded =>
           val updatedFileUploads = current.fileUploads
@@ -876,10 +882,24 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             goto(updatedCurrentState)
       }
 
-    def createCase(user: String) =
+    def createCase(createCaseApi: CreateCaseApi)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
-          goto(CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles, "TBC"))
+          val request =
+            TraderServicesCreateCaseRequest(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles)
+          createCaseApi(request).flatMap { response =>
+            if (response.result.isDefined)
+              goto(
+                CreateCaseConfirmation(
+                  declarationDetails,
+                  questionsAnswers,
+                  fileUploads.toUploadedFiles,
+                  response.result.get
+                )
+              )
+            else
+              fail(new RuntimeException(response.error.map(_.errorCode).getOrElse("unknown")))
+          }
       }
   }
 

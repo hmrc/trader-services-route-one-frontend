@@ -336,7 +336,7 @@ class TraderServicesFrontendController @Inject() (
       }
       .redirectOrDisplayIf[State.UploadFile]
 
-  // GET
+  // GET /pre-clearance/file-rejected
   val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
@@ -379,9 +379,7 @@ class TraderServicesFrontendController @Inject() (
           successRedirect,
           errorRedirect,
           appConfig.fileFormats.maxFileSizeMb
-        )(
-          upscanInitiateConnector.initiate(_)
-        ) _
+        )(upscanInitiateConnector.initiate(_))(traderServicesApiConnector.createCase(_)) _
       }
 
   // GET /pre-clearance/file-uploaded/:reference/remove
@@ -409,7 +407,10 @@ class TraderServicesFrontendController @Inject() (
 
   // POST /pre-clearance/create-case
   def createCase: Action[AnyContent] =
-    whenAuthorisedAsUser.apply(Transitions.createCase)
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        Transitions.createCase(traderServicesApiConnector.createCase(_))
+      }
 
   // GET /pre-clearance/confirmation
   def showCreateCaseConfirmation: Action[AnyContent] =
