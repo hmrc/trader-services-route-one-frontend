@@ -22,7 +22,6 @@ object ImportRequestType extends EnumerationFormats[ImportRequestType] {
 
   case object New extends ImportRequestType
   case object Cancellation extends ImportRequestType
-  case object Hold extends ImportRequestType
 
-  val values: Set[ImportRequestType] = Set(New, Cancellation, Hold)
+  val values: Set[ImportRequestType] = Set(New, Cancellation)
 }

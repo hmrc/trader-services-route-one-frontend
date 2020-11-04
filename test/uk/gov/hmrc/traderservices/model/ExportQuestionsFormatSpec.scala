@@ -27,7 +27,6 @@ class ExportQuestionsFormatSpec extends UnitSpec {
     "serialize and deserialize ExportRequestType" in new JsonFormatTest[ExportRequestType](info) {
       validateJsonFormat("New", ExportRequestType.New)
       validateJsonFormat("Cancellation", ExportRequestType.Cancellation)
-      validateJsonFormat("Hold", ExportRequestType.Hold)
       validateJsonFormat("C1601", ExportRequestType.C1601)
       validateJsonFormat("C1602", ExportRequestType.C1602)
       validateJsonFormat("C1603", ExportRequestType.C1603)

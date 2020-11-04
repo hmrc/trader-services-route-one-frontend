@@ -36,19 +36,14 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
   object Rules {
 
     val mandatoryVesselDetailsRequestTypes: Set[ExportRequestType] =
-      Set(ExportRequestType.Hold, ExportRequestType.C1601, ExportRequestType.C1602)
-
-    def shouldAskRouteQuestion(exportQuestions: ExportQuestions): Boolean =
-      exportQuestions.requestType.forall(_ != ExportRequestType.Hold)
+      Set(ExportRequestType.C1601, ExportRequestType.C1602)
 
     def isVesselDetailsAnswerMandatory(exportQuestions: ExportQuestions): Boolean =
-      exportQuestions.requestType.exists(mandatoryVesselDetailsRequestTypes.contains)
-
-    def shouldAskRouteQuestion(importQuestions: ImportQuestions): Boolean =
-      importQuestions.requestType.forall(_ != ImportRequestType.Hold)
+      exportQuestions.requestType.exists(mandatoryVesselDetailsRequestTypes.contains) || exportQuestions.routeType
+        .contains(ExportRouteType.Hold)
 
     def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
-      importQuestions.requestType.contains(ImportRequestType.Hold)
+      importQuestions.routeType.contains(ImportRouteType.Hold)
 
     val maxFileUploadsNumber: Int = 10
 
@@ -338,12 +333,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsRequestType(model) =>
           val updatedExportQuestions = model.exportQuestionsAnswers.copy(requestType = Some(exportRequestType))
-          if (Rules.shouldAskRouteQuestion(updatedExportQuestions))
-            goto(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
-          else
-            goto(
-              AnswerExportQuestionsHasPriorityGoods(model.updated(updatedExportQuestions.copy(routeType = None)))
-            )
+          goto(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
       }
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
@@ -431,13 +421,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerImportQuestionsRequestType(model) =>
           val updatedImportQuestions = model.importQuestionsAnswers.copy(requestType = Some(importRequestType))
-          if (Rules.shouldAskRouteQuestion(updatedImportQuestions))
-            goto(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
-          else
-            goto(
-              AnswerImportQuestionsHasPriorityGoods(model.updated(updatedImportQuestions.copy(routeType = None)))
-            )
-
+          goto(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
       }
 
     def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =

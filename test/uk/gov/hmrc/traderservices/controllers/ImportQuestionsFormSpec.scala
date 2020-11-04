@@ -39,7 +39,6 @@ class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
     "bind some requestType and return ImportRequestType and fill it back" in {
       val form = TraderServicesFrontendController.ImportRequestTypeForm
       validate(form, Map("requestType" -> "New"), ImportRequestType.New)
-      validate(form, Map("requestType" -> "Hold"), ImportRequestType.Hold)
       validate(form, Map("requestType" -> "Cancellation"), ImportRequestType.Cancellation)
       validate(form, "requestType", Map(), Seq("error.importRequestType.required"))
       validate(form, "requestType", Map("requestType" -> "Foo"), Seq("error.importRequestType.invalid-option"))

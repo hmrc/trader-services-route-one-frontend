@@ -168,7 +168,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate export requestType" in {
       exportRequestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ExportRequestType.New)
       exportRequestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ExportRequestType.Cancellation)
-      exportRequestTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ExportRequestType.Hold)
       exportRequestTypeMapping.bind(Map("" -> "C1601")) shouldBe Right(ExportRequestType.C1601)
       exportRequestTypeMapping.bind(Map("" -> "C1602")) shouldBe Right(ExportRequestType.C1602)
       exportRequestTypeMapping.bind(Map("" -> "C1603")) shouldBe Right(ExportRequestType.C1603)

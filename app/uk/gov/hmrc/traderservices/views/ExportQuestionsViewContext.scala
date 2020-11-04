@@ -42,7 +42,6 @@ class ExportQuestionsViewContext
         ExportRequestType.C1601,
         ExportRequestType.C1602,
         ExportRequestType.C1603,
-        ExportRequestType.Hold,
         ExportRequestType.WithdrawalOrReturn
       ),
       form
@@ -129,19 +128,17 @@ class ExportQuestionsViewContext
     )
 
     val routeTypeRows =
-      if (TraderServicesFrontendJourneyModel.Rules.shouldAskRouteQuestion(exportQuestions))
-        Seq(
-          summaryListRow(
-            label = "summary.export-questions.routeType",
-            value = exportQuestions.routeType
-              .flatMap(ExportRouteType.keyOf)
-              .map(key => messages(s"form.export-questions.routeType.$key"))
-              .getOrElse("-"),
-            visuallyHiddenText = Some("summary.export-questions.routeType"),
-            action = (TraderServicesFrontendController.showAnswerExportQuestionsRouteType, "site.change")
-          )
+      Seq(
+        summaryListRow(
+          label = "summary.export-questions.routeType",
+          value = exportQuestions.routeType
+            .flatMap(ExportRouteType.keyOf)
+            .map(key => messages(s"form.export-questions.routeType.$key"))
+            .getOrElse("-"),
+          visuallyHiddenText = Some("summary.export-questions.routeType"),
+          action = (TraderServicesFrontendController.showAnswerExportQuestionsRouteType, "site.change")
         )
-      else Seq.empty
+      )
 
     val hasPriorityGoodsRows = Seq(
       summaryListRow(

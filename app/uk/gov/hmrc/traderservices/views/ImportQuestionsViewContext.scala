@@ -38,8 +38,7 @@ class ImportQuestionsViewContext
       "requestType",
       Seq(
         ImportRequestType.New,
-        ImportRequestType.Cancellation,
-        ImportRequestType.Hold
+        ImportRequestType.Cancellation
       ),
       form
     )
@@ -139,19 +138,17 @@ class ImportQuestionsViewContext
     )
 
     val routeTypeRows =
-      if (TraderServicesFrontendJourneyModel.Rules.shouldAskRouteQuestion(importQuestions))
-        Seq(
-          summaryListRow(
-            label = "summary.import-questions.routeType",
-            value = importQuestions.routeType
-              .flatMap(ImportRouteType.keyOf)
-              .map(key => messages(s"form.import-questions.routeType.$key"))
-              .getOrElse("-"),
-            visuallyHiddenText = Some("summary.import-questions.routeType"),
-            action = (TraderServicesFrontendController.showAnswerImportQuestionsRouteType(), "site.change")
-          )
+      Seq(
+        summaryListRow(
+          label = "summary.import-questions.routeType",
+          value = importQuestions.routeType
+            .flatMap(ImportRouteType.keyOf)
+            .map(key => messages(s"form.import-questions.routeType.$key"))
+            .getOrElse("-"),
+          visuallyHiddenText = Some("summary.import-questions.routeType"),
+          action = (TraderServicesFrontendController.showAnswerImportQuestionsRouteType(), "site.change")
         )
-      else Seq.empty
+      )
 
     val hasPriorityGoodsRows = Seq(
       summaryListRow(

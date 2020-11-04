@@ -113,7 +113,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsRequestType" should {
-      for (requestType <- ExportRequestType.values.filterNot(_ == ExportRequestType.Hold))
+      for (requestType <- ExportRequestType.values)
         s"go to AnswerExportQuestionsRouteType when submitted requestType of ${ExportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
@@ -126,20 +126,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      "go to AnswerExportQuestionsGoodsPriority when submitted requestType of Hold" in {
-        given(
-          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-        ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
-          ExportRequestType.Hold
-        ) should thenGo(
-          AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.Hold))
-            )
-          )
-        )
-      }
+//      "go to AnswerExportQuestionsGoodsPriority when submitted requestType of Hold" in {
+//        given(
+//          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+//        ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+//          ExportRequestType.Hold
+//        ) should thenGo(
+//          AnswerExportQuestionsHasPriorityGoods(
+//            ExportQuestionsStateModel(
+//              exportDeclarationDetails,
+//              ExportQuestions(requestType = Some(ExportRequestType.Hold))
+//            )
+//          )
+//        )
+//      }
 
       "copy export details if coming back from the advanced state" in {
         given(
@@ -597,7 +597,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerImportQuestionsRequestType" should {
-      for (requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold))
+      for (requestType <- ImportRequestType.values)
         s"go to AnswerImportQuestionsRequestType when submitted requestType of ${ImportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
@@ -610,20 +610,20 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
-        given(
-          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
-        ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
-          ImportRequestType.Hold
-        ) should thenGo(
-          AnswerImportQuestionsHasPriorityGoods(
-            ImportQuestionsStateModel(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.Hold))
-            )
-          )
-        )
-      }
+//      "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
+//        given(
+//          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+//        ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+//          ImportRequestType.Hold
+//        ) should thenGo(
+//          AnswerImportQuestionsHasPriorityGoods(
+//            ImportQuestionsStateModel(
+//              importDeclarationDetails,
+//              ImportQuestions(requestType = Some(ImportRequestType.Hold))
+//            )
+//          )
+//        )
+//      }
 
       "copy import details if coming back from the advanced state" in {
         given(
@@ -790,7 +790,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     "at state AnswerImportQuestionsFreightType" should {
       for (
         freightType <- ImportFreightType.values;
-        requestType <- ImportRequestType.values.filterNot(_ == ImportRequestType.Hold)
+        requestType <- ImportRequestType.values
       )
         s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
           .keyOf(requestType)
@@ -823,40 +823,40 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-      for (
-        freightType <- ImportFreightType.values;
-        requestType = ImportRequestType.Hold
-      )
-        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
-          .keyOf(requestType)
-          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importDeclarationDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route3),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
-            freightType
-          ) should thenGo(
-            AnswerImportQuestionsMandatoryVesselInfo(
-              ImportQuestionsStateModel(
-                importDeclarationDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route3),
-                  freightType = Some(freightType),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          )
-        }
+//      for (
+//        freightType <- ImportFreightType.values;
+//        requestType = ImportRequestType.Hold
+//      )
+//        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+//          .keyOf(requestType)
+//          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
+//          given(
+//            AnswerImportQuestionsFreightType(
+//              ImportQuestionsStateModel(
+//                importDeclarationDetails,
+//                ImportQuestions(
+//                  requestType = Some(requestType),
+//                  routeType = Some(ImportRouteType.Route3),
+//                  hasALVS = Some(false)
+//                )
+//              )
+//            )
+//          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+//            freightType
+//          ) should thenGo(
+//            AnswerImportQuestionsMandatoryVesselInfo(
+//              ImportQuestionsStateModel(
+//                importDeclarationDetails,
+//                ImportQuestions(
+//                  requestType = Some(requestType),
+//                  routeType = Some(ImportRouteType.Route3),
+//                  freightType = Some(freightType),
+//                  hasALVS = Some(false)
+//                )
+//              )
+//            )
+//          )
+//        }
     }
 
     "at state AnswerImportQuestionsOptionalVesselInfo" should {

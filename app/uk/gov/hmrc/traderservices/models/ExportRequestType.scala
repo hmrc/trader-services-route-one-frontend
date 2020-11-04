@@ -22,11 +22,10 @@ object ExportRequestType extends EnumerationFormats[ExportRequestType] {
 
   case object New extends ExportRequestType
   case object Cancellation extends ExportRequestType
-  case object Hold extends ExportRequestType
   case object C1601 extends ExportRequestType
   case object C1602 extends ExportRequestType
   case object C1603 extends ExportRequestType
   case object WithdrawalOrReturn extends ExportRequestType
 
-  val values = Set(New, Cancellation, Hold, C1601, C1602, C1603, WithdrawalOrReturn)
+  val values = Set(New, Cancellation, C1601, C1602, C1603, WithdrawalOrReturn)
 }
