@@ -26,7 +26,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCreateCaseResponse =
           await(connector.createCase(request))
 
-        result.result shouldBe Some("1234567890")
+        result.result shouldBe Some("A1234567890")
         result.error shouldBe None
       }
 

@@ -35,6 +35,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.Future
 import java.time.ZonedDateTime
+import _root_.uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 
 class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -990,7 +991,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
     "at state ImportQuestionsSummary" should {
       "go to UploadFile when initiateFileUpload" in {
-        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+        val mockUpscanInitiate: UpscanInitiateApi = request =>
           Future.successful(
             UpscanInitiateResponse(
               reference = "foo-bar-ref",
@@ -1785,6 +1786,9 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "goto CreateCaseConfirmation when createCase" in {
+      val mockCreateCaseApi: CreateCaseApi = { request =>
+        Future.successful(TraderServicesCreateCaseResponse(correlationId = "", result = Some("A1234567890")))
+      }
       given(
         FileUploaded(
           importDeclarationDetails,
@@ -1804,7 +1808,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           ),
           acknowledged = false
         )
-      ) when (createCase(eoriNumber)) should thenGo(
+      ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
         CreateCaseConfirmation(
           importDeclarationDetails,
           fullImportQuestions,
@@ -1817,7 +1821,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
               "application/pdf"
             )
           ),
-          "TBC"
+          "A1234567890"
         )
       )
     }
