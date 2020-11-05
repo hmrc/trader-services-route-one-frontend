@@ -405,6 +405,41 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
+      for (
+        freightType <- ExportFreightType.values;
+        requestType <- ExportRequestType.values
+      )
+        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType regardless of requestType=${ExportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}, when routeType=Hold" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Hold),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                )
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerExportQuestionsMandatoryVesselInfo(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Hold),
+                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  freightType = Some(freightType)
+                )
+              )
+            )
+          )
+        }
+
       "copy export details if coming back from the advanced state" in {
         given(
           AnswerExportQuestionsFreightType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
@@ -823,40 +858,40 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-//      for (
-//        freightType <- ImportFreightType.values;
-//        requestType = ImportRequestType.Hold
-//      )
-//        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
-//          .keyOf(requestType)
-//          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
-//          given(
-//            AnswerImportQuestionsFreightType(
-//              ImportQuestionsStateModel(
-//                importDeclarationDetails,
-//                ImportQuestions(
-//                  requestType = Some(requestType),
-//                  routeType = Some(ImportRouteType.Route3),
-//                  hasALVS = Some(false)
-//                )
-//              )
-//            )
-//          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
-//            freightType
-//          ) should thenGo(
-//            AnswerImportQuestionsMandatoryVesselInfo(
-//              ImportQuestionsStateModel(
-//                importDeclarationDetails,
-//                ImportQuestions(
-//                  requestType = Some(requestType),
-//                  routeType = Some(ImportRouteType.Route3),
-//                  freightType = Some(freightType),
-//                  hasALVS = Some(false)
-//                )
-//              )
-//            )
-//          )
-//        }
+      for (
+        freightType <- ImportFreightType.values;
+        requestType <- ImportRequestType.values
+      )
+        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType regardless of requestType=${ImportRequestType
+          .keyOf(requestType)
+          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}, when routeType=Hold" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsMandatoryVesselInfo(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          )
+        }
     }
 
     "at state AnswerImportQuestionsOptionalVesselInfo" should {

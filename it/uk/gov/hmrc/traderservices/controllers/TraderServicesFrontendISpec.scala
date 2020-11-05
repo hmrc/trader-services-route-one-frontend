@@ -533,6 +533,33 @@ class TraderServicesFrontendISpec
       }
     }
 
+    "GET /pre-clearance/export-questions/vessel-info-required" should {
+      "show the export vessel details page when routeType=Hold" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsMandatoryVesselInfo(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1603),
+              routeType = Some(ExportRouteType.Hold),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
     "POST /pre-clearance/export-questions/vessel-info-required" should {
       "submit mandatory vessel details and ask next for contact details" in {
         implicit val journeyId: JourneyId = JourneyId()
