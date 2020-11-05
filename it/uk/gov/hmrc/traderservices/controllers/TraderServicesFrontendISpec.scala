@@ -161,7 +161,7 @@ class TraderServicesFrontendISpec
 
     "POST /pre-clearance/export-questions/request-type" should {
 
-      "submit the form and ask next for routeType if not Hold" in {
+      "submit the form and ask next for routeType" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsRequestType(
@@ -187,33 +187,6 @@ class TraderServicesFrontendISpec
           )
         )
       }
-
-//      "submit the form and, if Hold, ask next does the consignment has any priority goods" in {
-//        implicit val journeyId: JourneyId = JourneyId()
-//        journey.setState(
-//          AnswerExportQuestionsRequestType(
-//            ExportQuestionsStateModel(
-//              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-//              ExportQuestions()
-//            )
-//          )
-//        )
-//        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-//
-//        val payload = Map("requestType" -> "Hold")
-//
-//        val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
-//
-//        result.status shouldBe 200
-//        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
-//        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
-//        journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
-//          ExportQuestionsStateModel(
-//            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-//            ExportQuestions(requestType = Some(ExportRequestType.Hold))
-//          )
-//        )
-//      }
     }
 
     "GET /pre-clearance/export-questions/route-type" should {
@@ -568,7 +541,7 @@ class TraderServicesFrontendISpec
             ExportQuestionsStateModel(
               DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
               ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
+                requestType = Some(ExportRequestType.C1602),
                 routeType = Some(ExportRouteType.Route6),
                 priorityGoods = Some(ExportPriorityGoods.HighValueArt),
                 freightType = Some(ExportFreightType.Air)
@@ -597,7 +570,7 @@ class TraderServicesFrontendISpec
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
+              requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air),
@@ -868,36 +841,6 @@ class TraderServicesFrontendISpec
           )
         )
       }
-
-//      "submit the form and ask next for hasPriorityGoods if Hold" in {
-//        implicit val journeyId: JourneyId = JourneyId()
-//        journey.setState(
-//          AnswerImportQuestionsRequestType(
-//            ImportQuestionsStateModel(
-//              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-//              ImportQuestions(
-//                requestType = Some(ImportRequestType.New),
-//                routeType = Some(ImportRouteType.Route6)
-//              )
-//            )
-//          )
-//        )
-//        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-//
-//        val payload = Map("requestType" -> "Hold")
-//
-//        val result = await(request("/pre-clearance/import-questions/request-type").post(payload))
-//
-//        result.status shouldBe 200
-//        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
-//        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
-//        journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
-//          ImportQuestionsStateModel(
-//            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
-//            ImportQuestions(requestType = Some(ImportRequestType.Hold))
-//          )
-//        )
-//      }
     }
 
     "GET /pre-clearance/import-questions/route-type" should {

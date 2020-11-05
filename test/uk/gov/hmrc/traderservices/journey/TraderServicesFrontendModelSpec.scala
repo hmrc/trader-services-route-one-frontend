@@ -126,21 +126,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
-//      "go to AnswerExportQuestionsGoodsPriority when submitted requestType of Hold" in {
-//        given(
-//          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-//        ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
-//          ExportRequestType.Hold
-//        ) should thenGo(
-//          AnswerExportQuestionsHasPriorityGoods(
-//            ExportQuestionsStateModel(
-//              exportDeclarationDetails,
-//              ExportQuestions(requestType = Some(ExportRequestType.Hold))
-//            )
-//          )
-//        )
-//      }
-
       "copy export details if coming back from the advanced state" in {
         given(
           AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
@@ -644,21 +629,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
-
-//      "go to AnswerImportQuestionsHasPriorityGoods when submitted requestType of Hold" in {
-//        given(
-//          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
-//        ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
-//          ImportRequestType.Hold
-//        ) should thenGo(
-//          AnswerImportQuestionsHasPriorityGoods(
-//            ImportQuestionsStateModel(
-//              importDeclarationDetails,
-//              ImportQuestions(requestType = Some(ImportRequestType.Hold))
-//            )
-//          )
-//        )
-//      }
 
       "copy import details if coming back from the advanced state" in {
         given(

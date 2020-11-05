@@ -90,11 +90,12 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals"}}}}""",
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals"}}}}""",
         State.AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
+              routeType = Some(ExportRouteType.Route3),
               requestType = Some(ExportRequestType.C1601),
               priorityGoods = Some(ExportPriorityGoods.LiveAnimals)
             )
@@ -102,12 +103,13 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
+        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
         State.AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
               freightType = Some(ExportFreightType.RORO)
             )
@@ -115,12 +117,13 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsOptionalVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
+        """{"state":"AnswerExportQuestionsOptionalVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
         State.AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
               freightType = Some(ExportFreightType.RORO)
             )
@@ -129,13 +132,14 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
       )
       validateJsonFormat(
         """{"state":"AnswerExportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
-          |"exportQuestionsAnswers":{"requestType":"C1601","priorityGoods":"LiveAnimals","freightType":"RORO",
+          |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO",
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
               priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
               freightType = Some(ExportFreightType.RORO),
               contactInfo = Some(
@@ -229,12 +233,13 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsALVS","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","priorityGoods":"LiveAnimals","hasALVS":true}}}}""",
+        """{"state":"AnswerImportQuestionsALVS","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true}}}}""",
         State.AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
               priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
               hasALVS = Some(true)
             )
@@ -242,12 +247,13 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
+        """{"state":"AnswerImportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
         State.AnswerImportQuestionsFreightType(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
               priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
               hasALVS = Some(true),
               freightType = Some(ImportFreightType.RORO)
@@ -286,13 +292,14 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
       )
       validateJsonFormat(
         """{"state":"AnswerImportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
-          |"importQuestionsAnswers":{"requestType":"New","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
+          |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
               priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
               hasALVS = Some(true),
               freightType = Some(ImportFreightType.RORO),
