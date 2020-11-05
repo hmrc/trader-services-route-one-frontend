@@ -263,7 +263,6 @@ view.import-questions.summary.contact-details.heading=Contact details
 # Export Questions Form
 # ----------------------------------------------------------
 form.export-questions.requestType.New=New
-form.export-questions.requestType.Hold=Hold (for pre-lodged requests)
 form.export-questions.requestType.C1601=C1601
 form.export-questions.requestType.C1603=C1603
 form.export-questions.requestType.C1602=C1602
@@ -274,7 +273,7 @@ form.export-questions.routeType.Route1Cap=Route 1 CAP
 form.export-questions.routeType.Route2=Route 2
 form.export-questions.routeType.Route3=Route 3
 form.export-questions.routeType.Route6=Route 6
-form.export-questions.routeType.Hold=Hold
+form.export-questions.routeType.Hold=Hold (for pre-lodged requests)
 form.export-questions.hasPriorityGoods.yes=Yes
 form.export-questions.hasPriorityGoods.no=No
 form.export-questions.priorityGoods.ClassADrugs=Class A drugs
@@ -334,14 +333,13 @@ error.timeOfArrival.period.invalid-value=Period must be am or pm
 # ----------------------------------------------------------
 form.import-questions.requestType.New=New
 form.import-questions.requestType.Cancellation=Cancellation
-form.import-questions.requestType.Hold=Hold (for pre-lodged requests)
 form.import-questions.requestType.ALVS=Automatic Licence Verification System (ALVS)
 form.import-questions.routeType.Route1=Route 1
 form.import-questions.routeType.Route1Cap=Route 1 CAP
 form.import-questions.routeType.Route2=Route 2
 form.import-questions.routeType.Route3=Route 3
 form.import-questions.routeType.Route6=Route 6
-form.import-questions.routeType.Hold=Hold
+form.import-questions.routeType.Hold=Hold (for pre-lodged requests)
 form.import-questions.hasPriorityGoods.yes=Yes
 form.import-questions.hasPriorityGoods.no=No
 form.import-questions.priorityGoods.ClassADrugs=Class A drugs

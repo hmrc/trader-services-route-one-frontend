@@ -39,7 +39,6 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     "bind some requestType and return ExportRequestType and fill it back" in {
       val form = TraderServicesFrontendController.ExportRequestTypeForm
       validate(form, Map("requestType" -> "New"), ExportRequestType.New)
-      validate(form, Map("requestType" -> "Hold"), ExportRequestType.Hold)
       validate(form, Map("requestType" -> "Cancellation"), ExportRequestType.Cancellation)
       validate(form, Map("requestType" -> "C1601"), ExportRequestType.C1601)
       validate(form, Map("requestType" -> "C1602"), ExportRequestType.C1602)

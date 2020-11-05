@@ -26,11 +26,10 @@ class ImportQuestionsFormatSpec extends UnitSpec {
 
     "serialize and deserialize ImportRequestType" in new JsonFormatTest[ImportRequestType](info) {
 
-      ImportRequestType.values.size shouldBe 3
+      ImportRequestType.values.size shouldBe 2
 
       validateJsonFormat("New", ImportRequestType.New)
       validateJsonFormat("Cancellation", ImportRequestType.Cancellation)
-      validateJsonFormat("Hold", ImportRequestType.Hold)
     }
 
     "serialize and deserialize ImportRouteType" in new JsonFormatTest[ImportRouteType](info) {

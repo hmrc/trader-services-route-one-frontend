@@ -20,11 +20,8 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportPriorityGoods, ExportRequestType, ExportRouteType}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
-import uk.gov.hmrc.traderservices.models.ImportPriorityGoods
-import uk.gov.hmrc.traderservices.models.ExportFreightType
-import uk.gov.hmrc.traderservices.models.ImportFreightType
 import java.time.LocalTime
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
@@ -168,7 +165,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate export requestType" in {
       exportRequestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ExportRequestType.New)
       exportRequestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ExportRequestType.Cancellation)
-      exportRequestTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ExportRequestType.Hold)
       exportRequestTypeMapping.bind(Map("" -> "C1601")) shouldBe Right(ExportRequestType.C1601)
       exportRequestTypeMapping.bind(Map("" -> "C1602")) shouldBe Right(ExportRequestType.C1602)
       exportRequestTypeMapping.bind(Map("" -> "C1603")) shouldBe Right(ExportRequestType.C1603)
@@ -180,6 +176,17 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
       exportRequestTypeMapping.bind(Map()) should haveOnlyError[ExportRequestType](
         "error.exportRequestType.required"
+      )
+    }
+
+    "validate import requestType" in {
+      importRequestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ImportRequestType.New)
+      importRequestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ImportRequestType.Cancellation)
+      importRequestTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportRequestType](
+        "error.importRequestType.invalid-option"
+      )
+      importRequestTypeMapping.bind(Map()) should haveOnlyError[ImportRequestType](
+        "error.importRequestType.required"
       )
     }
 
@@ -195,6 +202,21 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
       exportRouteTypeMapping.bind(Map()) should haveOnlyError[ExportRouteType](
         "error.exportRouteType.required"
+      )
+    }
+
+    "validate import routeType" in {
+      importRouteTypeMapping.bind(Map("" -> "Route1")) shouldBe Right(ImportRouteType.Route1)
+      importRouteTypeMapping.bind(Map("" -> "Route1Cap")) shouldBe Right(ImportRouteType.Route1Cap)
+      importRouteTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ImportRouteType.Route2)
+      importRouteTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ImportRouteType.Route3)
+      importRouteTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ImportRouteType.Route6)
+      importRouteTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ImportRouteType.Hold)
+      importRouteTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportRouteType](
+        "error.importRouteType.invalid-option"
+      )
+      importRouteTypeMapping.bind(Map()) should haveOnlyError[ImportRouteType](
+        "error.importRouteType.required"
       )
     }
 

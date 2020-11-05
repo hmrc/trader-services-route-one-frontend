@@ -25,9 +25,11 @@ class ExportQuestionsFormatSpec extends UnitSpec {
   "ExportQuestionsFormats" should {
 
     "serialize and deserialize ExportRequestType" in new JsonFormatTest[ExportRequestType](info) {
+
+      ExportRequestType.values.size shouldBe 6
+
       validateJsonFormat("New", ExportRequestType.New)
       validateJsonFormat("Cancellation", ExportRequestType.Cancellation)
-      validateJsonFormat("Hold", ExportRequestType.Hold)
       validateJsonFormat("C1601", ExportRequestType.C1601)
       validateJsonFormat("C1602", ExportRequestType.C1602)
       validateJsonFormat("C1603", ExportRequestType.C1603)
@@ -40,6 +42,7 @@ class ExportQuestionsFormatSpec extends UnitSpec {
       validateJsonFormat("Route2", ExportRouteType.Route2)
       validateJsonFormat("Route3", ExportRouteType.Route3)
       validateJsonFormat("Route6", ExportRouteType.Route6)
+      validateJsonFormat("Hold", ExportRouteType.Hold)
     }
 
     "serialize and deserialize ExportPriorityGoods" in new JsonFormatTest[ExportPriorityGoods](info) {
