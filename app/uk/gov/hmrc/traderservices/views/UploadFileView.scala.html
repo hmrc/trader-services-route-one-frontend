@@ -33,7 +33,7 @@
 @(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(s"${messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")} - ${messages("site.serviceName")} - ${messages("site.govuk")}"),
+  pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
   backLink = Some(backLink.url)
 ) {
 

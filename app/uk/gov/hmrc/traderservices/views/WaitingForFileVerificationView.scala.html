@@ -27,7 +27,7 @@
 @(successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(s"${messages("view.upload-file.waiting")} - ${messages("site.serviceName")} - ${messages("site.govuk")}"),
+  pageTitle = Some(messages("view.upload-file.waiting")),
   backLink = Some(backLink.url),
   refresh = 3) {
 

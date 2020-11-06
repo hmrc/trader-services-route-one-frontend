@@ -31,7 +31,7 @@
 @(form: Form[Boolean], fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(s"${messages(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", fileUploads.acceptedCount)} - ${messages("site.serviceName")} - ${messages("site.govuk")}"),
+  pageTitle = Some(messages(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", fileUploads.acceptedCount)),
   backLink = Some(backLink.url)) {
   
   @forms.errorSummary(form.errors)

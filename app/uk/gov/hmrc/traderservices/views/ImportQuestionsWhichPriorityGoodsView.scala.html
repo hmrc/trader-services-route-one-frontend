@@ -26,7 +26,7 @@
 
 @(form: Form[ImportPriorityGoods], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(s"${messages("view.import-questions.whichPriorityGoods.title")} - ${messages("site.serviceName")} - ${messages("site.govuk")}"), backLink =
+@govukLayout(pageTitle = Some(messages("view.import-questions.whichPriorityGoods.title")), backLink =
         Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)

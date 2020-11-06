@@ -26,7 +26,7 @@
 
 @(form: Form[ExportRequestType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(s"${messages("view.export-questions.requestType.title")} - ${messages("site.serviceName")} - ${messages("site.govuk")}"), backLink = Some(backLink.url)) {
+@govukLayout(pageTitle = Some(messages("view.export-questions.requestType.title")), backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
 

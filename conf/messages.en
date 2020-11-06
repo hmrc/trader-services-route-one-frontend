@@ -18,7 +18,6 @@ site.submitAndContinue = Submit and continue
 site.acceptAndContinue = Accept and continue
 site.confirmAndSubmit = Confirm and submit
 site.textarea.char_limit = (Limit is {0} characters)
-site.serviceName = Send documents for a customs check
 site.govuk = GOV.UK
 site.signOut = Sign out
 site.getHelpWithThisPage = Get help with this page
