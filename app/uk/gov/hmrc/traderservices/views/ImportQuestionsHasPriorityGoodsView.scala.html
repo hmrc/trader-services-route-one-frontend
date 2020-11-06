@@ -18,41 +18,38 @@
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 
 @this(
-    govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-    forms: uk.gov.hmrc.traderservices.views.components.forms,
-    html: uk.gov.hmrc.traderservices.views.components.html,
-    context: ImportQuestionsViewContext
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: ImportQuestionsViewContext
 )
 
 @(form: Form[Boolean], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@inputRadioHint = {
+  @html.p {
+    @messages("view.import-questions.hasPriorityGoods.description")
+  }
+  @html.ul(context.importPriorityGoodsMessageKeys("view.import-questions.hasPriorityGoods.list"): _*)
+}
+
 @govukLayout(
-    pageTitle = Some(messages("view.import-questions.hasPriorityGoods.title")), 
-    backLink = Some(backLink.url)) {
+  pageTitle = Some(messages("view.import-questions.hasPriorityGoods.title")),
+  backLink = Some(backLink.url)) {
 
-    @forms.errorSummary(form.errors)
+  @forms.errorSummary(form.errors)
 
-    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "hasPriorityGoods",
+      name = "hasPriorityGoods",
+      items = context.importHasPriorityGoodsItems(form),
+      legend = Some("view.import-questions.hasPriorityGoods.heading"),
+      hint = Some(inputRadioHint),
+      inline = true
+    )
 
-        @forms.fieldset(
-            legend = messages("view.import-questions.hasPriorityGoods.heading")
-        ) {
-
-            @html.p {
-                @messages("view.import-questions.hasPriorityGoods.description")
-                @html.p {
-                    @html.ul(context.importPriorityGoodsMessageKeys("view.import-questions.hasPriorityGoods.list"):_*)
-                }
-            }
-
-            @forms.inputRadio(
-                form = form,
-                idPrefix = "hasPriorityGoods",
-                name = "hasPriorityGoods",
-                items = context.importHasPriorityGoodsItems(form)
-            )
-
-            @html.button("form.import-questions.continue")
-        }
-    }
+    @html.button("form.import-questions.continue")
+  }
 }
