@@ -41,7 +41,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.start.title"))
+        result.body should include(
+          htmlEscapedMessage("view.start.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         journey.getState shouldBe Start
       }
     }
@@ -55,7 +59,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.declaration-details.title"))
+        result.body should include(
+          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails(None)
       }
@@ -75,7 +83,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.declaration-details.title"))
+        result.body should include(
+          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         result.body should (include("235") and include("A11111X"))
         result.body should (include("2020") and include("09") and include("23"))
@@ -103,7 +115,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/declaration-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.requestType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.requestType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
@@ -153,7 +169,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.requestType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.requestType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe state
       }
@@ -178,7 +198,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.routeType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.routeType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
@@ -204,7 +228,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.routeType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.routeType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe state
       }
@@ -229,7 +257,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
@@ -255,7 +287,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -279,7 +315,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
@@ -313,7 +353,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
@@ -343,7 +387,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -367,7 +415,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/which-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
@@ -401,7 +453,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe state
       }
@@ -500,7 +556,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -527,7 +587,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -607,7 +671,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/vessel-info").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -720,7 +788,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/contact-info").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.contactInfo.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -784,7 +856,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/export-questions/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.title"))
+        result.body should include(
+          htmlEscapedMessage("view.export-questions.summary.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
         journey.getState shouldBe state
       }
@@ -805,7 +881,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.requestType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.requestType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
         journey.getState shouldBe state
       }
@@ -832,7 +912,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.routeType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.routeType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
@@ -858,7 +942,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.routeType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.routeType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe state
       }
@@ -882,7 +970,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
@@ -911,7 +1003,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -935,7 +1031,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
@@ -966,7 +1066,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
@@ -996,7 +1100,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -1020,7 +1128,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/which-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
@@ -1050,7 +1162,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/automatic-licence-verification").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe state
       }
@@ -1075,7 +1191,11 @@ class TraderServicesFrontendISpec
           val result = await(request("/pre-clearance/import-questions/automatic-licence-verification").post(payload))
 
           result.status shouldBe 200
-          result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
+          result.body should include(
+            htmlEscapedMessage("view.import-questions.freightType.title") + " - " + htmlEscapedMessage(
+              "site.serviceName"
+            ) + " - " + htmlEscapedMessage("site.govuk")
+          )
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
           journey.getState shouldBe AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
@@ -1108,7 +1228,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.freightType.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.freightType.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
         journey.getState shouldBe state
       }
@@ -1204,7 +1328,11 @@ class TraderServicesFrontendISpec
       val result = await(request("/pre-clearance/import-questions/vessel-info").get())
 
       result.status shouldBe 200
-      result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.title"))
+      result.body should include(
+        htmlEscapedMessage("view.import-questions.vessel-details.title") + " - " + htmlEscapedMessage(
+          "site.serviceName"
+        ) + " - " + htmlEscapedMessage("site.govuk")
+      )
       result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
       journey.getState shouldBe state
     }
@@ -1315,7 +1443,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/contact-info").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.contactInfo.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.heading"))
         journey.getState shouldBe state
       }
@@ -1376,7 +1508,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/import-questions/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.title"))
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.summary.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
         journey.getState shouldBe state
       }
@@ -1398,7 +1534,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(
+          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           TestData.importDeclarationDetails,
@@ -1439,7 +1579,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.upload-file.first.title"))
+        result.body should include(
+          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           TestData.exportDeclarationDetails,
@@ -1496,7 +1640,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/create-case").post(""))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+        result.body should include(
+          htmlEscapedMessage("view.create-case-confirmation.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.exportDeclarationDetails,
@@ -1539,7 +1687,11 @@ class TraderServicesFrontendISpec
         val result = await(request("/pre-clearance/confirmation").get)
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.title"))
+        result.body should include(
+          htmlEscapedMessage("view.create-case-confirmation.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         journey.getState shouldBe state
       }

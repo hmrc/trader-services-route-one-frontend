@@ -90,8 +90,7 @@ appConfig.routeToSwitchLanguage
 }
 
 @govukLayout(
-pageTitle = pageTitle,
-headBlock = Some(head),
+    pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}" ),headBlock = Some(head),
 beforeContentBlock = Some(beforeContentBlock),
 bodyEndBlock = None,
 scriptsBlock = Some(scripts),
