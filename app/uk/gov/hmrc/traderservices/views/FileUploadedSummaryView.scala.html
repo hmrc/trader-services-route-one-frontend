@@ -31,7 +31,7 @@
 @(fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)),
+  pageTitle = Some(s"${messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)} - ${messages("site.serviceName")} - ${messages("site.govuk")}"),
   backLink = Some(backLink.url)) {
 
   @html.h1(messages("view.file-uploaded.plural.heading", fileUploads.acceptedCount), classes = "govuk-heading-l")

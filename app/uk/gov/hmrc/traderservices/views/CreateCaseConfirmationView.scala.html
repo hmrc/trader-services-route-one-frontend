@@ -27,7 +27,7 @@
 @(caseReferenceId: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.create-case-confirmation.title")),
+  pageTitle = Some(s"${messages("view.create-case-confirmation.title")} - ${messages("site.serviceName")} - ${messages("site.govuk")}"),
   backLink = None) {
 
     <div class="govuk-panel govuk-panel--confirmation">
