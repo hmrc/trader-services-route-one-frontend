@@ -866,11 +866,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
             goto(updatedCurrentState)
       }
 
-    def createCase(createCaseApi: CreateCaseApi)(user: String)(implicit ec: ExecutionContext) =
+    def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) =
       Transition {
         case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
           val request =
-            TraderServicesCreateCaseRequest(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles)
+            TraderServicesCreateCaseRequest(declarationDetails, questionsAnswers, fileUploads.toUploadedFiles, eori)
           createCaseApi(request).flatMap { response =>
             if (response.result.isDefined)
               goto(

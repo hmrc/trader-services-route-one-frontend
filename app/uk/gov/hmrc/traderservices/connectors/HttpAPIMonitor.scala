@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, QuestionsAnswers, UploadedFile}
+import scala.concurrent.{ExecutionContext, Future}
 
-case class TraderServicesCreateCaseRequest(
-  declarationDetails: DeclarationDetails,
-  questionsAnswers: QuestionsAnswers,
-  uploadedFiles: Seq[UploadedFile],
-  eori: String
-)
-
-object TraderServicesCreateCaseRequest {
-  implicit val formats = Json.format[TraderServicesCreateCaseRequest]
+trait HttpAPIMonitor extends AverageResponseTimer with HttpErrorRateMeter {
+  def monitor[T](serviceName: String)(function: => Future[T])(implicit ec: ExecutionContext): Future[T] =
+    super.countErrors(serviceName) {
+      super.timer(serviceName) {
+        function
+      }
+    }
 }

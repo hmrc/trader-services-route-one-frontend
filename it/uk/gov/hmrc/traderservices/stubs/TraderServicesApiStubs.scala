@@ -14,9 +14,9 @@ trait TraderServicesApiStubs {
   val requestBodyOfCreateCaseApi: String =
     s"""{"declarationDetails":{},
        |"questionsAnswers":{},
-       |"uploadedFiles":[
-       |{}
-       |]}""".stripMargin
+       |"uploadedFiles":[{}],
+       |"eori":"GB123456789012345"
+       |}""".stripMargin
 
   val createCaseApiValidResponseBody: String =
     s"""{

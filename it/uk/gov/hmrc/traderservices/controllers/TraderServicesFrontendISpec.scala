@@ -1490,7 +1490,7 @@ class TraderServicesFrontendISpec
             acknowledged = true
           )
         )
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))
         givenCreateCaseApiRequestSucceeds()
 
         val result = await(request("/pre-clearance/create-case").post(""))

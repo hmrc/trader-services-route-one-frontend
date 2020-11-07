@@ -21,7 +21,6 @@ import java.net.URL
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.agent.kenshoo.monitoring.HttpAPIMonitor
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._

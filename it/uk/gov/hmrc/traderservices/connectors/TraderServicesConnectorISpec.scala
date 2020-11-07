@@ -64,7 +64,8 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           "test.pdf",
           "application/pdf"
         )
-      )
+      ),
+      "GB123456789012345"
     )
   }
 }
