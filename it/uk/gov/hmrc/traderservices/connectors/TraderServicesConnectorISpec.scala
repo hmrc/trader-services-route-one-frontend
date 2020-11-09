@@ -20,7 +20,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
 
     "createCase" should {
 
-      "return case reference id" in {
+      "return case reference id if success" in {
         givenCreateCaseApiRequestSucceeds()
 
         val result: TraderServicesCreateCaseResponse =
@@ -30,12 +30,14 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         result.error shouldBe None
       }
 
-      "throw an exception if 5xx response" in {
-        givenCreateCaseApiStub(500, validRequestOfCreateCaseApi(), "")
+      "return error code and message if failure" in {
+        givenCreateCaseApiStub(400, validRequestOfCreateCaseApi(), createCaseApiErrorResponseBody("555", "Foo Bar"))
 
-        an[TraderServicesApiError] shouldBe thrownBy {
+        val result: TraderServicesCreateCaseResponse =
           await(connector.createCase(request))
-        }
+
+        result.result shouldBe None
+        result.error shouldBe Some(ApiError("555", Some("Foo Bar")))
       }
     }
   }
@@ -64,7 +66,8 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           "test.pdf",
           "application/pdf"
         )
-      )
+      ),
+      "GB123456789012345"
     )
   }
 }

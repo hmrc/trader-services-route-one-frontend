@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import play.api.libs.json.{Format, Json}
+import scala.concurrent.{ExecutionContext, Future}
 
-case class ApiError(
-  errorCode: String,
-  errorMessage: Option[String]
-)
-
-object ApiError {
-  implicit val formats: Format[ApiError] = Json.format[ApiError]
+trait HttpAPIMonitor extends AverageResponseTimer with HttpErrorRateMeter {
+  def monitor[T](serviceName: String)(function: => Future[T])(implicit ec: ExecutionContext): Future[T] =
+    super.countErrors(serviceName) {
+      super.timer(serviceName) {
+        function
+      }
+    }
 }
