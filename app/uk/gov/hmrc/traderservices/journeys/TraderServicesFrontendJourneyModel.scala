@@ -881,8 +881,11 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
                   response.result.get
                 )
               )
-            else
-              fail(new RuntimeException(response.error.map(_.errorCode).getOrElse("unknown")))
+            else {
+              val error = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                response.error.map(_.errorMessage).getOrElse("")
+              fail(new RuntimeException(error))
+            }
           }
       }
   }

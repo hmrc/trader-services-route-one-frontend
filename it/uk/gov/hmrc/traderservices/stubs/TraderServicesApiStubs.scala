@@ -18,14 +18,23 @@ trait TraderServicesApiStubs {
        |"eori":"GB123456789012345"
        |}""".stripMargin
 
-  val createCaseApiValidResponseBody: String =
+  val createCaseApiSuccessResponseBody: String =
     s"""{
        |  "correlationId": "",
        |  "result": "A1234567890"
        |}""".stripMargin
 
+  def createCaseApiErrorResponseBody(errorCode: String, errorMessage: String): String =
+    s"""{
+       |  "correlationId": "",
+       |  "error": {
+       |      "errorCode": "$errorCode",
+       |      "errorMessage": "$errorMessage"
+       |  } 
+       |}""".stripMargin
+
   def givenCreateCaseApiRequestSucceeds(): StubMapping =
-    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), createCaseApiValidResponseBody)
+    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), createCaseApiSuccessResponseBody)
 
   def givenAnExternalServiceError(): StubMapping =
     givenCreateCaseApiErrorStub(500, validRequestOfCreateCaseApi())

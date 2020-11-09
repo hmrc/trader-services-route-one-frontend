@@ -23,13 +23,15 @@ import com.kenshoo.play.metrics.Metrics
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/**
+  * Connects to the backend trader-services-route-one service API.
+  */
 @Singleton
 class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
-    extends HttpAPIMonitor {
+    extends ReadSuccessOrFailure[TraderServicesCreateCaseResponse] with HttpAPIMonitor {
 
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
   val createCaseApiPath = appConfig.createCaseApiPath

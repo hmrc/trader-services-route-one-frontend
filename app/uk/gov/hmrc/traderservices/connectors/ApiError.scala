@@ -20,7 +20,7 @@ import play.api.libs.json.{Format, Json}
 
 case class ApiError(
   errorCode: String,
-  errorMessage: String
+  errorMessage: Option[String]
 )
 
 object ApiError {
