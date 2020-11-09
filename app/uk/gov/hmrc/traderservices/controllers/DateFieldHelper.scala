@@ -38,7 +38,7 @@ object DateFieldHelper {
   def isValidDay(day: String, month: String, year: String) = {
     val invalidYear = year.isEmpty || year.exists(c => !c.isDigit)
     val invalidMonth = month.isEmpty || month.exists(c => !c.isDigit)
-    isValidDayOfTheMonth(toInt(day), if (invalidMonth) 1 else month.toInt, if (invalidYear) 2000 else year.toInt)
+    isValidDayOfTheMonth(toInt(day), if (invalidMonth) 1 else toInt(month), if (invalidYear) 2000 else toInt(year))
   }
 
   def isValidDayOfTheMonth(day: Int, month: Int, year: Int): Boolean =
