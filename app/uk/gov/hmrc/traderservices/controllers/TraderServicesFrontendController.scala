@@ -342,12 +342,25 @@ class TraderServicesFrontendController @Inject() (
       .bindForm(UpscanUploadErrorForm)
       .apply(Transitions.fileUploadWasRejected)
 
+  // GET /pre-clearance/file-rejected-async
+  val asyncMarkFileUploadAsRejected: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(UpscanUploadErrorForm)
+      .apply(Transitions.fileUploadWasRejected)
+      .displayUsing(implicit request => renderAccepted)
+
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
       .waitForStateThenRedirect[State.FileUploaded](3)
       .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
       .redirectOrDisplayIf[State.WaitingForFileVerification]
+
+  // GET /pre-clearance/file-verification-async
+  val asyncWaitingForFileVerification: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .apply(Transitions.waitForFileVerification)
+      .displayUsing(implicit request => renderAccepted)
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
@@ -706,8 +719,8 @@ class TraderServicesFrontendController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
-            successAction = routes.TraderServicesFrontendController.showFileUploaded,
-            failureAction = routes.TraderServicesFrontendController.showFileUpload,
+            successAction = routes.TraderServicesFrontendController.asyncWaitingForFileVerification,
+            failureAction = routes.TraderServicesFrontendController.asyncMarkFileUploadAsRejected,
             checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty)
@@ -773,6 +786,13 @@ class TraderServicesFrontendController @Inject() (
           case None    => NotFound
         }
       case _ => NotFound
+    }
+
+  def renderAccepted(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case _ => Accepted
     }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r

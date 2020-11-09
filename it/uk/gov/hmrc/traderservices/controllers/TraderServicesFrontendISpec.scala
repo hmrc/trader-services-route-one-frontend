@@ -1697,61 +1697,168 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "return file verification status" in {
-      implicit val journeyId: JourneyId = JourneyId()
-      val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
-      val state = FileUploaded(
-        TestData.importDeclarationDetails,
-        TestData.fullImportQuestions(dateTimeOfArrival),
-        FileUploads(files =
-          Seq(
-            FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-            FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
-            FileUpload.Accepted(
-              4,
-              "f029444f-415c-4dec-9cf2-36774ec63ab8",
-              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-              "test.pdf",
-              "application/pdf"
-            ),
-            FileUpload.Failed(
-              3,
-              "4b1e15a4-4152-4328-9448-4924d9aee6e2",
-              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+    "GET /pre-clearance/file-rejected-async" should {
+      "set current file upload status as rejected and return 202 Accepted" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          UploadFile(
+            TestData.importDeclarationDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
             )
           )
-        ),
-        acknowledged = false
-      )
-      journey.setState(state)
-      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-      val result1 = await(request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status").get())
-      result1.status shouldBe 200
-      result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
-      journey.getState shouldBe state
+        val result1 =
+          await(
+            request(
+              "/pre-clearance/file-rejected-async?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+            ).get()
+          )
 
-      val result2 = await(request("/pre-clearance/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
-      result2.status shouldBe 200
-      result2.body shouldBe """{"fileStatus":"WAITING"}"""
-      journey.getState shouldBe state
+        result1.status shouldBe 202
+        result1.body.isEmpty shouldBe true
+        journey.getState shouldBe (
+          UploadFile(
+            TestData.importDeclarationDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  S3UploadError(
+                    key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                    errorCode = "ABC123",
+                    errorMessage = "ABC 123"
+                  )
+                ),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            ),
+            Some(
+              FileTransmissionFailed(
+                S3UploadError("11370e18-6e24-453e-b45a-76d3e32ea33d", "ABC123", "ABC 123", None, None)
+              )
+            )
+          )
+        )
+      }
+    }
 
-      val result3 = await(request("/pre-clearance/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
-      result3.status shouldBe 200
-      result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
-      journey.getState shouldBe state
+    "GET /pre-clearance/file-verification-async" should {
+      "set current file upload status as posted and return 202 Accepted" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          UploadFile(
+            TestData.importDeclarationDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-      val result4 = await(request("/pre-clearance/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
-      result4.status shouldBe 200
-      result4.body shouldBe """{"fileStatus":"FAILED"}"""
-      journey.getState shouldBe state
+        val result1 = await(request("/pre-clearance/file-verification-async").get())
 
-      val result5 = await(request("/pre-clearance/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
-      result5.status shouldBe 404
-      journey.getState shouldBe state
+        result1.status shouldBe 202
+        result1.body.isEmpty shouldBe true
+        journey.getState shouldBe (
+          WaitingForFileVerification(
+            TestData.importDeclarationDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+      }
+    }
 
+    "GET /pre-clearance/file-verification/:reference/status" should {
+      "return file verification status" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          TestData.importDeclarationDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Accepted(
+                4,
+                "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Failed(
+                3,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          ),
+          acknowledged = false
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result1 =
+          await(request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status").get())
+        result1.status shouldBe 200
+        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+        journey.getState shouldBe state
+
+        val result2 =
+          await(request("/pre-clearance/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
+        result2.status shouldBe 200
+        result2.body shouldBe """{"fileStatus":"WAITING"}"""
+        journey.getState shouldBe state
+
+        val result3 =
+          await(request("/pre-clearance/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
+        result3.status shouldBe 200
+        result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+        journey.getState shouldBe state
+
+        val result4 =
+          await(request("/pre-clearance/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
+        result4.status shouldBe 200
+        result4.body shouldBe """{"fileStatus":"FAILED"}"""
+        journey.getState shouldBe state
+
+        val result5 =
+          await(request("/pre-clearance/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
+        result5.status shouldBe 404
+        journey.getState shouldBe state
+      }
     }
 
     "GET /trader-services/foo" should {
@@ -1767,7 +1874,6 @@ class TraderServicesFrontendISpec
       }
     }
   }
-
 }
 
 trait TraderServicesFrontendISpecSetup extends ServerISpec {
