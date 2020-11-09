@@ -52,9 +52,13 @@ object DateFieldHelper {
     (year % 4 == 0) && (year % 100 != 0) || (year % 400 == 0)
 
   @tailrec
+  def dropLeadindZeroes(s: String, minSize: Int): String =
+    if (s.length <= minSize) s
+    else if (s.startsWith("0")) dropLeadindZeroes(s.drop(1), minSize)
+    else s
+
   def toInt(s: String): Int =
-    if (s.startsWith("0")) toInt(s.drop(1))
-    else Try(s.toInt).toOption.getOrElse(-1)
+    Try(dropLeadindZeroes(s, 1).toInt).toOption.getOrElse(-1)
 
   def isInRange(value: Int, minInc: Int, maxInc: Int): Boolean =
     value >= minInc && value <= maxInc
@@ -79,9 +83,12 @@ object DateFieldHelper {
     case (y, m, d) =>
       if (y.isEmpty && m.isEmpty && d.isEmpty) (y, m, d)
       else {
-        val year = if (y.isEmpty) "" else if (y.length == 2) "20" + y else y
-        val month = if (m.isEmpty) "" else if (m.length == 1) "0" + m else m
-        val day = if (d.isEmpty) "" else if (d.length == 1) "0" + d else d
+        val year =
+          if (y.isEmpty) "" else if (y.length == 2) "20" + y else if (y.length > 4) dropLeadindZeroes(y, 4) else y
+        val month =
+          if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
+        val day =
+          if (d.isEmpty) "" else if (d.length == 1) "0" + d else if (d.length > 2) dropLeadindZeroes(d, 2) else d
         (year, month, day)
       }
   }
