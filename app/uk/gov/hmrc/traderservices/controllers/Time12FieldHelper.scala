@@ -24,6 +24,8 @@ import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import scala.annotation.tailrec
+import scala.util.Try
 
 object Time12FieldHelper {
 
@@ -67,8 +69,10 @@ object Time12FieldHelper {
     case (h, m, p) =>
       if (h.isEmpty && m.isEmpty && p.isEmpty) (h, m, p)
       else {
-        val hour = if (h.isEmpty) "" else if (h.length == 1) "0" + h else h
-        val minutes = if (m.isEmpty) "" else if (m.length == 1) "0" + m else m
+        val hour =
+          if (h.isEmpty) "" else if (h.length == 1) "0" + h else if (h.length > 2) dropLeadindZeroes(h, 2) else h
+        val minutes =
+          if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
         (hour, minutes, p)
       }
   }
@@ -97,13 +101,22 @@ object Time12FieldHelper {
         if (errors.isEmpty) Valid else Invalid(errors)
     }
 
+  @tailrec
+  def dropLeadindZeroes(s: String, minSize: Int): String =
+    if (s.length <= minSize) s
+    else if (s.startsWith("0")) dropLeadindZeroes(s.drop(1), minSize)
+    else s
+
+  def toInt(s: String): Int =
+    Try(dropLeadindZeroes(s, 1).toInt).toOption.getOrElse(-1)
+
   def isValidHour(hour: String): Boolean = {
-    val h = hour.toInt
+    val h = toInt(hour)
     h >= 1 && h <= 12
   }
 
   def isValidMinutes(minutes: String): Boolean = {
-    val m = minutes.toInt
+    val m = toInt(minutes)
     m >= 0 && m <= 59
   }
 

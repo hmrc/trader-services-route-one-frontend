@@ -178,6 +178,9 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       timeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "45", "period" -> "AM")) shouldBe Right(
         LocalTime.parse("00:45")
       )
+      timeFieldsMapping("bar").bind(Map("hour" -> "012", "minutes" -> "0045", "period" -> "AM")) shouldBe Right(
+        LocalTime.parse("00:45")
+      )
       timeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(
         LocalTime.parse("12:00")
       )
@@ -219,6 +222,9 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
 
     "validate and optionally map time parts into a time" in {
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "45", "period" -> "AM")) shouldBe Right(
+        Some(LocalTime.parse("00:45"))
+      )
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "0012", "minutes" -> "045", "period" -> "AM")) shouldBe Right(
         Some(LocalTime.parse("00:45"))
       )
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12", "minutes" -> "00", "period" -> "PM")) shouldBe Right(

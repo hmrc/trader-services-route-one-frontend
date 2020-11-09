@@ -108,6 +108,9 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     dateFieldsMapping("foo").bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
       LocalDate.parse("2020-12-31")
     )
+    dateFieldsMapping("foo").bind(Map("year" -> "02020", "month" -> "0012", "day" -> "031")) shouldBe Right(
+      LocalDate.parse("2020-12-31")
+    )
     dateFieldsMapping("foo").bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError(
       "error.foo.all.required"
     )
@@ -163,6 +166,9 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
 
   "optionally validate and map date parts into a date" in {
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
+      Some(LocalDate.parse("2020-12-31"))
+    )
+    optionalDateFieldsMapping("bar").bind(Map("year" -> "002020", "month" -> "0012", "day" -> "031")) shouldBe Right(
       Some(LocalDate.parse("2020-12-31"))
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)

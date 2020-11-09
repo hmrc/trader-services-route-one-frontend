@@ -551,6 +551,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
 
       importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "07930487952")) shouldBe Right(Some("07930487952"))
       importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
       importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
     }
