@@ -700,12 +700,15 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case UploadFile(_, _, _, uploadRequest, fileUploads, maybeUploadError) =>
+      case UploadFile(_, _, reference, uploadRequest, fileUploads, maybeUploadError) =>
         Ok(
           views.uploadFileView(
             uploadRequest,
             fileUploads,
             maybeUploadError,
+            successAction = routes.TraderServicesFrontendController.showFileUploaded,
+            failureAction = routes.TraderServicesFrontendController.showFileUpload,
+            checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty)
                 backLinkToMostRecent[State.SummaryState](breadcrumbs)
