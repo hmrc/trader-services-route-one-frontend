@@ -25,6 +25,7 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.EnterDeclarationDetails
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.ExportQuestionsSummary
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -234,9 +235,16 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     */
   def gotoSummaryIfCompleteOr(state: State): Future[State] =
     state match {
-      case s: State.ExportQuestionsState => goto(s)
-      case s: State.ImportQuestionsState => goto(s)
-      case s                             => goto(s)
+      case s: State.ExportQuestionsState =>
+        if (s.model.isComplete) goto(State.ExportQuestionsSummary(s.model))
+        else goto(s)
+
+      case s: State.ImportQuestionsState =>
+        goto(s)
+        if (s.model.isComplete) goto(State.ImportQuestionsSummary(s.model))
+        else goto(s)
+
+      case s => goto(s)
     }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
