@@ -26,8 +26,6 @@ case class ExportQuestionsStateModel(
 
   def updated(exportQuestionsAnswers: ExportQuestions): ExportQuestionsStateModel =
     copy(exportQuestionsAnswers = exportQuestionsAnswers)
-
-  def isComplete: Boolean = false
 }
 
 object ExportQuestionsStateModel {

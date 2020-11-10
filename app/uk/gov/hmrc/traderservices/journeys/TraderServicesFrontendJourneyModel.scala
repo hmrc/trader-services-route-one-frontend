@@ -50,6 +50,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     val maxFileUploadsNumber: Int = 10
 
+    def isComplete(exportQuestionsStateModel: ExportQuestionsStateModel): Boolean =
+      false
+
+    def isComplete(importQuestionsStateModel: ImportQuestionsStateModel): Boolean =
+      false
+
   }
 
   /** All the possible states the journey can take. */
@@ -236,12 +242,12 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
   def gotoSummaryIfCompleteOr(state: State): Future[State] =
     state match {
       case s: State.ExportQuestionsState =>
-        if (s.model.isComplete) goto(State.ExportQuestionsSummary(s.model))
+        if (Rules.isComplete(s.model)) goto(State.ExportQuestionsSummary(s.model))
         else goto(s)
 
       case s: State.ImportQuestionsState =>
         goto(s)
-        if (s.model.isComplete) goto(State.ImportQuestionsSummary(s.model))
+        if (Rules.isComplete(s.model)) goto(State.ImportQuestionsSummary(s.model))
         else goto(s)
 
       case s => goto(s)

@@ -26,8 +26,6 @@ case class ImportQuestionsStateModel(
 
   def updated(importQuestionsAnswers: ImportQuestions): ImportQuestionsStateModel =
     copy(importQuestionsAnswers = importQuestionsAnswers)
-
-  def isComplete: Boolean = false
 }
 
 object ImportQuestionsStateModel {
