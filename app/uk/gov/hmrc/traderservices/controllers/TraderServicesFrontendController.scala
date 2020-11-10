@@ -719,8 +719,8 @@ class TraderServicesFrontendController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
-            successAction = routes.TraderServicesFrontendController.asyncWaitingForFileVerification,
-            failureAction = routes.TraderServicesFrontendController.asyncMarkFileUploadAsRejected,
+            successAction = routes.TraderServicesFrontendController.showFileUploaded,
+            failureAction = routes.TraderServicesFrontendController.showFileUpload,
             checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty)
