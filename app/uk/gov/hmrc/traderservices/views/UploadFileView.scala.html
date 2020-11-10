@@ -30,7 +30,7 @@
         context: UploadFileViewContext
 )
 
-@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], backLink: Call)(implicit request: Request[_], messages: Messages)
+@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title")),
