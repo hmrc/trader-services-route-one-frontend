@@ -37,7 +37,11 @@
   backLink = Some(backLink.url)
 ) {
 
-  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form">
+  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form file-upload"
+  data-file-upload-redirect-success-url="@successAction.url"
+  data-file-upload-redirect-failure-url="@failureAction.url"
+  data-file-upload-check-status-url="@checkStatusAction.url"
+  data-file-upload-aria-live-message="@messages("view.upload-file.waiting")">
 
     @forms.fieldset(
       legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
@@ -93,8 +97,14 @@
 
       @govukButton(Button(
         content = Text(messages("form.upload-file.submit")),
-        preventDoubleClick = true
+        preventDoubleClick = true,
+        classes = "file-upload__submit"
       ))
+
+      <div class="file-upload__info hidden">
+        <p aria-live="polite" role="region" class="govuk-body file-upload__message"></p>
+        <div class="ccms-loader"></div>
+      </div>
     }
 
   </form>
