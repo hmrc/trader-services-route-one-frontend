@@ -95,16 +95,16 @@
         @html.p{ @messages("view.upload-file.help.line4") }
       }
 
-      @govukButton(Button(
-        content = Text(messages("form.upload-file.submit")),
-        preventDoubleClick = true,
-        classes = "file-upload__submit"
-      ))
-
-      <div class="file-upload__info hidden">
-        <p aria-live="polite" role="region" class="govuk-body file-upload__message"></p>
-        <div class="ccms-loader"></div>
+      <div>
+        @govukButton(Button(
+          content = Text(messages("form.upload-file.submit")),
+          preventDoubleClick = true,
+          classes = "file-upload__submit"
+        ))
+        <div class="file-upload__spinner ccms-loader hidden"></div>
       </div>
+
+      <div class="file-upload__loading-container" aria-live="polite" role="region"></div>
     }
 
   </form>

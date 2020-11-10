@@ -15,13 +15,18 @@ $(document).ready(function () {
       ariaLiveMessage: this.$form.data('file-upload-aria-live-message')
     };
 
+    this.cacheTemplates();
     this.cacheElements();
     this.bindEvents();
   };
 
+  Upload.prototype.cacheTemplates = function () {
+    this.ariaLiveMessageTpl = '<p class="govuk-body">' + this.config.ariaLiveMessage + '</p>';
+  };
+
   Upload.prototype.cacheElements = function () {
-    this.$info = this.$form.find('.file-upload__info');
-    this.$message = this.$form.find('.file-upload__message');
+    this.$loadingContainer = this.$form.find('.file-upload__loading-container');
+    this.$spinner = this.$form.find('.file-upload__spinner');
     this.$submit = this.$form.find('.file-upload__submit');
   };
 
@@ -37,9 +42,9 @@ $(document).ready(function () {
   };
 
   Upload.prototype.showLoadingMessage = function () {
-    this.$submit.addClass('hidden');
-    this.$info.removeClass('hidden');
-    this.$message.text(this.config.ariaLiveMessage);
+    this.$submit.prop('disabled', true);
+    this.$spinner.removeClass('hidden');
+    this.$loadingContainer.prepend(this.ariaLiveMessageTpl);
   };
 
   Upload.prototype.submitForm = function () {
