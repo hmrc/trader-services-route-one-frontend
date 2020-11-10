@@ -24,6 +24,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
+import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State.EnterDeclarationDetails
 
 object TraderServicesFrontendJourneyModel extends JourneyModel {
 
@@ -33,6 +34,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
   override val root: State = State.Start
 
+  /** Model parametrization and rules. */
   object Rules {
 
     val mandatoryVesselDetailsRequestTypes: Set[ExportRequestType] =
@@ -225,65 +227,17 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
   }
 
-  /** Functions responsible of preserving the model when walking the journey backward. */
-  object Mergers {
-
-    val copyDeclarationDetails = Merger[State.EnterDeclarationDetails] {
-      case (s, d: State.ExportQuestionsState) =>
-        s.copy(
-          declarationDetailsOpt = Some(d.model.declarationDetails),
-          exportQuestionsAnswersOpt = Some(d.model.exportQuestionsAnswers),
-          fileUploadsOpt = d.model.fileUploadsOpt
-        )
-
-      case (s, d: State.ImportQuestionsState) =>
-        s.copy(
-          declarationDetailsOpt = Some(d.model.declarationDetails),
-          importQuestionsAnswersOpt = Some(d.model.importQuestionsAnswers),
-          fileUploadsOpt = d.model.fileUploadsOpt
-        )
-
-      case (s, d: State.FileUploadState) =>
-        s.copy(
-          declarationDetailsOpt = Some(d.declarationDetails),
-          fileUploadsOpt = Some(d.fileUploads)
-        )
+  /**
+    * Function determining if all questions were answered
+    * and the user can proceed straight to the summary,
+    * or rather shall she go to the next question.
+    */
+  def gotoSummaryIfCompleteOr(state: State): Future[State] =
+    state match {
+      case s: State.ExportQuestionsState => goto(s)
+      case s: State.ImportQuestionsState => goto(s)
+      case s                             => goto(s)
     }
-
-    def copyExportQuestionsStateModel[S <: State: Setters.SetExportQuestionsStateModel] =
-      Merger[S] {
-        case (s, d: State.ExportQuestionsState) =>
-          implicitly[Setters.SetExportQuestionsStateModel[S]].set(s, d.model)
-
-        case (s, d: State.FileUploadState) =>
-          implicitly[Setters.SetExportQuestionsStateModel[S]]
-            .set(
-              s,
-              ExportQuestionsStateModel(
-                declarationDetails = d.declarationDetails,
-                exportQuestionsAnswers = ExportQuestions.from(d.questionsAnswers),
-                fileUploadsOpt = Some(d.fileUploads)
-              )
-            )
-      }
-
-    def copyImportQuestionsStateModel[S <: State: Setters.SetImportQuestionsStateModel] =
-      Merger[S] {
-        case (s, d: State.ImportQuestionsState) =>
-          implicitly[Setters.SetImportQuestionsStateModel[S]].set(s, d.model)
-
-        case (s, d: State.FileUploadState) =>
-          implicitly[Setters.SetImportQuestionsStateModel[S]]
-            .set(
-              s,
-              ImportQuestionsStateModel(
-                declarationDetails = d.declarationDetails,
-                importQuestionsAnswers = ImportQuestions.from(d.questionsAnswers),
-                fileUploadsOpt = Some(d.fileUploads)
-              )
-            )
-      }
-  }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
   object Transitions {
@@ -308,7 +262,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case EnterDeclarationDetails(_, exportQuestionsOpt, importQuestionsOpt, fileUploadsOpt) =>
           if (declarationDetails.isExportDeclaration)
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerExportQuestionsRequestType(
                 ExportQuestionsStateModel(
                   declarationDetails,
@@ -318,7 +272,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               )
             )
           else
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerImportQuestionsRequestType(
                 ImportQuestionsStateModel(
                   declarationDetails,
@@ -333,13 +287,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsRequestType(model) =>
           val updatedExportQuestions = model.exportQuestionsAnswers.copy(requestType = Some(exportRequestType))
-          goto(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
+          gotoSummaryIfCompleteOr(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
       }
 
     def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
       Transition {
         case AnswerExportQuestionsRouteType(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerExportQuestionsHasPriorityGoods(
               model.updated(model.exportQuestionsAnswers.copy(routeType = Some(exportRouteType)))
             )
@@ -350,13 +304,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerExportQuestionsHasPriorityGoods(model) =>
           if (exportHasPriorityGoods)
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerExportQuestionsWhichPriorityGoods(
                 model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
               )
             )
           else
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerExportQuestionsFreightType(
                 model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
               )
@@ -366,7 +320,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
       Transition {
         case AnswerExportQuestionsWhichPriorityGoods(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerExportQuestionsFreightType(
               model.updated(model.exportQuestionsAnswers.copy(priorityGoods = Some(exportPriorityGoods)))
             )
@@ -378,15 +332,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case AnswerExportQuestionsFreightType(model) =>
           val updatedExportQuestions = model.exportQuestionsAnswers.copy(freightType = Some(exportFreightType))
           if (Rules.isVesselDetailsAnswerMandatory(updatedExportQuestions))
-            goto(AnswerExportQuestionsMandatoryVesselInfo(model.updated(updatedExportQuestions)))
+            gotoSummaryIfCompleteOr(AnswerExportQuestionsMandatoryVesselInfo(model.updated(updatedExportQuestions)))
           else
-            goto(AnswerExportQuestionsOptionalVesselInfo(model.updated(updatedExportQuestions)))
+            gotoSummaryIfCompleteOr(AnswerExportQuestionsOptionalVesselInfo(model.updated(updatedExportQuestions)))
       }
 
     def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
         case AnswerExportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerExportQuestionsContactInfo(
               model.updated(model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)))
             )
@@ -396,7 +350,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
         case AnswerExportQuestionsOptionalVesselInfo(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerExportQuestionsContactInfo(
               model.updated(
                 model.exportQuestionsAnswers.copy(vesselDetails =
@@ -410,7 +364,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedExportQuestionsContactInfo(user: String)(contactInfo: ExportContactInfo) =
       Transition {
         case AnswerExportQuestionsContactInfo(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             ExportQuestionsSummary(
               model.updated(model.exportQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
@@ -421,13 +375,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerImportQuestionsRequestType(model) =>
           val updatedImportQuestions = model.importQuestionsAnswers.copy(requestType = Some(importRequestType))
-          goto(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
+          gotoSummaryIfCompleteOr(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
       }
 
     def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
       Transition {
         case AnswerImportQuestionsRouteType(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerImportQuestionsHasPriorityGoods(
               model.updated(model.importQuestionsAnswers.copy(routeType = Some(importRouteType)))
             )
@@ -438,13 +392,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
       Transition {
         case AnswerImportQuestionsHasPriorityGoods(model) =>
           if (importHasPriorityGoods)
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerImportQuestionsWhichPriorityGoods(
                 model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
             )
           else
-            goto(
+            gotoSummaryIfCompleteOr(
               AnswerImportQuestionsALVS(
                 model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
               )
@@ -454,7 +408,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
       Transition {
         case AnswerImportQuestionsWhichPriorityGoods(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerImportQuestionsALVS(
               model.updated(model.importQuestionsAnswers.copy(priorityGoods = Some(importPriorityGoods)))
             )
@@ -464,7 +418,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
       Transition {
         case AnswerImportQuestionsALVS(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerImportQuestionsFreightType(
               model.updated(model.importQuestionsAnswers.copy(hasALVS = Some(importHasALVS)))
             )
@@ -476,15 +430,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         case AnswerImportQuestionsFreightType(model) =>
           val updatedImportQuestions = model.importQuestionsAnswers.copy(freightType = Some(importFreightType))
           if (Rules.isVesselDetailsAnswerMandatory(updatedImportQuestions))
-            goto(AnswerImportQuestionsMandatoryVesselInfo(model.updated(updatedImportQuestions)))
+            gotoSummaryIfCompleteOr(AnswerImportQuestionsMandatoryVesselInfo(model.updated(updatedImportQuestions)))
           else
-            goto(AnswerImportQuestionsOptionalVesselInfo(model.updated(updatedImportQuestions)))
+            gotoSummaryIfCompleteOr(AnswerImportQuestionsOptionalVesselInfo(model.updated(updatedImportQuestions)))
       }
 
     def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
         case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerImportQuestionsContactInfo(
               model.updated(
                 model.importQuestionsAnswers.copy(vesselDetails =
@@ -498,7 +452,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
         case AnswerImportQuestionsOptionalVesselInfo(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             AnswerImportQuestionsContactInfo(
               model.updated(
                 model.importQuestionsAnswers.copy(vesselDetails =
@@ -512,7 +466,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
       Transition {
         case AnswerImportQuestionsContactInfo(model) =>
-          goto(
+          gotoSummaryIfCompleteOr(
             ImportQuestionsSummary(
               model.updated(model.importQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
@@ -887,6 +841,66 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
               fail(new RuntimeException(error))
             }
           }
+      }
+  }
+
+  /** Functions responsible of preserving answers when walking the journey backward. */
+  object Mergers {
+
+    val copyDeclarationDetails = Merger[State.EnterDeclarationDetails] {
+      case (s, d: State.ExportQuestionsState) =>
+        s.copy(
+          declarationDetailsOpt = Some(d.model.declarationDetails),
+          exportQuestionsAnswersOpt = Some(d.model.exportQuestionsAnswers),
+          fileUploadsOpt = d.model.fileUploadsOpt
+        )
+
+      case (s, d: State.ImportQuestionsState) =>
+        s.copy(
+          declarationDetailsOpt = Some(d.model.declarationDetails),
+          importQuestionsAnswersOpt = Some(d.model.importQuestionsAnswers),
+          fileUploadsOpt = d.model.fileUploadsOpt
+        )
+
+      case (s, d: State.FileUploadState) =>
+        s.copy(
+          declarationDetailsOpt = Some(d.declarationDetails),
+          fileUploadsOpt = Some(d.fileUploads)
+        )
+    }
+
+    def copyExportQuestionsStateModel[S <: State: Setters.SetExportQuestionsStateModel] =
+      Merger[S] {
+        case (s, d: State.ExportQuestionsState) =>
+          implicitly[Setters.SetExportQuestionsStateModel[S]].set(s, d.model)
+
+        case (s, d: State.FileUploadState) =>
+          implicitly[Setters.SetExportQuestionsStateModel[S]]
+            .set(
+              s,
+              ExportQuestionsStateModel(
+                declarationDetails = d.declarationDetails,
+                exportQuestionsAnswers = ExportQuestions.from(d.questionsAnswers),
+                fileUploadsOpt = Some(d.fileUploads)
+              )
+            )
+      }
+
+    def copyImportQuestionsStateModel[S <: State: Setters.SetImportQuestionsStateModel] =
+      Merger[S] {
+        case (s, d: State.ImportQuestionsState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]].set(s, d.model)
+
+        case (s, d: State.FileUploadState) =>
+          implicitly[Setters.SetImportQuestionsStateModel[S]]
+            .set(
+              s,
+              ImportQuestionsStateModel(
+                declarationDetails = d.declarationDetails,
+                importQuestionsAnswers = ImportQuestions.from(d.questionsAnswers),
+                fileUploadsOpt = Some(d.fileUploads)
+              )
+            )
       }
   }
 
