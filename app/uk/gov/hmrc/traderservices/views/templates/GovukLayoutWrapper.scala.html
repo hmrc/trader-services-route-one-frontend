@@ -47,16 +47,19 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css"
     media="print" />
 @if(refresh>0){
-  <noscript>
-    <meta http-equiv="refresh" content="@refresh"/>
-  </noscript>
+<noscript>
+ <meta http-equiv="refresh" content="@refresh"/>
+</noscript>
 }
 }
 
 @scripts = {
 <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
 <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
-<script>window.GOVUKFrontend.initAll();</script>
+<script>
+    window.GOVUKFrontend.initAll();
+    document.cookie = "jsenabled=true; path=/";
+</script>
 <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascripts/researchBanner.js")'></script>
 }
 

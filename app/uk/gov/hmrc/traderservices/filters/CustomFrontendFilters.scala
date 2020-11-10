@@ -19,13 +19,11 @@ package uk.gov.hmrc.traderservices.filters
 import javax.inject.Inject
 import play.http.DefaultHttpFilters
 import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
-import play.filters.cors.CORSFilter
 
 class CustomFrontendFilters @Inject() (
   frontendFilters: FrontendFilters,
-  auditFilter: AuditFilter,
-  corsFilter: CORSFilter
+  auditFilter: AuditFilter
 ) extends DefaultHttpFilters(
       (frontendFilters.filters
-        .filterNot(_.getClass.getSimpleName.contains("AuditFilter")) :+ auditFilter :+ corsFilter): _*
+        .filterNot(_.getClass.getSimpleName.contains("AuditFilter")) :+ auditFilter): _*
     )
