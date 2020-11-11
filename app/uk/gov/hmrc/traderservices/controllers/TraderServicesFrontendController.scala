@@ -87,12 +87,14 @@ class TraderServicesFrontendController @Inject() (
   val showEnterDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterDeclarationDetails]
-      .using(Mergers.copyDeclarationDetails)
+      .orRollbackUsing(Mergers.copyDeclarationDetails)
       .orApply(Transitions.enterDeclarationDetails)
 
   // POST /pre-clearance/declaration-details
   val submitDeclarationDetails: Action[AnyContent] =
-    whenAuthorisedAsUser.bindForm(DeclarationDetailsForm).apply(Transitions.submittedDeclarationDetails)
+    whenAuthorisedAsUser
+      .bindForm(DeclarationDetailsForm)
+      .apply(Transitions.submittedDeclarationDetails)
 
   // ----------------------- EXPORT QUESTIONS -----------------------
 
@@ -100,7 +102,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsRequestType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsRequestType]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRequestType])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRequestType])
 
   // POST /pre-clearance/export-questions/request-type
   val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
@@ -112,7 +114,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsRouteType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsRouteType]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRouteType])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsRouteType])
 
   // POST /pre-clearance/export-questions/route-type
   val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
@@ -124,7 +126,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsHasPriorityGoods]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsHasPriorityGoods])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsHasPriorityGoods])
 
   // POST /pre-clearance/export-questions/has-priority-goods
   val submitExportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
@@ -136,7 +138,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsWhichPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsWhichPriorityGoods]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsWhichPriorityGoods])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsWhichPriorityGoods])
 
   // POST /pre-clearance/export-questions/which-priority-goods
   val submitExportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
@@ -148,7 +150,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsFreightType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsFreightType]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsFreightType])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsFreightType])
 
   // POST /pre-clearance/export-questions/transport-type
   val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -160,7 +162,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsMandatoryVesselInfo]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsMandatoryVesselInfo])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsMandatoryVesselInfo])
 
   // POST /pre-clearance/export-questions/vessel-info-required
   val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -172,7 +174,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsOptionalVesselInfo]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsOptionalVesselInfo])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsOptionalVesselInfo])
 
   // POST /pre-clearance/export-questions/vessel-info
   val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -184,7 +186,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerExportQuestionsContactInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsContactInfo]
-      .using(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsContactInfo])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[AnswerExportQuestionsContactInfo])
 
   // POST /pre-clearance/export-questions/contact-info
   val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
@@ -196,7 +198,7 @@ class TraderServicesFrontendController @Inject() (
   val showExportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ExportQuestionsSummary]
-      .using(Mergers.copyExportQuestionsStateModel[ExportQuestionsSummary])
+      .orRollbackUsing(Mergers.copyExportQuestionsStateModel[ExportQuestionsSummary])
 
   // ----------------------- IMPORT QUESTIONS -----------------------
 
@@ -204,7 +206,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsRequestType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsRequestType]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRequestType])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRequestType])
 
   // POST /pre-clearance/import-questions/request-type
   val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
@@ -216,7 +218,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsRouteType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsRouteType]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRouteType])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsRouteType])
 
   // POST /pre-clearance/import-questions/route-type
   val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
@@ -228,7 +230,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsHasPriorityGoods]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsHasPriorityGoods])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsHasPriorityGoods])
 
   // POST /pre-clearance/import-questions/has-priority-goods
   val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
@@ -240,7 +242,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsWhichPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsWhichPriorityGoods]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsWhichPriorityGoods])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsWhichPriorityGoods])
 
   // POST /pre-clearance/import-questions/which-priority-goods
   val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
@@ -252,7 +254,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsALVS: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsALVS]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsALVS])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsALVS])
 
   // POST /pre-clearance/import-questions/automatic-licence-verification
   val submitImportQuestionsALVSAnswer: Action[AnyContent] =
@@ -264,7 +266,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsFreightType: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsFreightType]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsFreightType])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsFreightType])
 
   // POST /pre-clearance/import-questions/transport-type
   val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
@@ -276,7 +278,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsMandatoryVesselInfo]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsMandatoryVesselInfo])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsMandatoryVesselInfo])
 
   // POST /pre-clearance/import-questions/vessel-info-required
   val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -288,7 +290,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsOptionalVesselInfo]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsOptionalVesselInfo])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsOptionalVesselInfo])
 
   // POST /pre-clearance/import-questions/vessel-info
   val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -300,7 +302,7 @@ class TraderServicesFrontendController @Inject() (
   val showAnswerImportQuestionsContactInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsContactInfo]
-      .using(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsContactInfo])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[AnswerImportQuestionsContactInfo])
 
   // POST /pre-clearance/import-questions/contact-info
   val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
@@ -312,7 +314,7 @@ class TraderServicesFrontendController @Inject() (
   val showImportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ImportQuestionsSummary]
-      .using(Mergers.copyImportQuestionsStateModel[ImportQuestionsSummary])
+      .orRollbackUsing(Mergers.copyImportQuestionsStateModel[ImportQuestionsSummary])
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -390,6 +392,7 @@ class TraderServicesFrontendController @Inject() (
   val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.FileUploaded]
+      .orRollback
 
   // POST /pre-clearance/file-uploaded
   val submitUploadAnotherFileChoice: Action[AnyContent] =
@@ -442,6 +445,7 @@ class TraderServicesFrontendController @Inject() (
   def showCreateCaseConfirmation: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.CreateCaseConfirmation]
+      .orRollback
       .andCleanBreadcrumbs() // forget journey history
 
   /**
