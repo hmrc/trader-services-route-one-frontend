@@ -94,7 +94,7 @@ lazy val root = (project in file("."))
             "javascripts/app.js",
             "javascripts/timeout/timeoutDialog.js",
             "javascripts/autocomplete.js",
-            "javascripts/components/upload-status.js"
+            "javascripts/components/file-upload.js"
           )
         )
     ),

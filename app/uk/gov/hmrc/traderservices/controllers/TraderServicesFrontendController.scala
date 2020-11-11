@@ -34,6 +34,7 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
 import play.api.libs.json.Json
+import play.mvc.Http.HeaderNames
 
 @Singleton
 class TraderServicesFrontendController @Inject() (
@@ -315,11 +316,23 @@ class TraderServicesFrontendController @Inject() (
 
   // ----------------------- FILES UPLOAD -----------------------
 
-  val successRedirect =
-    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.showWaitingForFileVerification
+  /**
+    * This cookie is set by the script on each request
+    * coming from one of our own pages open in the browser.
+    */
+  val COOKIE_JSENABLED = "jsenabled"
 
-  val errorRedirect =
-    appConfig.baseExternalCallbackUrl + routes.TraderServicesFrontendController.markFileUploadAsRejected
+  def successRedirect(implicit rh: RequestHeader) =
+    appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
+      case Some(_) => routes.TraderServicesFrontendController.asyncWaitingForFileVerification(journeyId.get)
+      case None    => routes.TraderServicesFrontendController.showWaitingForFileVerification()
+    })
+
+  def errorRedirect(implicit rh: RequestHeader) =
+    appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
+      case Some(_) => routes.TraderServicesFrontendController.asyncMarkFileUploadAsRejected(journeyId.get)
+      case None    => routes.TraderServicesFrontendController.markFileUploadAsRejected()
+    })
 
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
@@ -342,12 +355,12 @@ class TraderServicesFrontendController @Inject() (
       .bindForm(UpscanUploadErrorForm)
       .apply(Transitions.fileUploadWasRejected)
 
-  // GET /pre-clearance/file-rejected-async
-  val asyncMarkFileUploadAsRejected: Action[AnyContent] =
-    whenAuthorisedAsUser
+  // GET /pre-clearance/journey/:journeyId/file-rejected-async
+  def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
+    actions
       .bindForm(UpscanUploadErrorForm)
-      .apply(Transitions.fileUploadWasRejected)
-      .displayUsing(implicit request => renderAccepted)
+      .apply(Transitions.fileUploadWasRejected(""))
+      .displayUsing(implicit request => renderNoContent)
 
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
@@ -356,11 +369,11 @@ class TraderServicesFrontendController @Inject() (
       .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
       .redirectOrDisplayIf[State.WaitingForFileVerification]
 
-  // GET /pre-clearance/file-verification-async
-  val asyncWaitingForFileVerification: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .apply(Transitions.waitForFileVerification)
-      .displayUsing(implicit request => renderAccepted)
+  // GET /pre-clearance/journey/:journeyId/file-verification-async
+  def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
+    actions
+      .apply(Transitions.waitForFileVerification(""))
+      .displayUsing(implicit request => renderNoContent)
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
@@ -719,8 +732,8 @@ class TraderServicesFrontendController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
-            successAction = routes.TraderServicesFrontendController.asyncWaitingForFileVerification,
-            failureAction = routes.TraderServicesFrontendController.asyncMarkFileUploadAsRejected,
+            successAction = routes.TraderServicesFrontendController.showFileUploaded,
+            failureAction = routes.TraderServicesFrontendController.showFileUpload,
             checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty)
@@ -788,11 +801,11 @@ class TraderServicesFrontendController @Inject() (
       case _ => NotFound
     }
 
-  def renderAccepted(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+  def renderNoContent(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
   ): Result =
     state match {
-      case _ => Accepted
+      case _ => NoContent.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
     }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r

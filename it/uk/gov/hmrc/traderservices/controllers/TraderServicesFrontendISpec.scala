@@ -1697,8 +1697,8 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "GET /pre-clearance/file-rejected-async" should {
-      "set current file upload status as rejected and return 202 Accepted" in {
+    "GET /pre-clearance/journey/:journeyId/file-rejected" should {
+      "set current file upload status as rejected and return 204 NoContent" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
@@ -1719,12 +1719,12 @@ class TraderServicesFrontendISpec
 
         val result1 =
           await(
-            request(
-              "/pre-clearance/file-rejected-async?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+            requestWithoutJourneyId(
+              s"/pre-clearance/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
             ).get()
           )
 
-        result1.status shouldBe 202
+        result1.status shouldBe 204
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           UploadFile(
@@ -1756,8 +1756,8 @@ class TraderServicesFrontendISpec
       }
     }
 
-    "GET /pre-clearance/file-verification-async" should {
-      "set current file upload status as posted and return 202 Accepted" in {
+    "GET /pre-clearance/journey/:journeyId/file-verification" should {
+      "set current file upload status as posted and return 204 NoContent" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
@@ -1776,9 +1776,10 @@ class TraderServicesFrontendISpec
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result1 = await(request("/pre-clearance/file-verification-async").get())
+        val result1 =
+          await(requestWithoutJourneyId(s"/pre-clearance/journey/${journeyId.value}/file-verification").get())
 
-        result1.status shouldBe 202
+        result1.status shouldBe 204
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           WaitingForFileVerification(
@@ -1831,7 +1832,10 @@ class TraderServicesFrontendISpec
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result1 =
-          await(request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status").get())
+          await(
+            request("/pre-clearance/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status")
+              .get()
+          )
         result1.status shouldBe 200
         result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
         journey.getState shouldBe state
@@ -1914,5 +1918,9 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
         )
       )
   }
+
+  def requestWithoutJourneyId(path: String) =
+    wsClient
+      .url(s"$baseUrl$path")
 
 }

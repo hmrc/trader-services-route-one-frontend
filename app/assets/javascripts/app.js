@@ -21,6 +21,8 @@ $(document).ready(function() {
         window.history.back();
     });
 
+    window.GOVUKFrontend.initAll();
+    document.cookie = 'jsenabled=true; path=/';
 });
 
 function numberInputs() {
