@@ -33,6 +33,9 @@ object Time24FieldHelper {
 
   val isoTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+  // empty LocalTime marker value, safe because we never allow to set seconds and nanoseconds
+  val emptyTime = LocalTime.of(13, 13, 13, 13)
+
   def timeFieldsMapping(fieldName: String): Mapping[LocalTime] =
     mapping(
       "hour" -> optional(of[String].transform[String](_.trim, identity))
@@ -44,7 +47,7 @@ object Time24FieldHelper {
       .transform[String](concatTime, splitTime)
       .transform[LocalTime](
         LocalTime.parse(_, isoTimeFormatter),
-        isoTimeFormatter.format
+        time => if (time.equals(emptyTime)) "" else isoTimeFormatter.format(time)
       )
 
   def optionalTimeFieldsMapping(fieldName: String): Mapping[Option[LocalTime]] =
