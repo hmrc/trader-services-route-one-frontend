@@ -765,7 +765,7 @@ class TraderServicesFrontendISpec
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air),
-              vesselDetails = None
+              vesselDetails = Some(VesselDetails())
             )
           )
         )
@@ -1422,7 +1422,7 @@ class TraderServicesFrontendISpec
             routeType = Some(ImportRouteType.Route6),
             priorityGoods = Some(ImportPriorityGoods.HighValueArt),
             freightType = Some(ImportFreightType.Air),
-            vesselDetails = None
+            vesselDetails = Some(VesselDetails())
           )
         )
       )

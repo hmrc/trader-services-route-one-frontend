@@ -59,7 +59,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
       val isVesselDetailsComplete = answers.vesselDetails
         .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
-        .getOrElse(isVesselDetailsAnswerMandatory(answers))
+        .getOrElse(false)
 
       answers.requestType.isDefined &&
       answers.routeType.isDefined &&
@@ -70,8 +70,24 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
     }
 
     /** Checks is all import questions answers are in place. */
-    def isComplete(importQuestionsStateModel: ImportQuestionsStateModel): Boolean =
-      false
+    def isComplete(importQuestionsStateModel: ImportQuestionsStateModel): Boolean = {
+      val answers = importQuestionsStateModel.importQuestionsAnswers
+
+      val isPriorityGoodsComplete =
+        answers.hasPriorityGoods.map(b => if (b) answers.priorityGoods.isDefined else true).getOrElse(false)
+
+      val isVesselDetailsComplete = answers.vesselDetails
+        .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
+        .getOrElse(false)
+
+      answers.requestType.isDefined &&
+      answers.routeType.isDefined &&
+      isPriorityGoodsComplete &&
+      answers.freightType.isDefined &&
+      answers.hasALVS.isDefined &&
+      isVesselDetailsComplete &&
+      answers.contactInfo.isDefined
+    }
 
   }
 
@@ -385,9 +401,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           gotoSummaryIfCompleteOr(
             AnswerExportQuestionsContactInfo(
               model.updated(
-                model.exportQuestionsAnswers.copy(vesselDetails =
-                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
-                )
+                model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
               )
             )
           )
@@ -426,13 +440,13 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           if (importHasPriorityGoods)
             gotoSummaryIfCompleteOr(
               AnswerImportQuestionsWhichPriorityGoods(
-                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(true)))
               )
             )
           else
             gotoSummaryIfCompleteOr(
               AnswerImportQuestionsALVS(
-                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(importHasPriorityGoods)))
+                model.updated(model.importQuestionsAnswers.copy(hasPriorityGoods = Some(false), priorityGoods = None))
               )
             )
       }
@@ -487,9 +501,7 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           gotoSummaryIfCompleteOr(
             AnswerImportQuestionsContactInfo(
               model.updated(
-                model.importQuestionsAnswers.copy(vesselDetails =
-                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
-                )
+                model.importQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
               )
             )
           )

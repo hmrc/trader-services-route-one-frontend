@@ -101,7 +101,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      /* "go to ImportQuestionsSummary when submitted declaration details for import and answers are complete" in {
+      "go to ImportQuestionsSummary when submitted declaration details for import and answers are complete" in {
         given(
           EnterDeclarationDetails(
             declarationDetailsOpt = None,
@@ -117,7 +117,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         )
-      } */
+      }
 
       "copy declaration and export details if coming back from the advanced export state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
@@ -584,7 +584,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       for (
         freightType <- ExportFreightType.values;
         requestType <- ExportRequestType.values
-      )
+      ) {
         s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
           .keyOf(requestType)
           .get} when route is Hold" in {
@@ -615,6 +615,36 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+
+        s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
+          .keyOf(requestType)
+          .get} when route is Hold and answers are complete" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Hold)
+                )
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(
+                  freightType = Some(freightType),
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Hold)
+                )
+              )
+            )
+          )
+        }
+      }
 
       "copy export details if coming back from the advanced state" in {
         given(
@@ -758,6 +788,26 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
+      "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        given(
+          AnswerExportQuestionsOptionalVesselInfo(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers
+            )
+          )
+        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+            )
+          )
+        )
+      }
+
       "go to AnswerExportQuestionsContactInfo when submitted empty vessel details" in {
         given(
           AnswerExportQuestionsOptionalVesselInfo(
@@ -782,8 +832,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 routeType = Some(ExportRouteType.Route3),
                 priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
                 freightType = Some(ExportFreightType.Air),
-                vesselDetails = None
+                vesselDetails = Some(VesselDetails())
               )
+            )
+          )
+        )
+      }
+
+      "go to ExportQuestionsSummary when submitted empty vessel details and answers are complete" in {
+        val vesselDetails = VesselDetails()
+        given(
+          AnswerExportQuestionsOptionalVesselInfo(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers
+            )
+          )
+        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
             )
           )
         )
@@ -828,8 +897,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerImportQuestionsRequestType" should {
-      for (requestType <- ImportRequestType.values)
-        s"go to AnswerImportQuestionsRequestType when submitted requestType of ${ImportRequestType.keyOf(requestType).get}" in {
+      for (requestType <- ImportRequestType.values) {
+        s"go to AnswerImportQuestionsRequestType when submitted request type ${ImportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
           ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
@@ -840,6 +909,25 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+
+        s"go to ImportQuestionsSummary when submitted request type ${ImportRequestType.keyOf(requestType).get} and answers are complete" in {
+          given(
+            AnswerImportQuestionsRequestType(
+              ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
+            )
+          ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+            requestType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(requestType = Some(requestType))
+              )
+            )
+          )
+        }
+
+      }
 
       "copy import details if coming back from the advanced state" in {
         given(
@@ -863,8 +951,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerImportQuestionsRouteType" should {
-      for (routeType <- ImportRouteType.values)
-        s"go to AnswerImportQuestionsHasPriorityGoods when submitted routeType of ${ImportRouteType.keyOf(routeType).get}" in {
+      for (routeType <- ImportRouteType.values) {
+        s"go to AnswerImportQuestionsHasPriorityGoods when submitted route ${ImportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
@@ -883,6 +971,28 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+
+        s"go to ImportQuestionsSummary when submitted route ${ImportRouteType.keyOf(routeType).get} and answers are complete" in {
+          given(
+            AnswerImportQuestionsRouteType(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers
+              )
+            )
+          ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
+            routeType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(routeType = Some(routeType))
+              )
+            )
+          )
+        }
+
+      }
     }
 
     "at state AnswerImportQuestionsHasPriorityGoods" should {
@@ -907,7 +1017,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         )
       }
-      "go to AnswerImportQuestionsWhichPriorityGoods when selected NO" in {
+      "go to AnswerImportQuestionsALVS when selected NO" in {
         given(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
@@ -928,11 +1038,61 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         )
       }
+      "go to AnswerImportQuestionsWhichPriorityGoods when selected YES and answer was YES before but no priority goods selected" in {
+        val answers = completeImportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(true), priorityGoods = None)
+        given(
+          AnswerImportQuestionsHasPriorityGoods(
+            ImportQuestionsStateModel(importDeclarationDetails, answers)
+          )
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          AnswerImportQuestionsWhichPriorityGoods(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              answers.copy(hasPriorityGoods = Some(true))
+            )
+          )
+        )
+      }
+
+      "go to AnswerImportQuestionsWhichPriorityGoods when selected YES and answer was NO before, and other answers are complete" in {
+        val answers = completeImportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(false), priorityGoods = None)
+        given(
+          AnswerImportQuestionsHasPriorityGoods(
+            ImportQuestionsStateModel(importDeclarationDetails, answers)
+          )
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          AnswerImportQuestionsWhichPriorityGoods(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              answers.copy(hasPriorityGoods = Some(true))
+            )
+          )
+        )
+      }
+
+      "go to ImportQuestionsSummary when selected YES and answers are complete" in {
+        val answers = completeImportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ImportPriorityGoods.HumanRemains))
+        given(
+          AnswerImportQuestionsHasPriorityGoods(
+            ImportQuestionsStateModel(importDeclarationDetails, answers)
+          )
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              answers
+            )
+          )
+        )
+      }
     }
 
     "at state AnswerImportQuestionsWhichPriorityGoods" should {
-      for (priorityGoods <- ImportPriorityGoods.values)
-        s"go to AnswerImportQuestionsALVS when submittedImportQuestionsAnswerWhichPriorityGoods with ${ImportPriorityGoods.keyOf(priorityGoods).get}" in {
+      for (priorityGoods <- ImportPriorityGoods.values) {
+        s"go to AnswerImportQuestionsALVS when submitted priority good ${ImportPriorityGoods.keyOf(priorityGoods).get}" in {
           given(
             AnswerImportQuestionsWhichPriorityGoods(
               ImportQuestionsStateModel(
@@ -955,6 +1115,26 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+        s"go to ImportQuestionsSummary when submitted priority good ${ImportPriorityGoods.keyOf(priorityGoods).get} and answers are complete" in {
+          given(
+            AnswerImportQuestionsWhichPriorityGoods(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers
+              )
+            )
+          ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+            priorityGoods
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(priorityGoods = Some(priorityGoods))
+              )
+            )
+          )
+        }
+      }
     }
 
     "at state AnswerImportQuestionsALVS" should {
@@ -975,6 +1155,24 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 routeType = Some(ImportRouteType.Route1),
                 hasALVS = Some(true)
               )
+            )
+          )
+        )
+      }
+
+      "go to ImportQuestionsSummary when selected YES and answers are complete" in {
+        given(
+          AnswerImportQuestionsALVS(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers
+            )
+          )
+        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers.copy(hasALVS = Some(true))
             )
           )
         )
@@ -1001,16 +1199,34 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         )
       }
+
+      "go to ImportQuestionsSummary when selected NO and answers are complete" in {
+        given(
+          AnswerImportQuestionsALVS(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers
+            )
+          )
+        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers.copy(hasALVS = Some(false))
+            )
+          )
+        )
+      }
     }
 
     "at state AnswerImportQuestionsFreightType" should {
       for (
         freightType <- ImportFreightType.values;
         requestType <- ImportRequestType.values
-      )
-        s"go to AnswerImportQuestionsOptionalVesselInfo when submittedImportQuestionsAnswerFreightType and requestType=${ImportRequestType
+      ) {
+        s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
           .keyOf(requestType)
-          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}" in {
+          .get}" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -1039,13 +1255,37 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
+        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} and requestType is ${ImportRequestType
+          .keyOf(requestType)
+          .get}, and answers are complete" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(requestType = Some(requestType))
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+              )
+            )
+          )
+        }
+
+      }
+
       for (
         freightType <- ImportFreightType.values;
         requestType <- ImportRequestType.values
-      )
-        s"go to AnswerImportQuestionsMandatoryVesselInfo when submittedImportQuestionsAnswerFreightType regardless of requestType=${ImportRequestType
+      ) {
+        s"go to AnswerImportQuestionsMandatoryVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
           .keyOf(requestType)
-          .get}, and freightType=${ImportFreightType.keyOf(freightType).get}, when routeType=Hold" in {
+          .get} when route is Hold" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -1073,10 +1313,38 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
+          .keyOf(requestType)
+          .get} when route is Hold and answers are complete" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers
+                  .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold))
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers.copy(
+                  freightType = Some(freightType),
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold)
+                )
+              )
+            )
+          )
+        }
+
+      }
     }
 
     "at state AnswerImportQuestionsOptionalVesselInfo" should {
-      "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails with some vessel details" in {
+      "go to AnswerImportQuestionsContactInfo when submitted required vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1108,7 +1376,29 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "go to AnswerImportQuestionsContactInfo when submittedImportQuestionsOptionalVesselDetails without vessel details" in {
+      "go to ImportQuestionsSummary when submitted required vessel details and answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        given(
+          AnswerImportQuestionsOptionalVesselInfo(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers
+            )
+          )
+        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+          vesselDetails
+        ) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+            )
+          )
+        )
+      }
+
+      "go to AnswerImportQuestionsContactInfo when submitted empty vessel details" in {
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1132,8 +1422,29 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
                 routeType = Some(ImportRouteType.Route3),
                 priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
                 freightType = Some(ImportFreightType.Air),
-                vesselDetails = None
+                vesselDetails = Some(VesselDetails())
               )
+            )
+          )
+        )
+      }
+
+      "go to ImportQuestionsSummary when submitted empty vessel details and answers are complete" in {
+        val vesselDetails = VesselDetails()
+        given(
+          AnswerImportQuestionsOptionalVesselInfo(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers
+            )
+          )
+        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+          vesselDetails
+        ) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
             )
           )
         )
@@ -1141,7 +1452,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerImportQuestionsContactInfo" should {
-      "go to ImportQuestionsSummary when submittedImportQuestionsContactInfo with some contact details" in {
+      "go to ImportQuestionsSummary when submitted required contact details" in {
         given(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
