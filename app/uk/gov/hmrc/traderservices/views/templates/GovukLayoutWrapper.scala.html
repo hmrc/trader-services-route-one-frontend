@@ -56,10 +56,6 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 @scripts = {
 <script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
 <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
-<script>
-    window.GOVUKFrontend.initAll();
-    document.cookie = "jsenabled=true; path=/";
-</script>
 <script type="text/javascript" src='@controllers.routes.Assets.versioned("javascripts/researchBanner.js")'></script>
 }
 
