@@ -67,7 +67,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
     "at state EnterDeclarationDetails" should {
 
-      "goto AnswerExportQuestionsRequestType when submittedDeclarationDetails for export" in {
+      "goto AnswerExportQuestionsRequestType when submitted declaration details for export" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
         ) should thenGo(
@@ -75,13 +75,49 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "goto AnswerImportQuestionsRequestType when submittedDeclarationDetails for import" in {
+      "go to ExportQuestionsSummary when submitted declaration details for export and answers are complete" in {
+        given(
+          EnterDeclarationDetails(
+            declarationDetailsOpt = None,
+            exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers)
+          )
+        ) when submittedDeclarationDetails(eoriNumber)(
+          exportDeclarationDetails
+        ) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers
+            )
+          )
+        )
+      }
+
+      "goto AnswerImportQuestionsRequestType when submitted declaration details for import" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(
           AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
         )
       }
+
+      /* "go to ImportQuestionsSummary when submitted declaration details for import and answers are complete" in {
+        given(
+          EnterDeclarationDetails(
+            declarationDetailsOpt = None,
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers)
+          )
+        ) when submittedDeclarationDetails(eoriNumber)(
+          importDeclarationDetails
+        ) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers
+            )
+          )
+        )
+      } */
 
       "copy declaration and export details if coming back from the advanced export state" in {
         given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
@@ -113,8 +149,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsRequestType" should {
-      for (requestType <- ExportRequestType.values)
-        s"go to AnswerExportQuestionsRouteType when submitted requestType of ${ExportRequestType.keyOf(requestType).get}" in {
+      for (requestType <- ExportRequestType.values) {
+        s"go to AnswerExportQuestionsRouteType when submitted request type ${ExportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
           ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
@@ -125,6 +161,24 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+
+        s"go to ExportQuestionsSummary when submitted request type ${ExportRequestType.keyOf(requestType).get} and answers are complete" in {
+          given(
+            AnswerExportQuestionsRequestType(
+              ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
+            )
+          ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+            requestType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+              )
+            )
+          )
+        }
+      }
 
       "copy export details if coming back from the advanced state" in {
         given(
@@ -148,8 +202,8 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsRouteType" should {
-      for (routeType <- ExportRouteType.values)
-        s"go to AnswerExportQuestionsHasPriorityGoods when submitted routeType of ${ExportRouteType.keyOf(routeType).get}" in {
+      for (routeType <- ExportRouteType.values) {
+        s"go to AnswerExportQuestionsHasPriorityGoods when submitted route ${ExportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerExportQuestionsRouteType(
               ExportQuestionsStateModel(
@@ -168,6 +222,24 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
             )
           )
         }
+
+        s"go to ExportQuestionsSummary when submitted route ${ExportRouteType.keyOf(routeType).get} and answers are complete" in {
+          given(
+            AnswerExportQuestionsRouteType(
+              ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
+            )
+          ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
+            routeType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(routeType = Some(routeType))
+              )
+            )
+          )
+        }
+      }
 
       "copy export details if coming back from the advanced state" in {
         given(
@@ -232,6 +304,57 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
+      "go to AnswerExportQuestionsWhichPriorityGoods when selected YES and answer was YES before but no priority goods selected" in {
+        val answers = completeExportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(true), priorityGoods = None)
+        given(
+          AnswerExportQuestionsHasPriorityGoods(
+            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+          )
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          AnswerExportQuestionsWhichPriorityGoods(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              answers.copy(hasPriorityGoods = Some(true))
+            )
+          )
+        )
+      }
+
+      "go to AnswerExportQuestionsWhichPriorityGoods when selected YES and answer was NO before, and other answers are complete" in {
+        val answers = completeExportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(false), priorityGoods = None)
+        given(
+          AnswerExportQuestionsHasPriorityGoods(
+            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+          )
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          AnswerExportQuestionsWhichPriorityGoods(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              answers.copy(hasPriorityGoods = Some(true))
+            )
+          )
+        )
+      }
+
+      "go to ExportQuestionsSummary when selected YES and answers are complete" in {
+        val answers = completeExportQuestionsAnswers
+          .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ExportPriorityGoods.HumanRemains))
+        given(
+          AnswerExportQuestionsHasPriorityGoods(
+            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+          )
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              answers
+            )
+          )
+        )
+      }
+
       "copy export details if coming back from the advanced state" in {
         given(
           AnswerExportQuestionsHasPriorityGoods(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
@@ -262,28 +385,50 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsWhichPriorityGoods" should {
-      "go to AnswerExportQuestionsFreightType when submittedExportQuestionsAnswerWhichPriorityGoods" in {
-        given(
-          AnswerExportQuestionsWhichPriorityGoods(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
+      for (priorityGood <- ExportPriorityGoods.values) {
+        s"go to AnswerExportQuestionsFreightType when submitted priority good ${ExportPriorityGoods.keyOf(priorityGood).get}" in {
+          given(
+            AnswerExportQuestionsWhichPriorityGoods(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
+              )
             )
-          )
-        ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
-          ExportPriorityGoods.ExplosivesOrFireworks
-        ) should thenGo(
-          AnswerExportQuestionsFreightType(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
-                routeType = Some(ExportRouteType.Route3),
-                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+          ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+            priorityGood
+          ) should thenGo(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                ExportQuestions(
+                  requestType = Some(ExportRequestType.C1601),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(priorityGood)
+                )
               )
             )
           )
-        )
+        }
+
+        s"go to ExportQuestionsSummary when submitted priority good ${ExportPriorityGoods.keyOf(priorityGood).get} and answers are complete" in {
+          given(
+            AnswerExportQuestionsWhichPriorityGoods(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers
+              )
+            )
+          ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+            priorityGood
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(priorityGoods = Some(priorityGood))
+              )
+            )
+          )
+        }
       }
 
       "copy export details if coming back from the advanced state" in {
@@ -323,10 +468,10 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       for (
         freightType <- ExportFreightType.values;
         requestType <- ExportRequestType.values.diff(mandatoryVesselDetailsRequestTypes)
-      )
-        s"go to AnswerExportQuestionsOptionalVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
+      ) {
+        s"go to AnswerExportQuestionsOptionalVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
-          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+          .get}" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -355,13 +500,36 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
+        s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
+          .keyOf(requestType)
+          .get}, and answers are complete" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+              )
+            )
+          )
+        }
+      }
+
       for (
         freightType <- ExportFreightType.values;
         requestType <- mandatoryVesselDetailsRequestTypes
-      )
-        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType and requestType=${ExportRequestType
+      ) {
+        s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
-          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}" in {
+          .get}" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -390,13 +558,36 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         }
 
+        s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
+          .keyOf(requestType)
+          .get}, and answers are complete" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+            freightType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+              )
+            )
+          )
+        }
+      }
+
       for (
         freightType <- ExportFreightType.values;
         requestType <- ExportRequestType.values
       )
-        s"go to AnswerExportQuestionsMandatoryVesselInfo when submittedExportQuestionsAnswerFreightType regardless of requestType=${ExportRequestType
+        s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
           .keyOf(requestType)
-          .get}, and freightType=${ExportFreightType.keyOf(freightType).get}, when routeType=Hold" in {
+          .get} when route is Hold" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -461,7 +652,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsMandatoryVesselInfo" should {
-      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsMandatoryVesselDetails with complete vessel details" in {
+      "go to AnswerExportQuestionsContactInfo when submitted required vessel details" in {
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
@@ -493,7 +684,27 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "stay when submittedExportQuestionsMandatoryVesselDetails with incomplete vessel details" in {
+      "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        given(
+          AnswerExportQuestionsMandatoryVesselInfo(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers
+            )
+          )
+        ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+            )
+          )
+        )
+      }
+
+      "stay when submitted partial vessel details" in {
         an[TransitionNotAllowed] shouldBe thrownBy {
           given(
             AnswerExportQuestionsMandatoryVesselInfo(
@@ -515,7 +726,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsOptionalVesselInfo" should {
-      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails with some vessel details" in {
+      "go to AnswerExportQuestionsContactInfo when submitted required vessel details" in {
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -547,7 +758,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "go to AnswerExportQuestionsContactInfo when submittedExportQuestionsOptionalVesselDetails without vessel details" in {
+      "go to AnswerExportQuestionsContactInfo when submitted empty vessel details" in {
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -580,7 +791,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     }
 
     "at state AnswerExportQuestionsContactInfo" should {
-      "go to ExportQuestionsSummary when submittedExportQuestionsContactInfo with some contact details" in {
+      "go to ExportQuestionsSummary when submitted required contact details" in {
         given(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -978,14 +1189,14 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         given(
           ExportQuestionsSummary(
-            ExportQuestionsStateModel(exportDeclarationDetails, fullExportQuestions)
+            ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
           )
         ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
           mockUpscanInitiate
         )(eoriNumber) should thenGo(
           UploadFile(
             exportDeclarationDetails,
-            fullExportQuestions,
+            completeExportQuestionsAnswers,
             "foo-bar-ref",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
@@ -1014,7 +1225,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
         given(
           ImportQuestionsSummary(
-            ImportQuestionsStateModel(importDeclarationDetails, fullImportQuestions)
+            ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
           )
         ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
           mockUpscanInitiate
@@ -1023,7 +1234,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1045,7 +1256,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1081,7 +1292,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1120,7 +1331,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-3",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1156,7 +1367,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           FileUploaded(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             FileUploads(files =
               Seq(
                 FileUpload.Posted(1, "foo-bar-ref-1"),
@@ -1185,7 +1396,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1221,7 +1432,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1256,7 +1467,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1282,7 +1493,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           FileUploaded(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1304,7 +1515,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1327,7 +1538,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1359,7 +1570,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         val state =
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1417,7 +1628,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "stay when waitForFileVerification and not verified yet" in {
         val state = WaitingForFileVerification(
           importDeclarationDetails,
-          fullImportQuestions,
+          completeImportQuestionsAnswers,
           "foo-bar-ref-1",
           UploadRequest(
             href = "https://s3.bucket",
@@ -1443,7 +1654,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1465,7 +1676,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1488,7 +1699,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1526,7 +1737,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           FileUploaded(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1548,7 +1759,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1578,7 +1789,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1608,7 +1819,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1635,7 +1846,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           FileUploaded(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1657,7 +1868,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1681,7 +1892,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           UploadFile(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1713,7 +1924,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         given(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1737,7 +1948,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         ) should thenGo(
           WaitingForFileVerification(
             importDeclarationDetails,
-            fullImportQuestions,
+            completeImportQuestionsAnswers,
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1767,7 +1978,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto acknowledged FileUploaded when waitForFileVerification" in {
         val state = FileUploaded(
           importDeclarationDetails,
-          fullImportQuestions,
+          completeImportQuestionsAnswers,
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -1797,7 +2008,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       given(
         FileUploaded(
           importDeclarationDetails,
-          fullImportQuestions,
+          completeImportQuestionsAnswers,
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -1816,7 +2027,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
         CreateCaseConfirmation(
           importDeclarationDetails,
-          fullImportQuestions,
+          completeImportQuestionsAnswers,
           Seq(
             UploadedFile(
               "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -1861,7 +2072,7 @@ trait TestData {
   val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
   val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
 
-  val fullExportQuestions = ExportQuestions(
+  val completeExportQuestionsAnswers = ExportQuestions(
     requestType = Some(ExportRequestType.New),
     routeType = Some(ExportRouteType.Route3),
     hasPriorityGoods = Some(true),
@@ -1872,16 +2083,16 @@ trait TestData {
     contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
   )
 
-  val fullImportQuestions = ImportQuestions(
+  val completeImportQuestionsAnswers = ImportQuestions(
     requestType = Some(ImportRequestType.New),
     routeType = Some(ImportRouteType.Route3),
     hasPriorityGoods = Some(true),
     priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
     hasALVS = Some(true),
     freightType = Some(ImportFreightType.Air),
-    contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
     vesselDetails =
-      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+      Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+    contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
   )
 
 }

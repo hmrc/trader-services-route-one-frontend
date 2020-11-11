@@ -50,9 +50,26 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
 
     val maxFileUploadsNumber: Int = 10
 
-    def isComplete(exportQuestionsStateModel: ExportQuestionsStateModel): Boolean =
-      false
+    /** Checks is all export questions answers are in place. */
+    def isComplete(exportQuestionsStateModel: ExportQuestionsStateModel): Boolean = {
+      val answers = exportQuestionsStateModel.exportQuestionsAnswers
 
+      val isPriorityGoodsComplete =
+        answers.hasPriorityGoods.map(b => if (b) answers.priorityGoods.isDefined else true).getOrElse(false)
+
+      val isVesselDetailsComplete = answers.vesselDetails
+        .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
+        .getOrElse(isVesselDetailsAnswerMandatory(answers))
+
+      answers.requestType.isDefined &&
+      answers.routeType.isDefined &&
+      isPriorityGoodsComplete &&
+      answers.freightType.isDefined &&
+      isVesselDetailsComplete &&
+      answers.contactInfo.isDefined
+    }
+
+    /** Checks is all import questions answers are in place. */
     def isComplete(importQuestionsStateModel: ImportQuestionsStateModel): Boolean =
       false
 
@@ -246,7 +263,6 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
         else goto(s)
 
       case s: State.ImportQuestionsState =>
-        goto(s)
         if (Rules.isComplete(s.model)) goto(State.ImportQuestionsSummary(s.model))
         else goto(s)
 
@@ -320,13 +336,15 @@ object TraderServicesFrontendJourneyModel extends JourneyModel {
           if (exportHasPriorityGoods)
             gotoSummaryIfCompleteOr(
               AnswerExportQuestionsWhichPriorityGoods(
-                model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
+                model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(true)))
               )
             )
           else
             gotoSummaryIfCompleteOr(
               AnswerExportQuestionsFreightType(
-                model.updated(model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(exportHasPriorityGoods)))
+                model.updated(
+                  model.exportQuestionsAnswers.copy(hasPriorityGoods = Some(false), priorityGoods = None)
+                )
               )
             )
       }
