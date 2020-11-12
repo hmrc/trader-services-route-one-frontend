@@ -168,7 +168,7 @@ object FormFieldMappings {
         )
       )
     )
-    .transform(Option.apply, _.get)
+    .transform(Option.apply, _.getOrElse(""))
 
   val optionalVesselNameMapping: Mapping[Option[String]] = optional(
     of[String]
@@ -194,10 +194,12 @@ object FormFieldMappings {
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper
       .dateFieldsMapping("dateOfArrival")
-      .transform(Option.apply, _.get)
+      .transform(Option.apply, _.getOrElse(DateFieldHelper.emptyDate))
 
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
-    Time24FieldHelper.timeFieldsMapping("timeOfArrival").transform(Option.apply, _.get)
+    Time24FieldHelper
+      .timeFieldsMapping("timeOfArrival")
+      .transform(Option.apply, _.getOrElse(Time24FieldHelper.emptyTime))
 
   val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")

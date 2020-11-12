@@ -121,6 +121,9 @@ object DateFieldHelper {
         if (filteredErrors.isEmpty) Valid else Invalid(filteredErrors)
     }
 
+  // empty LocalDate marker value
+  val emptyDate: LocalDate = LocalDate.of(0, 1, 13)
+
   def dateFieldsMapping(fieldName: String): Mapping[LocalDate] =
     mapping(
       "day" -> optional(of[String].transform[String](_.trim, identity))
@@ -135,7 +138,7 @@ object DateFieldHelper {
       .transform[String](concatDate, splitDate)
       .transform[LocalDate](
         LocalDate.parse(_, DateTimeFormatter.ISO_LOCAL_DATE),
-        DateTimeFormatter.ISO_LOCAL_DATE.format
+        date => if (date.equals(emptyDate)) "" else DateTimeFormatter.ISO_LOCAL_DATE.format(date)
       )
 
   def optionalDateFieldsMapping(fieldName: String): Mapping[Option[LocalDate]] =
