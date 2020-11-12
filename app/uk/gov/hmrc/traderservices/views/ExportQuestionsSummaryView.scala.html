@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.traderservices.models.{DeclarationDetails, VesselDetails, ExportContactInfo, ExportQuestions}
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
-@import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+@import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
@@ -50,7 +50,7 @@
   @html.h2(messages("view.export-questions.summary.contact-details.heading"))
 
   @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
-    TraderServicesFrontendController.showAnswerExportQuestionsContactInfo))
+    CreateCaseJourneyController.showAnswerExportQuestionsContactInfo))
 
   @html.a(postAction.url, messages("form.export-questions.summary.continue"), useButtonStyle = true)
 }

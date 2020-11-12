@@ -47,7 +47,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
 
   "DeclarationDetailsForm" should {
 
-    val form = TraderServicesFrontendController.DeclarationDetailsForm
+    val form = CreateCaseJourneyController.DeclarationDetailsForm
 
     "bind some input fields and return DeclarationDetails and fill it back" in {
       form.bind(formInput).value shouldBe Some(formOutput)

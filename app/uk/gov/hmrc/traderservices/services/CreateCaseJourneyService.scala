@@ -20,15 +20,15 @@ import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Format
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.traderservices.journeys.{TraderServicesFrontendJourneyModel, TraderServicesFrontendJourneyStateFormats}
+import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyModel, CreateCaseJourneyStateFormats}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
 
-trait TraderServicesFrontendJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
+trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
-  val journeyKey = "TraderServicesJourney"
+  val journeyKey = "CreateCaseJourney"
 
-  override val model = TraderServicesFrontendJourneyModel
+  override val model = CreateCaseJourneyModel
 
   // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
@@ -36,16 +36,16 @@ trait TraderServicesFrontendJourneyService[RequestContext] extends PersistentJou
       .take(2) // retain last 3 states as a breadcrumbs
 }
 
-trait TraderServicesFrontendJourneyServiceWithHeaderCarrier extends TraderServicesFrontendJourneyService[HeaderCarrier]
+trait CreateCaseJourneyServiceWithHeaderCarrier extends CreateCaseJourneyService[HeaderCarrier]
 
 @Singleton
-case class MongoDBCachedTraderServicesFrontendJourneyService @Inject() (
+case class MongoDBCachedCreateCaseJourneyService @Inject() (
   cacheMongoRepository: CacheMongoRepository,
   applicationCrypto: ApplicationCrypto
-) extends MongoDBCachedJourneyService[HeaderCarrier] with TraderServicesFrontendJourneyServiceWithHeaderCarrier {
+) extends MongoDBCachedJourneyService[HeaderCarrier] with CreateCaseJourneyServiceWithHeaderCarrier {
 
   override val stateFormats: Format[model.State] =
-    TraderServicesFrontendJourneyStateFormats.formats
+    CreateCaseJourneyStateFormats.formats
 
   override def getJourneyId(hc: HeaderCarrier): Option[String] =
     hc.extraHeaders.find(_._1 == journeyKey).map(_._2)

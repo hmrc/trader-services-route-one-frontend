@@ -28,7 +28,7 @@ class LanguageSwitchController @Inject() (
   controllerComponents: MessagesControllerComponents
 ) extends FrontendController(controllerComponents) with I18nSupport {
 
-  private def fallbackURL: String = routes.TraderServicesFrontendController.showStart.url
+  private def fallbackURL: String = routes.CreateCaseJourneyController.showStart.url
 
   private def languageMap: Map[String, Lang] = appConfig.languageMap
 

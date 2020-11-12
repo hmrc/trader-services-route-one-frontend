@@ -3,62 +3,62 @@
 ->         /govuk-frontend                                          govuk.Routes
 ->         /hmrc-frontend                                           hmrcfrontend.Routes
 
-GET        /                                                        @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showStart
-GET        /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showEnterDeclarationDetails
-POST       /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitDeclarationDetails
-GET        /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRequestType
-POST       /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRequestTypeAnswer
-GET        /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsRouteType
-POST       /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsRouteTypeAnswer
-GET        /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsHasPriorityGoods
-POST       /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsHasPriorityGoodsAnswer
-GET        /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsWhichPriorityGoods
-POST       /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsWhichPriorityGoodsAnswer
-GET        /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsFreightType
-POST       /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsFreightTypeAnswer
-GET        /pre-clearance/export-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsMandatoryVesselInfo
-POST       /pre-clearance/export-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsMandatoryVesselInfoAnswer
-GET        /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsOptionalVesselInfo
-POST       /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsOptionalVesselInfoAnswer
-GET        /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerExportQuestionsContactInfo
-POST       /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitExportQuestionsContactInfoAnswer
-GET        /pre-clearance/export-questions/check-your-answers       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showExportQuestionsSummary
+GET        /                                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showStart
+GET        /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showEnterDeclarationDetails
+POST       /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitDeclarationDetails
+GET        /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRequestType
+POST       /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsRequestTypeAnswer
+GET        /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRouteType
+POST       /pre-clearance/export-questions/route-type               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsRouteTypeAnswer
+GET        /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsHasPriorityGoods
+POST       /pre-clearance/export-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsHasPriorityGoodsAnswer
+GET        /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsWhichPriorityGoods
+POST       /pre-clearance/export-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsWhichPriorityGoodsAnswer
+GET        /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsFreightType
+POST       /pre-clearance/export-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsFreightTypeAnswer
+GET        /pre-clearance/export-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsMandatoryVesselInfo
+POST       /pre-clearance/export-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsMandatoryVesselInfoAnswer
+GET        /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsOptionalVesselInfo
+POST       /pre-clearance/export-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsOptionalVesselInfoAnswer
+GET        /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsContactInfo
+POST       /pre-clearance/export-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsContactInfoAnswer
+GET        /pre-clearance/export-questions/check-your-answers       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showExportQuestionsSummary
 
-GET        /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRequestType
-POST       /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRequestTypeAnswer
-GET        /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsRouteType
-POST       /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsRouteTypeAnswer
-GET        /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsHasPriorityGoods
-POST       /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsHasPriorityGoodsAnswer
-GET        /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsWhichPriorityGoods
-POST       /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsWhichPriorityGoodsAnswer
-GET        /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsALVS
-POST       /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsALVSAnswer
-GET        /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsFreightType
-POST       /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsFreightTypeAnswer
-GET        /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
-POST       /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsMandatoryVesselInfoAnswer
-GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
-POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsOptionalVesselInfoAnswer
-GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showAnswerImportQuestionsContactInfo
-POST       /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitImportQuestionsContactInfoAnswer
-GET        /pre-clearance/import-questions/check-your-answers       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showImportQuestionsSummary
+GET        /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsRequestType
+POST       /pre-clearance/import-questions/request-type             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsRequestTypeAnswer
+GET        /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsRouteType
+POST       /pre-clearance/import-questions/route-type               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsRouteTypeAnswer
+GET        /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsHasPriorityGoods
+POST       /pre-clearance/import-questions/has-priority-goods       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsHasPriorityGoodsAnswer
+GET        /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsWhichPriorityGoods
+POST       /pre-clearance/import-questions/which-priority-goods     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsWhichPriorityGoodsAnswer
+GET        /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsALVS
+POST       /pre-clearance/import-questions/automatic-licence-verification   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsALVSAnswer
+GET        /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsFreightType
+POST       /pre-clearance/import-questions/transport-type           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsFreightTypeAnswer
+GET        /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsMandatoryVesselInfo
+POST       /pre-clearance/import-questions/vessel-info-required     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsMandatoryVesselInfoAnswer
+GET        /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsOptionalVesselInfo
+POST       /pre-clearance/import-questions/vessel-info              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsOptionalVesselInfoAnswer
+GET        /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsContactInfo
+POST       /pre-clearance/import-questions/contact-info             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsContactInfoAnswer
+GET        /pre-clearance/import-questions/check-your-answers       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showImportQuestionsSummary
 
-GET        /pre-clearance/file-upload                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUpload
-GET        /pre-clearance/file-rejected                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.markFileUploadAsRejected
-GET        /pre-clearance/journey/:journeyId/file-rejected          @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.asyncMarkFileUploadAsRejected(journeyId: String)
-GET        /pre-clearance/file-verification                         @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showWaitingForFileVerification
-GET        /pre-clearance/journey/:journeyId/file-verification      @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.asyncWaitingForFileVerification(journeyId: String)
-GET        /pre-clearance/file-verification/:reference/status       @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.checkFileVerificationStatus(reference: String)
-GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showFileUploaded
-POST       /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.submitUploadAnotherFileChoice
-GET        /pre-clearance/file-uploaded/:reference/remove           @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.removeFileUploadByReference(reference: String)
+GET        /pre-clearance/file-upload                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUpload
+GET        /pre-clearance/file-rejected                             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.markFileUploadAsRejected
+GET        /pre-clearance/journey/:journeyId/file-rejected          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncMarkFileUploadAsRejected(journeyId: String)
+GET        /pre-clearance/file-verification                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showWaitingForFileVerification
+GET        /pre-clearance/journey/:journeyId/file-verification      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncWaitingForFileVerification(journeyId: String)
+GET        /pre-clearance/file-verification/:reference/status       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.checkFileVerificationStatus(reference: String)
+GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUploaded
+POST       /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitUploadAnotherFileChoice
+GET        /pre-clearance/file-uploaded/:reference/remove           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.removeFileUploadByReference(reference: String)
 
-POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.createCase
-GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.showCreateCaseConfirmation
+POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
+GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
 
 + nocsrf
-POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.TraderServicesFrontendController.callbackFromUpscan(journeyId: String)
+POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String)
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 

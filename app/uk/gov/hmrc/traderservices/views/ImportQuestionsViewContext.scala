@@ -23,9 +23,9 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.mvc.Call
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel
 
 @Singleton
 class ImportQuestionsViewContext
@@ -118,10 +118,10 @@ class ImportQuestionsViewContext
     )
 
   def getChangeCallForVesselDetails(importQuestions: ImportQuestions): Call =
-    if (TraderServicesFrontendJourneyModel.Rules.isVesselDetailsAnswerMandatory(importQuestions))
-      TraderServicesFrontendController.showAnswerImportQuestionsMandatoryVesselInfo
+    if (CreateCaseJourneyModel.Rules.isVesselDetailsAnswerMandatory(importQuestions))
+      CreateCaseJourneyController.showAnswerImportQuestionsMandatoryVesselInfo
     else
-      TraderServicesFrontendController.showAnswerImportQuestionsOptionalVesselInfo
+      CreateCaseJourneyController.showAnswerImportQuestionsOptionalVesselInfo
 
   def summaryListOfImportQuestions(importQuestions: ImportQuestions)(implicit messages: Messages): SummaryList = {
 
@@ -133,7 +133,7 @@ class ImportQuestionsViewContext
           .map(key => messages(s"form.import-questions.requestType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.import-questions.requestType"),
-        action = (TraderServicesFrontendController.showAnswerImportQuestionsRequestType(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsRequestType(), "site.change")
       )
     )
 
@@ -146,7 +146,7 @@ class ImportQuestionsViewContext
             .map(key => messages(s"form.import-questions.routeType.$key"))
             .getOrElse("-"),
           visuallyHiddenText = Some("summary.import-questions.routeType"),
-          action = (TraderServicesFrontendController.showAnswerImportQuestionsRouteType(), "site.change")
+          action = (CreateCaseJourneyController.showAnswerImportQuestionsRouteType(), "site.change")
         )
       )
 
@@ -158,7 +158,7 @@ class ImportQuestionsViewContext
             messages(s"form.import-questions.hasPriorityGoods.yes")
           else messages(s"form.import-questions.hasPriorityGoods.no"),
         visuallyHiddenText = Some("summary.import-questions.hasPriorityGoods"),
-        action = (TraderServicesFrontendController.showAnswerImportQuestionsHasPriorityGoods(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsHasPriorityGoods(), "site.change")
       )
     )
 
@@ -172,7 +172,7 @@ class ImportQuestionsViewContext
               .map(key => messages(s"form.import-questions.priorityGoods.$key"))
               .getOrElse("-"),
             visuallyHiddenText = Some("summary.import-questions.whichPriorityGoods"),
-            action = (TraderServicesFrontendController.showAnswerImportQuestionsWhichPriorityGoods(), "site.change")
+            action = (CreateCaseJourneyController.showAnswerImportQuestionsWhichPriorityGoods(), "site.change")
           )
         )
       else Seq.empty
@@ -185,7 +185,7 @@ class ImportQuestionsViewContext
             messages(s"form.import-questions.hasALVS.yes")
           else messages(s"form.import-questions.hasALVS.no"),
         visuallyHiddenText = Some("summary.import-questions.hasALVS"),
-        action = (TraderServicesFrontendController.showAnswerImportQuestionsALVS(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsALVS(), "site.change")
       )
     )
 
@@ -197,7 +197,7 @@ class ImportQuestionsViewContext
           .map(key => messages(s"form.import-questions.freightType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.import-questions.freightType"),
-        action = (TraderServicesFrontendController.showAnswerImportQuestionsFreightType(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsFreightType(), "site.change")
       )
     )
 

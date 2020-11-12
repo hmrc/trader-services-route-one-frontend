@@ -48,7 +48,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
   "MandatoryVesselDetailsForm" should {
 
-    val form = TraderServicesFrontendController.MandatoryVesselDetailsForm
+    val form = CreateCaseJourneyController.MandatoryVesselDetailsForm
 
     "bind some input fields and return VesselDetails and fill it back" in {
       form.bind(formInput).value shouldBe Some(formOutput)
@@ -151,7 +151,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
   "OptionalVesselDetailsForm" should {
 
-    val form = TraderServicesFrontendController.OptionalVesselDetailsForm
+    val form = CreateCaseJourneyController.OptionalVesselDetailsForm
 
     "bind some input fields and return VesselDetails and fill it back" in {
       form.bind(formInput).value shouldBe Some(formOutput)

@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.views
 
 import uk.gov.hmrc.traderservices.models.DeclarationDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.i18n.Messages
 
 trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper {
@@ -32,19 +32,19 @@ trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatH
           label = "summary.declaration-details.epu",
           value = declarationDetails.epu.value.toString(),
           visuallyHiddenText = Some("summary.declaration-details.epu"),
-          action = (TraderServicesFrontendController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),
         summaryListRow(
           label = "summary.declaration-details.entryNumber",
           value = declarationDetails.entryNumber.value.toString(),
           visuallyHiddenText = Some("summary.declaration-details.entryNumber"),
-          action = (TraderServicesFrontendController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),
         summaryListRow(
           label = "summary.declaration-details.entryDate",
           value = formatDateForDisplay(declarationDetails.entryDate),
           visuallyHiddenText = Some("summary.declaration-details.entryDate"),
-          action = (TraderServicesFrontendController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         )
       )
     )

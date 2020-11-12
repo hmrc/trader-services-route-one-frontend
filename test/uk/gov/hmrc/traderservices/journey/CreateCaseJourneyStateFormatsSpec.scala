@@ -19,19 +19,21 @@ package uk.gov.hmrc.traderservices.journey
 import java.time.LocalDate
 
 import play.api.libs.json.{Format, JsResultException, Json}
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 
-class TraderServicesFrontendFormatSpec extends UnitSpec {
+class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
 
-  implicit val formats: Format[State] = TraderServicesFrontendJourneyStateFormats.formats
+  implicit val formats: Format[State] = CreateCaseJourneyStateFormats.formats
 
-  "TraderServicesFrontendJourneyStateFormats" should {
+  "CreateCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat("""{"state":"Start"}""", State.Start)
       validateJsonFormat(
@@ -348,10 +350,10 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"import":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref",
           |"uploadRequest":{"href":"https://foo.bar","fields":{}},
           |"fileUploads":{"files":[
@@ -361,27 +363,29 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
           |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
           |]},"maybeUploadError":{"FileVerificationFailed":{"details":{"failureReason":"QUARANTINE","message":"some reason"}}}}}""".stripMargin,
-        State.UploadFile(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route3),
-            hasPriorityGoods = Some(true),
-            priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
-            hasALVS = Some(true),
-            freightType = Some(ImportFreightType.RORO),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(LocalDate.parse("2020-10-19")),
-                timeOfArrival = Some(LocalTime.parse("00:00"))
-              )
-            ),
-            contactInfo = Some(
-              ImportContactInfo(
-                contactName = "Bob",
-                contactEmail = "name@somewhere.com",
-                contactNumber = Some("012345678910")
+        FileUploadState.UploadFile(
+          FileUploadHostData(
+            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              hasPriorityGoods = Some(true),
+              priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+              hasALVS = Some(true),
+              freightType = Some(ImportFreightType.RORO),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                  timeOfArrival = Some(LocalTime.parse("00:00"))
+                )
+              ),
+              contactInfo = Some(
+                ImportContactInfo(
+                  contactName = "Bob",
+                  contactEmail = "name@somewhere.com",
+                  contactNumber = Some("012345678910")
+                )
               )
             )
           ),
@@ -408,10 +412,10 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"UploadFile","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
@@ -421,9 +425,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
           |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
-        State.UploadFile(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          exportQuestions,
+        FileUploadState.UploadFile(
+          FileUploadHostData(
+            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            exportQuestions
+          ),
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
           FileUploads(files =
@@ -446,10 +452,10 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"WaitingForFileVerification","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"WaitingForFileVerification","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"currentFileUpload":{"Posted":{"orderNumber":3,"reference":"foo3"}},
@@ -460,9 +466,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
           |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]}}}""".stripMargin,
-        State.WaitingForFileVerification(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          exportQuestions,
+        FileUploadState.WaitingForFileVerification(
+          FileUploadHostData(
+            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            exportQuestions
+          ),
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
           FileUpload.Posted(3, "foo3"),
@@ -487,10 +495,10 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        """{"state":"FileUploaded","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"FileUploaded","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"fileUploads":{"files":[
           |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
           |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -499,9 +507,11 @@ class TraderServicesFrontendFormatSpec extends UnitSpec {
           |{"Posted":{"orderNumber":3,"reference":"foo3"}}
           |]},
           |"acknowledged":false}}""".stripMargin,
-        State.FileUploaded(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
-          exportQuestions,
+        FileUploadState.FileUploaded(
+          FileUploadHostData(
+            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            exportQuestions
+          ),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "foo1"),

@@ -19,9 +19,9 @@
 @(showSignOut: Boolean = true)(implicit messages: Messages)
 
 @govukHeader(Header(
-    homepageUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController.showStart.url),
+    homepageUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController.showStart.url),
     serviceName = Some(messages("service.name")),
-    serviceUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController.showStart.url),
+    serviceUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController.showStart.url),
     containerClasses = Some("govuk-width-container"),
     navigation = if (showSignOut) {
         Some(Seq(

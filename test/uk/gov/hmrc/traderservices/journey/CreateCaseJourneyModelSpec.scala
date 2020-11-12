@@ -19,12 +19,14 @@ package uk.gov.hmrc.traderservices.journey
 import java.time.LocalDate
 
 import uk.gov.hmrc.play.test.UnitSpec
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Rules._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyService
+import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -35,8 +37,9 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.Future
 import java.time.ZonedDateTime
 import _root_.uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 
-class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State] with TestData {
+class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
   import scala.concurrent.duration._
   override implicit val defaultTimeout: FiniteDuration = 60 seconds
@@ -45,7 +48,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
   case class DummyContext()
   implicit val dummyContext: DummyContext = DummyContext()
 
-  "TraderServicesFrontendModel" when {
+  "CreateCaseJourneyModel" when {
     "at state Start" should {
       "stay at Start when start" in {
         given(Start) when start(eoriNumber) should thenGo(Start)
@@ -1331,8 +1334,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           mockUpscanInitiate
         )(eoriNumber) should thenGo(
           UploadFile(
-            exportDeclarationDetails,
-            completeExportQuestionsAnswers,
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
@@ -1369,8 +1371,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1391,8 +1392,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
         given(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1427,8 +1427,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1466,8 +1465,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to FileUploaded when waitForFileVerification and accepted already" in {
         given(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-3",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1502,8 +1500,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           FileUploaded(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(1, "foo-bar-ref-1"),
@@ -1531,8 +1528,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to UploadFile when waitForFileVerification and rejected already" in {
         given(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1567,8 +1563,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1602,8 +1597,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1628,8 +1622,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         ) should thenGo(
           FileUploaded(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1650,8 +1643,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1673,8 +1665,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         ) should thenGo(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1705,8 +1696,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto UploadFile with error when fileUploadWasRejected" in {
         val state =
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1763,8 +1753,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     "at state WaitingForFileVerification" should {
       "stay when waitForFileVerification and not verified yet" in {
         val state = WaitingForFileVerification(
-          importDeclarationDetails,
-          completeImportQuestionsAnswers,
+          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           "foo-bar-ref-1",
           UploadRequest(
             href = "https://s3.bucket",
@@ -1789,8 +1778,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to UploadFile when waitForFileVerification and reference unknown" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1811,8 +1799,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1834,8 +1821,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to FileUploaded when waitForFileVerification and file already accepted" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1872,8 +1858,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           FileUploaded(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1894,8 +1879,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "go to UploadFile when waitForFileVerification and file already failed" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1924,8 +1908,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           eoriNumber
         ) should thenGo(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1954,8 +1937,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1981,8 +1963,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         ) should thenGo(
           FileUploaded(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2003,8 +1984,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2027,8 +2007,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         ) should thenGo(
           UploadFile(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2059,8 +2038,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
         given(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2083,8 +2061,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         ) should thenGo(
           WaitingForFileVerification(
-            importDeclarationDetails,
-            completeImportQuestionsAnswers,
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2113,8 +2090,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
     "at state FileUploaded" should {
       "goto acknowledged FileUploaded when waitForFileVerification" in {
         val state = FileUploaded(
-          importDeclarationDetails,
-          completeImportQuestionsAnswers,
+          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2143,8 +2119,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
       }
       given(
         FileUploaded(
-          importDeclarationDetails,
-          completeImportQuestionsAnswers,
+          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2180,8 +2155,7 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
   }
 
   case class given[S <: State: ClassTag](initialState: S)
-      extends TraderServicesFrontendJourneyService[DummyContext]
-      with InMemoryStore[(State, List[State]), DummyContext] {
+      extends CreateCaseJourneyService[DummyContext] with InMemoryStore[(State, List[State]), DummyContext] {
 
     await(save((initialState, Nil)))
 

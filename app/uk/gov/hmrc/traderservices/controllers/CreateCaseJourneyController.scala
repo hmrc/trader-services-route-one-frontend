@@ -26,9 +26,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, S3UploadError, UpscanNotification, VesselDetails}
-import uk.gov.hmrc.traderservices.services.TraderServicesFrontendJourneyServiceWithHeaderCarrier
+import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.ExecutionContext
@@ -40,24 +40,24 @@ import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 import uk.gov.hmrc.traderservices.models.ImportQuestions
 
 @Singleton
-class TraderServicesFrontendController @Inject() (
+class CreateCaseJourneyController @Inject() (
   appConfig: AppConfig,
   override val messagesApi: MessagesApi,
   traderServicesApiConnector: TraderServicesApiConnector,
   upscanInitiateConnector: UpscanInitiateConnector,
   val authConnector: FrontendAuthConnector,
   val env: Environment,
-  override val journeyService: TraderServicesFrontendJourneyServiceWithHeaderCarrier,
+  override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.Views
 )(implicit val config: Configuration, ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
 
-  val controller = routes.TraderServicesFrontendController
+  val controller = routes.CreateCaseJourneyController
 
-  import TraderServicesFrontendController._
-  import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel._
+  import CreateCaseJourneyController._
+  import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel._
 
   /** AsUser authorisation request */
   val AsUser: WithAuthorised[String] = { implicit request =>
@@ -346,45 +346,45 @@ class TraderServicesFrontendController @Inject() (
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         val callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url
-        Transitions
+        FileUploadTransitions
           .initiateFileUpload(callbackUrl, successRedirect, errorRedirect, appConfig.fileFormats.maxFileSizeMb)(
             upscanInitiateConnector.initiate(_)
           )
       }
-      .redirectOrDisplayIf[State.UploadFile]
+      .redirectOrDisplayIf[FileUploadState.UploadFile]
 
   // GET /pre-clearance/file-rejected
   val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
-      .apply(Transitions.fileUploadWasRejected)
+      .apply(FileUploadTransitions.fileUploadWasRejected)
 
   // GET /pre-clearance/journey/:journeyId/file-rejected-async
   def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
-      .apply(Transitions.fileUploadWasRejected(""))
+      .apply(FileUploadTransitions.fileUploadWasRejected(""))
       .displayUsing(implicit request => renderNoContent)
 
   // GET /pre-clearance/file-verification
   val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
-      .waitForStateThenRedirect[State.FileUploaded](3)
-      .orApplyOnTimeout(_ => Transitions.waitForFileVerification)
-      .redirectOrDisplayIf[State.WaitingForFileVerification]
+      .waitForStateThenRedirect[FileUploadState.FileUploaded](3)
+      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
+      .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
   // GET /pre-clearance/journey/:journeyId/file-verification-async
   def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     actions
-      .waitForStateAndDisplayUsing[State.FileUploaded](3, implicit request => renderNoContent)
-      .orApplyOnTimeout(_ => Transitions.waitForFileVerification(""))
+      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](3, implicit request => renderNoContent)
+      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
       .displayUsing(implicit request => renderNoContent)
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan
   def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
       .parseJson[UpscanNotification]
-      .apply(Transitions.upscanCallbackArrived)
+      .apply(FileUploadTransitions.upscanCallbackArrived)
       .transform { case _ => Accepted }
       .recover {
         case e: IllegalArgumentException => BadRequest
@@ -394,7 +394,7 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/file-uploaded
   val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.FileUploaded]
+      .show[FileUploadState.FileUploaded]
       .orRollback
 
   // POST /pre-clearance/file-uploaded
@@ -403,15 +403,15 @@ class TraderServicesFrontendController @Inject() (
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+          appConfig.baseInternalCallbackUrl + routes.CreateCaseJourneyController
             .callbackFromUpscan(currentJourneyId)
             .url
-        Transitions.submitedUploadAnotherFileChoice(
+        FileUploadTransitions.submitedUploadAnotherFileChoice(
           callbackUrl,
           successRedirect,
           errorRedirect,
           appConfig.fileFormats.maxFileSizeMb
-        )(upscanInitiateConnector.initiate(_))(traderServicesApiConnector.createCase(_)) _
+        )(upscanInitiateConnector.initiate(_))(Transitions.createCase(traderServicesApiConnector.createCase(_))) _
       }
 
   // GET /pre-clearance/file-uploaded/:reference/remove
@@ -419,10 +419,10 @@ class TraderServicesFrontendController @Inject() (
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + routes.TraderServicesFrontendController
+          appConfig.baseInternalCallbackUrl + routes.CreateCaseJourneyController
             .callbackFromUpscan(currentJourneyId)
             .url
-        Transitions.removeFileUploadByReference(reference)(
+        FileUploadTransitions.removeFileUploadByReference(reference)(
           callbackUrl,
           successRedirect,
           errorRedirect,
@@ -520,13 +520,13 @@ class TraderServicesFrontendController @Inject() (
       case _: ImportQuestionsSummary =>
         controller.showImportQuestionsSummary()
 
-      case _: UploadFile =>
+      case _: FileUploadState.UploadFile =>
         controller.showFileUpload()
 
-      case _: WaitingForFileVerification =>
+      case _: FileUploadState.WaitingForFileVerification =>
         controller.showWaitingForFileVerification()
 
-      case _: FileUploaded =>
+      case _: FileUploadState.FileUploaded =>
         controller.showFileUploaded()
 
       case _: CreateCaseConfirmation =>
@@ -741,22 +741,22 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case UploadFile(_, questionsAnswers, reference, uploadRequest, fileUploads, maybeUploadError) =>
+      case FileUploadState.UploadFile(model, reference, uploadRequest, fileUploads, maybeUploadError) =>
         Ok(
           views.uploadFileView(
             uploadRequest,
             fileUploads,
             maybeUploadError,
-            successAction = routes.TraderServicesFrontendController.showFileUploaded,
-            failureAction = routes.TraderServicesFrontendController.showFileUpload,
-            checkStatusAction = routes.TraderServicesFrontendController.checkFileVerificationStatus(reference),
+            successAction = routes.CreateCaseJourneyController.showFileUploaded,
+            failureAction = routes.CreateCaseJourneyController.showFileUpload,
+            checkStatusAction = routes.CreateCaseJourneyController.checkFileVerificationStatus(reference),
             backLink =
-              if (fileUploads.isEmpty) backLinkToSummary(questionsAnswers)
+              if (fileUploads.isEmpty) backLinkToSummary(model.questionsAnswers)
               else controller.showFileUploaded()
           )
         )
 
-      case WaitingForFileVerification(_, _, reference, _, _, _) =>
+      case FileUploadState.WaitingForFileVerification(_, reference, _, _, _) =>
         Ok(
           views.waitingForFileVerificationView(
             successAction = controller.showFileUploaded,
@@ -766,22 +766,22 @@ class TraderServicesFrontendController @Inject() (
           )
         )
 
-      case FileUploaded(declarationDetails, questionsAnswers, fileUploads, _) =>
+      case FileUploadState.FileUploaded(model, fileUploads, _) =>
         Ok(
-          if (fileUploads.acceptedCount < Rules.maxFileUploadsNumber)
+          if (fileUploads.acceptedCount < maxFileUploadsNumber)
             views.fileUploadedView(
               formWithErrors.or(UploadAnotherFileChoiceForm),
               fileUploads,
               controller.submitUploadAnotherFileChoice,
               controller.removeFileUploadByReference,
-              backLinkToSummary(questionsAnswers)
+              backLinkToSummary(model.questionsAnswers)
             )
           else
             views.fileUploadedSummaryView(
               fileUploads,
               controller.createCase,
               controller.removeFileUploadByReference,
-              backLinkToSummary(questionsAnswers)
+              backLinkToSummary(model.questionsAnswers)
             )
         )
 
@@ -809,7 +809,7 @@ class TraderServicesFrontendController @Inject() (
     request: Request[_]
   ): Result =
     state match {
-      case s: State.HasFileUploads =>
+      case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
           case None    => NotFound
@@ -843,7 +843,7 @@ class TraderServicesFrontendController @Inject() (
     headerCarrier.withExtraHeaders(key -> value)
 }
 
-object TraderServicesFrontendController {
+object CreateCaseJourneyController {
 
   import FormFieldMappings._
 
