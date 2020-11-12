@@ -376,7 +376,8 @@ class TraderServicesFrontendController @Inject() (
   // GET /pre-clearance/journey/:journeyId/file-verification-async
   def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     actions
-      .apply(Transitions.waitForFileVerification(""))
+      .waitForStateAndDisplayUsing[State.FileUploaded](3, implicit request => renderNoContent)
+      .orApplyOnTimeout(_ => Transitions.waitForFileVerification(""))
       .displayUsing(implicit request => renderNoContent)
 
   // POST /pre-clearance/journey/:journeyId/callback-from-upscan

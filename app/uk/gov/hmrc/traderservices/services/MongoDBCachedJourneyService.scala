@@ -73,8 +73,8 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
     cache
       .save(protectedEntry)
       .map { _ =>
-        println("-" + state._2.length + "-" * 32)
-        println(state._1)
+        //println("-" + state._2.length + "-" * 32)
+        //println(state._1)
         state
       }
   }
