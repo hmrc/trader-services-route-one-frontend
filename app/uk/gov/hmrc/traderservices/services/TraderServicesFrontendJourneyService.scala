@@ -33,6 +33,7 @@ trait TraderServicesFrontendJourneyService[RequestContext] extends PersistentJou
   // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
     _.filterNot(s => s.isInstanceOf[model.IsError] || s.isInstanceOf[model.IsTransient])
+      .take(2) // retain last 3 states as a breadcrumbs
 }
 
 trait TraderServicesFrontendJourneyServiceWithHeaderCarrier extends TraderServicesFrontendJourneyService[HeaderCarrier]

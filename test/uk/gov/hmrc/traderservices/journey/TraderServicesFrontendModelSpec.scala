@@ -21,7 +21,6 @@ import java.time.LocalDate
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Mergers._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.Rules._
 import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
@@ -118,34 +117,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
           )
         )
       }
-
-      "copy declaration and export details if coming back from the advanced export state" in {
-        given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerExportQuestionsRequestType(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.C1603))
-          )
-        )) should thenGo(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = Some(exportDeclarationDetails),
-            exportQuestionsAnswersOpt = Some(ExportQuestions(requestType = Some(ExportRequestType.C1603)))
-          )
-        )
-      }
-
-      "copy declaration and import details if coming back from the advanced import state" in {
-        given(EnterDeclarationDetails(None)) when (copyDeclarationDetails, AnswerImportQuestionsRequestType(
-          ImportQuestionsStateModel(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New))
-          )
-        )) should thenGo(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = Some(importDeclarationDetails),
-            importQuestionsAnswersOpt = Some(ImportQuestions(requestType = Some(ImportRequestType.New)))
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsRequestType" should {
@@ -180,25 +151,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
       }
 
-      "copy export details if coming back from the advanced state" in {
-        given(
-          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-        ) when (copyExportQuestionsStateModel[
-          AnswerExportQuestionsRequestType
-        ], AnswerExportQuestionsRouteType(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.C1603))
-          )
-        )) should thenGo(
-          AnswerExportQuestionsRequestType(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.C1603))
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsRouteType" should {
@@ -241,23 +193,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
       }
 
-      "copy export details if coming back from the advanced state" in {
-        given(
-          AnswerExportQuestionsRouteType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-        ) when (copyExportQuestionsStateModel[AnswerExportQuestionsRouteType], AnswerExportQuestionsHasPriorityGoods(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route1))
-          )
-        )) should thenGo(
-          AnswerExportQuestionsRouteType(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route1))
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsHasPriorityGoods" should {
@@ -355,33 +290,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         )
       }
 
-      "copy export details if coming back from the advanced state" in {
-        given(
-          AnswerExportQuestionsHasPriorityGoods(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-        ) when (copyExportQuestionsStateModel[
-          AnswerExportQuestionsHasPriorityGoods
-        ], AnswerExportQuestionsWhichPriorityGoods(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1602),
-              routeType = Some(ExportRouteType.Route2),
-              hasPriorityGoods = Some(true)
-            )
-          )
-        )) should thenGo(
-          AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.C1602),
-                routeType = Some(ExportRouteType.Route2),
-                hasPriorityGoods = Some(true)
-              )
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsWhichPriorityGoods" should {
@@ -431,37 +339,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
       }
 
-      "copy export details if coming back from the advanced state" in {
-        given(
-          AnswerExportQuestionsWhichPriorityGoods(
-            ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions())
-          )
-        ) when (copyExportQuestionsStateModel[
-          AnswerExportQuestionsWhichPriorityGoods
-        ], AnswerExportQuestionsFreightType(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1602),
-              routeType = Some(ExportRouteType.Route2),
-              hasPriorityGoods = Some(true),
-              freightType = Some(ExportFreightType.Maritime)
-            )
-          )
-        )) should thenGo(
-          AnswerExportQuestionsWhichPriorityGoods(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.C1602),
-                routeType = Some(ExportRouteType.Route2),
-                hasPriorityGoods = Some(true),
-                freightType = Some(ExportFreightType.Maritime)
-              )
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsFreightType" should {
@@ -646,39 +523,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
         }
       }
 
-      "copy export details if coming back from the advanced state" in {
-        given(
-          AnswerExportQuestionsFreightType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-        ) when (copyExportQuestionsStateModel[
-          AnswerExportQuestionsFreightType
-        ], AnswerExportQuestionsMandatoryVesselInfo(
-          ExportQuestionsStateModel(
-            exportDeclarationDetails,
-            ExportQuestions(
-              requestType = Some(ExportRequestType.C1601),
-              routeType = Some(ExportRouteType.Route2),
-              hasPriorityGoods = Some(true),
-              freightType = Some(ExportFreightType.Maritime),
-              vesselDetails =
-                Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
-            )
-          )
-        )) should thenGo(
-          AnswerExportQuestionsFreightType(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.C1601),
-                routeType = Some(ExportRouteType.Route2),
-                hasPriorityGoods = Some(true),
-                freightType = Some(ExportFreightType.Maritime),
-                vesselDetails =
-                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
-              )
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerExportQuestionsMandatoryVesselInfo" should {
@@ -929,25 +773,6 @@ class TraderServicesFrontendModelSpec extends UnitSpec with StateMatchers[State]
 
       }
 
-      "copy import details if coming back from the advanced state" in {
-        given(
-          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
-        ) when (copyImportQuestionsStateModel[
-          AnswerImportQuestionsRequestType
-        ], AnswerImportQuestionsRouteType(
-          ImportQuestionsStateModel(
-            importDeclarationDetails,
-            ImportQuestions(requestType = Some(ImportRequestType.New))
-          )
-        )) should thenGo(
-          AnswerImportQuestionsRequestType(
-            ImportQuestionsStateModel(
-              importDeclarationDetails,
-              ImportQuestions(requestType = Some(ImportRequestType.New))
-            )
-          )
-        )
-      }
     }
 
     "at state AnswerImportQuestionsRouteType" should {

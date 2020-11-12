@@ -92,7 +92,8 @@ class TraderServicesFrontendISpec
         result.body should (include("235") and include("A11111X"))
         result.body should (include("2020") and include("09") and include("23"))
         journey.getState shouldBe EnterDeclarationDetails(
-          Some(DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")))
+          Some(DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23"))),
+          Some(ExportQuestions())
         )
       }
     }
