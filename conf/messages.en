@@ -219,13 +219,11 @@ view.export-questions.vessel-details.heading=Tell us about your vessel
 view.export-questions.contactInfo.title=What are your contact details?
 view.export-questions.contactInfo.heading=What are your contact details?
 view.export-questions.contactInfo.description=We will only use these details if we cannot contact you through the CHIEF system.
-view.export-questions.summary.title=Review your pre-clearance case details
-view.export-questions.heading.title=Review your pre-clearance case details
-view.export-questions.summary.title=Review your pre-clearance case details
-view.export-questions.summary.heading=Review your pre-clearance case details
+view.export-questions.summary.title=Review your case details
+view.export-questions.summary.heading=Review your case details
 view.export-questions.summary.declaration-details.heading=Declaration information
-view.export-questions.summary.pre-clearance.heading=Pre-clearance information
-view.export-questions.summary.vessel-details.heading=Vessel information
+view.export-questions.summary.pre-clearance.heading=Customs information
+view.export-questions.summary.vessel-details.heading=Transport information
 view.export-questions.summary.contact-details.heading=Contact details
 
 # Import Questions View
@@ -254,11 +252,11 @@ view.import-questions.vessel-details.title=Tell us about your vessel
 view.import-questions.vessel-details.heading=Tell us about your vessel
 view.import-questions.contactInfo.title=What are your contact details?
 view.import-questions.contactInfo.heading=What are your contact details?
-view.import-questions.summary.title=Review your pre-clearance case details
-view.import-questions.summary.heading=Review your pre-clearance case details
+view.import-questions.summary.title=Review your case details
+view.import-questions.summary.heading=Review your case details
 view.import-questions.summary.declaration-details.heading=Declaration information
-view.import-questions.summary.pre-clearance.heading=Pre-clearance information
-view.import-questions.summary.vessel-details.heading=Vessel information
+view.import-questions.summary.pre-clearance.heading=Customs information
+view.import-questions.summary.vessel-details.heading=Transport information
 view.import-questions.summary.contact-details.heading=Contact details
 
 # Export Questions Form
