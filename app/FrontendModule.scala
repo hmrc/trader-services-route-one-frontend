@@ -19,8 +19,8 @@ import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
+import uk.gov.hmrc.traderservices.services._
 import uk.gov.hmrc.traderservices.repository.JourneyCacheRepository
-import uk.gov.hmrc.traderservices.services.{MongoDBCachedTraderServicesFrontendJourneyService, TraderServicesFrontendJourneyServiceWithHeaderCarrier}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 
@@ -40,7 +40,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bind(classOf[CacheMongoRepository]).to(classOf[JourneyCacheRepository])
 
-    bind(classOf[TraderServicesFrontendJourneyServiceWithHeaderCarrier])
-      .to(classOf[MongoDBCachedTraderServicesFrontendJourneyService])
+    bind(classOf[CreateCaseJourneyServiceWithHeaderCarrier])
+      .to(classOf[MongoDBCachedCreateCaseJourneyService])
   }
 }

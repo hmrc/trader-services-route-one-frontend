@@ -21,11 +21,11 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType}
-import uk.gov.hmrc.traderservices.controllers.routes.TraderServicesFrontendController
+import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import play.api.mvc.Call
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyModel
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel
 
 @Singleton
 class ExportQuestionsViewContext
@@ -96,10 +96,10 @@ class ExportQuestionsViewContext
     )
 
   def getChangeCallForVesselDetails(exportQuestions: ExportQuestions): Call =
-    if (TraderServicesFrontendJourneyModel.Rules.isVesselDetailsAnswerMandatory(exportQuestions))
-      TraderServicesFrontendController.showAnswerExportQuestionsMandatoryVesselInfo
+    if (CreateCaseJourneyModel.Rules.isVesselDetailsAnswerMandatory(exportQuestions))
+      CreateCaseJourneyController.showAnswerExportQuestionsMandatoryVesselInfo
     else
-      TraderServicesFrontendController.showAnswerExportQuestionsOptionalVesselInfo
+      CreateCaseJourneyController.showAnswerExportQuestionsOptionalVesselInfo
 
   def exportFreightTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ExportFreightType](
@@ -123,7 +123,7 @@ class ExportQuestionsViewContext
           .map(key => messages(s"form.export-questions.requestType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.export-questions.requestType"),
-        action = (TraderServicesFrontendController.showAnswerExportQuestionsRequestType, "site.change")
+        action = (CreateCaseJourneyController.showAnswerExportQuestionsRequestType, "site.change")
       )
     )
 
@@ -136,7 +136,7 @@ class ExportQuestionsViewContext
             .map(key => messages(s"form.export-questions.routeType.$key"))
             .getOrElse("-"),
           visuallyHiddenText = Some("summary.export-questions.routeType"),
-          action = (TraderServicesFrontendController.showAnswerExportQuestionsRouteType, "site.change")
+          action = (CreateCaseJourneyController.showAnswerExportQuestionsRouteType, "site.change")
         )
       )
 
@@ -148,7 +148,7 @@ class ExportQuestionsViewContext
             messages(s"form.export-questions.hasPriorityGoods.yes")
           else messages(s"form.export-questions.hasPriorityGoods.no"),
         visuallyHiddenText = Some("summary.export-questions.hasPriorityGoods"),
-        action = (TraderServicesFrontendController.showAnswerExportQuestionsHasPriorityGoods, "site.change")
+        action = (CreateCaseJourneyController.showAnswerExportQuestionsHasPriorityGoods, "site.change")
       )
     )
 
@@ -162,7 +162,7 @@ class ExportQuestionsViewContext
               .map(key => messages(s"form.export-questions.priorityGoods.$key"))
               .getOrElse("-"),
             visuallyHiddenText = Some("summary.export-questions.whichPriorityGoods"),
-            action = (TraderServicesFrontendController.showAnswerExportQuestionsWhichPriorityGoods, "site.change")
+            action = (CreateCaseJourneyController.showAnswerExportQuestionsWhichPriorityGoods, "site.change")
           )
         )
       else Seq.empty
@@ -175,7 +175,7 @@ class ExportQuestionsViewContext
           .map(key => messages(s"form.export-questions.freightType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.export-questions.freightType"),
-        action = (TraderServicesFrontendController.showAnswerExportQuestionsFreightType, "site.change")
+        action = (CreateCaseJourneyController.showAnswerExportQuestionsFreightType, "site.change")
       )
     )
 

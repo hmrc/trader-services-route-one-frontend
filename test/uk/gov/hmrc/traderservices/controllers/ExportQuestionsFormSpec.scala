@@ -37,7 +37,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
   "Export questions forms" should {
 
     "bind some requestType and return ExportRequestType and fill it back" in {
-      val form = TraderServicesFrontendController.ExportRequestTypeForm
+      val form = CreateCaseJourneyController.ExportRequestTypeForm
       validate(form, Map("requestType" -> "New"), ExportRequestType.New)
       validate(form, Map("requestType" -> "Cancellation"), ExportRequestType.Cancellation)
       validate(form, Map("requestType" -> "C1601"), ExportRequestType.C1601)
@@ -49,7 +49,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind some routeType and return ExportRouteType and fill it back" in {
-      val form = TraderServicesFrontendController.ExportRouteTypeForm
+      val form = CreateCaseJourneyController.ExportRouteTypeForm
       validate(form, Map("routeType" -> "Route1"), ExportRouteType.Route1)
       validate(form, Map("routeType" -> "Route1Cap"), ExportRouteType.Route1Cap)
       validate(form, Map("routeType" -> "Route2"), ExportRouteType.Route2)
@@ -61,7 +61,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind yes/no and return Boolean and fill it back" in {
-      val form = TraderServicesFrontendController.ExportHasPriorityGoodsForm
+      val form = CreateCaseJourneyController.ExportHasPriorityGoodsForm
       validate(form, Map("hasPriorityGoods" -> "yes"), true)
       validate(form, Map("hasPriorityGoods" -> "no"), false)
       validate(form, "hasPriorityGoods", Map(), Seq("error.exportHasPriorityGoods.required"))
@@ -74,7 +74,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind some priorityGoods and return ExportPriorityGoods and fill it back" in {
-      val form = TraderServicesFrontendController.ExportPriorityGoodsForm
+      val form = CreateCaseJourneyController.ExportPriorityGoodsForm
       validate(form, Map("priorityGoods" -> "LiveAnimals"), ExportPriorityGoods.LiveAnimals)
       validate(form, Map("priorityGoods" -> "HumanRemains"), ExportPriorityGoods.HumanRemains)
       validate(form, Map("priorityGoods" -> "HighValueArt"), ExportPriorityGoods.HighValueArt)
@@ -85,7 +85,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind some freightType and return ExportFreightType and fill it back" in {
-      val form = TraderServicesFrontendController.ExportFreightTypeForm
+      val form = CreateCaseJourneyController.ExportFreightTypeForm
       validate(form, Map("freightType" -> "Air"), ExportFreightType.Air)
       validate(form, Map("freightType" -> "Maritime"), ExportFreightType.Maritime)
       validate(form, Map("freightType" -> "RORO"), ExportFreightType.RORO)
@@ -94,7 +94,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind some contactInfo and return ExportContactInfo and fill it back" in {
-      val form = TraderServicesFrontendController.ExportContactForm
+      val form = CreateCaseJourneyController.ExportContactForm
       validate(
         form,
         Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com"),

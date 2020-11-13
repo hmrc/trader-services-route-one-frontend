@@ -10,9 +10,9 @@ import play.api.mvc.{Cookies, Session, SessionCookieBaker}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
-import uk.gov.hmrc.traderservices.journeys.TraderServicesFrontendJourneyStateFormats
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.{MongoDBCachedJourneyService, TraderServicesFrontendJourneyService}
+import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 import uk.gov.hmrc.traderservices.support.TestData
@@ -23,15 +23,17 @@ import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 
-class TraderServicesFrontendISpec
+class CreateCaseJourneyISpec
     extends TraderServicesFrontendISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.State._
+  import journey.model.FileUploadState._
 
   val dateTime = LocalDateTime.now()
 
-  "TraderServicesFrontend" when {
+  "CreateCaseJourneyController" when {
 
     "GET /trader-services/" should {
       "show the start page" in {
@@ -1306,44 +1308,11 @@ class TraderServicesFrontendISpec
         )
       }
     }
-  }
 
-  "GET /pre-clearance/import-questions/vessel-info" should {
-    "show the import vessel details page" in {
-      implicit val journeyId: JourneyId = JourneyId()
-      val state = AnswerImportQuestionsOptionalVesselInfo(
-        ImportQuestionsStateModel(
-          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air)
-          )
-        )
-      )
-
-      journey.setState(state)
-      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
-      val result = await(request("/pre-clearance/import-questions/vessel-info").get())
-
-      result.status shouldBe 200
-      result.body should include(
-        htmlEscapedMessage("view.import-questions.vessel-details.title") + " - " + htmlEscapedMessage(
-          "site.serviceName"
-        ) + " - " + htmlEscapedMessage("site.govuk")
-      )
-      result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
-      journey.getState shouldBe state
-    }
-  }
-
-  "POST /pre-clearance/import-questions/vessel-info" should {
-    "submit optional vessel details and ask next for contact details" in {
-      implicit val journeyId: JourneyId = JourneyId()
-      journey.setState(
-        AnswerImportQuestionsOptionalVesselInfo(
+    "GET /pre-clearance/import-questions/vessel-info" should {
+      "show the import vessel details page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
@@ -1354,79 +1323,112 @@ class TraderServicesFrontendISpec
             )
           )
         )
-      )
-      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-      val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-      val payload = Map(
-        "vesselName"            -> "Foo Bar",
-        "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
-        "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
-        "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-        "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
-        "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
-      )
+        val result = await(request("/pre-clearance/import-questions/vessel-info").get())
 
-      val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.import-questions.vessel-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
+        journey.getState shouldBe state
+      }
+    }
 
-      result.status shouldBe 200
-
-      journey.getState shouldBe AnswerImportQuestionsContactInfo(
-        ImportQuestionsStateModel(
-          DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air),
-            vesselDetails = Some(
-              VesselDetails(
-                vesselName = Some("Foo Bar"),
-                dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+    "POST /pre-clearance/import-questions/vessel-info" should {
+      "submit optional vessel details and ask next for contact details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsOptionalVesselInfo(
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route6),
+                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                freightType = Some(ImportFreightType.Air)
               )
             )
           )
         )
-      )
-    }
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-    "submit none vessel details and ask next for contact details" in {
-      implicit val journeyId: JourneyId = JourneyId()
-      journey.setState(
-        AnswerImportQuestionsOptionalVesselInfo(
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
+        val payload = Map(
+          "vesselName"            -> "Foo Bar",
+          "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+          "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+          "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
+        )
+
+        val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
+
+        result.status shouldBe 200
+
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
+          ImportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6),
+              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "submit none vessel details and ask next for contact details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          AnswerImportQuestionsOptionalVesselInfo(
+            ImportQuestionsStateModel(
+              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route6),
+                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                freightType = Some(ImportFreightType.Air)
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map[String, String]()
+
+        val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
+
+        result.status shouldBe 200
+
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
               priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-              freightType = Some(ImportFreightType.Air)
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails = Some(VesselDetails())
             )
           )
         )
-      )
-      givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
-      val payload = Map[String, String]()
-
-      val result = await(request("/pre-clearance/import-questions/vessel-info").post(payload))
-
-      result.status shouldBe 200
-
-      journey.getState shouldBe AnswerImportQuestionsContactInfo(
-        ImportQuestionsStateModel(
-          DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
-          ImportQuestions(
-            requestType = Some(ImportRequestType.New),
-            routeType = Some(ImportRouteType.Route6),
-            priorityGoods = Some(ImportPriorityGoods.HighValueArt),
-            freightType = Some(ImportFreightType.Air),
-            vesselDetails = Some(VesselDetails())
-          )
-        )
-      )
+      }
     }
 
     "GET /pre-clearance/import-questions/contact-info" should {
@@ -1542,8 +1544,7 @@ class TraderServicesFrontendISpec
         )
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
-          TestData.importDeclarationDetails,
-          TestData.fullImportQuestions(dateTimeOfArrival),
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
           uploadRequest = UploadRequest(
             href = "https://bucketName.s3.eu-west-2.amazonaws.com",
@@ -1587,8 +1588,7 @@ class TraderServicesFrontendISpec
         )
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
-          TestData.exportDeclarationDetails,
-          TestData.fullExportQuestions(dateTimeOfArrival),
+          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
           uploadRequest = UploadRequest(
             href = "https://bucketName.s3.eu-west-2.amazonaws.com",
@@ -1617,8 +1617,7 @@ class TraderServicesFrontendISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           FileUploaded(
-            TestData.exportDeclarationDetails,
-            TestData.fullExportQuestions(dateTimeOfArrival),
+            FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -1704,8 +1703,7 @@ class TraderServicesFrontendISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
-            TestData.importDeclarationDetails,
-            TestData.fullImportQuestions(dateTimeOfArrival),
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -1729,8 +1727,7 @@ class TraderServicesFrontendISpec
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           UploadFile(
-            TestData.importDeclarationDetails,
-            TestData.fullImportQuestions(dateTimeOfArrival),
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -1763,8 +1760,7 @@ class TraderServicesFrontendISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
-            TestData.importDeclarationDetails,
-            TestData.fullImportQuestions(dateTimeOfArrival),
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -1784,8 +1780,7 @@ class TraderServicesFrontendISpec
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           WaitingForFileVerification(
-            TestData.importDeclarationDetails,
-            TestData.fullImportQuestions(dateTimeOfArrival),
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -1805,8 +1800,7 @@ class TraderServicesFrontendISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          TestData.importDeclarationDetails,
-          TestData.fullImportQuestions(dateTimeOfArrival),
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -1893,13 +1887,13 @@ trait TraderServicesFrontendISpecSetup extends ServerISpec {
 
   // define test service capable of manipulating journey state
   lazy val journey = new TestJourneyService[JourneyId]
-    with TraderServicesFrontendJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
+    with CreateCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
     override lazy val cacheMongoRepository = app.injector.instanceOf[CacheMongoRepository]
     override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
 
     override val stateFormats: Format[model.State] =
-      TraderServicesFrontendJourneyStateFormats.formats
+      CreateCaseJourneyStateFormats.formats
 
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
