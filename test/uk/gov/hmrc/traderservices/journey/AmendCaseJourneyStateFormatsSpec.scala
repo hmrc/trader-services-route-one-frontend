@@ -33,7 +33,14 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
 
   "AmendCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
-      validateJsonFormat("""{"state":"EnterCaseReferenceNumber"}""", State.EnterCaseReferenceNumber)
+      validateJsonFormat(
+        """{"state":"EnterCaseReferenceNumber","properties":{}}""",
+        State.EnterCaseReferenceNumber(None)
+      )
+      validateJsonFormat(
+        """{"state":"EnterCaseReferenceNumber","properties":{"caseReferenceNumberOpt":"PC12010081330XGBNZJO04"}}""",
+        State.EnterCaseReferenceNumber(Some("PC12010081330XGBNZJO04"))
+      )
       validateJsonFormat(
         """{"state":"SelectAmendScenario","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
         State.SelectAmendScenario("PC12010081330XGBNZJO04")

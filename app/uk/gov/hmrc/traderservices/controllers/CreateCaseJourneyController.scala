@@ -49,7 +49,7 @@ class CreateCaseJourneyController @Inject() (
   val env: Environment,
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
-  views: uk.gov.hmrc.traderservices.views.Views
+  views: uk.gov.hmrc.traderservices.views.CreateCaseViews
 )(implicit val config: Configuration, ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {

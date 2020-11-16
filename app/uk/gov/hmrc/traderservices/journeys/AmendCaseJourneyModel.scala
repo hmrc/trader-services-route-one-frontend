@@ -27,10 +27,14 @@ object AmendCaseJourneyModel extends JourneyModel {
   sealed trait IsError
   sealed trait IsTransient
 
-  override val root: State = State.EnterCaseReferenceNumber
+  override val root: State = State.EnterCaseReferenceNumber()
 
   /** Model parametrization and rules. */
   object Rules {}
+
+  trait HasCaseReferenceNumber {
+    def caseReferenceNumber: String
+  }
 
   /** All the possible states the journey can take. */
   object State {
@@ -39,9 +43,9 @@ object AmendCaseJourneyModel extends JourneyModel {
     case object WorkInProgressDeadEnd extends State
 
     /** Root state of the journey. */
-    case object EnterCaseReferenceNumber extends State
+    case class EnterCaseReferenceNumber(caseReferenceNumberOpt: Option[String] = None) extends State
 
-    case class SelectAmendScenario(caseReferenceNumber: String) extends State
+    case class SelectAmendScenario(caseReferenceNumber: String) extends State with HasCaseReferenceNumber
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -50,13 +54,16 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     final def enterCaseReferenceNumber(user: String) =
       Transition {
+        case s: HasCaseReferenceNumber =>
+          goto(EnterCaseReferenceNumber(Some(s.caseReferenceNumber)))
+
         case _ =>
-          goto(EnterCaseReferenceNumber)
+          goto(EnterCaseReferenceNumber(None))
       }
 
     final def submitedCaseReferenceNumber(user: String)(caseReferenceNumber: String) =
       Transition {
-        case EnterCaseReferenceNumber =>
+        case EnterCaseReferenceNumber(_) =>
           goto(SelectAmendScenario(caseReferenceNumber))
       }
 

@@ -580,6 +580,18 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       exportContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
       exportContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
     }
+
+    "validate case reference number mapping" in {
+      caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000Z")) shouldBe Right("AA0000000000000000000Z")
+      caseReferenceNumberMapping.bind(Map("" -> "")) should haveOnlyError("error.caseReferenceNumber.required")
+      caseReferenceNumberMapping.bind(Map("" -> "A")) should haveOnlyError("error.caseReferenceNumber.invalid-value")
+      caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000")) should haveOnlyError(
+        "error.caseReferenceNumber.invalid-value"
+      )
+      caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000Z0")) should haveOnlyError(
+        "error.caseReferenceNumber.invalid-value"
+      )
+    }
   }
 
 }

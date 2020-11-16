@@ -1,4 +1,4 @@
-service.name = Trader Services
+service.name = Send documents for a customs check
 
 # Site wide messages
 # ----------------------------------------------------------
@@ -462,6 +462,18 @@ view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.create-case-confirmation.continue=Submit documents for a new case
 view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601, C1602, C1603</a> forms.
+
+# Amend journey
+# ----------------------------------------------------------
+view.case-reference-number.title=What''s the case reference number?
+view.case-reference-number.heading=What''s the case reference number?
+view.case-reference-number.hint=For example PC12010081330XGBNZJO04
+view.case-reference-number.continue=Continue
+view.case-reference-number.linkText=Help with case reference 
+view.case-reference-number.help.line1=You would have been given your case reference number when you submitted your first set of documents.
+view.case-reference-number.help.line2=Contact the <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">National Clearance Hub</a> if you''re not sure what your number is.
+error.caseReferenceNumber.required=Enter the case reference number
+error.caseReferenceNumber.invalid-value=Case reference number must be 22 characters
 
 # Common form messages
 # ----------------------------------------------------------

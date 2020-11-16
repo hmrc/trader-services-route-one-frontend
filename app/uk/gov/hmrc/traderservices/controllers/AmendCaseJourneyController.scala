@@ -46,7 +46,7 @@ class AmendCaseJourneyController @Inject() (
   val env: Environment,
   override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
-  views: uk.gov.hmrc.traderservices.views.Views
+  views: uk.gov.hmrc.traderservices.views.AmendCaseViews
 )(implicit val config: Configuration, ec: ExecutionContext)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
@@ -78,12 +78,23 @@ class AmendCaseJourneyController @Inject() (
   // Dummy URL to use when developing the journey
   val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
 
-  // GET //pre-clearance/amend/case-reference-number
+  // GET /pre-clearance/amend/case-reference-number
   val showEnterCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.EnterCaseReferenceNumber.type]
+      .show[State.EnterCaseReferenceNumber]
       .orApply(Transitions.enterCaseReferenceNumber)
       .andCleanBreadcrumbs()
+
+  // POST /pre-clearance/amend/case-reference-number
+  val submitCaseReferenceNumber: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(EnterCaseReferenceNumberForm)
+      .apply(Transitions.submitedCaseReferenceNumber)
+
+  // GET /pre-clearance/amend/select-how-to-send
+  val showSelectAmendScenario: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.SelectAmendScenario]
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -91,8 +102,11 @@ class AmendCaseJourneyController @Inject() (
     */
   override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
-      case EnterCaseReferenceNumber =>
+      case EnterCaseReferenceNumber(_) =>
         controller.showEnterCaseReferenceNumber()
+
+      case SelectAmendScenario(_) =>
+        controller.showSelectAmendScenario()
 
       case _ =>
         workInProgresDeadEndCall
@@ -109,7 +123,16 @@ class AmendCaseJourneyController @Inject() (
     request: Request[_]
   ): Result =
     state match {
-      case EnterCaseReferenceNumber => Ok
+      case EnterCaseReferenceNumber(caseReferenceNumberOpt) =>
+        Ok(
+          views.enterCaseReferenceNumberView(
+            formWithErrors.or(EnterCaseReferenceNumberForm, caseReferenceNumberOpt),
+            controller.submitCaseReferenceNumber()
+          )
+        )
+
+      case SelectAmendScenario(caseReferenceNumber) =>
+        Ok
 
       case _ => NotImplemented
 
@@ -144,5 +167,9 @@ class AmendCaseJourneyController @Inject() (
 object AmendCaseJourneyController {
 
   import FormFieldMappings._
+
+  val EnterCaseReferenceNumberForm = Form[String](
+    mapping("caseReferenceNumber" -> caseReferenceNumberMapping)(identity)(Some(_))
+  )
 
 }
