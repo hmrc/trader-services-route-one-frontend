@@ -78,11 +78,11 @@ class AmendCaseJourneyController @Inject() (
   // Dummy URL to use when developing the journey
   val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
 
-  // GET /
-  val showStart: Action[AnyContent] =
+  // GET //pre-clearance/amend/case-reference-number
+  val showEnterCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.Start.type]
-      .orApply(Transitions.start)
+      .show[State.EnterCaseReferenceNumber.type]
+      .orApply(Transitions.enterCaseReferenceNumber)
       .andCleanBreadcrumbs()
 
   /**
@@ -91,8 +91,8 @@ class AmendCaseJourneyController @Inject() (
     */
   override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
-      case Start =>
-        controller.showStart()
+      case EnterCaseReferenceNumber =>
+        controller.showEnterCaseReferenceNumber()
 
       case _ =>
         workInProgresDeadEndCall
@@ -109,7 +109,7 @@ class AmendCaseJourneyController @Inject() (
     request: Request[_]
   ): Result =
     state match {
-      case Start => Ok
+      case EnterCaseReferenceNumber => Ok
 
       case _ => NotImplemented
 

@@ -34,8 +34,8 @@ object AmendCaseJourneyStateFormats extends JsonStateFormats[State] {
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
-      case "Start"                 => JsSuccess(Start)
-      case "WorkInProgressDeadEnd" => JsSuccess(WorkInProgressDeadEnd)
-      case _                       => JsError(s"Unknown state name $stateName")
+      case "EnterCaseReferenceNumber" => JsSuccess(EnterCaseReferenceNumber)
+      case "WorkInProgressDeadEnd"    => JsSuccess(WorkInProgressDeadEnd)
+      case _                          => JsError(s"Unknown state name $stateName")
     }
 }

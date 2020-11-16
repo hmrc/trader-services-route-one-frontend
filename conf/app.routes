@@ -60,7 +60,7 @@ GET        /pre-clearance/confirmation                              @uk.gov.hmrc
 + nocsrf
 POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String)
 
-GET        /pre-clearance/amend                                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showStart
+GET        /pre-clearance/amend/case-reference-number              @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterCaseReferenceNumber
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 

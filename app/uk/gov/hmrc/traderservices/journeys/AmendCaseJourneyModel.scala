@@ -27,7 +27,7 @@ object AmendCaseJourneyModel extends JourneyModel {
   sealed trait IsError
   sealed trait IsTransient
 
-  override val root: State = State.Start
+  override val root: State = State.EnterCaseReferenceNumber
 
   /** Model parametrization and rules. */
   object Rules {}
@@ -35,22 +35,21 @@ object AmendCaseJourneyModel extends JourneyModel {
   /** All the possible states the journey can take. */
   object State {
 
-    /** Root state of the journey. */
-    case object Start extends State
-
     /** State intended to use only in the development of the model to fill loose ends. */
     case object WorkInProgressDeadEnd extends State
 
+    /** Root state of the journey. */
+    case object EnterCaseReferenceNumber extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
   object Transitions {
     import State._
 
-    final def start(user: String) =
+    final def enterCaseReferenceNumber(user: String) =
       Transition {
         case _ =>
-          goto(Start)
+          goto(EnterCaseReferenceNumber)
       }
 
   }

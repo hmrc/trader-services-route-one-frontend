@@ -32,15 +32,15 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
   "AmendCaseJourneyController" when {
 
-    "GET /trader-services/pre-clearance/amend" should {
+    "GET /trader-services/pre-clearance/amend/case-reference-number" should {
       "show the start page" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend").get())
+        val result = await(request("/pre-clearance/amend/case-reference-number").get())
 
         result.status shouldBe 200
-        journey.getState shouldBe Start
+        journey.getState shouldBe EnterCaseReferenceNumber
       }
     }
   }
