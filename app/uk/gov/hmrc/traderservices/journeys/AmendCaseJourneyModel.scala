@@ -40,6 +40,8 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     /** Root state of the journey. */
     case object EnterCaseReferenceNumber extends State
+
+    case class SelectAmendScenario(caseReferenceNumber: String) extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -50,6 +52,12 @@ object AmendCaseJourneyModel extends JourneyModel {
       Transition {
         case _ =>
           goto(EnterCaseReferenceNumber)
+      }
+
+    final def submitedCaseReferenceNumber(user: String)(caseReferenceNumber: String) =
+      Transition {
+        case EnterCaseReferenceNumber =>
+          goto(SelectAmendScenario(caseReferenceNumber))
       }
 
   }

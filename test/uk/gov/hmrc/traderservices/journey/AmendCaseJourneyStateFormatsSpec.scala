@@ -34,6 +34,10 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
   "AmendCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat("""{"state":"EnterCaseReferenceNumber"}""", State.EnterCaseReferenceNumber)
+      validateJsonFormat(
+        """{"state":"SelectAmendScenario","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
+        State.SelectAmendScenario("PC12010081330XGBNZJO04")
+      )
     }
 
     "throw an exception when unknown state" in {

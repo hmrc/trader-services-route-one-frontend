@@ -28,14 +28,17 @@ import uk.gov.hmrc.traderservices.models.FileUpload
 
 object AmendCaseJourneyStateFormats extends JsonStateFormats[State] {
 
+  val selectAmendScenarioFormat = Json.format[SelectAmendScenario]
+
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case _ => JsNull
+    case s: SelectAmendScenario => selectAmendScenarioFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
       case "EnterCaseReferenceNumber" => JsSuccess(EnterCaseReferenceNumber)
       case "WorkInProgressDeadEnd"    => JsSuccess(WorkInProgressDeadEnd)
+      case "SelectAmendScenario"      => selectAmendScenarioFormat.reads(properties)
       case _                          => JsError(s"Unknown state name $stateName")
     }
 }
