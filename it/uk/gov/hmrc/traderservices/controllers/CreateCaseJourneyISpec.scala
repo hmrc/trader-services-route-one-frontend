@@ -25,8 +25,7 @@ import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 
-class CreateCaseJourneyISpec
-    extends TraderServicesFrontendISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
+class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.State._
   import journey.model.FileUploadState._
@@ -1875,7 +1874,7 @@ class CreateCaseJourneyISpec
   }
 }
 
-trait TraderServicesFrontendISpecSetup extends ServerISpec {
+trait CreateCaseJourneyISpecSetup extends ServerISpec {
 
   override def fakeApplication: Application = appBuilder.build()
 
