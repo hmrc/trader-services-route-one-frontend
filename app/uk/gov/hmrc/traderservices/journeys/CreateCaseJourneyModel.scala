@@ -25,7 +25,6 @@ import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   sealed trait IsError
-  sealed trait IsTransient
 
   override val root: State = State.Start
 

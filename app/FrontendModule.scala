@@ -28,7 +28,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
   def configure(): Unit = {
 
-    val appName = "trader-services-frontend"
+    val appName = "trader-services-route-one-frontend"
 
     Logger(getClass).info(s"Starting microservice : $appName : in mode : ${environment.mode}")
 
@@ -42,5 +42,8 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bind(classOf[CreateCaseJourneyServiceWithHeaderCarrier])
       .to(classOf[MongoDBCachedCreateCaseJourneyService])
+
+    bind(classOf[AmendCaseJourneyServiceWithHeaderCarrier])
+      .to(classOf[MongoDBCachedAmendCaseJourneyService])
   }
 }
