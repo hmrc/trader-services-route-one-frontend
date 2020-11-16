@@ -15,12 +15,19 @@
  *@
 
 @this(
- govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
- html: uk.gov.hmrc.traderservices.views.components.html
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        html: uk.gov.hmrc.traderservices.views.components.html
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @govukLayout(pageTitle = Some(messages("view.timedout.title"))) {
+  @html.h1(messages("view.timedout.heading"))
 
+  @html.p {
+    @messages("view.timedout.description")
+  }
+
+  <!-- TODO set correct sign-in url -->
+  @html.a("sign-in", messages("view.timedout.signIn"), useButtonStyle = true)
 }

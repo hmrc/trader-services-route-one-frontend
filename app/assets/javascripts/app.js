@@ -22,6 +22,8 @@ $(document).ready(function() {
     });
 
     window.GOVUKFrontend.initAll();
+    window.HMRCFrontend.initAll();
+
     document.cookie = 'jsenabled=true; path=/';
 });
 

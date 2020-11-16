@@ -52,17 +52,14 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 </noscript>
 }
 
+  <!-- TODO this <meta> should only be included when the user is logged in -->
+  <!-- TODO set correct timeout (900), countdown (780) and keep-alive-url -->
   <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
   data-language="en"
   data-timeout="10"
   data-countdown="5"
-  data-keep-alive-url="keep-alive-url"
-  data-sign-out-url="sign-out-url"
-  data-title="Title"
-  data-message="Message"
-  data-message-suffix="Message suffix"
-  data-keep-alive-button-text="Keep alive button"
-  data-sign-out-button-text="Sign out button" />
+  data-keep-alive-url="/trader-services/keep-alive-url"
+  data-sign-out-url="/trader-services/timedout"/>
 }
 
 @scripts = {

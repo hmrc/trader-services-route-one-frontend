@@ -548,4 +548,7 @@ time.period.pm=pm
 
 # Timed Out messages
 # -----------------------------------------------------------
-view.timedout.title=Timed Out
+view.timedout.title=For your security, we signed you out
+view.timedout.heading=For your security, we signed you out
+view.timedout.description=We did not save your answers.
+view.timedout.signIn=Sign in
