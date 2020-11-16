@@ -92,7 +92,6 @@ class CreateCaseJourneyController @Inject() (
   val showEnterDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterDeclarationDetails]
-      //.orRollbackUsing(Mergers.copyDeclarationDetails)
       .orApply(Transitions.enterDeclarationDetails)
 
   // POST /pre-clearance/declaration-details
@@ -395,7 +394,7 @@ class CreateCaseJourneyController @Inject() (
   val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[FileUploadState.FileUploaded]
-      .orRollback
+      .orApply(FileUploadTransitions.backToFileUploaded)
 
   // POST /pre-clearance/file-uploaded
   val submitUploadAnotherFileChoice: Action[AnyContent] =

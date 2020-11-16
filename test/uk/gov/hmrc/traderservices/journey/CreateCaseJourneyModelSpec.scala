@@ -2085,6 +2085,91 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "retreat to FileUploaded when some files has been uploaded already" in {
+        given(
+          WaitingForFileVerification(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Accepted(
+                  2,
+                  "foo-bar-ref-2",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when backToFileUploaded(eoriNumber) should thenGo(
+          FileUploaded(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Accepted(
+                  2,
+                  "foo-bar-ref-2",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            true
+          )
+        )
+      }
+
+      "retreat to ImportQuestionsSummary when none file has been uploaded yet" in {
+        given(
+          WaitingForFileVerification(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+          )
+        ) when backToFileUploaded(eoriNumber) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Posted(1, "foo-bar-ref-1"),
+                    FileUpload.Posted(2, "foo-bar-ref-2")
+                  )
+                )
+              )
+            )
+          )
+        )
+      }
     }
 
     "at state FileUploaded" should {
