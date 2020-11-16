@@ -46,6 +46,16 @@
       @messages("view.create-case-confirmation.save.description")
     }
 
+    @html.ul(
+      messages("view.create-case-confirmation.save.bullet1"),
+      messages("view.create-case-confirmation.save.bullet2"),
+      messages("view.create-case-confirmation.save.bullet3")
+    )
+
+    @html.p {
+      @messages("view.create-case-confirmation.save.description2")
+    }
+
     @html.h2("view.create-case-confirmation.next.heading", classes = "govuk-heading-m")
 
     @html.p {
