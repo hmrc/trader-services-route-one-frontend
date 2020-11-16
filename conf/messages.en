@@ -245,7 +245,7 @@ view.import-questions.contactInfo.description=We will only use these details if 
 view.import-questions.whichPriorityGoods.title=Which type of priority goods are you moving?
 view.import-questions.whichPriorityGoods.heading=Which type of priority goods are you moving?
 view.import-questions.hasALVS.title=Do you use an Automatic Licence Verification System (ALVS)?
-view.import-questions.hasALVS.heading=Do you use Defra's Automatic Licence Verification System (ALVS)?
+view.import-questions.hasALVS.heading=Do you use Defra’s Automatic Licence Verification System (ALVS)?
 view.import-questions.hasALVS.hint=Defra’s ALVS regulates the import and export of plants, live animals, horticultural and animal products, and high risk food and feed products.
 view.import-questions.freightType.title=Which type of transport are you using?
 view.import-questions.freightType.heading=Which type of transport are you using?
@@ -284,7 +284,7 @@ form.export-questions.priorityGoods.LiveAnimals=Live animals
 form.export-questions.freightType.Maritime=Maritime
 form.export-questions.freightType.Air=Air
 form.export-questions.freightType.RORO=Rail, road, or roll-on, roll-off (RORO)
-form.export-questions.vessel-details.vesselName=Name of ship, plane or vehicle (optional)
+form.export-questions.vessel-details.vesselName=Name of ship, plane or vehicle
 form.export-questions.vessel-details.dateOfArrival=Date of arrival
 form.export-questions.vessel-details.timeOfArrival=Estimated time of arrival
 form.export-questions.vessel-details.timeOfArrival.hint=For example, 14:30
@@ -461,7 +461,7 @@ view.create-case-confirmation.next.description=Once the document checks are comp
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.create-case-confirmation.continue=Submit documents for a new case
-view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601</a>, <a href="#">C1602</a>, <a href="#">C1603</a> forms.
+view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601, C1602, C1603</a> forms.
 
 # Common form messages
 # ----------------------------------------------------------
