@@ -288,7 +288,7 @@ form.export-questions.vessel-details.vesselName=Name of ship, plane or vehicle (
 form.export-questions.vessel-details.dateOfArrival=Date of arrival
 form.export-questions.vessel-details.timeOfArrival=Estimated time of arrival
 form.export-questions.vessel-details.timeOfArrival.hint=For example, 14:30
-form.export-questions.vessel-details.vesselNameOptional=Vessel name (optional)
+form.export-questions.vessel-details.vesselNameOptional=Name of ship, plane or vehicle (optional)
 form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional=Estimated time of arrival (optional)
 form.export-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
@@ -395,9 +395,9 @@ summary.export-questions.routeType=Route
 summary.export-questions.hasPriorityGoods=Priority goods
 summary.export-questions.whichPriorityGoods=Type of priority goods
 summary.export-questions.freightType=Type of transport 
-summary.vessel-details.vesselName=Vessel name
+summary.vessel-details.vesselName=Name of plane, ship or vehicle
 summary.vessel-details.dateOfArrival=Date of arrival
-summary.vessel-details.timeOfArrival=Time of arrival
+summary.vessel-details.timeOfArrival=Estimated time of arrival
 summary.contact-details=Contact details
 summary.contact-details.contactName=Full name
 summary.contact-details.contactEmail=Email address
@@ -453,9 +453,11 @@ view.create-case-confirmation.reference=Your case reference number:
 view.create-case-confirmation.save.heading=Save your case reference number
 view.create-case-confirmation.save.description=You might need it if you contact us with any queries.
 view.create-case-confirmation.next.heading=Next steps
-view.create-case-confirmation.next.description=You will hear from us soon via CHIEF or your declaration software.
+view.create-case-confirmation.next.description=Once the document checks are complete, you will hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.info.heading=If we need more information
+view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.create-case-confirmation.continue=Submit documents for a new case
-view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">pre-clearance checks</a> or <a href="#">C1601, C1602, C1603 forms</a>.
+view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601</a>, <a href="#">C1602</a>, <a href="#">C1603</a> forms.
 
 # Common form messages
 # ----------------------------------------------------------
