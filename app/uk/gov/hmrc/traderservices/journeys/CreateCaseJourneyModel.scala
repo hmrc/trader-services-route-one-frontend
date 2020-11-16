@@ -37,6 +37,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   override val maxFileUploadsNumber: Int = 10
 
+  def retreatFromFileUpload: String => Transition =
+    Transitions.backToQuestionsSummary
+
   /** Model parametrization and rules. */
   object Rules {
 

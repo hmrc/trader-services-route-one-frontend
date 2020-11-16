@@ -32,6 +32,7 @@ import scala.concurrent.ExecutionContext
   * - define type of the host data to carry over,
   * - define maximum number of files to upload,
   * - mark allowed entry states with [[CanEnterFileUpload]] trait,
+  * - implement [[retreatFromFileUpload]].
   */
 trait FileUploadJourneyModelMixin extends JourneyModel {
 
@@ -42,6 +43,9 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
   /** Maximum number of files to upload. */
   val maxFileUploadsNumber: Int
+
+  /** Implement to enable backward transition. */
+  def retreatFromFileUpload: String => Transition
 
   /** Marker trait of permitted entry states. */
   trait CanEnterFileUpload extends State {
@@ -381,6 +385,15 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               .apply(updatedCurrentState)
           else
             goto(updatedCurrentState)
+      }
+
+    final def backToFileUploaded(user: String) =
+      Transition {
+        case s: FileUploadState =>
+          if (s.fileUploads.isEmpty)
+            retreatFromFileUpload(user).apply(s)
+          else
+            goto(FileUploaded(s.hostData, s.fileUploads, acknowledged = true))
       }
   }
 
