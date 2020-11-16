@@ -16,17 +16,13 @@ class TimedOutControllerISpec extends NonAuthPageISpec() {
     "GET /timedout" should {
       "display the timed out page" in {
 
-        val controller = app.injector.instanceOf[TimedOutController]
-
-        implicit val request = FakeRequest()
-        val result: Future[Result] = controller.showPage(request)
-
-        status(result) shouldBe OK
-
-        val timedOutViewPage = app.injector.instanceOf[TimedOutView]
-
-        contentAsString(result) shouldBe timedOutViewPage().toString
+        val result = await(requestWithoutJourneyId("/timedout").get())
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.timedout.title"))
       }
     }
   }
+
+  def requestWithoutJourneyId(path: String) =
+    ws.url(s"$baseUrl$path")
 }
