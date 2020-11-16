@@ -46,10 +46,26 @@
       @messages("view.create-case-confirmation.save.description")
     }
 
+    @html.ul(
+      messages("view.create-case-confirmation.save.bullet1"),
+      messages("view.create-case-confirmation.save.bullet2"),
+      messages("view.create-case-confirmation.save.bullet3")
+    )
+
+    @html.p {
+      @messages("view.create-case-confirmation.save.description2")
+    }
+
     @html.h2("view.create-case-confirmation.next.heading", classes = "govuk-heading-m")
 
     @html.p {
       @messages("view.create-case-confirmation.next.description")
+    }
+
+    @html.h2("view.create-case-confirmation.info.heading", classes = "govuk-heading-m")
+
+    @html.p {
+        @messages("view.create-case-confirmation.info.description")
     }
 
     @html.a(restartCall.url, messages("view.create-case-confirmation.continue"), useButtonStyle = true)

@@ -26,8 +26,12 @@
 
 @(form: Form[Boolean], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@inputRadioHint = {
+  @messages("view.import-questions.hasALVS.hint")
+}
+
 @govukLayout(
-    pageTitle = Some(messages("view.import-questions.hasALVS.title")), 
+    pageTitle = Some(messages("view.import-questions.hasALVS.title")),
     backLink = Some(backLink.url)) {
 
     @forms.errorSummary(form.errors)
@@ -40,7 +44,8 @@
             name = "hasALVS",
             items = context.importHasALVSItems(form),
             inline = true,
-            legend = Some("view.import-questions.hasALVS.heading")
+            legend = Some("view.import-questions.hasALVS.heading"),
+            hint = Some(inputRadioHint)
         )
 
         @html.button("form.import-questions.continue")
