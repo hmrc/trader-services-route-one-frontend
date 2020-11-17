@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+sealed trait TypeOfAmendment
 
-@Singleton
-class AmendCaseViews @Inject() (
-  val enterCaseReferenceNumberView: EnterCaseReferenceNumberView,
-  val selectTypeOfAmendmentView: SelectTypeOfAmendmentView
-)
+object TypeOfAmendment extends EnumerationFormats[TypeOfAmendment] {
+
+  case object WriteResponse extends TypeOfAmendment
+  case object UploadDocuments extends TypeOfAmendment
+  case object WriteResponseAndUploadDocuments extends TypeOfAmendment
+
+  val values = Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
+}

@@ -46,14 +46,14 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           ) + " - " + htmlEscapedMessage("site.govuk")
         )
         result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
-        journey.getState shouldBe EnterCaseReferenceNumber(None)
+        journey.getState shouldBe EnterCaseReferenceNumber()
       }
     }
 
     "POST /trader-services/pre-clearance/amend/case-reference-number" should {
       "sumbit case reference number and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterCaseReferenceNumber(None))
+        journey.setState(EnterCaseReferenceNumber())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -63,7 +63,57 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/case-reference-number").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe SelectAmendScenario("PC12010081330XGBNZJO04")
+        journey.getState shouldBe SelectTypeOfAmendment(
+          AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+        )
+      }
+    }
+
+    "GET /trader-services/pre-clearance/amend/type-of-amendment" should {
+      "show select type of amendment page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = SelectTypeOfAmendment(
+          AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/amend/type-of-amendment").get())
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.type-of-amendment.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.type-of-amendment.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "POST /trader-services/pre-clearance/amend/type-of-amendment" should {
+      "sumbit type of amendment choice and show next page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          SelectTypeOfAmendment(
+            AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "typeOfAmendment" -> "WriteResponse"
+        )
+
+        val result = await(request("/pre-clearance/amend/type-of-amendment").post(payload))
+
+        //result.status shouldBe 200
+        journey.getState shouldBe EnterResponse(
+          AmendCaseStateModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+          )
+        )
       }
     }
   }

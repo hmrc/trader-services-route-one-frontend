@@ -253,4 +253,6 @@ object FormFieldMappings {
       constraint[String]("caseReferenceNumber", "invalid-value", _.length == 22)
     )
   )
+
+  val typeOfAmendmentMapping: Mapping[TypeOfAmendment] = enumMapping[TypeOfAmendment]("typeOfAmendment")
 }

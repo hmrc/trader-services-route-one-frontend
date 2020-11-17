@@ -33,7 +33,7 @@ trait RadioItemsHelper {
       .map { key =>
         RadioItem(
           value = Some(key),
-          content = Text(messages(s"form.$formName.$fieldName.$key")),
+          content = Text(messages(s"form.${if (formName.isEmpty()) "" else s"$formName."}$fieldName.$key")),
           checked = form(fieldName).value.contains(key)
         )
       }

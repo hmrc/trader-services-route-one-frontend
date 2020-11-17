@@ -29,11 +29,8 @@ object AmendCaseJourneyModel extends JourneyModel {
 
   override val root: State = State.EnterCaseReferenceNumber()
 
-  /** Model parametrization and rules. */
-  object Rules {}
-
-  trait HasCaseReferenceNumber {
-    def caseReferenceNumber: String
+  sealed trait AmendCaseState extends State {
+    def model: AmendCaseStateModel
   }
 
   /** All the possible states the journey can take. */
@@ -43,9 +40,11 @@ object AmendCaseJourneyModel extends JourneyModel {
     case object WorkInProgressDeadEnd extends State
 
     /** Root state of the journey. */
-    case class EnterCaseReferenceNumber(caseReferenceNumberOpt: Option[String] = None) extends State
+    case class EnterCaseReferenceNumber(model: AmendCaseStateModel = AmendCaseStateModel()) extends AmendCaseState
 
-    case class SelectAmendScenario(caseReferenceNumber: String) extends State with HasCaseReferenceNumber
+    case class SelectTypeOfAmendment(model: AmendCaseStateModel) extends AmendCaseState
+
+    case class EnterResponse(model: AmendCaseStateModel) extends AmendCaseState
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -54,18 +53,35 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     final def enterCaseReferenceNumber(user: String) =
       Transition {
-        case s: HasCaseReferenceNumber =>
-          goto(EnterCaseReferenceNumber(Some(s.caseReferenceNumber)))
+        case s: AmendCaseState =>
+          goto(EnterCaseReferenceNumber(s.model))
 
         case _ =>
-          goto(EnterCaseReferenceNumber(None))
+          goto(EnterCaseReferenceNumber())
       }
 
     final def submitedCaseReferenceNumber(user: String)(caseReferenceNumber: String) =
       Transition {
-        case EnterCaseReferenceNumber(_) =>
-          goto(SelectAmendScenario(caseReferenceNumber))
+        case EnterCaseReferenceNumber(model) =>
+          goto(SelectTypeOfAmendment(model.copy(caseReferenceNumber = Some(caseReferenceNumber))))
       }
 
+    final def backToSelectTypeOfAmendment(user: String) =
+      Transition {
+        case s: AmendCaseState =>
+          goto(SelectTypeOfAmendment(s.model))
+      }
+
+    final def submitedTypeOfAmendment(user: String)(typeOfAmendment: TypeOfAmendment) =
+      Transition {
+        case SelectTypeOfAmendment(model) =>
+          typeOfAmendment match {
+            case TypeOfAmendment.WriteResponse | TypeOfAmendment.WriteResponseAndUploadDocuments =>
+              goto(EnterResponse(model.copy(typeOfAmendment = Some(typeOfAmendment))))
+
+            case TypeOfAmendment.UploadDocuments =>
+              goto(WorkInProgressDeadEnd)
+          }
+      }
   }
 }

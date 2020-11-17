@@ -21,7 +21,6 @@ import java.time.LocalDate
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Rules._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyService
@@ -48,11 +47,73 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to SelectAmendScenario when sumbited case reference number" in {
+      "go to SelectTypeOfAmendment when sumbited case reference number" in {
         given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(eoriNumber)(
           "PC12010081330XGBNZJO04"
         ) should thenGo(
-          SelectAmendScenario("PC12010081330XGBNZJO04")
+          SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
+        )
+      }
+    }
+
+    "at state SelectTypeOfAmendment" should {
+      "go to EnterResponse when sumbited type of amendment WriteResponse" in {
+        given(
+          SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
+        ) when submitedTypeOfAmendment(eoriNumber)(
+          TypeOfAmendment.WriteResponse
+        ) should thenGo(
+          EnterResponse(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        )
+      }
+
+      "go to EnterResponse when sumbited type of amendment WriteResponseAndUploadDocuments" in {
+        given(
+          SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
+        ) when submitedTypeOfAmendment(eoriNumber)(
+          TypeOfAmendment.WriteResponseAndUploadDocuments
+        ) should thenGo(
+          EnterResponse(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
+            )
+          )
+        )
+      }
+
+      "go to ??? when sumbited type of amendment UploadDocuments" in {
+        given(
+          SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
+        ) when submitedTypeOfAmendment(eoriNumber)(
+          TypeOfAmendment.UploadDocuments
+        ) should thenGo(
+          WorkInProgressDeadEnd
+        )
+      }
+
+      "retreat to EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
+        val model = AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+        given(
+          SelectTypeOfAmendment(model)
+        ) when enterCaseReferenceNumber(eoriNumber) should thenGo(
+          EnterCaseReferenceNumber(model)
+        )
+      }
+    }
+
+    "at state EnterResponse" should {
+      "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
+        val model = AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+        given(
+          EnterResponse(model)
+        ) when backToSelectTypeOfAmendment(eoriNumber) should thenGo(
+          SelectTypeOfAmendment(model)
         )
       }
     }

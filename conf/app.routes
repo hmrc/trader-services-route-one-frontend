@@ -62,7 +62,8 @@ POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc
 
 GET        /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterCaseReferenceNumber
 POST       /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitCaseReferenceNumber
-GET        /pre-clearance/amend/select-how-to-send                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showSelectAmendScenario
+GET        /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showSelectTypeOfAmendment
+POST       /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitTypeOfAmendment
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 

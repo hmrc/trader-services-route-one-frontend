@@ -34,16 +34,20 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
   "AmendCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat(
-        """{"state":"EnterCaseReferenceNumber","properties":{}}""",
-        State.EnterCaseReferenceNumber(None)
+        """{"state":"EnterCaseReferenceNumber","properties":{"model":{}}}""",
+        State.EnterCaseReferenceNumber()
       )
       validateJsonFormat(
-        """{"state":"EnterCaseReferenceNumber","properties":{"caseReferenceNumberOpt":"PC12010081330XGBNZJO04"}}""",
-        State.EnterCaseReferenceNumber(Some("PC12010081330XGBNZJO04"))
+        """{"state":"EnterCaseReferenceNumber","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
+        State.EnterCaseReferenceNumber(AmendCaseStateModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
-        """{"state":"SelectAmendScenario","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
-        State.SelectAmendScenario("PC12010081330XGBNZJO04")
+        """{"state":"SelectTypeOfAmendment","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
+        State.SelectTypeOfAmendment(AmendCaseStateModel(Some("PC12010081330XGBNZJO04")))
+      )
+      validateJsonFormat(
+        """{"state":"EnterResponse","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
+        State.EnterResponse(AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse)))
       )
     }
 

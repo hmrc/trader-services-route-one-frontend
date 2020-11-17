@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.models
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+import play.api.libs.json.{Format, Json}
 
-@Singleton
-class AmendCaseViews @Inject() (
-  val enterCaseReferenceNumberView: EnterCaseReferenceNumberView,
-  val selectTypeOfAmendmentView: SelectTypeOfAmendmentView
+case class AmendCaseStateModel(
+  caseReferenceNumber: Option[String] = None,
+  typeOfAmendment: Option[TypeOfAmendment] = None
 )
+
+object AmendCaseStateModel {
+  implicit val formats: Format[AmendCaseStateModel] =
+    Json.format[AmendCaseStateModel]
+}
