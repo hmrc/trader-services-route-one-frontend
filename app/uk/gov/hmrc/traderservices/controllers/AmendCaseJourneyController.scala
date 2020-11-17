@@ -92,9 +92,9 @@ class AmendCaseJourneyController @Inject() (
       .apply(Transitions.submitedCaseReferenceNumber)
 
   // GET /pre-clearance/amend/select-how-to-send
-  val showSelectAmendScenario: Action[AnyContent] =
+  val showSelectTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.SelectAmendScenario]
+      .show[State.SelectTypeOfAmendment]
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -105,8 +105,8 @@ class AmendCaseJourneyController @Inject() (
       case EnterCaseReferenceNumber(_) =>
         controller.showEnterCaseReferenceNumber()
 
-      case SelectAmendScenario(_) =>
-        controller.showSelectAmendScenario()
+      case SelectTypeOfAmendment(_) =>
+        controller.showSelectTypeOfAmendment()
 
       case _ =>
         workInProgresDeadEndCall
@@ -131,7 +131,7 @@ class AmendCaseJourneyController @Inject() (
           )
         )
 
-      case SelectAmendScenario(caseReferenceNumber) =>
+      case SelectTypeOfAmendment(caseReferenceNumber) =>
         Ok
 
       case _ => NotImplemented

@@ -48,11 +48,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to SelectAmendScenario when sumbited case reference number" in {
+      "go to SelectTypeOfAmendment when sumbited case reference number" in {
         given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(eoriNumber)(
           "PC12010081330XGBNZJO04"
         ) should thenGo(
-          SelectAmendScenario("PC12010081330XGBNZJO04")
+          SelectTypeOfAmendment("PC12010081330XGBNZJO04")
         )
       }
     }

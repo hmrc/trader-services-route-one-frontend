@@ -42,8 +42,8 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
         State.EnterCaseReferenceNumber(Some("PC12010081330XGBNZJO04"))
       )
       validateJsonFormat(
-        """{"state":"SelectAmendScenario","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
-        State.SelectAmendScenario("PC12010081330XGBNZJO04")
+        """{"state":"SelectTypeOfAmendment","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
+        State.SelectTypeOfAmendment("PC12010081330XGBNZJO04")
       )
     }
 

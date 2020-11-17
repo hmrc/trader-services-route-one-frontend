@@ -63,7 +63,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/case-reference-number").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe SelectAmendScenario("PC12010081330XGBNZJO04")
+        journey.getState shouldBe SelectTypeOfAmendment("PC12010081330XGBNZJO04")
       }
     }
   }
