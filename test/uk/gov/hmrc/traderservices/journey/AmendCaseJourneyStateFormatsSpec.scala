@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.LocalTime
 import java.time.ZonedDateTime
+import scala.util.Random
 
 class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
 
@@ -48,6 +49,13 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
       validateJsonFormat(
         """{"state":"EnterResponse","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
         State.EnterResponse(AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse)))
+      )
+      val text = Random.alphanumeric.take(1000).mkString
+      validateJsonFormat(
+        s"""{"state":"AmendCaseConfirmation","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"}}}""",
+        State.AmendCaseConfirmation(
+          AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
+        )
       )
     }
 

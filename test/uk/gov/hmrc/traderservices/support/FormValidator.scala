@@ -29,8 +29,18 @@ trait FormValidator extends FormMatchers {
     form.fill(formOutput).data shouldBe formInput
   }
 
+  def validateAsymmetric[A](
+    form: Form[A],
+    formInput: Map[String, String],
+    formOutput: A,
+    formInput2: Map[String, String]
+  ): Unit = {
+    form.bind(formInput).value shouldBe Some(formOutput)
+    form.fill(formOutput).data shouldBe formInput2
+  }
+
   def validate[A](form: Form[A], fieldName: String, formInput: Map[String, String], errors: Seq[String]): Unit = {
-    form.bind(formInput).value shouldBe None
     form.bind(formInput).errors should haveOnlyErrors(errors.map(e => FormError(fieldName, e)): _*)
+    form.bind(formInput).value shouldBe None
   }
 }

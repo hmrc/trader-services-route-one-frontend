@@ -20,8 +20,13 @@ import play.api.libs.json.{Format, Json}
 
 case class AmendCaseStateModel(
   caseReferenceNumber: Option[String] = None,
-  typeOfAmendment: Option[TypeOfAmendment] = None
-)
+  typeOfAmendment: Option[TypeOfAmendment] = None,
+  responseText: Option[String] = None
+) {
+
+  def hasTypeOfAmendment(expected: TypeOfAmendment*): Boolean =
+    expected.exists(typeOfAmendment.contains)
+}
 
 object AmendCaseStateModel {
   implicit val formats: Format[AmendCaseStateModel] =

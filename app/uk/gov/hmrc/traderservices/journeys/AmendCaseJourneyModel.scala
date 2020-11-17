@@ -45,6 +45,8 @@ object AmendCaseJourneyModel extends JourneyModel {
     case class SelectTypeOfAmendment(model: AmendCaseStateModel) extends AmendCaseState
 
     case class EnterResponse(model: AmendCaseStateModel) extends AmendCaseState
+
+    case class AmendCaseConfirmation(model: AmendCaseStateModel) extends AmendCaseState
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -82,6 +84,25 @@ object AmendCaseJourneyModel extends JourneyModel {
             case TypeOfAmendment.UploadDocuments =>
               goto(WorkInProgressDeadEnd)
           }
+      }
+
+    final def backToEnterResponse(user: String) =
+      Transition {
+        case s: AmendCaseState =>
+          goto(EnterResponse(s.model))
+      }
+
+    final def submitedResponseText(user: String)(responseText: String) =
+      Transition {
+        case EnterResponse(model)
+            if model.hasTypeOfAmendment(
+              TypeOfAmendment.WriteResponse,
+              TypeOfAmendment.WriteResponseAndUploadDocuments
+            ) =>
+          if (model.typeOfAmendment.contains(TypeOfAmendment.WriteResponseAndUploadDocuments))
+            goto(WorkInProgressDeadEnd)
+          else
+            goto(AmendCaseConfirmation(model.copy(responseText = Some(responseText))))
       }
   }
 }

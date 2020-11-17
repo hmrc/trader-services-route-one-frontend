@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models.TypeOfAmendment
 import uk.gov.hmrc.traderservices.support.FormValidator
+import scala.util.Random
 
 class AmendCaseFormsSpec extends UnitSpec with FormValidator {
 
@@ -34,6 +35,30 @@ class AmendCaseFormsSpec extends UnitSpec with FormValidator {
       )
       validate(form, "typeOfAmendment", Map(), Seq("error.typeOfAmendment.required"))
       validate(form, "typeOfAmendment", Map("typeOfAmendment" -> "Foo"), Seq("error.typeOfAmendment.invalid-option"))
+    }
+
+    "bind and validate response text" in {
+      val form = AmendCaseJourneyController.ResponseTextForm
+      val validTextSample = Random.alphanumeric.take(1000).mkString
+      validate(form, Map("responseText" -> validTextSample), validTextSample)
+      validate(
+        form,
+        "responseText",
+        Map("responseText" -> Random.alphanumeric.take(1001).mkString),
+        Seq("error.responseText.invalid-length")
+      )
+      validate(
+        form,
+        "responseText",
+        Map("responseText" -> ""),
+        Seq("error.responseText.required")
+      )
+      validateAsymmetric(
+        form,
+        Map("responseText" -> "abc 123 \u2061\u2062\u2063 xyz"),
+        "abc 123  xyz",
+        Map("responseText" -> "abc 123  xyz")
+      )
     }
 
   }
