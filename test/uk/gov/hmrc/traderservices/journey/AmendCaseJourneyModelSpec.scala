@@ -41,9 +41,19 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
   implicit val dummyContext: DummyContext = DummyContext()
 
   "AmendCaseJourneyModel" when {
-    "at state Start" should {
-      "stay at Start when start" in {
-        given(Start) when start(eoriNumber) should thenGo(Start)
+    "at state EnterCaseReferenceNumber" should {
+      "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
+        given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber(eoriNumber) should thenGo(
+          EnterCaseReferenceNumber()
+        )
+      }
+
+      "go to SelectAmendScenario when sumbited case reference number" in {
+        given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(eoriNumber)(
+          "PC12010081330XGBNZJO04"
+        ) should thenGo(
+          SelectAmendScenario("PC12010081330XGBNZJO04")
+        )
       }
     }
   }
@@ -54,7 +64,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     await(save((initialState, Nil)))
 
     def withBreadcrumbs(breadcrumbs: State*): this.type = {
-      val (state, _) = await(fetch).getOrElse((Start, Nil))
+      val (state, _) = await(fetch).getOrElse((EnterCaseReferenceNumber(), Nil))
       await(save((state, breadcrumbs.toList)))
       this
     }

@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.{LocalDate, LocalTime}
 
-import play.api.data.Forms.{of, optional, text}
+import play.api.data.Forms.{nonEmptyText, of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
@@ -246,4 +246,11 @@ object FormFieldMappings {
   )
 
   val uploadAnotherFileMapping: Mapping[Boolean] = booleanMapping("uploadAnotherFile", "yes", "no")
+
+  val caseReferenceNumberMapping: Mapping[String] = of[String].verifying(
+    first(
+      constraint[String]("caseReferenceNumber", "required", _.nonEmpty),
+      constraint[String]("caseReferenceNumber", "invalid-value", _.length == 22)
+    )
+  )
 }

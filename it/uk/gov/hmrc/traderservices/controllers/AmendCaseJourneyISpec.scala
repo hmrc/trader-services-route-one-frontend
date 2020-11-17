@@ -32,15 +32,38 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
   "AmendCaseJourneyController" when {
 
-    "GET /trader-services/pre-clearance/amend" should {
-      "show the start page" in {
+    "GET /trader-services/pre-clearance/amend/case-reference-number" should {
+      "show enter case reference number page" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend").get())
+        val result = await(request("/pre-clearance/amend/case-reference-number").get())
 
         result.status shouldBe 200
-        journey.getState shouldBe Start
+        result.body should include(
+          htmlEscapedMessage("view.case-reference-number.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
+        journey.getState shouldBe EnterCaseReferenceNumber(None)
+      }
+    }
+
+    "POST /trader-services/pre-clearance/amend/case-reference-number" should {
+      "sumbit case reference number and show next page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(EnterCaseReferenceNumber(None))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "caseReferenceNumber" -> "PC12010081330XGBNZJO04"
+        )
+
+        val result = await(request("/pre-clearance/amend/case-reference-number").post(payload))
+
+        result.status shouldBe 200
+        journey.getState shouldBe SelectAmendScenario("PC12010081330XGBNZJO04")
       }
     }
   }

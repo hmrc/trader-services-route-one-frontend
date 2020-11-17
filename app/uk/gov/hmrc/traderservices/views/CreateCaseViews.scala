@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.traderservices.views.html._
 
 @Singleton
-class Views @Inject() (
+class CreateCaseViews @Inject() (
   val startView: StartView,
   val declarationDetailsEntryView: DeclarationDetailsEntryView,
   val exportQuestionsRequestTypeView: ExportQuestionsRequestTypeView,
