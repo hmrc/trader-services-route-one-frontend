@@ -16,23 +16,11 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.data.FormError
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.models.{ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
-import uk.gov.hmrc.traderservices.support.FormMatchers
-import play.api.data.Form
+import uk.gov.hmrc.traderservices.support.FormValidator
 
-class ImportQuestionsFormSpec extends UnitSpec with FormMatchers {
-
-  def validate[A](form: Form[A], formInput: Map[String, String], formOutput: A): Unit = {
-    form.bind(formInput).value shouldBe Some(formOutput)
-    form.fill(formOutput).data shouldBe formInput
-  }
-
-  def validate[A](form: Form[A], fieldName: String, formInput: Map[String, String], errors: Seq[String]): Unit = {
-    form.bind(formInput).value shouldBe None
-    form.bind(formInput).errors should haveOnlyErrors(errors.map(e => FormError(fieldName, e)): _*)
-  }
+class ImportQuestionsFormSpec extends UnitSpec with FormValidator {
 
   "Import questions forms" should {
 

@@ -172,4 +172,8 @@ object AmendCaseJourneyController {
     mapping("caseReferenceNumber" -> caseReferenceNumberMapping)(identity)(Some(_))
   )
 
+  val TypeOfAmendmentForm = Form[TypeOfAmendment](
+    mapping("typeOfAmendment" -> typeOfAmendmentMapping)(identity)(Some(_))
+  )
+
 }
