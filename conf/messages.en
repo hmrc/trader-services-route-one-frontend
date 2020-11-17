@@ -475,6 +475,15 @@ view.case-reference-number.help.line2=Contact the <a href="https://www.gov.uk/go
 error.caseReferenceNumber.required=Enter the case reference number
 error.caseReferenceNumber.invalid-value=Case reference number must be 22 characters
 
+view.type-of-amendment.title=How do you want to send us more information?
+view.type-of-amendment.heading=How do you want to send us more information?
+view.type-of-amendment.continue=Continue
+form.typeOfAmendment.WriteResponse=Write a response to a question HMRC has asked
+form.typeOfAmendment.UploadDocuments=Upload more documents
+form.typeOfAmendment.WriteResponseAndUploadDocuments=Write a response and upload more documents
+error.typeOfAmendment.required=Select how you want to send us more information
+error.typeOfAmendment.invalid-option=Select how you want to send us more information
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:

@@ -16,11 +16,25 @@
 
 package uk.gov.hmrc.traderservices.views
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.views.html._
+import javax.inject.Singleton
+import play.api.data.Form
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import uk.gov.hmrc.traderservices.models.TypeOfAmendment
 
 @Singleton
-class AmendCaseViews @Inject() (
-  val enterCaseReferenceNumberView: EnterCaseReferenceNumberView,
-  val selectTypeOfAmendmentView: SelectTypeOfAmendmentView
-)
+class AmendCaseViewContext extends RadioItemsHelper {
+
+  def typeOfAmendmentItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
+    radioItems[TypeOfAmendment](
+      "",
+      "typeOfAmendment",
+      Seq(
+        TypeOfAmendment.WriteResponse,
+        TypeOfAmendment.UploadDocuments,
+        TypeOfAmendment.WriteResponseAndUploadDocuments
+      ),
+      form
+    )
+
+}

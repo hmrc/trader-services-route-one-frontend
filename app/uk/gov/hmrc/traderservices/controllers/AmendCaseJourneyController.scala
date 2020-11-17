@@ -91,10 +91,17 @@ class AmendCaseJourneyController @Inject() (
       .bindForm(EnterCaseReferenceNumberForm)
       .apply(Transitions.submitedCaseReferenceNumber)
 
-  // GET /pre-clearance/amend/select-how-to-send
+  // GET /pre-clearance/amend/type-of-amendment
   val showSelectTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.SelectTypeOfAmendment]
+      .orApply(Transitions.backToSelectTypeOfAmendment)
+
+  // POST /pre-clearance/amend/type-of-amendment
+  val submitTypeOfAmendment: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(TypeOfAmendmentForm)
+      .apply(Transitions.submitedTypeOfAmendment)
 
   /**
     * Function from the `State` to the `Call` (route),
@@ -123,16 +130,22 @@ class AmendCaseJourneyController @Inject() (
     request: Request[_]
   ): Result =
     state match {
-      case EnterCaseReferenceNumber(caseReferenceNumberOpt) =>
+      case EnterCaseReferenceNumber(model) =>
         Ok(
           views.enterCaseReferenceNumberView(
-            formWithErrors.or(EnterCaseReferenceNumberForm, caseReferenceNumberOpt),
+            formWithErrors.or(EnterCaseReferenceNumberForm, model.caseReferenceNumber),
             controller.submitCaseReferenceNumber()
           )
         )
 
-      case SelectTypeOfAmendment(caseReferenceNumber) =>
-        Ok
+      case SelectTypeOfAmendment(model) =>
+        Ok(
+          views.selectTypeOfAmendmentView(
+            formWithErrors.or(TypeOfAmendmentForm, model.typeOfAmendment),
+            controller.submitTypeOfAmendment(),
+            controller.showEnterCaseReferenceNumber()
+          )
+        )
 
       case _ => NotImplemented
 
