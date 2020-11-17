@@ -158,13 +158,26 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) shouldFailWhen submitedResponseText(eoriNumber)(responseText)
       }
 
-      "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
-        val model = AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+      "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment from EnterResponseText" in {
+        val model = AmendCaseStateModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
         given(
           EnterResponseText(model)
         ) when backToSelectTypeOfAmendment(eoriNumber) should thenGo(
           SelectTypeOfAmendment(model)
         )
+      }
+
+      "fail when backToSelectTypeOfAmendment with none typeOfAmendment" in {
+        val model = AmendCaseStateModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = None
+        )
+        given(
+          SelectTypeOfAmendment(model)
+        ) shouldFailWhen backToSelectTypeOfAmendment(eoriNumber)
       }
     }
   }

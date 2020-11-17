@@ -70,7 +70,7 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     final def backToSelectTypeOfAmendment(user: String) =
       Transition {
-        case s: AmendCaseState =>
+        case s: AmendCaseState if s.model.typeOfAmendment.isDefined =>
           goto(SelectTypeOfAmendment(s.model))
       }
 
@@ -92,7 +92,7 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     final def backToEnterResponseText(user: String) =
       Transition {
-        case s: AmendCaseState =>
+        case s: AmendCaseState if s.model.responseText.isDefined =>
           goto(EnterResponseText(s.model))
       }
 
