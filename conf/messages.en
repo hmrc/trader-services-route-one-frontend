@@ -1,5 +1,5 @@
-service.name = Send documents for a customs check
 
+service.name = Send documents for a customs check
 # Site wide messages
 # ----------------------------------------------------------
 site.fullStop =.
@@ -483,6 +483,14 @@ form.typeOfAmendment.UploadDocuments=Upload more documents
 form.typeOfAmendment.WriteResponseAndUploadDocuments=Write a response and upload more documents
 error.typeOfAmendment.required=Select how you want to send us more information
 error.typeOfAmendment.invalid-option=Select how you want to send us more information
+
+view.write-response-text.title=Write a response to a query from HMRC
+view.write-response-text.heading=Write a response to a query from HMRC
+view.write-response-text.hint=Do not include personal or financial information, like credit cards or business account details.
+view.write-response-text.countMessage=You have [1000] characters remaining.
+view.write-response-text.continue=Continue
+error.responseText.required=Enter a response to a query from HMRC
+error.responseText.invalid-length=Enter a response to a query from HMRC
 
 # Common form messages
 # ----------------------------------------------------------

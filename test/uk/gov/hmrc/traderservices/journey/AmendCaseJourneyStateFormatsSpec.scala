@@ -47,8 +47,10 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
         State.SelectTypeOfAmendment(AmendCaseStateModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
-        """{"state":"EnterResponse","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
-        State.EnterResponse(AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse)))
+        """{"state":"EnterResponseText","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
+        State.EnterResponseText(
+          AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
+        )
       )
       val text = Random.alphanumeric.take(1000).mkString
       validateJsonFormat(

@@ -64,7 +64,7 @@ GET        /pre-clearance/amend/case-reference-number               @uk.gov.hmrc
 POST       /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitCaseReferenceNumber
 GET        /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showSelectTypeOfAmendment
 POST       /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitTypeOfAmendment
-GET        /pre-clearance/amend/write-response                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterResponse
+GET        /pre-clearance/amend/write-response                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterResponseText
 POST       /pre-clearance/amend/write-response                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitResponseText
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage

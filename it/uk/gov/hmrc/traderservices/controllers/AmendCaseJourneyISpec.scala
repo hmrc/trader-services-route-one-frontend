@@ -23,6 +23,7 @@ import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
+import scala.util.Random
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -107,11 +108,67 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         val result = await(request("/pre-clearance/amend/type-of-amendment").post(payload))
 
-        //result.status shouldBe 200
-        journey.getState shouldBe EnterResponse(
+        result.status shouldBe 200
+        journey.getState shouldBe EnterResponseText(
           AmendCaseStateModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+          )
+        )
+      }
+    }
+
+    "GET /trader-services/pre-clearance/amend/write-response" should {
+      "show write response page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = EnterResponseText(
+          AmendCaseStateModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/amend/write-response").get())
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.write-response-text.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.write-response-text.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "POST /trader-services/pre-clearance/amend/write-response" should {
+      "sumbit type of amendment choice and show next page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          EnterResponseText(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val text = Random.alphanumeric.take(1000).mkString
+        val payload = Map(
+          "responseText" -> text
+        )
+
+        val result = await(request("/pre-clearance/amend/write-response").post(payload))
+
+        //result.status shouldBe 200
+        journey.getState shouldBe AmendCaseConfirmation(
+          AmendCaseStateModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
+            responseText = Some(text)
           )
         )
       }

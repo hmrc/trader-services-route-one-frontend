@@ -104,10 +104,10 @@ class AmendCaseJourneyController @Inject() (
       .apply(Transitions.submitedTypeOfAmendment)
 
   // GET /pre-clearance/amend/write-response
-  val showEnterResponse: Action[AnyContent] =
+  val showEnterResponseText: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.EnterResponse]
-      .orApply(Transitions.backToEnterResponse)
+      .show[State.EnterResponseText]
+      .orApply(Transitions.backToEnterResponseText)
 
   // POST /pre-clearance/amend/write-response
   val submitResponseText: Action[AnyContent] =
@@ -126,6 +126,9 @@ class AmendCaseJourneyController @Inject() (
 
       case SelectTypeOfAmendment(_) =>
         controller.showSelectTypeOfAmendment()
+
+      case EnterResponseText(_) =>
+        controller.showEnterResponseText()
 
       case _ =>
         workInProgresDeadEndCall
@@ -156,6 +159,15 @@ class AmendCaseJourneyController @Inject() (
             formWithErrors.or(TypeOfAmendmentForm, model.typeOfAmendment),
             controller.submitTypeOfAmendment(),
             controller.showEnterCaseReferenceNumber()
+          )
+        )
+
+      case EnterResponseText(model) =>
+        Ok(
+          views.enterResponseTextView(
+            formWithErrors.or(ResponseTextForm, model.responseText),
+            controller.submitResponseText(),
+            controller.showSelectTypeOfAmendment()
           )
         )
 

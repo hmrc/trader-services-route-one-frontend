@@ -30,13 +30,13 @@ object AmendCaseJourneyStateFormats extends JsonStateFormats[State] {
 
   val enterCaseReferenceNumberFormat = Json.format[EnterCaseReferenceNumber]
   val selectTypeOfAmendmentFormat = Json.format[SelectTypeOfAmendment]
-  val enterResponseFormat = Json.format[EnterResponse]
+  val enterResponseTextFormat = Json.format[EnterResponseText]
   val amendCaseConfirmationFormat = Json.format[AmendCaseConfirmation]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterCaseReferenceNumber => enterCaseReferenceNumberFormat.writes(s)
     case s: SelectTypeOfAmendment    => selectTypeOfAmendmentFormat.writes(s)
-    case s: EnterResponse            => enterResponseFormat.writes(s)
+    case s: EnterResponseText        => enterResponseTextFormat.writes(s)
     case s: AmendCaseConfirmation    => amendCaseConfirmationFormat.writes(s)
   }
 
@@ -44,7 +44,7 @@ object AmendCaseJourneyStateFormats extends JsonStateFormats[State] {
     stateName match {
       case "EnterCaseReferenceNumber" => enterCaseReferenceNumberFormat.reads(properties)
       case "SelectTypeOfAmendment"    => selectTypeOfAmendmentFormat.reads(properties)
-      case "EnterResponse"            => enterResponseFormat.reads(properties)
+      case "EnterResponseText"        => enterResponseTextFormat.reads(properties)
       case "AmendCaseConfirmation"    => amendCaseConfirmationFormat.reads(properties)
       case "WorkInProgressDeadEnd"    => JsSuccess(WorkInProgressDeadEnd)
       case _                          => JsError(s"Unknown state name $stateName")

@@ -57,13 +57,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     }
 
     "at state SelectTypeOfAmendment" should {
-      "go to EnterResponse when sumbited type of amendment WriteResponse" in {
+      "go to EnterResponseText when sumbited type of amendment WriteResponse" in {
         given(
           SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(eoriNumber)(
           TypeOfAmendment.WriteResponse
         ) should thenGo(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
@@ -72,13 +72,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to EnterResponse when sumbited type of amendment WriteResponseAndUploadDocuments" in {
+      "go to EnterResponseText when sumbited type of amendment WriteResponseAndUploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(eoriNumber)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
         ) should thenGo(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
@@ -107,11 +107,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
     }
 
-    "at state EnterResponse" should {
+    "at state EnterResponseText" should {
       "goto AmendCaseConfirmation when submited response text in WriteResponse mode" in {
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
@@ -133,7 +133,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "goto ??? when submited response text in WriteResponseAndUploadDocuments mode" in {
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
@@ -149,7 +149,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "fail when submited response text in UploadDocuments mode" in {
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
@@ -161,7 +161,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
         val model = AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         given(
-          EnterResponse(model)
+          EnterResponseText(model)
         ) when backToSelectTypeOfAmendment(eoriNumber) should thenGo(
           SelectTypeOfAmendment(model)
         )

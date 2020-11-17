@@ -23,8 +23,8 @@ lazy val compileDeps = Seq(
   "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-26",
   "uk.gov.hmrc"                  %% "mongo-caching"              % "6.15.0-play-26",
   "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.51.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.20.0-play-26",
+  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.53.0-play-26",
+  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.26.0-play-26",
   "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.11",
   "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )

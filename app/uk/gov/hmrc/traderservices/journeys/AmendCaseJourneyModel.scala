@@ -44,7 +44,7 @@ object AmendCaseJourneyModel extends JourneyModel {
 
     case class SelectTypeOfAmendment(model: AmendCaseStateModel) extends AmendCaseState
 
-    case class EnterResponse(model: AmendCaseStateModel) extends AmendCaseState
+    case class EnterResponseText(model: AmendCaseStateModel) extends AmendCaseState
 
     case class AmendCaseConfirmation(model: AmendCaseStateModel) extends AmendCaseState
   }
@@ -78,23 +78,27 @@ object AmendCaseJourneyModel extends JourneyModel {
       Transition {
         case SelectTypeOfAmendment(model) =>
           typeOfAmendment match {
-            case TypeOfAmendment.WriteResponse | TypeOfAmendment.WriteResponseAndUploadDocuments =>
-              goto(EnterResponse(model.copy(typeOfAmendment = Some(typeOfAmendment))))
+            case TypeOfAmendment.WriteResponse =>
+              goto(EnterResponseText(model.copy(typeOfAmendment = Some(typeOfAmendment))))
+
+            case TypeOfAmendment.WriteResponseAndUploadDocuments =>
+              goto(EnterResponseText(model.copy(typeOfAmendment = Some(typeOfAmendment))))
 
             case TypeOfAmendment.UploadDocuments =>
+              val updatedModel = model.copy(typeOfAmendment = Some(typeOfAmendment), responseText = None)
               goto(WorkInProgressDeadEnd)
           }
       }
 
-    final def backToEnterResponse(user: String) =
+    final def backToEnterResponseText(user: String) =
       Transition {
         case s: AmendCaseState =>
-          goto(EnterResponse(s.model))
+          goto(EnterResponseText(s.model))
       }
 
     final def submitedResponseText(user: String)(responseText: String) =
       Transition {
-        case EnterResponse(model)
+        case EnterResponseText(model)
             if model.hasTypeOfAmendment(
               TypeOfAmendment.WriteResponse,
               TypeOfAmendment.WriteResponseAndUploadDocuments
