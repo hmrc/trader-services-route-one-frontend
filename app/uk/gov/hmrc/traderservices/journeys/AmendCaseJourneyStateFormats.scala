@@ -21,7 +21,7 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.play.fsm.JsonStateFormats
-import uk.gov.hmrc.traderservices.models.AmendCaseStateModel
+import uk.gov.hmrc.traderservices.models.AmendCaseModel
 
 object AmendCaseJourneyStateFormats
     extends FileUploadJourneyStateFormats(AmendCaseJourneyModel) with JsonStateFormats[State] {
@@ -31,8 +31,8 @@ object AmendCaseJourneyStateFormats
   val enterResponseTextFormat = Json.format[EnterResponseText]
   val amendCaseConfirmationFormat = Json.format[AmendCaseConfirmation]
 
-  override val fileUploadHostDataFormat: Format[AmendCaseStateModel] =
-    AmendCaseStateModel.formats
+  override val fileUploadHostDataFormat: Format[AmendCaseModel] =
+    AmendCaseModel.formats
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterCaseReferenceNumber   => enterCaseReferenceNumberFormat.writes(s)

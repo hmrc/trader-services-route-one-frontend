@@ -23,5 +23,9 @@ import uk.gov.hmrc.traderservices.views.html._
 class AmendCaseViews @Inject() (
   val enterCaseReferenceNumberView: EnterCaseReferenceNumberView,
   val selectTypeOfAmendmentView: SelectTypeOfAmendmentView,
-  val enterResponseTextView: EnterResponseTextView
+  val enterResponseTextView: EnterResponseTextView,
+  val uploadFileView: UploadFileView,
+  val waitingForFileVerificationView: WaitingForFileVerificationView,
+  val fileUploadedView: FileUploadedView,
+  val fileUploadedSummaryView: FileUploadedSummaryView
 )

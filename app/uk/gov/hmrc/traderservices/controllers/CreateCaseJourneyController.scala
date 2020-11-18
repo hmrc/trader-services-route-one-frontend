@@ -428,6 +428,8 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser.showCurrentState
       .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
+  // ----------------------- CONFIRMATION -----------------------
+
   // POST /pre-clearance/create-case
   def createCase: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -738,9 +740,9 @@ class CreateCaseJourneyController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
-            successAction = routes.CreateCaseJourneyController.showFileUploaded,
-            failureAction = routes.CreateCaseJourneyController.showFileUpload,
-            checkStatusAction = routes.CreateCaseJourneyController.checkFileVerificationStatus(reference),
+            successAction = controller.showFileUploaded,
+            failureAction = controller.showFileUpload,
+            checkStatusAction = controller.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty) backLinkToSummary(model.questionsAnswers)
               else controller.showFileUploaded()

@@ -1,6 +1,5 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import java.time.LocalDate
 import java.util.UUID
 
 import play.api.Application
@@ -15,19 +14,16 @@ import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
-import uk.gov.hmrc.traderservices.support.TestData
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import java.time.temporal.ChronoField
-import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
-import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
 import scala.util.Random
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.State._
+  import journey.model.FileUploadState._
 
   val dateTime = LocalDateTime.now()
 
@@ -65,7 +61,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         result.status shouldBe 200
         journey.getState shouldBe SelectTypeOfAmendment(
-          AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+          AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         )
       }
     }
@@ -74,7 +70,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       "show select type of amendment page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = SelectTypeOfAmendment(
-          AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+          AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -97,7 +93,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           SelectTypeOfAmendment(
-            AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+            AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -110,7 +106,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         result.status shouldBe 200
         journey.getState shouldBe EnterResponseText(
-          AmendCaseStateModel(
+          AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
           )
@@ -122,7 +118,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       "show write response page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = EnterResponseText(
-          AmendCaseStateModel(
+          AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
           )
@@ -148,7 +144,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           EnterResponseText(
-            AmendCaseStateModel(
+            AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
@@ -163,14 +159,237 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         val result = await(request("/pre-clearance/amend/write-response").post(payload))
 
-        //result.status shouldBe 200
+        result.status shouldBe 200
         journey.getState shouldBe AmendCaseConfirmation(
-          AmendCaseStateModel(
+          AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
             responseText = Some(text)
           )
         )
+      }
+    }
+
+    "GET /pre-clearance/amend/file-upload" should {
+      "show the upload first document page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val callbackUrl =
+          wireMockBaseUrl + s"/trader-services/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
+        val state = UploadFile(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          ),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/pre-clearance/amend/file-upload").get())
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /pre-clearance/amend/journey/:journeyId/file-rejected" should {
+      "set current file upload status as rejected and return 204 NoContent" in {
+        implicit val journeyId: JourneyId = JourneyId()
+
+        journey.setState(
+          UploadFile(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            ),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result1 =
+          await(
+            requestWithoutJourneyId(
+              s"/pre-clearance/amend/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+            ).get()
+          )
+
+        result1.status shouldBe 204
+        result1.body.isEmpty shouldBe true
+        journey.getState shouldBe (
+          UploadFile(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            ),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(
+                  1,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  S3UploadError(
+                    key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                    errorCode = "ABC123",
+                    errorMessage = "ABC 123"
+                  )
+                ),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            ),
+            Some(
+              FileTransmissionFailed(
+                S3UploadError("11370e18-6e24-453e-b45a-76d3e32ea33d", "ABC123", "ABC 123", None, None)
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "GET /pre-clearance/amend/journey/:journeyId/file-verification" should {
+      "set current file upload status as posted and return 204 NoContent" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          UploadFile(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            ),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result1 =
+          await(requestWithoutJourneyId(s"/pre-clearance/amend/journey/${journeyId.value}/file-verification").get())
+
+        result1.status shouldBe 204
+        result1.body.isEmpty shouldBe true
+        journey.getState shouldBe (
+          WaitingForFileVerification(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            ),
+            "11370e18-6e24-453e-b45a-76d3e32ea33d",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "GET /pre-clearance/amend/file-verification/:reference/status" should {
+      "return file verification status" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = FileUploaded(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Accepted(
+                4,
+                "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Failed(
+                3,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          ),
+          acknowledged = false
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result1 =
+          await(
+            request("/pre-clearance/amend/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status")
+              .get()
+          )
+        result1.status shouldBe 200
+        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+        journey.getState shouldBe state
+
+        val result2 =
+          await(request("/pre-clearance/amend/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
+        result2.status shouldBe 200
+        result2.body shouldBe """{"fileStatus":"WAITING"}"""
+        journey.getState shouldBe state
+
+        val result3 =
+          await(request("/pre-clearance/amend/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
+        result3.status shouldBe 200
+        result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+        journey.getState shouldBe state
+
+        val result4 =
+          await(request("/pre-clearance/amend/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
+        result4.status shouldBe 200
+        result4.body shouldBe """{"fileStatus":"FAILED"}"""
+        journey.getState shouldBe state
+
+        val result5 =
+          await(request("/pre-clearance/amend/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
+        result5.status shouldBe 404
+        journey.getState shouldBe state
       }
     }
   }

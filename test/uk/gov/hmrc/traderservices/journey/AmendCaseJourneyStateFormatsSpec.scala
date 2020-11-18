@@ -38,27 +38,27 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
       )
       validateJsonFormat(
         """{"state":"EnterCaseReferenceNumber","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
-        State.EnterCaseReferenceNumber(AmendCaseStateModel(Some("PC12010081330XGBNZJO04")))
+        State.EnterCaseReferenceNumber(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
         """{"state":"SelectTypeOfAmendment","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
-        State.SelectTypeOfAmendment(AmendCaseStateModel(Some("PC12010081330XGBNZJO04")))
+        State.SelectTypeOfAmendment(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
         """{"state":"EnterResponseText","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
         State.EnterResponseText(
-          AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
+          AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
         )
       )
       val text = Random.alphanumeric.take(1000).mkString
       validateJsonFormat(
         s"""{"state":"AmendCaseConfirmation","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"}}}""",
         State.AmendCaseConfirmation(
-          AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
+          AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
         )
       )
       val fileUploadHostData =
-        AmendCaseStateModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
+        AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
       validateJsonFormat(
         s"""{"state":"UploadFile","properties":{
            |"hostData":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"},
