@@ -1,0 +1,107 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.views.components.FooterLinks
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
+
+@this(
+govukLayout2: GovukLayout2,
+govukPhaseBanner: GovukPhaseBanner,
+govukBackLink: GovukBackLink,
+siteHeader: components.siteHeader,
+phaseBanner: components.phaseBanner,
+hmrcBanner: hmrcComponents.HmrcBanner,
+languageSelection: components.languageSelection,
+link: components.link,
+gtmHeadSnippet: GtmHeadSnippet,
+gtmBodySnippet: GtmBodySnippet,
+researchBanner: components.researchBanner,
+appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
+)
+
+@(
+  pageTitle: Option[String] = None, 
+  timeout: Boolean = true, 
+  js: Option[Html] = None, 
+  backLink: Option[String] = None, 
+  refresh: Int = 0,
+  mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
+  mainContentClasses: String = "govuk-grid-column-two-thirds"
+)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+
+@head = {
+@gtmHeadSnippet()
+<meta name="format-detection" content="telephone=no">
+<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
+<!--[if gt IE 8]><!-->
+<link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet"
+    type="text/css" />
+<!--<![endif]-->
+<link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css"
+    media="print" />
+@if(refresh>0){
+<noscript>
+ <meta http-equiv="refresh" content="@refresh"/>
+</noscript>
+}
+}
+
+@scripts = {
+<script src='@controllers.routes.Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+<script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+<script type="text/javascript" src='@controllers.routes.Assets.versioned("javascripts/researchBanner.js")'></script>
+}
+
+@beforeContentBlock = {
+
+@gtmBodySnippet()
+
+@researchBanner()
+@phaseBanner("alpha")
+@hmrcBanner(Banner(if(messages.lang.code == "cy") {Cy} else {En}))
+
+@if(backLink.isDefined) {
+@govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" ->
+"back-link")))
+}
+
+@languageSelection(
+appConfig.languageMap,
+appConfig.routeToSwitchLanguage
+)
+}
+
+@content = {
+<div class="govuk-!-margin-bottom-6">
+    @contentBlock
+</div>
+
+<div>
+    @link("https://www.gov.uk/dealing-hmrc-additional-needs", messages("site.getHelpWithThisPage"))
+</div>
+}
+
+@govukLayout2(
+    pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}" ),headBlock = Some(head),
+beforeContentBlock = Some(beforeContentBlock),
+bodyEndBlock = None,
+scriptsBlock = Some(scripts),
+headerBlock = Some(siteHeader(timeout)),
+footerItems = FooterLinks.items,
+mainClasses = mainClasses,
+mainContentClasses = mainContentClasses
+)(content)

@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.traderservices.journey
 
-import java.time.LocalDate
-
 import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
@@ -29,6 +27,8 @@ import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.ClassTag
 import scala.concurrent.Future
+import scala.util.Random
+import scala.util.Try
 
 class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -57,13 +57,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     }
 
     "at state SelectTypeOfAmendment" should {
-      "go to EnterResponse when sumbited type of amendment WriteResponse" in {
+      "go to EnterResponseText when sumbited type of amendment WriteResponse" in {
         given(
           SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(eoriNumber)(
           TypeOfAmendment.WriteResponse
         ) should thenGo(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
@@ -72,13 +72,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to EnterResponse when sumbited type of amendment WriteResponseAndUploadDocuments" in {
+      "go to EnterResponseText when sumbited type of amendment WriteResponseAndUploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(eoriNumber)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
         ) should thenGo(
-          EnterResponse(
+          EnterResponseText(
             AmendCaseStateModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
@@ -107,14 +107,77 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
     }
 
-    "at state EnterResponse" should {
-      "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
-        val model = AmendCaseStateModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+    "at state EnterResponseText" should {
+      "goto AmendCaseConfirmation when submited response text in WriteResponse mode" in {
+        val responseText = Random.alphanumeric.take(1000).mkString
         given(
-          EnterResponse(model)
+          EnterResponseText(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        ) when submitedResponseText(eoriNumber)(
+          responseText
+        ) should thenGo(
+          AmendCaseConfirmation(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
+              responseText = Some(responseText)
+            )
+          )
+        )
+      }
+
+      "goto ??? when submited response text in WriteResponseAndUploadDocuments mode" in {
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
+            )
+          )
+        ) when submitedResponseText(eoriNumber)(
+          responseText
+        ) should thenGo(
+          WorkInProgressDeadEnd
+        )
+      }
+
+      "fail when submited response text in UploadDocuments mode" in {
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseStateModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+            )
+          )
+        ) shouldFailWhen submitedResponseText(eoriNumber)(responseText)
+      }
+
+      "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment from EnterResponseText" in {
+        val model = AmendCaseStateModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
+        given(
+          EnterResponseText(model)
         ) when backToSelectTypeOfAmendment(eoriNumber) should thenGo(
           SelectTypeOfAmendment(model)
         )
+      }
+
+      "fail when backToSelectTypeOfAmendment with none typeOfAmendment" in {
+        val model = AmendCaseStateModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = None
+        )
+        given(
+          SelectTypeOfAmendment(model)
+        ) shouldFailWhen backToSelectTypeOfAmendment(eoriNumber)
       }
     }
   }
@@ -132,6 +195,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
     def when(transition: Transition): (State, List[State]) =
       await(super.apply(transition))
+
+    def shouldFailWhen(transition: Transition) =
+      Try(await(super.apply(transition))).isSuccess shouldBe false
 
     def when(merger: Merger[S], state: State): (State, List[State]) =
       await(super.modify { s: S => merger.apply((s, state)) })

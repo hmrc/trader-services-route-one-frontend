@@ -103,6 +103,18 @@ class AmendCaseJourneyController @Inject() (
       .bindForm(TypeOfAmendmentForm)
       .apply(Transitions.submitedTypeOfAmendment)
 
+  // GET /pre-clearance/amend/write-response
+  val showEnterResponseText: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.EnterResponseText]
+      .orApply(Transitions.backToEnterResponseText)
+
+  // POST /pre-clearance/amend/write-response
+  val submitResponseText: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(ResponseTextForm)
+      .apply(Transitions.submitedResponseText)
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -114,6 +126,9 @@ class AmendCaseJourneyController @Inject() (
 
       case SelectTypeOfAmendment(_) =>
         controller.showSelectTypeOfAmendment()
+
+      case EnterResponseText(_) =>
+        controller.showEnterResponseText()
 
       case _ =>
         workInProgresDeadEndCall
@@ -144,6 +159,15 @@ class AmendCaseJourneyController @Inject() (
             formWithErrors.or(TypeOfAmendmentForm, model.typeOfAmendment),
             controller.submitTypeOfAmendment(),
             controller.showEnterCaseReferenceNumber()
+          )
+        )
+
+      case EnterResponseText(model) =>
+        Ok(
+          views.enterResponseTextView(
+            formWithErrors.or(ResponseTextForm, model.responseText),
+            controller.submitResponseText(),
+            controller.showSelectTypeOfAmendment()
           )
         )
 
@@ -187,6 +211,10 @@ object AmendCaseJourneyController {
 
   val TypeOfAmendmentForm = Form[TypeOfAmendment](
     mapping("typeOfAmendment" -> typeOfAmendmentMapping)(identity)(Some(_))
+  )
+
+  val ResponseTextForm = Form[String](
+    mapping("responseText" -> responseTextMapping)(identity)(Some(_))
   )
 
 }

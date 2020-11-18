@@ -255,4 +255,18 @@ object FormFieldMappings {
   )
 
   val typeOfAmendmentMapping: Mapping[TypeOfAmendment] = enumMapping[TypeOfAmendment]("typeOfAmendment")
+
+  val allowedResponseSpecialCharacters = " ()/+-*=^.;_&#@!?\"'{}[]\\~|%£$€"
+
+  def isAllowedResponseCharacter(c: Char): Boolean =
+    Character.isLetterOrDigit(c) || allowedResponseSpecialCharacters.contains(c)
+
+  val responseTextMapping: Mapping[String] = text
+    .verifying(
+      first(
+        nonEmpty("responseText"),
+        constraint[String]("responseText", "invalid-length", _.length <= 1000)
+      )
+    )
+    .transform(_.filter(isAllowedResponseCharacter), identity)
 }
