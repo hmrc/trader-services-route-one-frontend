@@ -60,7 +60,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
   object FileUploadState {
 
-    final case class UploadFile(
+    case class UploadFile(
       hostData: FileUploadHostData,
       reference: String,
       uploadRequest: UploadRequest,
@@ -68,7 +68,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       maybeUploadError: Option[FileUploadError] = None
     ) extends FileUploadState
 
-    final case class WaitingForFileVerification(
+    case class WaitingForFileVerification(
       hostData: FileUploadHostData,
       reference: String,
       uploadRequest: UploadRequest,
@@ -76,7 +76,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       fileUploads: FileUploads
     ) extends FileUploadState with IsTransient
 
-    final case class FileUploaded(
+    case class FileUploaded(
       hostData: FileUploadHostData,
       fileUploads: FileUploads,
       acknowledged: Boolean = false
@@ -84,45 +84,44 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
   }
 
+  type UpscanInitiateApi = UpscanInitiateRequest => Future[UpscanInitiateResponse]
+
   object FileUploadTransitions {
     import FileUploadState._
 
-    type UpscanInitiateApi = UpscanInitiateRequest => Future[UpscanInitiateResponse]
+    private[journeys] final def gotoFileUploadOrUploaded(
+      fileUploads: FileUploads,
+      hostData: FileUploadHostData,
+      upscanRequest: UpscanInitiateRequest,
+      upscanInitiate: UpscanInitiateApi
+    )(implicit ec: ExecutionContext): Future[State] =
+      if (fileUploads.nonEmpty || fileUploads.acceptedCount >= maxFileUploadsNumber)
+        goto(
+          FileUploaded(
+            hostData,
+            fileUploads
+          )
+        )
+      else
+        for {
+          upscanResponse <- upscanInitiate(upscanRequest)
+        } yield UploadFile(
+          hostData,
+          upscanResponse.reference,
+          upscanResponse.uploadRequest,
+          fileUploads.copy(files =
+            fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
+          )
+        )
 
     final def initiateFileUpload(
-      callbackUrl: String,
-      successRedirect: String,
-      errorRedirect: String,
-      maxFileSizeMb: Int
+      upscanRequest: UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case state: CanEnterFileUpload =>
           val fileUploads = state.fileUploadsOpt.getOrElse(FileUploads())
-          if (fileUploads.nonEmpty || fileUploads.acceptedCount >= maxFileUploadsNumber)
-            goto(
-              FileUploaded(
-                state.hostData,
-                fileUploads
-              )
-            )
-          else
-            for {
-              upscanResponse <- upscanInitiate(
-                                  UpscanInitiateRequest(
-                                    callbackUrl = callbackUrl,
-                                    successRedirect = Some(successRedirect),
-                                    errorRedirect = Some(errorRedirect),
-                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
-                                  )
-                                )
-            } yield UploadFile(
-              state.hostData,
-              upscanResponse.reference,
-              upscanResponse.uploadRequest,
-              fileUploads.copy(files =
-                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
-              )
-            )
+          val hostData = state.hostData
+          gotoFileUploadOrUploaded(fileUploads, hostData, upscanRequest, upscanInitiate)
 
         case WaitingForFileVerification(
               hostData,
@@ -137,23 +136,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           if (fileUploads.acceptedCount >= maxFileUploadsNumber)
             goto(current)
           else
-            for {
-              upscanResponse <- upscanInitiate(
-                                  UpscanInitiateRequest(
-                                    callbackUrl = callbackUrl,
-                                    successRedirect = Some(successRedirect),
-                                    errorRedirect = Some(errorRedirect),
-                                    maximumFileSize = Some(maxFileSizeMb * 1024 * 1024)
-                                  )
-                                )
-            } yield UploadFile(
-              hostData,
-              upscanResponse.reference,
-              upscanResponse.uploadRequest,
-              fileUploads.copy(files =
-                fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
-              )
-            )
+            gotoFileUploadOrUploaded(fileUploads, hostData, upscanRequest, upscanInitiate)
       }
 
     final def fileUploadWasRejected(user: String)(error: S3UploadError) =
@@ -353,27 +336,21 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     }
 
     final def submitedUploadAnotherFileChoice(
-      callbackUrl: String,
-      successRedirect: String,
-      errorRedirect: String,
-      maxFileSizeMb: Int
+      upscanRequest: UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
     )(exitFileUpload: String => Transition)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
       Transition {
         case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
           if (uploadAnotherFile && fileUploads.acceptedCount < maxFileUploadsNumber)
-            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
+            initiateFileUpload(upscanRequest)(upscanInitiate)(user)
               .apply(current)
           else
             exitFileUpload(user).apply(current)
       }
 
     final def removeFileUploadByReference(reference: String)(
-      callbackUrl: String,
-      successRedirect: String,
-      errorRedirect: String,
-      maxFileSizeMb: Int
+      upscanRequest: UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
       Transition {
         case current: FileUploaded =>
@@ -381,7 +358,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
           val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
           if (updatedFileUploads.isEmpty)
-            initiateFileUpload(callbackUrl, successRedirect, errorRedirect, maxFileSizeMb)(upscanInitiate)(user)
+            initiateFileUpload(upscanRequest)(upscanInitiate)(user)
               .apply(updatedCurrentState)
           else
             goto(updatedCurrentState)

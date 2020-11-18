@@ -38,6 +38,7 @@ import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.models.ExportQuestions
 import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 import uk.gov.hmrc.traderservices.models.ImportQuestions
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -340,15 +341,22 @@ class CreateCaseJourneyController @Inject() (
       case None    => controller.markFileUploadAsRejected()
     })
 
+  def upscanRequest(implicit rh: RequestHeader) =
+    UpscanInitiateRequest(
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
+      successRedirect = Some(successRedirect),
+      errorRedirect = Some(errorRedirect),
+      minimumFileSize = Some(1),
+      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+    )
+
   // GET /pre-clearance/file-upload
   val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
-        val callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url
         FileUploadTransitions
-          .initiateFileUpload(callbackUrl, successRedirect, errorRedirect, appConfig.fileFormats.maxFileSizeMb)(
-            upscanInitiateConnector.initiate(_)
-          )
+          .initiateFileUpload(upscanRequest)(upscanInitiateConnector.initiate(_))
       }
       .redirectOrDisplayIf[FileUploadState.UploadFile]
 
@@ -401,32 +409,16 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
-        val callbackUrl =
-          appConfig.baseInternalCallbackUrl + routes.CreateCaseJourneyController
-            .callbackFromUpscan(currentJourneyId)
-            .url
-        FileUploadTransitions.submitedUploadAnotherFileChoice(
-          callbackUrl,
-          successRedirect,
-          errorRedirect,
-          appConfig.fileFormats.maxFileSizeMb
-        )(upscanInitiateConnector.initiate(_))(Transitions.createCase(traderServicesApiConnector.createCase(_))) _
+        FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
+          Transitions.createCase(traderServicesApiConnector.createCase(_))
+        ) _
       }
 
   // GET /pre-clearance/file-uploaded/:reference/remove
   def removeFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
-        val callbackUrl =
-          appConfig.baseInternalCallbackUrl + routes.CreateCaseJourneyController
-            .callbackFromUpscan(currentJourneyId)
-            .url
-        FileUploadTransitions.removeFileUploadByReference(reference)(
-          callbackUrl,
-          successRedirect,
-          errorRedirect,
-          appConfig.fileFormats.maxFileSizeMb
-        )(
+        FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
         ) _
       }

@@ -21,7 +21,8 @@ import play.api.libs.json.{Format, Json}
 case class AmendCaseStateModel(
   caseReferenceNumber: Option[String] = None,
   typeOfAmendment: Option[TypeOfAmendment] = None,
-  responseText: Option[String] = None
+  responseText: Option[String] = None,
+  fileUploads: Option[FileUploads] = None
 ) {
 
   def hasTypeOfAmendment(expected: TypeOfAmendment*): Boolean =

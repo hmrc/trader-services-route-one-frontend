@@ -21,17 +21,25 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.play.fsm.JourneyModel
 
-object AmendCaseJourneyModel extends JourneyModel {
+object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
-  sealed trait State
   sealed trait IsError
-  sealed trait IsTransient
 
   override val root: State = State.EnterCaseReferenceNumber()
 
   sealed trait AmendCaseState extends State {
     def model: AmendCaseStateModel
   }
+
+  // FileUploadJourneyModel customization
+
+  override val maxFileUploadsNumber: Int = 10
+
+  override def retreatFromFileUpload: String => Transition =
+    Transitions.backFromFileUploadState
+
+  /** Opaque data carried through the file upload process. */
+  override type FileUploadHostData = AmendCaseStateModel
 
   /** All the possible states the journey can take. */
   object State {
@@ -107,6 +115,19 @@ object AmendCaseJourneyModel extends JourneyModel {
             goto(WorkInProgressDeadEnd)
           else
             goto(AmendCaseConfirmation(model.copy(responseText = Some(responseText))))
+      }
+
+    final def backFromFileUploadState(user: String) =
+      Transition {
+        case s: FileUploadState =>
+          val model = s.hostData.copy(fileUploads = Some(s.fileUploads))
+          s.hostData.typeOfAmendment.getOrElse(TypeOfAmendment.UploadDocuments) match {
+            case TypeOfAmendment.WriteResponse | TypeOfAmendment.WriteResponseAndUploadDocuments =>
+              goto(EnterResponseText(model))
+
+            case TypeOfAmendment.UploadDocuments =>
+              goto(SelectTypeOfAmendment(model))
+          }
       }
   }
 }
