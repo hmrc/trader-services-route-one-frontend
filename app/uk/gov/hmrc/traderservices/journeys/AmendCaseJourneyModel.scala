@@ -80,6 +80,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: AmendCaseState if s.model.typeOfAmendment.isDefined =>
           goto(SelectTypeOfAmendment(s.model))
+
+        case s: FileUploadState if s.hostData.typeOfAmendment.isDefined =>
+          goto(SelectTypeOfAmendment(s.hostData))
       }
 
     final def submitedTypeOfAmendment(
@@ -112,6 +115,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: AmendCaseState if s.model.responseText.isDefined =>
           goto(EnterResponseText(s.model))
+
+        case s: FileUploadState if s.hostData.responseText.isDefined =>
+          goto(EnterResponseText(s.hostData))
       }
 
     final def submitedResponseText(
