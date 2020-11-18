@@ -19,7 +19,6 @@ package uk.gov.hmrc.traderservices.journeys
 import uk.gov.hmrc.traderservices.models._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.play.fsm.JourneyModel
 
 object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
