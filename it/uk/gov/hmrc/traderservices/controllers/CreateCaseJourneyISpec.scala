@@ -33,28 +33,92 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
   val dateTime = LocalDateTime.now()
 
   "CreateCaseJourneyController" when {
-
     "GET /trader-services/" should {
       "show the start page" in {
         implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/").get())
 
         result.status shouldBe 200
         result.body should include(
-          htmlEscapedMessage("view.start.title") + " - " + htmlEscapedMessage(
+          htmlEscapedMessage("view.new-or-existing-case.title") + " - " + htmlEscapedMessage(
             "site.serviceName"
           ) + " - " + htmlEscapedMessage("site.govuk")
         )
-        journey.getState shouldBe Start
+        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        journey.getState shouldBe ChooseNewOrExistingCase()
+      }
+    }
+
+    "GET /trader-services/pre-clearance/new-or-existing" should {
+      "show the choice between new and existing case" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(ChooseNewOrExistingCase())
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/new-or-existing").get())
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.new-or-existing-case.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        journey.getState shouldBe ChooseNewOrExistingCase()
+      }
+    }
+
+    "POST /pre-clearance/new-or-existing" should {
+      "submit the choice of New and ask next for declaration details" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(ChooseNewOrExistingCase())
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "newOrExistingCase" -> "New"
+        )
+
+        val result = await(request("/pre-clearance/new-or-existing").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        journey.getState shouldBe EnterDeclarationDetails()
+      }
+
+      "submit the choice of Existing and ask next for case reference number" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(ChooseNewOrExistingCase())
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "newOrExistingCase" -> "Existing"
+        )
+
+        val result = await(request("/pre-clearance/new-or-existing").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(
+          htmlEscapedMessage("view.case-reference-number.title") + " - " + htmlEscapedMessage(
+            "site.serviceName"
+          ) + " - " + htmlEscapedMessage("site.govuk")
+        )
+        result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
+        journey.getState shouldBe TurnToAmendCaseJourney(true)
       }
     }
 
     "GET /trader-services/pre-clearance/declaration-details" should {
-      "show blank declaration details page if at Start" in {
+      "show declaration details page if at Start" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(Start)
+        journey.setState(EnterDeclarationDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/pre-clearance/declaration-details").get())
@@ -66,7 +130,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           ) + " - " + htmlEscapedMessage("site.govuk")
         )
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
-        journey.getState shouldBe EnterDeclarationDetails(None)
+        journey.getState shouldBe EnterDeclarationDetails()
       }
 
       "redisplay pre-filled enter declaration details page " in {

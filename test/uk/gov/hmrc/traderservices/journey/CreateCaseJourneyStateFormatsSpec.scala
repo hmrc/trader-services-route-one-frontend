@@ -37,6 +37,45 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat("""{"state":"Start"}""", State.Start)
       validateJsonFormat(
+        """{"state":"TurnToAmendCaseJourney","properties":{"continueAmendCaseJourney":true}}""",
+        State.TurnToAmendCaseJourney(true)
+      )
+      validateJsonFormat(
+        """{"state":"ChooseNewOrExistingCase","properties":{"newOrExistingCaseOpt":"New","declarationDetailsOpt":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"importQuestionsAnswersOpt":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}},"continueAmendCaseJourney":true}}""".stripMargin,
+        State.ChooseNewOrExistingCase(
+          Some(NewOrExistingCase.New),
+          Some(DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05"))),
+          importQuestionsAnswersOpt = Some(
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              hasPriorityGoods = Some(true),
+              priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+              hasALVS = Some(true),
+              freightType = Some(ImportFreightType.RORO),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                  timeOfArrival = Some(LocalTime.parse("00:00"))
+                )
+              ),
+              contactInfo = Some(
+                ImportContactInfo(
+                  contactName = "Full Name",
+                  contactEmail = "name@somewhere.com",
+                  contactNumber = Some("012345678910")
+                )
+              )
+            )
+          ),
+          continueAmendCaseJourney = true
+        )
+      )
+      validateJsonFormat(
         """{"state":"EnterDeclarationDetails","properties":{"declarationDetailsOpt":{"epu":"123","entryNumber":"100000Z","entryDate":"2000-01-01"}}}""",
         State.EnterDeclarationDetails(
           Some(DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2000-01-01")))

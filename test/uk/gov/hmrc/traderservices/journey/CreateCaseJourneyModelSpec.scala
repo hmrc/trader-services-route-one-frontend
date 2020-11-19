@@ -38,6 +38,7 @@ import scala.concurrent.Future
 import java.time.ZonedDateTime
 import _root_.uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
+import scala.util.Try
 
 class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -54,22 +55,92 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(Start) when start(eoriNumber) should thenGo(Start)
       }
 
-      "go to EnterDeclarationDetails when enterDeclarationDetails" in {
-        given(Start) when enterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails(None))
+      "go to clean ChooseNewOrExistingCase" in {
+        given(Start) when chooseNewOrExistingCase(eoriNumber) should thenGo(ChooseNewOrExistingCase())
       }
 
-      "raise exception if any other transition requested" in {
-        an[TransitionNotAllowed] shouldBe thrownBy {
-          given(Start) when submittedDeclarationDetails(eoriNumber)(
-            exportDeclarationDetails
+      "fail when enterDeclarationDetails" in {
+        given(Start) shouldFailWhen backToEnterDeclarationDetails(eoriNumber)
+      }
+
+      "fail if any other transition requested" in {
+        given(Start) shouldFailWhen submittedDeclarationDetails(eoriNumber)(
+          exportDeclarationDetails
+        )
+      }
+    }
+
+    "at state ChooseNewOrExistingCase" should {
+      "go to clean EnterDeclarationDetails when selected New and no former answers" in {
+        given(ChooseNewOrExistingCase()) when submittedNewOrExistingCaseChoice(eoriNumber)(
+          NewOrExistingCase.New
+        ) should thenGo(EnterDeclarationDetails())
+      }
+
+      "go to EnterDeclarationDetails when selected New and keep former answers" in {
+        given(
+          ChooseNewOrExistingCase(
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        }
+        ) when submittedNewOrExistingCaseChoice(eoriNumber)(
+          NewOrExistingCase.New
+        ) should thenGo(
+          EnterDeclarationDetails(
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads)
+          )
+        )
+      }
+
+      "go to TurnToAmendCaseJourney when selected Existing and shouldn't continue" in {
+        given(ChooseNewOrExistingCase(continueAmendCaseJourney = false)) when submittedNewOrExistingCaseChoice(
+          eoriNumber
+        )(
+          NewOrExistingCase.Existing
+        ) should thenGo(TurnToAmendCaseJourney(continueAmendCaseJourney = false))
+      }
+
+      "go to TurnToAmendCaseJourney when selected Existing and must continue" in {
+        given(ChooseNewOrExistingCase(continueAmendCaseJourney = true)) when submittedNewOrExistingCaseChoice(
+          eoriNumber
+        )(
+          NewOrExistingCase.Existing
+        ) should thenGo(TurnToAmendCaseJourney(continueAmendCaseJourney = true))
+      }
+
+      "go back to Start when start" in {
+        given(
+          ChooseNewOrExistingCase(
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers)
+          )
+        ) when start(eoriNumber) should thenGo(Start)
+      }
+    }
+
+    "at state TurnToAmendCaseJourney" should {
+      "go back to ChooseNewOrExistingCase and reset continue flag" in {
+        given(TurnToAmendCaseJourney(continueAmendCaseJourney = false)) when chooseNewOrExistingCase(
+          eoriNumber
+        ) should thenGo(
+          ChooseNewOrExistingCase(Some(NewOrExistingCase.Existing))
+        )
+      }
+
+      "go back to ChooseNewOrExistingCase" in {
+        given(TurnToAmendCaseJourney(continueAmendCaseJourney = true)) when chooseNewOrExistingCase(
+          eoriNumber
+        ) should thenGo(
+          ChooseNewOrExistingCase(Some(NewOrExistingCase.Existing))
+        )
       }
     }
 
     "at state EnterDeclarationDetails" should {
-
-      "goto AnswerExportQuestionsRequestType when submitted declaration details for export" in {
+      "go to AnswerExportQuestionsRequestType when submitted declaration details for export" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
         ) should thenGo(
@@ -95,7 +166,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto AnswerImportQuestionsRequestType when submitted declaration details for import" in {
+      "go to AnswerImportQuestionsRequestType when submitted declaration details for import" in {
         given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
         ) should thenGo(
@@ -117,6 +188,24 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               importDeclarationDetails,
               completeImportQuestionsAnswers
             )
+          )
+        )
+      }
+
+      "go back to ChooseNewOrExistingCase when chooseNewOrExistingCase and keep answers" in {
+        given(
+          EnterDeclarationDetails(
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads)
+          )
+        ) when chooseNewOrExistingCase(eoriNumber) should thenGo(
+          ChooseNewOrExistingCase(
+            newOrExistingCaseOpt = Some(NewOrExistingCase.New),
+            declarationDetailsOpt = Some(importDeclarationDetails),
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads),
+            continueAmendCaseJourney = false
           )
         )
       }
@@ -1607,7 +1696,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+      "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -1653,7 +1742,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+      "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -1706,7 +1795,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto UploadFile with error when fileUploadWasRejected" in {
+      "go to UploadFile with error when fileUploadWasRejected" in {
         val state =
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -1947,7 +2036,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+      "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           WaitingForFileVerification(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -1994,7 +2083,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+      "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           WaitingForFileVerification(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -2186,7 +2275,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state FileUploaded" should {
-      "goto acknowledged FileUploaded when waitForFileVerification" in {
+      "go to acknowledged FileUploaded when waitForFileVerification" in {
         val state = FileUploaded(
           FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           FileUploads(files =
@@ -2211,7 +2300,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
     }
 
-    "goto CreateCaseConfirmation when createCase" in {
+    "go to CreateCaseConfirmation when createCase" in {
       val mockCreateCaseApi: CreateCaseApi = { request =>
         Future.successful(TraderServicesCreateCaseResponse(correlationId = "", result = Some("A1234567890")))
       }
@@ -2266,6 +2355,9 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     def when(transition: Transition): (State, List[State]) =
       await(super.apply(transition))
 
+    def shouldFailWhen(transition: Transition) =
+      Try(await(super.apply(transition))).isSuccess shouldBe false
+
     def when(merger: Merger[S], state: State): (State, List[State]) =
       await(super.modify { s: S => merger.apply((s, state)) })
   }
@@ -2301,6 +2393,20 @@ trait TestData {
     vesselDetails =
       Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
     contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+  )
+
+  val nonEmptyFileUploads = FileUploads(files =
+    Seq(
+      FileUpload.Accepted(
+        1,
+        "foo-bar-ref-1",
+        "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+        ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+        "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+        "test.pdf",
+        "application/pdf"
+      )
+    )
   )
 
 }

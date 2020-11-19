@@ -85,7 +85,6 @@ trait SessionCache[T, C] {
           }
 
       case None ⇒
-        Logger(getClass).warn("no sessionId found in the HeaderCarrier to query mongo")
         Right(None)
     }
 

@@ -27,7 +27,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -80,12 +79,18 @@ class AmendCaseJourneyController @Inject() (
   // Dummy URL to use when developing the journey
   val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
 
+  // GET /
+  val showStart: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .apply(Transitions.start)
+      .display
+      .andCleanBreadcrumbs()
+
   // GET /pre-clearance/amend/case-reference-number
   val showEnterCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterCaseReferenceNumber]
       .orApply(Transitions.enterCaseReferenceNumber)
-      .andCleanBreadcrumbs()
 
   // POST /pre-clearance/amend/case-reference-number
   val submitCaseReferenceNumber: Action[AnyContent] =
@@ -250,6 +255,9 @@ class AmendCaseJourneyController @Inject() (
     */
   override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
+      case Start =>
+        controller.showStart()
+
       case _: EnterCaseReferenceNumber =>
         controller.showEnterCaseReferenceNumber()
 
@@ -286,11 +294,15 @@ class AmendCaseJourneyController @Inject() (
     request: Request[_]
   ): Result =
     state match {
+      case Start =>
+        Redirect(controller.showEnterCaseReferenceNumber())
+
       case EnterCaseReferenceNumber(model) =>
         Ok(
           views.enterCaseReferenceNumberView(
             formWithErrors.or(EnterCaseReferenceNumberForm, model.caseReferenceNumber),
-            controller.submitCaseReferenceNumber()
+            controller.submitCaseReferenceNumber(),
+            routes.CreateCaseJourneyController.showChooseNewOrExistingCase()
           )
         )
 

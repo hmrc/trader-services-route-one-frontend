@@ -127,6 +127,8 @@ object FormFieldMappings {
       .verifying(constraint[Option[String]](fieldName, "required", _.exists(s => s == trueValue || s == falseValue)))
       .transform[Boolean](_.contains(trueValue), b => if (b) Some(trueValue) else Some(falseValue))
 
+  val newOrExistingCaseMapping: Mapping[NewOrExistingCase] = enumMapping[NewOrExistingCase]("newOrExistingCase")
+
   val exportRequestTypeMapping: Mapping[ExportRequestType] = enumMapping[ExportRequestType]("exportRequestType")
 
   val importRequestTypeMapping: Mapping[ImportRequestType] = enumMapping[ImportRequestType]("importRequestType")

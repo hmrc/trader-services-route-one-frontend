@@ -140,7 +140,20 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     sealed trait SummaryState extends State
 
-    // DECLARATION DETAILS
+    // JOURNEY
+
+    final case class ChooseNewOrExistingCase(
+      newOrExistingCaseOpt: Option[NewOrExistingCase] = None,
+      declarationDetailsOpt: Option[DeclarationDetails] = None,
+      exportQuestionsAnswersOpt: Option[ExportQuestions] = None,
+      importQuestionsAnswersOpt: Option[ImportQuestions] = None,
+      fileUploadsOpt: Option[FileUploads] = None,
+      continueAmendCaseJourney: Boolean = true
+    ) extends State
+
+    final case class TurnToAmendCaseJourney(
+      continueAmendCaseJourney: Boolean = true
+    ) extends State
 
     final case class EnterDeclarationDetails(
       declarationDetailsOpt: Option[DeclarationDetails] = None,
@@ -276,11 +289,35 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def start(user: String) =
       Transition {
-        case _ =>
-          goto(Start)
+        case _ => goto(Start)
       }
 
-    final def enterDeclarationDetails(user: String) =
+    final def chooseNewOrExistingCase(user: String) =
+      Transition {
+        case EnterDeclarationDetails(a, b, c, d) =>
+          goto(ChooseNewOrExistingCase(Some(NewOrExistingCase.New), a, b, c, d, continueAmendCaseJourney = false))
+
+        case TurnToAmendCaseJourney(_) =>
+          goto(ChooseNewOrExistingCase(Some(NewOrExistingCase.Existing)))
+
+        case _ =>
+          goto(ChooseNewOrExistingCase())
+      }
+
+    final def submittedNewOrExistingCaseChoice(user: String)(newOrExisting: NewOrExistingCase) =
+      Transition {
+        case ChooseNewOrExistingCase(_, a, b, c, d, continue) =>
+          newOrExisting match {
+            case NewOrExistingCase.New =>
+              goto(EnterDeclarationDetails(a, b, c, d))
+
+            case NewOrExistingCase.Existing =>
+              goto(TurnToAmendCaseJourney(continue))
+          }
+
+      }
+
+    final def backToEnterDeclarationDetails(user: String) =
       Transition {
         case s: ExportQuestionsState =>
           goto(
@@ -299,9 +336,6 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               fileUploadsOpt = s.model.fileUploadsOpt
             )
           )
-
-        case _ =>
-          goto(EnterDeclarationDetails(None))
       }
 
     final def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =

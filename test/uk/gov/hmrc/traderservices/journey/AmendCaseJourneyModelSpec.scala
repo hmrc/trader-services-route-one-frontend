@@ -73,10 +73,31 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     )
 
   "AmendCaseJourneyModel" when {
+    "at state Start" should {
+      "go to Start when start" in {
+        given(Start) when start(eoriNumber) should thenGo(Start)
+      }
+
+      "go to EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
+        given(Start) when enterCaseReferenceNumber(eoriNumber) should thenGo(EnterCaseReferenceNumber())
+      }
+    }
+
     "at state EnterCaseReferenceNumber" should {
       "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
         given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber(eoriNumber) should thenGo(
           EnterCaseReferenceNumber()
+        )
+      }
+
+      "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber and keep former answers" in {
+        val model = AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
+        given(
+          EnterCaseReferenceNumber(model)
+        ) when enterCaseReferenceNumber(
+          eoriNumber
+        ) should thenGo(
+          EnterCaseReferenceNumber(model)
         )
       }
 

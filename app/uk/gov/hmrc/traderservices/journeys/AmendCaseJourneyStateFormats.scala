@@ -46,6 +46,7 @@ object AmendCaseJourneyStateFormats
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
+      case "Start"                      => JsSuccess(Start)
       case "EnterCaseReferenceNumber"   => enterCaseReferenceNumberFormat.reads(properties)
       case "SelectTypeOfAmendment"      => selectTypeOfAmendmentFormat.reads(properties)
       case "EnterResponseText"          => enterResponseTextFormat.reads(properties)

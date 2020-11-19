@@ -23,11 +23,11 @@
         details: uk.gov.hmrc.traderservices.views.html.components.details
 )
 
-@(form: Form[String], postAction: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages("view.case-reference-number.title")),
-  backLink = None) {
+  backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
 

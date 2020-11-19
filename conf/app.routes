@@ -1,9 +1,12 @@
 # microservice specific routes
 
 ->         /govuk-frontend                                          govuk.Routes
-->         /hmrc-frontend                                           hmrcfrontend.Routes
+->         /hmrc-frontend                                           hmrcfrontend.Routes 
 
 GET        /                                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showStart
+GET        /pre-clearance                                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showStart
+GET        /pre-clearance/new-or-existing                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showChooseNewOrExistingCase
+POST       /pre-clearance/new-or-existing                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitNewOrExistingCaseChoice
 GET        /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showEnterDeclarationDetails
 POST       /pre-clearance/declaration-details                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitDeclarationDetails
 GET        /pre-clearance/export-questions/request-type             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRequestType
@@ -59,6 +62,7 @@ POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc
 POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
 
+GET        /pre-clearance/amend                                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showStart
 GET        /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterCaseReferenceNumber
 POST       /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitCaseReferenceNumber
 GET        /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showSelectTypeOfAmendment
