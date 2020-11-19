@@ -28,6 +28,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   override val root: State = State.Start
 
+  // FileUploadJourneyModel customization
+
   /** Opaque data carried through the file upload process. */
   final case class FileUploadHostData(
     declarationDetails: DeclarationDetails,

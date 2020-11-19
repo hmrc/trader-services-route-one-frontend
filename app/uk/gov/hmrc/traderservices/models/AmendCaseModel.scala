@@ -18,17 +18,18 @@ package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
 
-case class AmendCaseStateModel(
+case class AmendCaseModel(
   caseReferenceNumber: Option[String] = None,
   typeOfAmendment: Option[TypeOfAmendment] = None,
-  responseText: Option[String] = None
+  responseText: Option[String] = None,
+  fileUploads: Option[FileUploads] = None
 ) {
 
   def hasTypeOfAmendment(expected: TypeOfAmendment*): Boolean =
     expected.exists(typeOfAmendment.contains)
 }
 
-object AmendCaseStateModel {
-  implicit val formats: Format[AmendCaseStateModel] =
-    Json.format[AmendCaseStateModel]
+object AmendCaseModel {
+  implicit val formats: Format[AmendCaseModel] =
+    Json.format[AmendCaseModel]
 }

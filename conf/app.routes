@@ -53,12 +53,11 @@ GET        /pre-clearance/file-verification/:reference/status       @uk.gov.hmrc
 GET        /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUploaded
 POST       /pre-clearance/file-uploaded                             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitUploadAnotherFileChoice
 GET        /pre-clearance/file-uploaded/:reference/remove           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.removeFileUploadByReference(reference: String)
++ nocsrf
+POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String)
 
 POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
-
-+ nocsrf
-POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String)
 
 GET        /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterCaseReferenceNumber
 POST       /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitCaseReferenceNumber
@@ -66,6 +65,21 @@ GET        /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc
 POST       /pre-clearance/amend/type-of-amendment                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitTypeOfAmendment
 GET        /pre-clearance/amend/write-response                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterResponseText
 POST       /pre-clearance/amend/write-response                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitResponseText
+
+GET        /pre-clearance/amend/file-upload                         @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showFileUpload
+GET        /pre-clearance/amend/file-rejected                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.markFileUploadAsRejected
+GET        /pre-clearance/amend/journey/:journeyId/file-rejected    @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.asyncMarkFileUploadAsRejected(journeyId: String)
+GET        /pre-clearance/amend/file-verification                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showWaitingForFileVerification
+GET        /pre-clearance/amend/journey/:journeyId/file-verification      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.asyncWaitingForFileVerification(journeyId: String)
+GET        /pre-clearance/amend/file-verification/:reference/status       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.checkFileVerificationStatus(reference: String)
+GET        /pre-clearance/amend/file-uploaded                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showFileUploaded
+POST       /pre-clearance/amend/file-uploaded                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.submitUploadAnotherFileChoice
+GET        /pre-clearance/amend/file-uploaded/:reference/remove     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.removeFileUploadByReference(reference: String)
++ nocsrf
+POST       /pre-clearance/amend/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String)
+
+POST       /pre-clearance/amend/amend-case                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
+GET        /pre-clearance/amend/confirmation                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 

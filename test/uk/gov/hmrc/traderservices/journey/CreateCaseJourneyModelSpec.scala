@@ -24,7 +24,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadStat
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed}
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed, UpscanInitiateApi}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
@@ -1326,13 +1326,18 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
             )
           )
+        val upscanRequest =
+          UpscanInitiateRequest(
+            "https://foo.bar/callback",
+            Some("https://foo.bar/success"),
+            Some("https://foo.bar/failure"),
+            Some(10 * 1024 * 1024)
+          )
         given(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
           )
-        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
-          mockUpscanInitiate
-        )(eoriNumber) should thenGo(
+        ) when initiateFileUpload(upscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
           UploadFile(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             "foo-bar-ref",
@@ -1352,34 +1357,42 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               uploadRequest = UploadRequest(
                 href = "https://s3.bucket",
                 fields = Map(
-                  "callbackUrl"     -> request.callbackUrl,
-                  "successRedirect" -> request.successRedirect.getOrElse(""),
-                  "errorRedirect"   -> request.errorRedirect.getOrElse(""),
-                  "maximumFileSize" -> request.maximumFileSize.getOrElse(0).toString
+                  "callbackUrl"         -> request.callbackUrl,
+                  "successRedirect"     -> request.successRedirect.getOrElse(""),
+                  "errorRedirect"       -> request.errorRedirect.getOrElse(""),
+                  "minimumFileSize"     -> request.minimumFileSize.getOrElse(0).toString,
+                  "maximumFileSize"     -> request.maximumFileSize.getOrElse(0).toString,
+                  "expectedContentType" -> request.expectedContentType.getOrElse("")
                 )
               )
             )
           )
-
+        val upscanRequest =
+          UpscanInitiateRequest(
+            callbackUrl = "https://foo.bar/callback",
+            successRedirect = Some("https://foo.bar/success"),
+            errorRedirect = Some("https://foo.bar/failure"),
+            minimumFileSize = Some(0),
+            maximumFileSize = Some(10 * 1024 * 1024),
+            expectedContentType = Some("image/jpeg,image/png")
+          )
         given(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
           )
-        ) when initiateFileUpload("https://foo.bar/callback", "https://foo.bar/success", "https://foo.bar/failure", 10)(
-          mockUpscanInitiate
-        )(
-          eoriNumber
-        ) should thenGo(
+        ) when initiateFileUpload(upscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(
               href = "https://s3.bucket",
               fields = Map(
-                "callbackUrl"     -> "https://foo.bar/callback",
-                "successRedirect" -> "https://foo.bar/success",
-                "errorRedirect"   -> "https://foo.bar/failure",
-                "maximumFileSize" -> "10485760"
+                "callbackUrl"         -> "https://foo.bar/callback",
+                "successRedirect"     -> "https://foo.bar/success",
+                "errorRedirect"       -> "https://foo.bar/failure",
+                "minimumFileSize"     -> "0",
+                "maximumFileSize"     -> "10485760",
+                "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))

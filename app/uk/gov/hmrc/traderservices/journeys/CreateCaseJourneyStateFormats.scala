@@ -22,13 +22,9 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadStat
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.play.fsm.JsonStateFormats
-import play.api.libs.functional.syntax._
-import uk.gov.hmrc.traderservices.models.UploadRequest
-import uk.gov.hmrc.traderservices.models.FileUploads
-import uk.gov.hmrc.traderservices.models.FileUploadError
-import uk.gov.hmrc.traderservices.models.FileUpload
 
-object CreateCaseJourneyStateFormats extends JsonStateFormats[State] {
+object CreateCaseJourneyStateFormats
+    extends FileUploadJourneyStateFormats(CreateCaseJourneyModel) with JsonStateFormats[State] {
 
   val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
   val answerExportQuestionsRequestTypeFormat = Json.format[AnswerExportQuestionsRequestType]
@@ -52,54 +48,7 @@ object CreateCaseJourneyStateFormats extends JsonStateFormats[State] {
   val importQuestionsSummaryFormat = Json.format[ImportQuestionsSummary]
   val createCaseConfirmationFormat = Json.format[CreateCaseConfirmation]
 
-  implicit val fileUploadHostDataFormat: Format[FileUploadHostData] = Json.format[FileUploadHostData]
-
-  val uploadFileFormat = Format(
-    (
-      (__ \ "hostData").read[FileUploadHostData] and
-        (__ \ "reference").read[String] and
-        (__ \ "uploadRequest").read[UploadRequest] and
-        (__ \ "fileUploads").read[FileUploads] and
-        (__ \ "maybeUploadError").readNullableWithDefault[FileUploadError](None)
-    )(UploadFile.apply _),
-    (
-      (__ \ "hostData").write[FileUploadHostData] and
-        (__ \ "reference").write[String] and
-        (__ \ "uploadRequest").write[UploadRequest] and
-        (__ \ "fileUploads").write[FileUploads] and
-        (__ \ "maybeUploadError").writeNullable[FileUploadError]
-    )(unlift(UploadFile.unapply))
-  )
-
-  val waitingForFileVerificationFormat = Format(
-    (
-      (__ \ "hostData").read[FileUploadHostData] and
-        (__ \ "reference").read[String] and
-        (__ \ "uploadRequest").read[UploadRequest] and
-        (__ \ "currentFileUpload").read[FileUpload] and
-        (__ \ "fileUploads").read[FileUploads]
-    )(WaitingForFileVerification.apply _),
-    (
-      (__ \ "hostData").write[FileUploadHostData] and
-        (__ \ "reference").write[String] and
-        (__ \ "uploadRequest").write[UploadRequest] and
-        (__ \ "currentFileUpload").write[FileUpload] and
-        (__ \ "fileUploads").write[FileUploads]
-    )(unlift(WaitingForFileVerification.unapply))
-  )
-
-  val fileUploadedFormat = Format(
-    (
-      (__ \ "hostData").read[FileUploadHostData] and
-        (__ \ "fileUploads").read[FileUploads] and
-        (__ \ "acknowledged").read[Boolean]
-    )(FileUploaded.apply _),
-    (
-      (__ \ "hostData").write[FileUploadHostData] and
-        (__ \ "fileUploads").write[FileUploads] and
-        (__ \ "acknowledged").write[Boolean]
-    )(unlift(FileUploaded.unapply))
-  )
+  override val fileUploadHostDataFormat: Format[FileUploadHostData] = Json.format[FileUploadHostData]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
     case s: EnterDeclarationDetails                  => enterDeclarationDetailsFormat.writes(s)

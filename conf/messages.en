@@ -490,7 +490,7 @@ view.write-response-text.hint=Do not include personal or financial information, 
 view.write-response-text.countMessage=You have [1000] characters remaining.
 view.write-response-text.continue=Continue
 error.responseText.required=Enter a response to a query from HMRC
-error.responseText.invalid-length=Enter a response to a query from HMRC
+error.responseText.invalid-length=Response must be 1000 characters or fewer
 
 # Common form messages
 # ----------------------------------------------------------
