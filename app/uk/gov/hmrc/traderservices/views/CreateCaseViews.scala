@@ -21,7 +21,6 @@ import uk.gov.hmrc.traderservices.views.html._
 
 @Singleton
 class CreateCaseViews @Inject() (
-  val startView: StartView,
   val chooseNewOrExistingCaseView: ChooseNewOrExistingCaseView,
   val declarationDetailsEntryView: DeclarationDetailsEntryView,
   val exportQuestionsRequestTypeView: ExportQuestionsRequestTypeView,
