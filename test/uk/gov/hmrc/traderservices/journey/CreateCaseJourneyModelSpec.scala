@@ -2339,6 +2339,46 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       )
     }
+
+    "at state CreateCaseConfirmation" should {
+      "go to Start when start" in {
+        given(
+          CreateCaseConfirmation(
+            importDeclarationDetails,
+            completeImportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            ),
+            "A1234567890"
+          )
+        ) when start(eoriNumber) should thenGo(Start)
+      }
+
+      "go to clean EnterDeclarationDetails when going back" in {
+        given(
+          CreateCaseConfirmation(
+            importDeclarationDetails,
+            completeImportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            ),
+            "A1234567890"
+          )
+        ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
+      }
+    }
   }
 
   case class given[S <: State: ClassTag](initialState: S)

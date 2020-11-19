@@ -818,7 +818,7 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
-            controller.showEnterDeclarationDetails()
+            controller.showStart()
           )
         )
 

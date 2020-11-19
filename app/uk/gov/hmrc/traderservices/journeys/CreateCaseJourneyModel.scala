@@ -336,6 +336,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               fileUploadsOpt = s.model.fileUploadsOpt
             )
           )
+
+        case s: CreateCaseConfirmation =>
+          goto(EnterDeclarationDetails())
       }
 
     final def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
