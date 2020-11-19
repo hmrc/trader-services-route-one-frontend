@@ -52,7 +52,8 @@
         label = "form.declaration-details.entryNumber",
         isPageHeading = false,
         isInFieldset = true,
-        classes = Some("govuk-input--width-10")
+        classes = Some("govuk-input--width-10"),
+        attributes = Map("autocomplete" -> "off")
       )
 
       @forms.inputDate(
