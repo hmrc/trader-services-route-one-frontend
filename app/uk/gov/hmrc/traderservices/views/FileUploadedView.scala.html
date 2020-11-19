@@ -30,35 +30,52 @@
 
 @(form: Form[Boolean], fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@conditionalContent = {
+  @html.p(
+    content = Html(messages("form.file-uploaded.uploadAnotherFile.noConditional")),
+    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
+  )
+}
+
 @govukLayout(
   pageTitle = Some(messages(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", fileUploads.acceptedCount)),
   backLink = Some(backLink.url)) {
-  
+
   @forms.errorSummary(form.errors)
 
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
     @forms.fieldset(
-        legend = messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount)
-      ) {
+      legend = messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount)
+    ) {
 
-        @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
+      @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
 
-        @govukSummaryList(context.summaryListOfFileUploads(fileUploads, removeFileCall))
+      @govukSummaryList(context.summaryListOfFileUploads(fileUploads, removeFileCall))
 
-        @forms.inputRadio(
-            form = form,
-            idPrefix = "uploadAnotherFile",
-            name = "uploadAnotherFile",
-            items = context.uploadAnotherFileItems(form),
-            inline = true,
-            legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
-            legendAsHeading = false,
-            legendClasses = ""
-        )
+      @forms.inputRadio(
+        form = form,
+        idPrefix = "uploadAnotherFile",
+        name = "uploadAnotherFile",
+        items = Seq(
+          RadioItem(
+            value = Some("yes"),
+            content = Text(messages("form.file-uploaded.uploadAnotherFile.yes")),
+            checked = form("uploadAnotherFile").value.contains("yes")
+          ),
+          RadioItem(
+            value = Some("no"),
+            content = Text(messages("form.file-uploaded.uploadAnotherFile.no")),
+            checked = form("uploadAnotherFile").value.contains("no"),
+            conditionalHtml = Some(conditionalContent)
+          )
+        ),
+        legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
+        legendAsHeading = false,
+        legendClasses = "govuk-fieldset__legend--m"
+      )
 
-        @html.button("form.file-uploaded.continue")
-      }
+      @html.button("form.file-uploaded.continue")
     }
-
+  }
 }
