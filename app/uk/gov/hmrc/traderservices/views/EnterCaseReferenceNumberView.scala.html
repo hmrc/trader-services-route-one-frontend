@@ -41,7 +41,8 @@
       isPageHeading = true,
       isInFieldset = false,
       classes = Some("govuk-input--width-30"),
-      hint = Some(Html(messages("view.case-reference-number.hint")))
+      hint = Some(Html(messages("view.case-reference-number.hint"))),
+      attributes = Map("autocomplete" -> "off")
     )
 
     @details(messages("view.case-reference-number.linkText")) {
