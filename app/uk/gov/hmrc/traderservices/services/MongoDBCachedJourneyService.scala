@@ -34,6 +34,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
   val applicationCrypto: ApplicationCrypto
   val stateFormats: Format[model.State]
   def getJourneyId(context: RequestContext): Option[String]
+  val traceFSM: Boolean = false
 
   case class PersistentState(state: model.State, breadcrumbs: List[model.State])
 
@@ -73,8 +74,10 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
     cache
       .save(protectedEntry)
       .map { _ =>
-        //println("-" + state._2.length + "-" * 32)
-        //println(state._1)
+        if (traceFSM) {
+          println("-" + state._2.length + "-" * 32)
+          println(state._1)
+        }
         state
       }
   }

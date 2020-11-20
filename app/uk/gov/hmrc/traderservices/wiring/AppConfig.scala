@@ -71,6 +71,7 @@ trait AppConfig {
 
   val fileFormats: AppConfig.FileFormats
 
+  val traceFSM: Boolean = false
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -112,5 +113,7 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
     approvedFileTypes = config.getString("file-formats.approved-file-extensions"),
     approvedFileExtensions = config.getString("file-formats.approved-file-types")
   )
+
+  override val traceFSM: Boolean = config.getBoolean("trace.fsm")
 
 }

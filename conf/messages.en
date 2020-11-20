@@ -161,6 +161,15 @@ view.start.securities.heading=Securities
 view.start.securities.description=Apply for a refund of Customs duty paid on deposit and Quota refunds
 view.start.securities.link.text=Apply for refund
 
+view.new-or-existing-case.title=What do you want to do?
+view.new-or-existing-case.heading=What do you want to do?
+view.new-or-existing-case.option.new=Send documents for a new customs check
+view.new-or-existing-case.option.new.hint=This includes sending C1601, C1602 and C1603 forms, or cancelling a case.
+view.new-or-existing-case.option.existing=Add extra information to an existing customs check
+view.new-or-existing-case.option.existing.hint=If you already have a case reference number, you can add more information to the case.
+error.newOrExistingCase.required=Select what you want to do
+view.new-or-existing-case.continue=Continue
+
 # Declaration Details Page
 # ----------------------------------------------------------
 view.declaration-details.title=What are your declaration details?
@@ -460,7 +469,7 @@ view.create-case-confirmation.next.heading=Next steps
 view.create-case-confirmation.next.description=Once the document checks are complete, you will hear from us through CHIEF or your declaration software.
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
-view.create-case-confirmation.continue=Submit documents for a new case
+view.create-case-confirmation.continue=Send documents for a customs check
 view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601, C1602, C1603</a> forms.
 
 # Amend journey

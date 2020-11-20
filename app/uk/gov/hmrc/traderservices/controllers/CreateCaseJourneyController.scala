@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, S3UploadError, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, NewOrExistingCase, S3UploadError, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -85,15 +85,27 @@ class CreateCaseJourneyController @Inject() (
   // GET /
   val showStart: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.Start.type]
-      .orApply(Transitions.start)
+      .apply(Transitions.start)
+      .display
       .andCleanBreadcrumbs()
+
+  // GET /pre-clearance/new-or-existing
+  val showChooseNewOrExistingCase: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.ChooseNewOrExistingCase]
+      .orApply(Transitions.chooseNewOrExistingCase)
+
+  // POST /pre-clearance/new-or-existing
+  val submitNewOrExistingCaseChoice: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(NewOrExistingCaseForm)
+      .apply(Transitions.submittedNewOrExistingCaseChoice)
 
   // GET /pre-clearance/declaration-details
   val showEnterDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterDeclarationDetails]
-      .orApply(Transitions.enterDeclarationDetails)
+      .orApply(Transitions.backToEnterDeclarationDetails)
 
   // POST /pre-clearance/declaration-details
   val submitDeclarationDetails: Action[AnyContent] =
@@ -453,6 +465,15 @@ class CreateCaseJourneyController @Inject() (
       case Start =>
         controller.showStart()
 
+      case _: ChooseNewOrExistingCase =>
+        controller.showChooseNewOrExistingCase()
+
+      case TurnToAmendCaseJourney(continue) =>
+        if (continue)
+          routes.AmendCaseJourneyController.showEnterCaseReferenceNumber()
+        else
+          routes.AmendCaseJourneyController.showStart()
+
       case _: EnterDeclarationDetails =>
         controller.showEnterDeclarationDetails()
 
@@ -542,14 +563,29 @@ class CreateCaseJourneyController @Inject() (
     state match {
 
       case Start =>
-        Ok(views.startView(controller.showEnterDeclarationDetails()))
+        Redirect(controller.showChooseNewOrExistingCase())
+
+      case ChooseNewOrExistingCase(newOrExistingCaseOpt, _, _, _, _, _) =>
+        Ok(
+          views.chooseNewOrExistingCaseView(
+            formWithErrors.or(NewOrExistingCaseForm, newOrExistingCaseOpt),
+            controller.submitNewOrExistingCaseChoice(),
+            Call("GET", "https://www.gov.uk/")
+          )
+        )
+
+      case TurnToAmendCaseJourney(continue) =>
+        if (continue)
+          Redirect(routes.AmendCaseJourneyController.showEnterCaseReferenceNumber())
+        else
+          Redirect(routes.AmendCaseJourneyController.showStart())
 
       case EnterDeclarationDetails(declarationDetailsOpt, _, _, _) =>
         Ok(
           views.declarationDetailsEntryView(
             formWithErrors.or(DeclarationDetailsForm, declarationDetailsOpt),
             controller.submitDeclarationDetails(),
-            controller.showStart()
+            controller.showChooseNewOrExistingCase()
           )
         )
 
@@ -782,7 +818,7 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
-            controller.showEnterDeclarationDetails()
+            controller.showStart()
           )
         )
 
@@ -839,6 +875,10 @@ class CreateCaseJourneyController @Inject() (
 object CreateCaseJourneyController {
 
   import FormFieldMappings._
+
+  val NewOrExistingCaseForm = Form[NewOrExistingCase](
+    mapping("newOrExistingCase" -> newOrExistingCaseMapping)(identity)(Option.apply)
+  )
 
   val DeclarationDetailsForm = Form[DeclarationDetails](
     mapping(

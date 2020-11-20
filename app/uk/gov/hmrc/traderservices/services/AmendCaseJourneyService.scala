@@ -23,6 +23,7 @@ import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyModel, AmendCaseJourneyStateFormats}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 trait AmendCaseJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -41,7 +42,8 @@ trait AmendCaseJourneyServiceWithHeaderCarrier extends AmendCaseJourneyService[H
 @Singleton
 case class MongoDBCachedAmendCaseJourneyService @Inject() (
   cacheMongoRepository: CacheMongoRepository,
-  applicationCrypto: ApplicationCrypto
+  applicationCrypto: ApplicationCrypto,
+  appConfig: AppConfig
 ) extends MongoDBCachedJourneyService[HeaderCarrier] with AmendCaseJourneyServiceWithHeaderCarrier {
 
   override val stateFormats: Format[model.State] =
@@ -50,4 +52,5 @@ case class MongoDBCachedAmendCaseJourneyService @Inject() (
   override def getJourneyId(hc: HeaderCarrier): Option[String] =
     hc.extraHeaders.find(_._1 == journeyKey).map(_._2)
 
+  override val traceFSM: Boolean = appConfig.traceFSM
 }

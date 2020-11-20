@@ -25,7 +25,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   sealed trait IsError
 
-  override val root: State = State.EnterCaseReferenceNumber()
+  override val root: State = State.Start
 
   sealed trait AmendCaseState extends State {
     def model: AmendCaseModel
@@ -44,22 +44,29 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
   /** All the possible states the journey can take. */
   object State {
 
-    /** State intended to use only in the development of the model to fill loose ends. */
-    case object WorkInProgressDeadEnd extends State
-
     /** Root state of the journey. */
-    case class EnterCaseReferenceNumber(model: AmendCaseModel = AmendCaseModel()) extends AmendCaseState
+    final case object Start extends State
 
-    case class SelectTypeOfAmendment(model: AmendCaseModel) extends AmendCaseState
+    /** State intended to use only in the development of the model to fill loose ends. */
+    final case object WorkInProgressDeadEnd extends State
 
-    case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
+    final case class EnterCaseReferenceNumber(model: AmendCaseModel = AmendCaseModel()) extends AmendCaseState
 
-    case class AmendCaseConfirmation(model: AmendCaseModel) extends State
+    final case class SelectTypeOfAmendment(model: AmendCaseModel) extends AmendCaseState
+
+    final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
+
+    final case class AmendCaseConfirmation(model: AmendCaseModel) extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
   object Transitions {
     import State._
+
+    final def start(user: String) =
+      Transition {
+        case _ => goto(Start)
+      }
 
     final def enterCaseReferenceNumber(user: String) =
       Transition {
