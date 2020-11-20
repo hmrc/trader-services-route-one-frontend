@@ -124,3 +124,5 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests.map { test =>
     new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
   }
+
+Compile / compile / logLevel := Level.Error

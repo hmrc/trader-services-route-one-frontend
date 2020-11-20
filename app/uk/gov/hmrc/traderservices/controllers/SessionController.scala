@@ -24,12 +24,16 @@ import uk.gov.hmrc.traderservices.views.html.TimedOutView
 import scala.concurrent.Future
 
 @Singleton
-class TimedOutController @Inject() (
+class SessionController @Inject() (
   controllerComponents: MessagesControllerComponents,
   timedOutView: TimedOutView
 ) extends FrontendController(controllerComponents) {
 
-  val showPage: Action[AnyContent] = Action.async { implicit request =>
+  val showTimeoutPage: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(timedOutView()))
+  }
+
+  val keepAlive: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok("{}"))
   }
 }

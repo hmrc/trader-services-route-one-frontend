@@ -63,15 +63,20 @@ trait AppConfig {
   val exitSurveyUrl: String
   def requestUri(implicit request: RequestHeader): String =
     SafeRedirectUrl(baseExternalCallbackUrl + request.uri).encodedUrl
+
   def feedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
 
   val signOutUrl: String
-  val researchBannerUrl: String
 
+  val researchBannerUrl: String
   val fileFormats: AppConfig.FileFormats
 
   val traceFSM: Boolean = false
+
+  val timeout: Int
+  val countdown: Int
+  val timedoutUrl: String
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -107,6 +112,10 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val signOutUrl: String = config.getString("urls.signOut")
   override val researchBannerUrl: String = config.getString("urls.researchBanner")
+
+  override val timeout: Int = config.getInt("session._timeoutSeconds")
+  override val countdown: Int = config.getInt("session._CountdownInSeconds")
+  override val timedoutUrl: String = config.getString("session._timeoutUrl")
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),

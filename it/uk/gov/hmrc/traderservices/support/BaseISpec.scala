@@ -35,6 +35,8 @@ abstract class BaseISpec
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()
     givenAuditConnector()
+    givenTimedOut()
+    givenSignOut()
   }
 
   final implicit val materializer: Materializer = app.materializer

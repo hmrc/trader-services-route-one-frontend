@@ -28,4 +28,7 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   override val subscriptionJourneyUrl: String = "/subscription"
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(10, "", "")
+  override val timeout: Int = 10
+  override val countdown: Int = 2
+  override val timedoutUrl: String = "http://localhost:9379/trader-services/timedout"
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.views.components.FooterLinks
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
+@import uk.gov.hmrc.traderservices.views.components.FooterLinks
 
 @this(
 govukLayout: GovukLayout,
@@ -56,10 +56,10 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
   <!-- TODO set correct timeout (900), countdown (780) and keep-alive-url -->
   <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
   data-language="en"
-  data-timeout="10"
-  data-countdown="5"
-  data-keep-alive-url="/trader-services/keep-alive-url"
-  data-sign-out-url="/trader-services/timedout"/>
+  data-timeout="@appConfig.timeout"
+  data-countdown="@appConfig.countdown"
+  data-keep-alive-url="/trader-services/keep-alive"
+  data-sign-out-url="/trader-services/signout/timeout"/>
 }
 
 @scripts = {
