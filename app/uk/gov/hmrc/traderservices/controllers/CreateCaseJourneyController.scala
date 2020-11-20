@@ -456,6 +456,12 @@ class CreateCaseJourneyController @Inject() (
       .orRollback
       .andCleanBreadcrumbs() // forget journey history
 
+  // GET /pre-clearance/case-already-exists
+  def showCaseAlreadyExists: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.CaseAlreadyExists]
+      .orRollback
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -545,6 +551,9 @@ class CreateCaseJourneyController @Inject() (
 
       case _: CreateCaseConfirmation =>
         controller.showCreateCaseConfirmation()
+
+      case _: CaseAlreadyExists =>
+        controller.showCaseAlreadyExists()
 
       case _ =>
         workInProgresDeadEndCall
@@ -814,11 +823,18 @@ class CreateCaseJourneyController @Inject() (
             )
         )
 
-      case CreateCaseConfirmation(declarationDetails, questionsAnswers, fileUploads, caseReferenceId) =>
+      case CreateCaseConfirmation(_, _, _, caseReferenceId) =>
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
             controller.showStart()
+          )
+        )
+
+      case CaseAlreadyExists(caseReferenceId) =>
+        Ok(
+          views.caseAlreadyExistsView(
+            routes.AmendCaseJourneyController.showStart()
           )
         )
 

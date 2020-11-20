@@ -49,6 +49,7 @@ object CreateCaseJourneyStateFormats
   val answerImportQuestionsContactInfoFormat = Json.format[AnswerImportQuestionsContactInfo]
   val importQuestionsSummaryFormat = Json.format[ImportQuestionsSummary]
   val createCaseConfirmationFormat = Json.format[CreateCaseConfirmation]
+  val caseAlreadyExistsFormat = Json.format[CaseAlreadyExists]
 
   override val fileUploadHostDataFormat: Format[FileUploadHostData] = Json.format[FileUploadHostData]
 
@@ -79,6 +80,7 @@ object CreateCaseJourneyStateFormats
     case s: FileUploaded                             => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification               => waitingForFileVerificationFormat.writes(s)
     case s: CreateCaseConfirmation                   => createCaseConfirmationFormat.writes(s)
+    case s: CaseAlreadyExists                        => caseAlreadyExistsFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
@@ -112,6 +114,7 @@ object CreateCaseJourneyStateFormats
       case "FileUploaded"                     => fileUploadedFormat.reads(properties)
       case "WaitingForFileVerification"       => waitingForFileVerificationFormat.reads(properties)
       case "CreateCaseConfirmation"           => createCaseConfirmationFormat.reads(properties)
+      case "CaseAlreadyExists"                => caseAlreadyExistsFormat.reads(properties)
       case "WorkInProgressDeadEnd"            => JsSuccess(WorkInProgressDeadEnd)
       case _                                  => JsError(s"Unknown state name $stateName")
     }
