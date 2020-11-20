@@ -21,6 +21,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
+import uk.gov.hmrc.traderservices.connectors.ApiError
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -140,7 +141,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     sealed trait SummaryState extends State
 
-    // JOURNEY
+    sealed trait EndState extends State
+
+    // STATES
 
     final case class ChooseNewOrExistingCase(
       newOrExistingCaseOpt: Option[NewOrExistingCase] = None,
@@ -162,7 +165,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       fileUploadsOpt: Option[FileUploads] = None
     ) extends State
 
-    // EXPORT QUESTIONS
+    // EXPORT QUESTIONS STATES
 
     final case class AnswerExportQuestionsRequestType(
       model: ExportQuestionsStateModel
@@ -207,7 +210,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         model.fileUploadsOpt
     }
 
-    // IMPORT QUESTIONS
+    // IMPORT QUESTIONS STATES
 
     final case class AnswerImportQuestionsRequestType(
       model: ImportQuestionsStateModel
@@ -256,12 +259,18 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         model.fileUploadsOpt
     }
 
+    // END-OF-JOURNEY STATES
+
     final case class CreateCaseConfirmation(
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
       uploadedFiles: Seq[UploadedFile],
       caseReferenceId: String
-    ) extends State
+    ) extends EndState
+
+    final case class CaseAlreadyExists(
+      caseReferenceId: String
+    ) extends EndState
 
   }
 
@@ -337,7 +346,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           )
 
-        case s: CreateCaseConfirmation =>
+        case s: EndState =>
           goto(EnterDeclarationDetails())
       }
 
@@ -698,11 +707,16 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                   response.result.get
                 )
               )
-            else {
-              val error = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
-                response.error.map(_.errorMessage).getOrElse("")
-              fail(new RuntimeException(error))
-            }
+            else
+              response.error match {
+                case Some(ApiError("409", Some(caseReferenceId))) =>
+                  goto(CaseAlreadyExists(caseReferenceId))
+
+                case _ =>
+                  val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                    response.error.map(_.errorMessage).getOrElse("")
+                  fail(new RuntimeException(message))
+              }
           }
       }
   }

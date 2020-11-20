@@ -595,6 +595,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           "7w7e7wq87ABDFD78wq7e87"
         )
       )
+      validateJsonFormat(
+        """{"state":"CaseAlreadyExists","properties":{"caseReferenceId":"7w7e7wq87ABDFD78wq7e87"}}""".stripMargin,
+        State.CaseAlreadyExists("7w7e7wq87ABDFD78wq7e87")
+      )
     }
 
     "throw an exception when unknown state" in {

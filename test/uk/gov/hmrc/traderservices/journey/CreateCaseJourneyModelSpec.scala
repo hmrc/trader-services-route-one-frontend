@@ -39,6 +39,8 @@ import java.time.ZonedDateTime
 import _root_.uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import scala.util.Try
+import uk.gov.hmrc.traderservices.connectors.ApiError
+import views.html.defaultpages.error
 
 class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -2298,46 +2300,78 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           waitForFileVerification(eoriNumber) should
           thenGo(state.copy(acknowledged = true))
       }
-    }
 
-    "go to CreateCaseConfirmation when createCase" in {
-      val mockCreateCaseApi: CreateCaseApi = { request =>
-        Future.successful(TraderServicesCreateCaseResponse(correlationId = "", result = Some("A1234567890")))
-      }
-      given(
-        FileUploaded(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-          FileUploads(files =
+      "go to CreateCaseConfirmation when createCase" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(TraderServicesCreateCaseResponse(correlationId = "", result = Some("A1234567890")))
+        }
+        given(
+          FileUploaded(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            acknowledged = false
+          )
+        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
+          CreateCaseConfirmation(
+            importDeclarationDetails,
+            completeImportQuestionsAnswers,
             Seq(
-              FileUpload.Accepted(
-                1,
-                "foo-bar-ref-1",
+              UploadedFile(
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf"
               )
-            )
-          ),
-          acknowledged = false
+            ),
+            "A1234567890"
+          )
         )
-      ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
-        CreateCaseConfirmation(
-          importDeclarationDetails,
-          completeImportQuestionsAnswers,
-          Seq(
-            UploadedFile(
-              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-              "test.pdf",
-              "application/pdf"
+      }
+
+      "go to CaseAlreadyExists when createCase but case already exists" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCreateCaseResponse(
+              correlationId = "",
+              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
             )
-          ),
-          "A1234567890"
+          )
+        }
+        given(
+          FileUploaded(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            acknowledged = false
+          )
+        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
+          CaseAlreadyExists("A1234567890")
         )
-      )
+      }
     }
 
     "at state CreateCaseConfirmation" should {
@@ -2376,6 +2410,20 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ),
             "A1234567890"
           )
+        ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
+      }
+    }
+
+    "at state CaseAlreadyExists" should {
+      "go to Start when start" in {
+        given(
+          CaseAlreadyExists("A1234567890")
+        ) when start(eoriNumber) should thenGo(Start)
+      }
+
+      "go to clean EnterDeclarationDetails when going back" in {
+        given(
+          CaseAlreadyExists("A1234567890")
         ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
       }
     }

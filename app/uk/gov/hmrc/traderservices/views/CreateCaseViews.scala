@@ -46,5 +46,6 @@ class CreateCaseViews @Inject() (
   val waitingForFileVerificationView: WaitingForFileVerificationView,
   val fileUploadedView: FileUploadedView,
   val fileUploadedSummaryView: FileUploadedSummaryView,
-  val createCaseConfirmationView: CreateCaseConfirmationView
+  val createCaseConfirmationView: CreateCaseConfirmationView,
+  val caseAlreadyExistsView: CaseAlreadyExistsView
 )

@@ -61,6 +61,7 @@ POST       /pre-clearance/journey/:journeyId/callback-from-upscan   @uk.gov.hmrc
 
 POST       /pre-clearance/create-case                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /pre-clearance/confirmation                              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
+GET        /pre-clearance/case-already-exists                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCaseAlreadyExists
 
 GET        /pre-clearance/amend                                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showStart
 GET        /pre-clearance/amend/case-reference-number               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showEnterCaseReferenceNumber
