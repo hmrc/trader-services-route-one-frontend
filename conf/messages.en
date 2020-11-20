@@ -469,7 +469,7 @@ view.create-case-confirmation.next.heading=Next steps
 view.create-case-confirmation.next.description=Once the document checks are complete, you will hear from us through CHIEF or your declaration software.
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
-view.create-case-confirmation.continue=Submit documents for a new case
+view.create-case-confirmation.continue=Send documents for a customs check
 view.create-case-confirmation.footnote=View guidance on GOV.UK about <a href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a href="#">C1601, C1602, C1603</a> forms.
 
 # Amend journey
