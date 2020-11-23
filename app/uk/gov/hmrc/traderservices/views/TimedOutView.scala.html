@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.traderservices.controllers.routes
+
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         html: uk.gov.hmrc.traderservices.views.components.html
@@ -28,6 +30,5 @@
     @messages("view.timedout.description")
   }
 
-  <!-- TODO set correct sign-in url -->
-  @html.a("sign-in", messages("view.timedout.signIn"), useButtonStyle = true)
+  @html.a(routes.CreateCaseJourneyController.showStart.url, messages("view.timedout.signIn"), useButtonStyle = true)
 }

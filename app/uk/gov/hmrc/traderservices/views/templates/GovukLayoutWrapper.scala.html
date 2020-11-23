@@ -59,7 +59,7 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
   data-timeout="@appConfig.timeout"
   data-countdown="@appConfig.countdown"
   data-keep-alive-url="/trader-services/keep-alive"
-  data-sign-out-url="/trader-services/signout/timeout"/>
+  data-sign-out-url="@appConfig.timedoutUrl"/>
 }
 
 @scripts = {

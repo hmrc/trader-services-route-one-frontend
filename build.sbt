@@ -91,7 +91,7 @@ lazy val root = (project in file("."))
         group(
           Seq(
             "lib/govuk-frontend/govuk/all.js",
-            "javascripts/vendor/hmrc-frontend-1.17.0.min.js",
+            "lib/hmrc-frontend/hmrc/all.js",
             "javascripts/vendor/jquery.min.js",
             "javascripts/app.js",
             "javascripts/autocomplete.js",
