@@ -485,19 +485,15 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate import contactNameMapping" in {
-      importContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.contactName.required"
-      )
+      importContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+      importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
     }
 
     "validate export contactNameMapping" in {
-      exportContactNameMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.contactName.required"
-      )
+      exportContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right("Full Name")
+      exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
     }
 
     "validate import contactEmailMapping" in {
@@ -534,26 +530,34 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
       importContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      importContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
       importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
 
       importContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
 
       importContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
+
+      importContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
+        "error.contactNumber.invalid-length"
+      )
+
+      importContactNumberMapping.bind(Map("" -> "123456789876")) should haveOnlyError(
+        "error.contactNumber.invalid-length"
+      )
+
+      importContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "441132432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "00441132432111")) shouldBe Right(Some("01132432111"))
 
       importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "07930487952")) shouldBe Right(Some("07930487952"))
-      importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
-      importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
+      importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331543211"))
     }
 
     "validate export contactNumberMapping" in {
@@ -561,24 +565,32 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       exportContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       exportContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
 
       exportContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
 
       exportContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber"
+        "error.contactNumber.invalid-length"
       )
 
       exportContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
+        "error.contactNumber.invalid-length"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "12@34567891")) should haveOnlyError(
         "error.contactNumber"
       )
 
+      exportContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "441132432111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "00441132432111")) shouldBe Right(Some("01132432111"))
+
       exportContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
-      exportContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132 432111"))
-      exportContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331 543211"))
+      exportContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331543211"))
     }
 
     "validate case reference number mapping" in {

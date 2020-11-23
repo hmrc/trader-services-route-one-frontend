@@ -814,7 +814,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedExportQuestionsContactInfo(eoriNumber)(
-          ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
+          ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
@@ -826,7 +826,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 freightType = Some(ExportFreightType.Air),
                 vesselDetails =
                   Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-                contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com"))
+                contactInfo = Some(ExportContactInfo(contactEmail = "name@somewhere.com"))
               )
             )
           )
@@ -1387,7 +1387,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedImportQuestionsContactInfo(eoriNumber)(
-          ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")
+          ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
@@ -1397,7 +1397,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 routeType = Some(ImportRouteType.Route3),
                 priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
                 freightType = Some(ImportFreightType.Air),
-                contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "name@somewhere.com")),
+                contactInfo = Some(ImportContactInfo(contactEmail = "name@somewhere.com")),
                 vesselDetails =
                   Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
               )
@@ -2468,7 +2468,7 @@ trait TestData {
     freightType = Some(ExportFreightType.Air),
     vesselDetails =
       Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-    contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+    contactInfo = Some(ExportContactInfo(contactEmail = "name@somewhere.com"))
   )
 
   val completeImportQuestionsAnswers = ImportQuestions(
@@ -2480,7 +2480,7 @@ trait TestData {
     freightType = Some(ImportFreightType.Air),
     vesselDetails =
       Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
-    contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+    contactInfo = Some(ImportContactInfo(contactEmail = "name@somewhere.com"))
   )
 
   val nonEmptyFileUploads = FileUploads(files =

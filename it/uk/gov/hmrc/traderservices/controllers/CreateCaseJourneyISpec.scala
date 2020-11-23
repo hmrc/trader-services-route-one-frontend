@@ -870,7 +870,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
     }
 
     "POST /pre-clearance/export-questions/contact-info" should {
-      "ask for the next page when only email and name submitted" in {
+      "ask for the next page when only email submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsContactInfo(
@@ -888,7 +888,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
-          "contactName"  -> "Full Name",
           "contactEmail" -> "someone@email.com"
         )
         val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
@@ -902,7 +901,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               routeType = Some(ExportRouteType.Route6),
               priorityGoods = Some(ExportPriorityGoods.HighValueArt),
               freightType = Some(ExportFreightType.Air),
-              contactInfo = Some(ExportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+              contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
             )
           )
         )
@@ -1520,7 +1519,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
     }
 
     "POST /pre-clearance/import-questions/contact-info" should {
-      "ask for the next page when only email and name submitted" in {
+      "ask for the next page when only email submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsContactInfo(
@@ -1538,7 +1537,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
-          "contactName"  -> "Full Name",
           "contactEmail" -> "someone@email.com"
         )
 
@@ -1554,7 +1552,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               routeType = Some(ImportRouteType.Route6),
               priorityGoods = Some(ImportPriorityGoods.HighValueArt),
               freightType = Some(ImportFreightType.Air),
-              contactInfo = Some(ImportContactInfo(contactName = "Full Name", contactEmail = "someone@email.com"))
+              contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
             )
           )
         )

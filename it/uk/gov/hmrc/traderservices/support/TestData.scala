@@ -24,7 +24,7 @@ object TestData {
           timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
         )
       ),
-      contactInfo = Some(ExportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com"))
+      contactInfo = Some(ExportContactInfo(contactEmail = "name@somewhere.com"))
     )
 
   def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
@@ -35,7 +35,7 @@ object TestData {
       priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
       hasALVS = Some(true),
       freightType = Some(ImportFreightType.Air),
-      contactInfo = Some(ImportContactInfo(contactName = "Bob", contactEmail = "name@somewhere.com")),
+      contactInfo = Some(ImportContactInfo(contactEmail = "name@somewhere.com")),
       vesselDetails = Some(
         VesselDetails(
           vesselName = Some("Foo"),

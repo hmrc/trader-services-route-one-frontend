@@ -209,31 +209,40 @@ object FormFieldMappings {
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     Time24FieldHelper.optionalTimeFieldsMapping("timeOfArrival")
 
-  val importContactNameMapping: Mapping[String] =
-    of[String].verifying(
-      first(
-        constraint[String]("contactName", "required", _.nonEmpty)
+  val importContactNameMapping: Mapping[Option[String]] = optional(
+    of[String]
+      .verifying(
+        first(
+          constraint[String]("contactName", "invalid-length", name => name.length >= 2 && name.length <= 128)
+        )
       )
-    )
+  )
 
   val importContactEmailMapping: Mapping[String] =
     of[String].verifying(
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
+        constraint[String]("contactEmail", "invalid-length", email => email.length <= 128),
         Constraints.emailAddress(errorMessage = "error.contactEmail")
       )
     )
 
   val importContactNumberMapping: Mapping[Option[String]] = optional(
-    of[String].verifying(ContactFieldHelper.contactNumber())
+    of[String]
+      .transform[String](ContactFieldHelper.normaliseNumber, identity)
+      .verifying(
+        first(constraint[String]("contactNumber", "invalid-length", _.length == 11), ContactFieldHelper.contactNumber())
+      )
   )
 
-  val exportContactNameMapping: Mapping[String] =
-    of[String].verifying(
-      first(
-        constraint[String]("contactName", "required", _.nonEmpty)
+  val exportContactNameMapping: Mapping[Option[String]] = optional(
+    of[String]
+      .verifying(
+        first(
+          constraint[String]("contactName", "invalid-length", name => name.length >= 2 && name.length <= 128)
+        )
       )
-    )
+  )
 
   val exportContactEmailMapping: Mapping[String] =
     of[String].verifying(
@@ -244,7 +253,11 @@ object FormFieldMappings {
     )
 
   val exportContactNumberMapping: Mapping[Option[String]] = optional(
-    of[String].verifying(ContactFieldHelper.contactNumber())
+    of[String]
+      .transform[String](ContactFieldHelper.normaliseNumber, identity)
+      .verifying(
+        first(constraint[String]("contactNumber", "invalid-length", _.length == 11), ContactFieldHelper.contactNumber())
+      )
   )
 
   val uploadAnotherFileMapping: Mapping[Boolean] = booleanMapping("uploadAnotherFile", "yes", "no")
