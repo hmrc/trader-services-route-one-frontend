@@ -60,12 +60,14 @@ appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 </noscript>
 }
 
+@if(timeout) {
   <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
   data-language="en"
   data-timeout="@appConfig.timeout"
   data-countdown="@appConfig.countdown"
   data-keep-alive-url="@routes.SessionController.keepAlive"
   data-sign-out-url="@appConfig.timedoutUrl"/>
+}
 }
 
 @scripts = {
