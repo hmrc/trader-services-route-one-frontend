@@ -53,8 +53,6 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 </noscript>
 }
 
-  <!-- TODO this <meta> should only be included when the user is logged in -->
-  <!-- TODO set correct timeout (900), countdown (780) and keep-alive-url -->
   <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
   data-language="en"
   data-timeout="@appConfig.timeout"

@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.traderservices.views.components.FooterLinks
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
+@import uk.gov.hmrc.traderservices.controllers.routes
 
 @this(
 govukLayout2: GovukLayout2,
@@ -58,6 +59,13 @@ appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
  <meta http-equiv="refresh" content="@refresh"/>
 </noscript>
 }
+
+  <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
+  data-language="en"
+  data-timeout="@appConfig.timeout"
+  data-countdown="@appConfig.countdown"
+  data-keep-alive-url="@routes.SessionController.keepAlive"
+  data-sign-out-url="@appConfig.timedoutUrl"/>
 }
 
 @scripts = {
