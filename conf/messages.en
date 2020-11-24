@@ -427,9 +427,9 @@ view.upload-file.help.fileFormat1=JPG
 view.upload-file.help.fileFormat2=PNG
 view.upload-file.help.fileFormat3=PDF
 view.upload-file.help.fileFormat4=TIFF
-view.upload-file.help.fileFormat5=Open Document Format (ODF)
-view.upload-file.help.fileFormat6=Microsoft Office formats
-view.upload-file.help.line4=You cannot upload zip files.
+view.upload-file.help.fileFormat5=Microsoft Excel, Word and PowerPoint
+view.upload-file.help.fileFormat6=Open Document Format (ODF)
+view.upload-file.help.line4=You cannot upload zip files or documents that are password-protected.
 
 view.file-uploaded.singular.title=You have uploaded {0} document
 view.file-uploaded.singular.heading=You have uploaded {0} document
