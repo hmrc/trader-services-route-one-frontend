@@ -53,7 +53,7 @@ abstract class BaseISpec
   final def htmlEscapedPageTitle(key: String): String =
     htmlEscapedMessage(key) + " - " + htmlEscapedMessage("site.serviceName") + " - " + htmlEscapedMessage("site.govuk")
   final def htmlEscapedPageTitleWithError(key: String): String =
-    htmlEscapedMessage("error.browser.title.prefix") + htmlEscapedPageTitle(key)
+    htmlEscapedMessage("error.browser.title.prefix") + " " + htmlEscapedPageTitle(key)
 
   implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
     HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
