@@ -1931,7 +1931,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/foo").get())
 
         result.status shouldBe 404
-        result.body should include("This page can’t be found")
+        result.body should include("Page not found")
         journey.get shouldBe None
       }
     }
