@@ -43,6 +43,7 @@ import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesApiError
 import uk.gov.hmrc.traderservices.views.html.components.h1
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
+import uk.gov.hmrc.traderservices.views.html.PageNotFoundErrorView
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
@@ -58,7 +59,8 @@ class ErrorHandler @Inject() (
   val auditConnector: AuditConnector,
   @Named("appName") val appName: String,
   govUkWrapper: GovukLayoutWrapper,
-  h1: h1
+  h1: h1,
+  pageNotFoundErrorView: PageNotFoundErrorView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
 
@@ -86,6 +88,8 @@ class ErrorHandler @Inject() (
     request: Request[_]
   ) =
     new ErrorTemplate(govUkWrapper, h1)(pageTitle, heading, message)
+
+  override def notFoundTemplate(implicit request: Request[_]) = pageNotFoundErrorView()
 
   def externalErrorTemplate()(implicit request: Request[_]) =
     new ErrorTemplate(govUkWrapper, h1)(
