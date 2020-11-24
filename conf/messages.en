@@ -515,7 +515,7 @@ error.responseText.invalid-length=Response must be 1000 characters or fewer
 
 # Common form messages
 # ----------------------------------------------------------
-error.browser.title.prefix = Error:
+error.browser.title.prefix = Error: 
 error.summary.title=There is a problem
 date.day = Day
 date.month = Month

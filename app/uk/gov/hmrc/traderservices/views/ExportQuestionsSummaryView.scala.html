@@ -29,7 +29,7 @@
 @(declarationDetails: DeclarationDetails, exportQuestions: ExportQuestions, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.export-questions.summary.title")),
+  pageTitle("view.export-questions.summary.title"),
   backLink = Some(backLink.url)) {
 
   @html.h1(messages("view.export-questions.summary.heading"))

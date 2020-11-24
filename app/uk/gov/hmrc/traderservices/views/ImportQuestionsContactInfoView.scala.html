@@ -29,7 +29,7 @@
 }
 
 @govukLayout(
-    pageTitle = Some(messages("view.import-questions.contactInfo.title")),
+    pageTitle("view.import-questions.contactInfo.title",form),
     backLink = Some(backLink.url)) {
 
     @forms.errorSummary(form.errors)

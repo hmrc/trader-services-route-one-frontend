@@ -42,11 +42,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.new-or-existing-case.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
         result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
         journey.getState shouldBe ChooseNewOrExistingCase()
       }
@@ -61,11 +57,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/new-or-existing").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.new-or-existing-case.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
         result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
         journey.getState shouldBe ChooseNewOrExistingCase()
       }
@@ -84,11 +76,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/new-or-existing").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails()
       }
@@ -105,13 +93,26 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/new-or-existing").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.case-reference-number.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
         result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
         journey.getState shouldBe TurnToAmendCaseJourney(true)
+      }
+
+      "submit invalid choice and re-display the form page with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(ChooseNewOrExistingCase())
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "newOrExistingCase" -> "Foo"
+        )
+
+        val result = await(request("/pre-clearance/new-or-existing").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.new-or-existing-case.title"))
+        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        journey.getState shouldBe ChooseNewOrExistingCase()
       }
     }
 
@@ -124,11 +125,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails()
       }
@@ -148,11 +145,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/declaration-details").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.declaration-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
         result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
         result.body should (include("235") and include("A11111X"))
         result.body should (include("2020") and include("09") and include("23"))
@@ -164,7 +157,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
     }
 
     "POST /pre-clearance/declaration-details" should {
-
       "submit the form and ask next for requestType when entryNumber is for export" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails(None))
@@ -181,11 +173,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/declaration-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.requestType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
@@ -218,6 +206,27 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           )
         )
       }
+
+      "submit invalid form and re-display the form page with errors" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(EnterDeclarationDetails())
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "entryDate.year"  -> "202a",
+          "entryDate.month" -> "00",
+          "entryDate.day"   -> "44",
+          "epu"             -> "AAA",
+          "entryNumber"     -> "A11X"
+        )
+
+        val result = await(request("/pre-clearance/declaration-details").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.declaration-details.title"))
+        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        journey.getState shouldBe EnterDeclarationDetails()
+      }
     }
 
     "GET /pre-clearance/export-questions/request-type" should {
@@ -235,18 +244,13 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.requestType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe state
       }
     }
 
     "POST /pre-clearance/export-questions/request-type" should {
-
       "submit the form and ask next for routeType" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -264,11 +268,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.routeType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
@@ -276,6 +276,27 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(requestType = Some(ExportRequestType.New))
           )
         )
+      }
+
+      "submit invalid form and re-display the form page with errors" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsRequestType(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions()
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("requestType" -> "Foo")
+
+        val result = await(request("/pre-clearance/export-questions/request-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.requestType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        journey.getState shouldBe state
       }
     }
 
@@ -294,18 +315,13 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.routeType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe state
       }
     }
 
     "POST /pre-clearance/export-questions/route-type" should {
-
       "submit the form and ask next for hasPriorityGoods" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -323,11 +339,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
@@ -335,6 +347,27 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route3))
           )
         )
+      }
+
+      "submit invalid form and re-display the form page with errors" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsRouteType(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1602))
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Foo")
+
+        val result = await(request("/pre-clearance/export-questions/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.routeType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
+        journey.getState shouldBe state
       }
     }
 
@@ -353,11 +386,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -381,11 +410,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
@@ -419,11 +444,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
@@ -435,6 +456,30 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+      }
+
+      "submit empty choice and re-display the form with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsHasPriorityGoods(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route2)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("hasPriorityGoods" -> "")
+
+        val result = await(request("/pre-clearance/export-questions/has-priority-goods").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe state
       }
     }
 
@@ -453,11 +498,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -481,11 +522,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/which-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
@@ -497,6 +534,27 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+      }
+
+      "submit empty priority goods and re-display the form with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsWhichPriorityGoods(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("priorityGoods" -> "")
+
+        val result = await(request("/pre-clearance/export-questions/which-priority-goods").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.whichPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        journey.getState shouldBe state
       }
     }
 
@@ -519,11 +577,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.freightType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe state
       }
@@ -551,6 +605,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
@@ -586,6 +642,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
@@ -598,6 +656,32 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+      }
+
+      "submit empty transport type and re-display the form with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsFreightType(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("freightType" -> "")
+
+        val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+
+        journey.getState shouldBe state
       }
     }
 
@@ -622,11 +706,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -653,11 +733,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -715,6 +791,35 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           )
         )
       }
+
+      "submit incomplete vessel details and re-display the form page with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsMandatoryVesselInfo(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1602),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "vesselName" -> "Foo Bar"
+        )
+
+        val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+
+        journey.getState shouldBe state
+      }
     }
 
     "GET /pre-clearance/export-questions/vessel-info" should {
@@ -737,11 +842,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.vessel-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -779,6 +880,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -822,6 +925,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -835,6 +940,33 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+      }
+
+      "submit invalid vessel details and re-display the form page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsOptionalVesselInfo(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("dateOfArrival.year" -> "202A")
+
+        val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+
+        journey.getState shouldBe state
       }
     }
 
@@ -854,11 +986,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/contact-info").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.contactInfo.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -894,6 +1022,9 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+
         journey.getState shouldBe ExportQuestionsSummary(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
@@ -906,6 +1037,36 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+      }
+
+      "submit invalid contact info and re-display the form page with error" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AnswerExportQuestionsContactInfo(
+          ExportQuestionsStateModel(
+            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route6),
+              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map(
+          "contactName"   -> "Full Name",
+          "contactEmail"  -> "someone@email.com",
+          "contactNumber" -> "000000"
+        )
+        val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+
+        journey.getState shouldBe state
       }
     }
 
@@ -922,11 +1083,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.export-questions.summary.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
         journey.getState shouldBe state
       }
@@ -947,11 +1104,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.requestType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
         journey.getState shouldBe state
       }
@@ -978,11 +1131,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.routeType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
@@ -1008,11 +1157,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.routeType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe state
       }
@@ -1036,11 +1181,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
@@ -1069,11 +1210,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.hasPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -1097,11 +1234,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
@@ -1132,11 +1265,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
@@ -1166,11 +1295,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.whichPriorityGoods.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
@@ -1194,11 +1319,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/which-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
@@ -1228,11 +1349,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/automatic-licence-verification").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.hasALVS.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe state
       }
@@ -1294,11 +1411,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.freightType.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
         journey.getState shouldBe state
       }
@@ -1393,11 +1506,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/vessel-info").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.vessel-details.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
@@ -1509,11 +1618,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/contact-info").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.contactInfo.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.contactInfo.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.heading"))
         journey.getState shouldBe state
       }
@@ -1574,11 +1679,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/import-questions/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.import-questions.summary.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
         journey.getState shouldBe state
       }
@@ -1600,11 +1701,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -1644,11 +1741,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -1703,11 +1796,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/create-case").post(""))
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.create-case-confirmation.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.exportDeclarationDetails,
@@ -1750,11 +1839,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/confirmation").get)
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.create-case-confirmation.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         journey.getState shouldBe state
       }

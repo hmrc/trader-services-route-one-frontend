@@ -26,7 +26,7 @@
 @(restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.case-already-exists.title")),
+  pageTitle("view.case-already-exists.title"),
   backLink = None) {
 
     @html.h1("view.case-already-exists.heading")

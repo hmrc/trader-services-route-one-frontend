@@ -37,9 +37,9 @@ abstract class BaseISpec
     givenAuditConnector()
   }
 
-  protected implicit val materializer: Materializer = app.materializer
+  final implicit val materializer: Materializer = app.materializer
 
-  protected def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
+  final def checkHtmlResultWithBodyText(result: Result, expectedSubstring: String): Unit = {
     status(result) shouldBe 200
     contentType(result) shouldBe Some("text/html")
     charset(result) shouldBe Some("utf-8")
@@ -49,7 +49,11 @@ abstract class BaseISpec
   private lazy val messagesApi = app.injector.instanceOf[MessagesApi]
   private implicit val messages: Messages = messagesApi.preferred(Seq.empty[Lang])
 
-  protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
+  final def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
+  final def htmlEscapedPageTitle(key: String): String =
+    htmlEscapedMessage(key) + " - " + htmlEscapedMessage("site.serviceName") + " - " + htmlEscapedMessage("site.govuk")
+  final def htmlEscapedPageTitleWithError(key: String): String =
+    htmlEscapedMessage("error.browser.title.prefix") + htmlEscapedPageTitle(key)
 
   implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
     HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))

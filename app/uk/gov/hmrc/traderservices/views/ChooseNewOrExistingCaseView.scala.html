@@ -28,7 +28,7 @@
 @(form: Form[NewOrExistingCase], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-    pageTitle = Some(messages("view.new-or-existing-case.title")),
+    pageTitle = pageTitle("view.new-or-existing-case.title", form),
     backLink = Some(backLink.url)) {
 
     @forms.errorSummary(form.errors)

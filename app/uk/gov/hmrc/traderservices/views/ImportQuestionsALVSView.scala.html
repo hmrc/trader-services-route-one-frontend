@@ -31,7 +31,7 @@
 }
 
 @govukLayout(
-    pageTitle = Some(messages("view.import-questions.hasALVS.title")),
+    pageTitle("view.import-questions.hasALVS.title",form),
     backLink = Some(backLink.url)) {
 
     @forms.errorSummary(form.errors)
