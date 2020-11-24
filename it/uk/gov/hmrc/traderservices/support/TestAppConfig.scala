@@ -2,7 +2,7 @@ package uk.gov.hmrc.traderservices.support
 
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
-case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends AppConfig {
+case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int, timedOutURL: String) extends AppConfig {
 
   override val appName: String = "trader-services-frontend"
   override val baseInternalCallbackUrl: String = wireMockBaseUrl
@@ -30,5 +30,5 @@ case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends App
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(10, "", "")
   override val timeout: Int = 10
   override val countdown: Int = 2
-  override val timedoutUrl: String = "http://localhost:9379/trader-services/timedout"
+  override val timedoutUrl: String = timedOutURL
 }

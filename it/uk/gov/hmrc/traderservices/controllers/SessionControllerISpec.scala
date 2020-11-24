@@ -1,6 +1,11 @@
 package uk.gov.hmrc.traderservices.controllers
 
-class SessionControllerISpec extends TraderServicesFrontendISpecSetup() {
+import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, matching, stubFor}
+import play.api.Application
+import play.api.libs.ws.WSClient
+import uk.gov.hmrc.traderservices.support.ServerISpec
+
+class SessionControllerISpec extends SessionControllerISpecSetup() {
 
   "SessionController" when {
 
@@ -15,6 +20,7 @@ class SessionControllerISpec extends TraderServicesFrontendISpecSetup() {
 
     "GET /sign-out/timeout" should {
       "display the timed out page" in {
+        givenTimedOut();
         val result = await(requestWithoutJourneyId("/sign-out/timeout").get())
         result.status shouldBe 200
       }
@@ -35,4 +41,25 @@ class SessionControllerISpec extends TraderServicesFrontendISpecSetup() {
       }
     }
   }
+}
+
+trait SessionControllerISpecSetup extends ServerISpec {
+
+  override def fakeApplication: Application = appBuilder.build()
+  override val timedOutURL = s"http://localhost:$port/trader-services/timedout"
+
+  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  val baseUrl: String = s"http://localhost:$port/trader-services"
+
+  def requestWithoutJourneyId(path: String) =
+    wsClient
+      .url(s"$baseUrl$path")
+
+  def givenTimedOut(): Unit =
+    stubFor(
+      get(s"/?continue=http%3A%2F%2Flocalhost%3A$port%2Ftrader-services%2Ftimedout")
+        .withQueryParam("continue", matching(s"http://localhost:$port/trader-services/timedout"))
+        .willReturn(aResponse().withStatus(200))
+    )
+
 }

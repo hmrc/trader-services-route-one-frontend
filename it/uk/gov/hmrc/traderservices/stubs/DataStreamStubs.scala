@@ -49,13 +49,6 @@ trait DataStreamStubs extends Eventually {
     stubFor(post(urlPathEqualTo(auditUrl + "/merged")).willReturn(aResponse().withStatus(204)))
   }
 
-  def givenTimedOut(): Unit =
-    stubFor(
-      get("/?continue=http%3A%2F%2Flocalhost%3A9379%2Ftrader-services%2Ftimedout")
-        .withQueryParam("continue", matching("http://localhost:9379/trader-services/timedout"))
-        .willReturn(aResponse().withStatus(200))
-    )
-
   def givenSignOut(): Unit =
     stubFor(
       get(s"/?continue=http%3A%2F%2F$wireMockHost%3A$wireMockPort")

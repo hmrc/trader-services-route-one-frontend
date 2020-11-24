@@ -113,9 +113,9 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val signOutUrl: String = config.getString("urls.signOut")
   override val researchBannerUrl: String = config.getString("urls.researchBanner")
 
-  override val timeout: Int = config.getInt("session._timeoutSeconds")
-  override val countdown: Int = config.getInt("session._CountdownInSeconds")
-  override val timedoutUrl: String = config.getString("session._timeoutUrl")
+  override val timeout: Int = config.getInt("session.timeoutSeconds")
+  override val countdown: Int = config.getInt("session.countdownInSeconds")
+  override val timedoutUrl: String = config.getString("session.timeoutUrl")
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),
