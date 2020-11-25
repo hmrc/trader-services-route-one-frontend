@@ -65,7 +65,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               contactInfo = Some(
                 ImportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )

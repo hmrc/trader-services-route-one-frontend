@@ -531,23 +531,19 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+        "error.contactNumber"
       )
 
       importContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+        "error.contactNumber"
+      )
+
+      importContactNumberMapping.bind(Map("" -> "0706897650")) should haveOnlyError(
+        "error.contactNumber"
       )
 
       importContactNumberMapping.bind(Map("" -> "123456789876")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+        "error.contactNumber"
       )
 
       importContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
@@ -564,20 +560,20 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
       exportContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      exportContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+      exportContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
+        "error.contactNumber"
       )
 
-      exportContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+      exportContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
+        "error.contactNumber"
       )
 
       exportContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+        "error.contactNumber"
       )
 
       exportContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
-        "error.contactNumber.invalid-length"
+        "error.contactNumber"
       )
 
       exportContactNumberMapping.bind(Map("" -> "12@34567891")) should haveOnlyError(

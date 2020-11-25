@@ -28,7 +28,7 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactName = s"<div>${contactDetails.contactName}</div>"
+    val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
     val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
     val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
     val value = contactName + contactEmail + contactNumber
@@ -49,7 +49,7 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactName = s"<div>${contactDetails.contactName}</div>"
+    val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
     val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
     val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
     val value = contactName + contactEmail + contactNumber

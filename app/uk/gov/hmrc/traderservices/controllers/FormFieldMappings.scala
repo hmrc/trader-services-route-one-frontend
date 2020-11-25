@@ -213,7 +213,8 @@ object FormFieldMappings {
     of[String]
       .verifying(
         first(
-          constraint[String]("contactName", "invalid-length", name => name.length >= 2 && name.length <= 128)
+          constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
+          constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
       )
   )
@@ -222,8 +223,8 @@ object FormFieldMappings {
     of[String].verifying(
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
-        constraint[String]("contactEmail", "invalid-length", email => email.length <= 128),
-        Constraints.emailAddress(errorMessage = "error.contactEmail")
+        Constraints.emailAddress(errorMessage = "error.contactEmail"),
+        constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
 
@@ -231,7 +232,7 @@ object FormFieldMappings {
     of[String]
       .transform[String](ContactFieldHelper.normaliseNumber, identity)
       .verifying(
-        first(constraint[String]("contactNumber", "invalid-length", _.length == 11), ContactFieldHelper.contactNumber())
+        first(ContactFieldHelper.contactNumber())
       )
   )
 
@@ -239,7 +240,8 @@ object FormFieldMappings {
     of[String]
       .verifying(
         first(
-          constraint[String]("contactName", "invalid-length", name => name.length >= 2 && name.length <= 128)
+          constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
+          constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
       )
   )
@@ -248,7 +250,8 @@ object FormFieldMappings {
     of[String].verifying(
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
-        Constraints.emailAddress(errorMessage = "error.contactEmail")
+        Constraints.emailAddress(errorMessage = "error.contactEmail"),
+        constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
 
@@ -256,7 +259,7 @@ object FormFieldMappings {
     of[String]
       .transform[String](ContactFieldHelper.normaliseNumber, identity)
       .verifying(
-        first(constraint[String]("contactNumber", "invalid-length", _.length == 11), ContactFieldHelper.contactNumber())
+        first(ContactFieldHelper.contactNumber())
       )
   )
 
