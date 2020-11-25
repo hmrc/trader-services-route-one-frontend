@@ -27,7 +27,10 @@ object ViewHelpers {
   def pageTitle(key: String)(implicit messages: Messages): Option[String] =
     Some(messages(key))
 
+  def pageTitle(key: String, hasErrors: Boolean)(implicit messages: Messages): Option[String] =
+    if (hasErrors) Some(messages(errorBrowserTitlePrefixKey) + " " + messages(key)) else Some(messages(key))
+
   def pageTitle(key: String, form: Form[_])(implicit messages: Messages): Option[String] =
-    if (form.hasErrors) Some(messages(errorBrowserTitlePrefixKey) + " " + messages(key)) else Some(messages(key))
+    pageTitle(key, form.hasErrors)
 
 }
