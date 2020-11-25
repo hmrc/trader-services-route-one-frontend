@@ -38,7 +38,7 @@
 }
 
 @govukLayout(
-  pageTitle = Some(messages(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", fileUploads.acceptedCount)),
+  pageTitle(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", form, fileUploads.acceptedCount),
   backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)

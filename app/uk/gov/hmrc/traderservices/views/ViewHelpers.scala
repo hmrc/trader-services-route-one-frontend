@@ -24,13 +24,13 @@ object ViewHelpers {
   /** Key of the prefix to the page's title when the form has errors. */
   val errorBrowserTitlePrefixKey = "error.browser.title.prefix"
 
-  def pageTitle(key: String)(implicit messages: Messages): Option[String] =
-    Some(messages(key))
+  def pageTitle(key: String, args: Any*)(implicit messages: Messages): Option[String] =
+    Some(messages(key, args))
 
-  def pageTitle(key: String, hasErrors: Boolean)(implicit messages: Messages): Option[String] =
-    if (hasErrors) Some(messages(errorBrowserTitlePrefixKey) + " " + messages(key)) else Some(messages(key))
+  def pageTitle(key: String, hasErrors: Boolean, args: Any*)(implicit messages: Messages): Option[String] =
+    if (hasErrors) Some(messages(errorBrowserTitlePrefixKey) + " " + messages(key, args)) else Some(messages(key, args))
 
-  def pageTitle(key: String, form: Form[_])(implicit messages: Messages): Option[String] =
-    pageTitle(key, form.hasErrors)
+  def pageTitle(key: String, form: Form[_], args: Any*)(implicit messages: Messages): Option[String] =
+    pageTitle(key, form.hasErrors, args)
 
 }
