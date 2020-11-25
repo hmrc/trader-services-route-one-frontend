@@ -678,7 +678,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/transport-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.freightType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
 
         journey.getState shouldBe state
@@ -815,7 +815,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info-required").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe state
@@ -963,7 +963,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/vessel-info").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe state
@@ -1063,7 +1063,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/pre-clearance/export-questions/contact-info").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.contactInfo.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe state
