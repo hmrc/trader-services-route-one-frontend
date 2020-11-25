@@ -4,6 +4,8 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, matching
 import play.api.Application
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.traderservices.support.ServerISpec
+import uk.gov.hmrc.traderservices.wiring.AppConfig
+import com.github.tomakehurst.wiremock.client.WireMock._
 
 class SessionControllerISpec extends SessionControllerISpecSetup() {
 
@@ -11,7 +13,6 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
 
     "GET /timedout" should {
       "display the timed out page" in {
-
         val result = await(requestWithoutJourneyId("/timedout").get())
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.timedout.title"))
@@ -19,15 +20,16 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
     }
 
     "GET /sign-out/timeout" should {
-      "display the timed out page" in {
-        givenTimedOut();
+      "redirect to the timed out page" in {
+        givenSignOutWithContinueToTimedOut()
         val result = await(requestWithoutJourneyId("/sign-out/timeout").get())
         result.status shouldBe 200
       }
     }
 
     "GET /sign-out" should {
-      "display the signed out page" in {
+      "redirect to the feedback survey" in {
+        givenSignOutWithContinueToFeedbackSurvey()
         val result = await(requestWithoutJourneyId("/sign-out").get())
         result.status shouldBe 200
       }
@@ -46,20 +48,34 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
 trait SessionControllerISpecSetup extends ServerISpec {
 
   override def fakeApplication: Application = appBuilder.build()
-  override val timedOutURL = s"http://localhost:$port/trader-services/timedout"
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
+
   val baseUrl: String = s"http://localhost:$port/trader-services"
 
   def requestWithoutJourneyId(path: String) =
     wsClient
       .url(s"$baseUrl$path")
 
-  def givenTimedOut(): Unit =
+  def givenSignOutWithContinueToTimedOut(): Unit =
     stubFor(
-      get(s"/?continue=http%3A%2F%2Flocalhost%3A$port%2Ftrader-services%2Ftimedout")
-        .withQueryParam("continue", matching(s"http://localhost:$port/trader-services/timedout"))
-        .willReturn(aResponse().withStatus(200))
+      get(urlPathEqualTo("/dummy-sign-out-url"))
+        .withQueryParam("continue", matching("http://baseExternalCallbackUrl/trader-services/timedout"))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+        )
+    )
+
+  def givenSignOutWithContinueToFeedbackSurvey(): Unit =
+    stubFor(
+      get(urlPathEqualTo("/dummy-sign-out-url"))
+        .withQueryParam("continue", matching(appConfig.exitSurveyUrl))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+        )
     )
 
 }

@@ -19,6 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import scala.util.Random
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -156,7 +157,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       "show the upload first document page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val callbackUrl =
-          wireMockBaseUrl + s"/trader-services/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -394,6 +395,7 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec {
   override def fakeApplication: Application = appBuilder.build()
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
   lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
   lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
 

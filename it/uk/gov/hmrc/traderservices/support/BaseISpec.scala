@@ -30,12 +30,11 @@ abstract class BaseISpec
         "play.filters.csrf.method.whiteList.0" -> "POST",
         "play.filters.csrf.method.whiteList.1" -> "GET"
       )
-      .overrides(bind[AppConfig].toInstance(TestAppConfig(wireMockBaseUrlAsString, wireMockPort, timedOutURL)))
+      .overrides(bind[AppConfig].toInstance(TestAppConfig(wireMockBaseUrlAsString, wireMockPort)))
 
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()
     givenAuditConnector()
-    givenSignOut()
   }
 
   final implicit val materializer: Materializer = app.materializer

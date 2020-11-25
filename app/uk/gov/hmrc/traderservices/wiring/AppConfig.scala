@@ -76,7 +76,6 @@ trait AppConfig {
 
   val timeout: Int
   val countdown: Int
-  val timedoutUrl: String
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -115,7 +114,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val timeout: Int = config.getInt("session.timeoutSeconds")
   override val countdown: Int = config.getInt("session.countdownInSeconds")
-  override val timedoutUrl: String = config.getString("session.timeoutUrl")
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),

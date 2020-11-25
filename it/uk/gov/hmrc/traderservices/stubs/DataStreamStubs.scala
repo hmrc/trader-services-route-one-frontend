@@ -49,13 +49,6 @@ trait DataStreamStubs extends Eventually {
     stubFor(post(urlPathEqualTo(auditUrl + "/merged")).willReturn(aResponse().withStatus(204)))
   }
 
-  def givenSignOut(): Unit =
-    stubFor(
-      get(s"/?continue=http%3A%2F%2F$wireMockHost%3A$wireMockPort")
-        .withQueryParam("continue", matching(wireMockBaseUrlAsString))
-        .willReturn(aResponse().withStatus(200))
-    )
-
   private def auditUrl = "/write/audit"
 
   private def similarToJson(value: String) = equalToJson(value.stripMargin, true, true)

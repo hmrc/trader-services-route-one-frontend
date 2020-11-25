@@ -59,7 +59,7 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
   data-timeout="@appConfig.timeout"
   data-countdown="@appConfig.countdown"
   data-keep-alive-url="@routes.SessionController.keepAlive"
-  data-sign-out-url="@appConfig.timedoutUrl"/>
+  data-sign-out-url="@{appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url}"/>
 }
 }
 

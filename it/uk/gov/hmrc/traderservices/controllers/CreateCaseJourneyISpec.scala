@@ -24,6 +24,7 @@ import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -1693,7 +1694,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/pre-clearance/file-upload").get())
@@ -1733,7 +1734,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          wireMockBaseUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/pre-clearance/file-upload").get())
@@ -2026,6 +2027,7 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
   override def fakeApplication: Application = appBuilder.build()
 
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
+  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
   lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
   lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
 
