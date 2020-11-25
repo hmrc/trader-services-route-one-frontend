@@ -25,7 +25,7 @@
 @(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
-  pageTitle = Some(messages("view.write-response-text.title")),
+  pageTitle("view.write-response-text.title",form),
   backLink = Some(backLink.url),
   mainContentClasses = "govuk-grid-column-full") {
 

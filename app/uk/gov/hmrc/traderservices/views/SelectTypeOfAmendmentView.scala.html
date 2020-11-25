@@ -27,7 +27,7 @@
 @(form: Form[TypeOfAmendment], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-    pageTitle = Some(messages("view.type-of-amendment.title")),
+    pageTitle("view.type-of-amendment.title",form),
     backLink = Some(backLink.url)) {
 
     @forms.errorSummary(form.errors)

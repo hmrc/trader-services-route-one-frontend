@@ -37,11 +37,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/case-reference-number").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.case-reference-number.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
         result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
         journey.getState shouldBe EnterCaseReferenceNumber()
       }
@@ -78,11 +74,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/type-of-amendment").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.type-of-amendment.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.type-of-amendment.title"))
         result.body should include(htmlEscapedMessage("view.type-of-amendment.heading"))
         journey.getState shouldBe state
       }
@@ -129,11 +121,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/write-response").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.write-response-text.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.write-response-text.title"))
         result.body should include(htmlEscapedMessage("view.write-response-text.heading"))
         journey.getState shouldBe state
       }
@@ -207,11 +195,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(
-          htmlEscapedMessage("view.upload-file.first.title") + " - " + htmlEscapedMessage(
-            "site.serviceName"
-          ) + " - " + htmlEscapedMessage("site.govuk")
-        )
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe state
       }

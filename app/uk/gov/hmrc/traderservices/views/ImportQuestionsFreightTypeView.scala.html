@@ -27,7 +27,7 @@
 @(form: Form[ImportFreightType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("view.import-questions.freightType.title")),
+  pageTitle("view.import-questions.freightType.title",form),
   backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)

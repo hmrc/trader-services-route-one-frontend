@@ -34,7 +34,7 @@
 }
 
 @govukLayout(
-  pageTitle = Some(messages("view.export-questions.hasPriorityGoods.title")),
+  pageTitle("view.export-questions.hasPriorityGoods.title",form),
   backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)

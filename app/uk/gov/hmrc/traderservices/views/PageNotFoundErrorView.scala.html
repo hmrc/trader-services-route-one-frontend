@@ -24,7 +24,7 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = Some(messages("global.error.404.title"))
+  pageTitle("global.error.404.title")
 ) {
 
   @html.h1(messages("global.error.404.heading"))

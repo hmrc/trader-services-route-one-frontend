@@ -23,7 +23,7 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("a11yStatement.title"))) {
+@govukLayout(pageTitle("a11yStatement.title")) {
 
 @html.h1(messages("a11yStatement.heading"))
 

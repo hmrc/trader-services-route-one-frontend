@@ -68,7 +68,8 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.govukfrontend.views.html.components._",
       "uk.gov.hmrc.hmrcfrontend.views.html.{components => hmrcComponents}",
       "uk.gov.hmrc.govukfrontend.views.html.helpers._",
-      "uk.gov.hmrc.traderservices.views.html.components"
+      "uk.gov.hmrc.traderservices.views.html.components",
+      "uk.gov.hmrc.traderservices.views.ViewHelpers._"
     ),
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),
