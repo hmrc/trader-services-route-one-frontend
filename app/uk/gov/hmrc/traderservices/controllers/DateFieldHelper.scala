@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import play.api.data.Forms.{mapping, of, optional}
+import play.api.data.Forms.{localDate, mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -200,4 +200,11 @@ object DateFieldHelper {
         )
     }
 
+  def getValidDateHint(date: LocalDate): LocalDate =
+    date.getMonthValue match {
+      case month if { month >= 2 && month <= 10 } =>
+        LocalDate.of(date.getYear, date.minusMonths(1).getMonthValue, 23)
+      case month if month >= 11 || month == 1 =>
+        LocalDate.of(date.minusMonths(1).getYear, 9, 23)
+    }
 }
