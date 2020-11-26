@@ -85,15 +85,15 @@ class ExportQuestionsFormSpec extends UnitSpec with FormValidator {
       val form = CreateCaseJourneyController.ExportContactForm
       validate(
         form,
-        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com"),
-        ExportContactInfo(contactName = "Full Name", contactEmail = "name@example.com")
+        Map("contactEmail" -> "name@example.com"),
+        ExportContactInfo(contactEmail = "name@example.com")
       )
 
       validate(
         form,
         Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
         ExportContactInfo(
-          contactName = "Full Name",
+          contactName = Some("Full Name"),
           contactEmail = "name@example.com",
           contactNumber = Some("01234567891")
         )

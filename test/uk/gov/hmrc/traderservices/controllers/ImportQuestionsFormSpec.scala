@@ -81,15 +81,15 @@ class ImportQuestionsFormSpec extends UnitSpec with FormValidator {
       val form = CreateCaseJourneyController.ImportContactForm
       validate(
         form,
-        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com"),
-        ImportContactInfo(contactName = "Full Name", contactEmail = "name@example.com")
+        Map("contactEmail" -> "name@example.com"),
+        ImportContactInfo(contactEmail = "name@example.com")
       )
 
       validate(
         form,
         Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> "01234567891"),
         ImportContactInfo(
-          contactName = "Full Name",
+          contactName = Some("Full Name"),
           contactEmail = "name@example.com",
           contactNumber = Some("01234567891")
         )

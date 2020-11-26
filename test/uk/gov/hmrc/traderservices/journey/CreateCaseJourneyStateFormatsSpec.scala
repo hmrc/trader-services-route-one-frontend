@@ -65,7 +65,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               contactInfo = Some(
                 ImportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -185,7 +185,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               freightType = Some(ExportFreightType.RORO),
               contactInfo = Some(
                 ExportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -218,7 +218,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               contactInfo = Some(
                 ExportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -346,7 +346,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               freightType = Some(ImportFreightType.RORO),
               contactInfo = Some(
                 ImportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -379,7 +379,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               contactInfo = Some(
                 ImportContactInfo(
-                  contactName = "Full Name",
+                  contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -421,7 +421,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               contactInfo = Some(
                 ImportContactInfo(
-                  contactName = "Bob",
+                  contactName = Some("Bob"),
                   contactEmail = "name@somewhere.com",
                   contactNumber = Some("012345678910")
                 )
@@ -624,7 +624,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
     ),
     contactInfo = Some(
       ExportContactInfo(
-        contactName = "Bob",
+        contactName = Some("Bob"),
         contactEmail = "name@somewhere.com",
         contactNumber = Some("012345678910")
       )

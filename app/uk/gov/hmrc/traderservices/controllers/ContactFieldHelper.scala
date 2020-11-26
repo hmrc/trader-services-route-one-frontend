@@ -35,4 +35,10 @@ object ContactFieldHelper {
           case _: NumberParseException => Invalid(ValidationError(errorMessage))
         }
     }
+
+  def normaliseNumber(phoneNum: String): String =
+    if (phoneNum.startsWith("+44")) phoneNum.replace("+44", "0").replaceAll("\\s", "")
+    else if (phoneNum.startsWith("44")) phoneNum.replace("44", "0").replaceAll("\\s", "")
+    else if (phoneNum.startsWith("0044")) phoneNum.replace("0044", "0").replaceAll("\\s", "")
+    else phoneNum.replaceAll("\\s", "")
 }
