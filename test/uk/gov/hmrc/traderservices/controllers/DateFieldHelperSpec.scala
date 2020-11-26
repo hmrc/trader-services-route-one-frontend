@@ -104,9 +104,9 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "getValidDateHint tests" in {
-      getValidDateHint(LocalDate.of(2021, 3, 4)) shouldBe LocalDate.of(2021, 2, 23)
-      getValidDateHint(LocalDate.of(2021, 11, 11)) shouldBe LocalDate.of(2021, 9, 23)
-      getValidDateHint(LocalDate.of(2022, 1, 25)) shouldBe LocalDate.of(2021, 9, 23)
+      getValidDateHint(LocalDate.of(2021, 3, 4)) shouldBe "23 2 2021"
+      getValidDateHint(LocalDate.of(2021, 11, 11)) shouldBe "23 9 2021"
+      getValidDateHint(LocalDate.of(2022, 1, 25)) shouldBe "23 9 2021"
     }
   }
 

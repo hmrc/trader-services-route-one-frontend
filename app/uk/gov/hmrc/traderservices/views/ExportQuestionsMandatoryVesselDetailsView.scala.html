@@ -15,6 +15,8 @@
  *@
 
 @import uk.gov.hmrc.traderservices.models.VesselDetails
+@import uk.gov.hmrc.traderservices.controllers.DateFieldHelper
+@import java.time.LocalDate
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
@@ -51,7 +53,7 @@
         legendContent = "form.export-questions.vessel-details.dateOfArrival",
         legendClasses = "",
         legendAsPageHeading = false,
-        hintText = None,
+        hintText = Some(messages("form.export-questions.vessel-details.dateOfArrival.hint", DateFieldHelper.getValidDateHint(LocalDate.now))),
         attributesDay = Map("aria-label" -> "Day of arrival date"),
         attributesMonth = Map("aria-label" -> "Month of arrival date"),
         attributesYear = Map("aria-label" -> "Year of arrival date")

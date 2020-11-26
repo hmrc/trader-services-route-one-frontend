@@ -200,11 +200,15 @@ object DateFieldHelper {
         )
     }
 
-  def getValidDateHint(date: LocalDate): LocalDate =
+  def getValidDateHint(date: LocalDate): String =
     date.getMonthValue match {
       case month if { month >= 2 && month <= 10 } =>
-        LocalDate.of(date.getYear, date.minusMonths(1).getMonthValue, 23)
+        LocalDate
+          .of(date.getYear, date.minusMonths(1).getMonthValue, 23)
+          .format(DateTimeFormatter.ofPattern("dd M yyyy"))
       case month if month >= 11 || month == 1 =>
-        LocalDate.of(date.minusMonths(1).getYear, 9, 23)
+        LocalDate
+          .of(date.minusMonths(1).getYear, 9, 23)
+          .format(DateTimeFormatter.ofPattern("dd M yyyy"))
     }
 }
