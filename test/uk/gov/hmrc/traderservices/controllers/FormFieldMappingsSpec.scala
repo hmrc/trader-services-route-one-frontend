@@ -546,6 +546,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.contactNumber"
       )
 
+      importContactNumberMapping.bind(Map("" -> "01234567891a!")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
       importContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "441132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "00441132432111")) shouldBe Right(Some("01132432111"))
@@ -577,6 +581,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
 
       exportContactNumberMapping.bind(Map("" -> "12@34567891")) should haveOnlyError(
+        "error.contactNumber"
+      )
+
+      exportContactNumberMapping.bind(Map("" -> "01234567891a!")) should haveOnlyError(
         "error.contactNumber"
       )
 

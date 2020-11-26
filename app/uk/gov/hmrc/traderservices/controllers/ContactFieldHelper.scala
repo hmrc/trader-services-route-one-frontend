@@ -29,7 +29,8 @@ object ContactFieldHelper {
         try {
           val phoneNumberUtil = PhoneNumberUtil.getInstance()
           val sequenceToNumber = phoneNumberUtil.parse(phoneNum, "GB")
-          if (phoneNumberUtil.isValidNumber(sequenceToNumber)) Valid
+          if (!phoneNum.forall(_.isDigit)) Invalid(ValidationError(errorMessage))
+          else if (phoneNumberUtil.isValidNumber(sequenceToNumber)) Valid
           else Invalid(ValidationError(errorMessage))
         } catch {
           case _: NumberParseException => Invalid(ValidationError(errorMessage))
