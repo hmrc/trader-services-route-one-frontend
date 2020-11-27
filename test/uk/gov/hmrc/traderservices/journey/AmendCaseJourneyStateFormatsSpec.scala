@@ -56,10 +56,8 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
       )
       val text = Random.alphanumeric.take(1000).mkString
       validateJsonFormat(
-        s"""{"state":"AmendCaseConfirmation","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"}}}""",
-        State.AmendCaseConfirmation(
-          AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))
-        )
+        s"""{"state":"AmendCaseConfirmation","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
+        State.AmendCaseConfirmation("PC12010081330XGBNZJO04")
       )
       val fileUploadHostData =
         AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))

@@ -192,14 +192,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
-          AmendCaseConfirmation(
-            AmendCaseModel(
-              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-              typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
-              responseText = Some(responseText),
-              fileUploads = None
-            )
-          )
+          AmendCaseConfirmation("PC12010081330XGBNZJO04")
         )
       }
 
@@ -1103,25 +1096,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) when
           amendCase(eoriNumber) should
           thenGo(
-            AmendCaseConfirmation(
-              fullAmendCaseStateModel.copy(fileUploads =
-                Some(
-                  FileUploads(files =
-                    Seq(
-                      FileUpload.Accepted(
-                        1,
-                        "foo-bar-ref-1",
-                        "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                        ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                        "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                        "test.pdf",
-                        "application/pdf"
-                      )
-                    )
-                  )
-                )
-              )
-            )
+            AmendCaseConfirmation("PC12010081330XGBNZJO04")
           )
       }
     }

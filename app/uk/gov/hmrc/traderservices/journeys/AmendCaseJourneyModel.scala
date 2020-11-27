@@ -56,7 +56,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
 
-    final case class AmendCaseConfirmation(model: AmendCaseModel) extends State
+    final case class AmendCaseConfirmation(caseReferenceNumber: String) extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -140,7 +140,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             ) =>
           val updatedModel = model.copy(responseText = Some(responseText))
           if (model.typeOfAmendment.contains(TypeOfAmendment.WriteResponse))
-            goto(AmendCaseConfirmation(updatedModel.copy(fileUploads = None)))
+            amendCase(user).apply(EnterResponseText(updatedModel))
           else
             gotoFileUploadOrUploaded(
               updatedModel,
@@ -168,10 +168,20 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: FileUploadState =>
           val updatedModel = s.hostData.copy(fileUploads = Some(s.fileUploads))
-          goto(AmendCaseConfirmation(updatedModel))
+          updatedModel.caseReferenceNumber match {
+            case Some(id) =>
+              goto(AmendCaseConfirmation(id))
+            case None =>
+              goto(EnterCaseReferenceNumber(updatedModel))
+          }
 
         case EnterResponseText(model) if model.typeOfAmendment.contains(TypeOfAmendment.WriteResponse) =>
-          goto(AmendCaseConfirmation(model))
+          model.caseReferenceNumber match {
+            case Some(id) =>
+              goto(AmendCaseConfirmation(id))
+            case None =>
+              goto(EnterCaseReferenceNumber(model))
+          }
       }
   }
 }

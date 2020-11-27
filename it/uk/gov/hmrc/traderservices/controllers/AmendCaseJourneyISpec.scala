@@ -148,13 +148,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/write-response").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AmendCaseConfirmation(
-          AmendCaseModel(
-            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-            typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
-            responseText = Some(text)
-          )
-        )
+        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO04")
       }
     }
 
@@ -373,6 +367,22 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result5 =
           await(request("/pre-clearance/amend/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
         result5.status shouldBe 404
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /trader-services/pre-clearance/amend/confirmation" should {
+      "show write response page" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AmendCaseConfirmation("PC12010081330XGBNZJO04")
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/pre-clearance/amend/confirmation").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.amend-case-confirmation.title"))
+        result.body should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
         journey.getState shouldBe state
       }
     }

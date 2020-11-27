@@ -520,6 +520,22 @@ view.write-response-text.continue=Continue
 error.responseText.required=Enter a response to a query from HMRC
 error.responseText.invalid-length=Response must be 1000 characters or fewer
 
+view.amend-case-confirmation.title=You''ve submitted your documents
+view.amend-case-confirmation.heading=You''ve submitted your documents
+view.amend-case-confirmation.reference=Your case reference number:
+view.amend-case-confirmation.save.heading=Save your case reference number
+view.amend-case-confirmation.save.description=You will have to provide your case reference number if:
+view.amend-case-confirmation.save.bullet1=you need to contact us with any queries
+view.amend-case-confirmation.save.bullet2=we need further information from you
+view.amend-case-confirmation.save.bullet3=you want to add more information or documents to this case
+view.amend-case-confirmation.save.description2=Make a note or save a screenshot of your case reference number for your own records.
+view.amend-case-confirmation.next.heading=Next steps
+view.amend-case-confirmation.next.description=Once the document checks are complete, you will hear from us through CHIEF or your declaration software.
+view.amend-case-confirmation.info.heading=If we need more information
+view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
+view.amend-case-confirmation.continue=Send documents for a customs check
+view.amend-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603</a> forms.
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:
