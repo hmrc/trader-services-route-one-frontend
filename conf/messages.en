@@ -30,6 +30,7 @@ site.change = Change
 site.logOut = log out
 site.youCan = You can:
 site.file.remove = Remove
+site.switchLanguage=Newid yr iaith ir Gymraeg
 
 site.Jan = January
 site.Feb = February

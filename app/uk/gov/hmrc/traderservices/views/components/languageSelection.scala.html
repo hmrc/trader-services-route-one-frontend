@@ -18,16 +18,21 @@
 
 @(langMap: Map[String, Lang], langToCall: String => Call, customClass: Option[String] = None, appName: Option[String] = None)(implicit messages: Messages)
 
-<div class="govuk-body ssp-language-toggle @customClass.map(x => x)">
-
-@langMap.map { case (key: String, value: Lang) =>
-  @if(messages.lang.code != value.code) {
-    <a class="govuk-link" href="@langToCall(key)" id="@{key}-switch">@key.capitalize</a>
-  } else {
-    @key.capitalize
-  }
-  @if(key != langMap.last._1) {
-    @Html(" | ")
-  }
-}
-</div>
+<nav class="hmrc-language-select" aria-label="Language switcher">
+  <ul class="hmrc-language-select__list">
+    @langMap.map { case (key: String, value: Lang) =>
+      @if(messages.lang.code != value.code) {
+        <li class="hmrc-language-select__list-item">
+          <a href="@langToCall(key)" hreflang="@value.code" lang="@value.code" rel="alternate" class="govuk-link" data-journey-click="link - click:lang-select:@key.capitalize">
+            <span class="govuk-visually-hidden">@messages("site.switchLanguage")</span>
+            <span aria-hidden="true">@key.capitalize</span>
+          </a>
+        </li>
+      } else {
+        <li class="hmrc-language-select__list-item">
+          <span aria-current="true">@key.capitalize</span>
+        </li>
+      }
+    }
+  </ul>
+</nav>
