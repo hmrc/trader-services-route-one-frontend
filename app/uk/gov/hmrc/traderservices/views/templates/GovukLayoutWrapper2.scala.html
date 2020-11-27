@@ -67,22 +67,20 @@ appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 }
 
 @beforeContentBlock = {
+  @gtmBodySnippet()
 
-@gtmBodySnippet()
+  @researchBanner()
+  @phaseBanner("alpha")
+  @hmrcBanner(Banner(if(messages.lang.code == "cy") {Cy} else {En}))
 
-@researchBanner()
-@phaseBanner("alpha")
-@hmrcBanner(Banner(if(messages.lang.code == "cy") {Cy} else {En}))
+  @languageSelection(
+    appConfig.languageMap,
+    appConfig.routeToSwitchLanguage
+  )
 
-@if(backLink.isDefined) {
-@govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" ->
-"back-link")))
-}
-
-@languageSelection(
-appConfig.languageMap,
-appConfig.routeToSwitchLanguage
-)
+  @if(backLink.isDefined) {
+    @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
+  }
 }
 
 @content = {

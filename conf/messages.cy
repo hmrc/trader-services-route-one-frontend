@@ -28,6 +28,7 @@ site.opensInNewWindowOrTab  = (yn agor tab newydd)
 site.change  = Newid
 site.logOut  = allgofnodi
 site.youCan  = Gallwch wneud y canlynol:
+site.switchLanguage=Change the language to English
 
 site.Jan = Ionawr
 site.Feb = Chwefror
