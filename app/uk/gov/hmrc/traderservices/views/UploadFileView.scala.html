@@ -37,7 +37,7 @@
   backLink = Some(backLink.url)
 ) {
 
-  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form file-upload"
+  <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form file-upload" novalidate
   data-file-upload-redirect-success-url="@successAction.url"
   data-file-upload-redirect-failure-url="@failureAction.url"
   data-file-upload-check-status-url="@checkStatusAction.url"
@@ -73,7 +73,6 @@
           "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
           "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
           "accept" -> appConfig.fileFormats.approvedFileTypes,
-          "required" -> "",
           "data-msg-required" -> messages("error.file-upload.required"),
           "data-msg-filesize" -> messages("error.file-upload.invalid-size-large",appConfig.fileFormats.maxFileSizeMb),
           "data-msg-accept" -> messages("error.upload-file.other")
