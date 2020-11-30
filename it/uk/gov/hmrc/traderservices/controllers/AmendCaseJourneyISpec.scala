@@ -372,7 +372,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     }
 
     "GET /trader-services/pre-clearance/amend/confirmation" should {
-      "show write response page" in {
+      "show confirmation page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AmendCaseConfirmation("PC12010081330XGBNZJO04")
         journey.setState(state)

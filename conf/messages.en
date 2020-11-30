@@ -484,7 +484,7 @@ view.create-case-confirmation.next.description=Once the document checks are comp
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.create-case-confirmation.continue=Send documents for a customs check
-view.create-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603</a> forms.
+view.create-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603 forms</a>.
 
 view.case-already-exists.title=This case already exists
 view.case-already-exists.heading=This case already exists
@@ -524,12 +524,12 @@ view.amend-case-confirmation.title=You've submitted your extra information
 view.amend-case-confirmation.heading=You've submitted your extra information
 view.amend-case-confirmation.reference=Your case reference number:
 view.amend-case-confirmation.save.heading=Save your case reference number
-view.amend-case-confirmation.save.description=You'll need to use this case reference number for any further correspondence on this case.
+view.amend-case-confirmation.save.description=You''ll need to use this case reference number for any further correspondence on this case.
 view.amend-case-confirmation.save.description2=It is the same case reference number that you were given when the case was first created.
 view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you'll hear from us through CHIEF or your declaration software. We'll let you know if we need any further information from you.
 view.amend-case-confirmation.continue=Send documents for a customs check
-view.amend-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603</a> forms.
+view.amend-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603 forms</a>.
 
 # Common form messages
 # ----------------------------------------------------------
