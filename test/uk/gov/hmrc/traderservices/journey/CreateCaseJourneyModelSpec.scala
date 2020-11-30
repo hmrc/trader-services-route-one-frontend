@@ -36,7 +36,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.Future
 import java.time.ZonedDateTime
-import _root_.uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import scala.util.Try
 import uk.gov.hmrc.traderservices.connectors.ApiError
@@ -2311,7 +2311,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "go to CreateCaseConfirmation when createCase" in {
         val mockCreateCaseApi: CreateCaseApi = { request =>
-          Future.successful(TraderServicesCreateCaseResponse(correlationId = "", result = Some("A1234567890")))
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("A1234567890")))
         }
         given(
           FileUploaded(
@@ -2352,7 +2352,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to CaseAlreadyExists when createCase but case already exists" in {
         val mockCreateCaseApi: CreateCaseApi = { request =>
           Future.successful(
-            TraderServicesCreateCaseResponse(
+            TraderServicesCaseResponse(
               correlationId = "",
               error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
             )

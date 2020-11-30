@@ -20,7 +20,7 @@ import uk.gov.hmrc.traderservices.models._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
-import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseResponse
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
 import uk.gov.hmrc.traderservices.connectors.ApiError
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
@@ -685,7 +685,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCreateCaseResponse]
+    type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
     final def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) =
       Transition {

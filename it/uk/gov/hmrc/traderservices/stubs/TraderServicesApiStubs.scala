@@ -12,13 +12,14 @@ trait TraderServicesApiStubs {
     requestBodyOfCreateCaseApi
 
   val requestBodyOfCreateCaseApi: String =
-    s"""{"declarationDetails":{},
+    s"""{
+       |"declarationDetails":{},
        |"questionsAnswers":{},
        |"uploadedFiles":[{}],
        |"eori":"GB123456789012345"
        |}""".stripMargin
 
-  val createCaseApiSuccessResponseBody: String =
+  val caseApiSuccessResponseBody: String =
     s"""{
        |  "correlationId": "",
        |  "result": "A1234567890"
@@ -34,7 +35,7 @@ trait TraderServicesApiStubs {
        |}""".stripMargin
 
   def givenCreateCaseApiRequestSucceeds(): StubMapping =
-    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), createCaseApiSuccessResponseBody)
+    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), caseApiSuccessResponseBody)
 
   def givenAnExternalServiceError(): StubMapping =
     givenCreateCaseApiErrorStub(500, validRequestOfCreateCaseApi())
@@ -60,6 +61,33 @@ trait TraderServicesApiStubs {
         .willReturn(
           aResponse()
             .withStatus(httpResponseCode)
+        )
+    )
+
+  def validRequestOfUpdateCaseApi(): String =
+    requestBodyOfUpdateCaseApi
+
+  val requestBodyOfUpdateCaseApi: String =
+    s"""{
+       |"caseReferenceNumber":"A1234567890",
+       |"typeOfAmendment":"WriteResponseAndUploadDocuments",
+       |"responseText":"An example description.",
+       |"uploadedFiles":[{}]
+       |}""".stripMargin
+
+  def givenUpdateCaseApiRequestSucceeds(): StubMapping =
+    givenUpdateCaseApiStub(200, validRequestOfUpdateCaseApi(), caseApiSuccessResponseBody)
+
+  def givenUpdateCaseApiStub(httpResponseCode: Int, requestBody: String, responseBody: String): StubMapping =
+    stubFor(
+      post(urlEqualTo(s"/update-case"))
+        .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
+        .withRequestBody(equalToJson(requestBody, true, true))
+        .willReturn(
+          aResponse()
+            .withStatus(httpResponseCode)
+            .withHeader("Content-Type", "application/json")
+            .withBody(responseBody)
         )
     )
 

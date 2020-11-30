@@ -17,14 +17,12 @@ import java.time.ZoneOffset
 class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSetup {
 
   "TraderServicesApiConnector" when {
-
     "createCase" should {
-
       "return case reference id if success" in {
         givenCreateCaseApiRequestSucceeds()
 
-        val result: TraderServicesCreateCaseResponse =
-          await(connector.createCase(request))
+        val result: TraderServicesCaseResponse =
+          await(connector.createCase(createCaseRequest))
 
         result.result shouldBe Some("A1234567890")
         result.error shouldBe None
@@ -33,11 +31,49 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
       "return error code and message if failure" in {
         givenCreateCaseApiStub(400, validRequestOfCreateCaseApi(), createCaseApiErrorResponseBody("555", "Foo Bar"))
 
-        val result: TraderServicesCreateCaseResponse =
-          await(connector.createCase(request))
+        val result: TraderServicesCaseResponse =
+          await(connector.createCase(createCaseRequest))
 
         result.result shouldBe None
         result.error shouldBe Some(ApiError("555", Some("Foo Bar")))
+      }
+
+      "throw exception if returns 500" in {
+        givenCreateCaseApiStub(500, validRequestOfCreateCaseApi(), "")
+
+        an[TraderServicesApiError] shouldBe thrownBy {
+          await(connector.createCase(createCaseRequest))
+        }
+      }
+    }
+
+    "updateCase" should {
+      "return same case reference id if success" in {
+        givenUpdateCaseApiRequestSucceeds()
+
+        val result: TraderServicesCaseResponse =
+          await(connector.updateCase(updateCaseRequest))
+
+        result.result shouldBe Some("A1234567890")
+        result.error shouldBe None
+      }
+
+      "return error code and message if failure" in {
+        givenUpdateCaseApiStub(400, validRequestOfUpdateCaseApi(), createCaseApiErrorResponseBody("555", "Foo Bar"))
+
+        val result: TraderServicesCaseResponse =
+          await(connector.updateCase(updateCaseRequest))
+
+        result.result shouldBe None
+        result.error shouldBe Some(ApiError("555", Some("Foo Bar")))
+      }
+
+      "throw exception if returns 500" in {
+        givenUpdateCaseApiStub(500, validRequestOfUpdateCaseApi(), "")
+
+        an[TraderServicesApiError] shouldBe thrownBy {
+          await(connector.updateCase(updateCaseRequest))
+        }
       }
     }
   }
@@ -53,7 +89,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
   lazy val connector: TraderServicesApiConnector =
     app.injector.instanceOf[TraderServicesApiConnector]
 
-  def request = {
+  def createCaseRequest = {
     val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
     TraderServicesCreateCaseRequest(
       declarationDetails = TestData.exportDeclarationDetails,
@@ -68,6 +104,24 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
         )
       ),
       "GB123456789012345"
+    )
+  }
+
+  def updateCaseRequest = {
+    val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+    TraderServicesUpdateCaseRequest(
+      caseReferenceNumber = Some("A1234567890"),
+      typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+      responseText = Some("An example description."),
+      uploadedFiles = Seq(
+        UploadedFile(
+          "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
+          "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+          "test.pdf",
+          "application/pdf"
+        )
+      )
     )
   }
 }
