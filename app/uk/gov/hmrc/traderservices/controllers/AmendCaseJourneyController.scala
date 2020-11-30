@@ -368,8 +368,13 @@ class AmendCaseJourneyController @Inject() (
             )
         )
 
-      case AmendCaseConfirmation(model) =>
-        Ok // FIXME
+      case AmendCaseConfirmation(caseReferenceNumber) =>
+        Ok(
+          views.amendCaseConfirmationView(
+            caseReferenceNumber,
+            routes.CreateCaseJourneyController.showStart()
+          )
+        )
 
       case _ => NotImplemented
 
