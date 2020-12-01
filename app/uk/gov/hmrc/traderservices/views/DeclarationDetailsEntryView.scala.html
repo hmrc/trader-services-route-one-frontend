@@ -44,7 +44,11 @@
         label = "form.declaration-details.epu",
         isPageHeading = false,
         isInFieldset = true,
-        classes = Some("govuk-input--width-3")
+        classes = Some("govuk-input--width-3"),
+        attributes = Map(
+          "inputmode" -> "numeric",
+          "pattern" -> "[0-9]*"
+        )
       )
 
       @forms.inputText(
