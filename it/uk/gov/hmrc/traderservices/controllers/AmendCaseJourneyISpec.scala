@@ -282,7 +282,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result1 =
           await(requestWithoutJourneyId(s"/pre-clearance/amend/journey/${journeyId.value}/file-verification").get())
 
-        result1.status shouldBe 204
+        result1.status shouldBe 202
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           WaitingForFileVerification(
