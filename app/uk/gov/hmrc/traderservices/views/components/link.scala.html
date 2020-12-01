@@ -28,4 +28,6 @@
  if (useButtonStyle) "govuk-button" else "govuk-link"
 }
 
-<a href="@link" class="@classes" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" }>@messages(messageKey)@if(isExternal)(" " + messages("site.opensInNewWindowOrTab"))</a>
+<a href="@link" class="@classes" @id.map(x => s"id=$x") @if(isExternal) { target="_blank" } @if(useButtonStyle) { role="button" data-module="govuk-button" }>
+ @messages(messageKey)@if(isExternal)(" " + messages("site.opensInNewWindowOrTab"))
+</a>
