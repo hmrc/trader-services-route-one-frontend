@@ -21,8 +21,8 @@ import uk.gov.hmrc.traderservices.models.UploadedFile
 import uk.gov.hmrc.traderservices.models.TypeOfAmendment
 
 case class TraderServicesUpdateCaseRequest(
-  caseReferenceNumber: Option[String] = None,
-  typeOfAmendment: Option[TypeOfAmendment] = None,
+  caseReferenceNumber: String,
+  typeOfAmendment: TypeOfAmendment,
   responseText: Option[String] = None,
   uploadedFiles: Seq[UploadedFile]
 )

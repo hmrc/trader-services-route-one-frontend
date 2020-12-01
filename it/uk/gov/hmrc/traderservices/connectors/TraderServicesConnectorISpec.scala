@@ -110,8 +110,8 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
   def updateCaseRequest = {
     val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
     TraderServicesUpdateCaseRequest(
-      caseReferenceNumber = Some("A1234567890"),
-      typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+      caseReferenceNumber = "A1234567890",
+      typeOfAmendment = TypeOfAmendment.WriteResponseAndUploadDocuments,
       responseText = Some("An example description."),
       uploadedFiles = Seq(
         UploadedFile(

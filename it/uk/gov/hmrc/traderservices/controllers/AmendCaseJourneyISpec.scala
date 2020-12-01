@@ -133,14 +133,15 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(
           EnterResponseText(
             AmendCaseModel(
-              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              caseReferenceNumber = Some("PC12010081330XGBNZJO05"),
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
         val text = Random.alphanumeric.take(1000).mkString
+        givenUpdateCaseApiRequestSucceeds("PC12010081330XGBNZJO05", "WriteResponse", text)
+
         val payload = Map(
           "responseText" -> text
         )
@@ -148,7 +149,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/pre-clearance/amend/write-response").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO04")
+        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO05")
       }
     }
 

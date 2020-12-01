@@ -21,7 +21,7 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadTransitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition, UpscanInitiateApi}
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition, UpdateCaseApi, UpscanInitiateApi}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
@@ -34,6 +34,9 @@ import scala.util.Try
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
+import uk.gov.hmrc.traderservices.connectors.ApiError
+import views.html.defaultpages.error
 
 class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -181,6 +184,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
     "at state EnterResponseText" should {
       "goto AmendCaseConfirmation when submited response text in WriteResponse mode" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
           EnterResponseText(
@@ -189,14 +195,103 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
           responseText
         ) should thenGo(
           AmendCaseConfirmation("PC12010081330XGBNZJO04")
         )
       }
 
+      "fail when submited response text in WriteResponse mode and UpdateCase API returned an error" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", error = Some(ApiError("", Some("")))))
+        }
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        ) shouldFailWhen submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
+          responseText
+        )
+      }
+
+      "fail when submited response text in WriteResponse mode and UpdateCase API returned sucess with different case reference number" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(correlationId = "", result = Some("not_the_same_case_reference"))
+          )
+        }
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        ) shouldFailWhen submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
+          responseText
+        )
+      }
+
+      "goto EnterCaseReferenceNumber when submited response text in WriteResponse mode but case reference number is missing" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseModel(
+              caseReferenceNumber = None,
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+            )
+          )
+        ) when submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
+          responseText
+        ) should thenGo(
+          EnterCaseReferenceNumber(
+            AmendCaseModel(
+              caseReferenceNumber = None,
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
+              responseText = Some(responseText)
+            )
+          )
+        )
+      }
+
+      "goto SelectTypeOfAmendment when submited response text in WriteResponse mode but type of amendment is missing" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = None
+            )
+          )
+        ) when submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
+          responseText
+        ) should thenGo(
+          SelectTypeOfAmendment(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = None,
+              responseText = Some(responseText)
+            )
+          )
+        )
+      }
+
       "goto UploadFile when submited response text in WriteResponseAndUploadDocuments mode" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
           EnterResponseText(
@@ -205,7 +300,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
             )
           )
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
           responseText
         ) should thenGo(
           UploadFile(
@@ -232,6 +327,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
 
       "fail when submited response text in UploadDocuments mode" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
           EnterResponseText(
@@ -240,7 +338,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
             )
           )
-        ) shouldFailWhen submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(responseText)
+        ) shouldFailWhen submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
+          responseText
+        )
       }
 
       "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment from EnterResponseText" in {
@@ -270,6 +370,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
       typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
       responseText = Some(Random.alphanumeric.take(1000).mkString)
+    )
+
+    val someFileUploads = FileUploads(files =
+      Seq(
+        FileUpload.Accepted(
+          1,
+          "foo-bar-ref-1",
+          "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+          "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+          "test.pdf",
+          "application/pdf"
+        )
+      )
     )
 
     "at state UploadFile" should {
@@ -1083,28 +1197,85 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
 
       "goto AmendCaseConfirmation when amendCase" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
         given(
           FileUploaded(
             fullAmendCaseStateModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  1,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf"
-                )
-              )
-            ),
+            someFileUploads,
             acknowledged = false
           )
         ) when
-          amendCase(eoriNumber) should
+          amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
             AmendCaseConfirmation("PC12010081330XGBNZJO04")
+          )
+      }
+
+      "fail when amendCase and received error response" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(correlationId = "", error = Some(ApiError("", Some(""))))
+          )
+        }
+        given(
+          FileUploaded(
+            fullAmendCaseStateModel,
+            someFileUploads,
+            acknowledged = false
+          )
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+      }
+
+      "fail when amendCase and received case reference doesn't match" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(correlationId = "", result = Some("not_the_same_case_reference"))
+          )
+        }
+        given(
+          FileUploaded(
+            fullAmendCaseStateModel,
+            someFileUploads,
+            acknowledged = false
+          )
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+      }
+
+      "goto EnterCaseReferenceNumber when amendCase without case reference number provided" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
+        val model = fullAmendCaseStateModel.copy(caseReferenceNumber = None)
+        given(
+          FileUploaded(
+            model,
+            someFileUploads,
+            acknowledged = false
+          )
+        ) when
+          amendCase(updateCaseApi)(eoriNumber) should
+          thenGo(
+            EnterCaseReferenceNumber(model.copy(fileUploads = Some(someFileUploads)))
+          )
+      }
+
+      "goto SelectTypeOfAmendment when amendCase without case reference number provided" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+        }
+        val model = fullAmendCaseStateModel.copy(typeOfAmendment = None)
+        given(
+          FileUploaded(
+            model,
+            someFileUploads,
+            acknowledged = false
+          )
+        ) when
+          amendCase(updateCaseApi)(eoriNumber) should
+          thenGo(
+            SelectTypeOfAmendment(model.copy(fileUploads = Some(someFileUploads)))
           )
       }
     }

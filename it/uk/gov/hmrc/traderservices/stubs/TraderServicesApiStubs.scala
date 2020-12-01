@@ -19,10 +19,10 @@ trait TraderServicesApiStubs {
        |"eori":"GB123456789012345"
        |}""".stripMargin
 
-  val caseApiSuccessResponseBody: String =
+  def caseApiSuccessResponseBody(caseReferenceNumber: String = "A1234567890"): String =
     s"""{
        |  "correlationId": "",
-       |  "result": "A1234567890"
+       |  "result": "$caseReferenceNumber"
        |}""".stripMargin
 
   def createCaseApiErrorResponseBody(errorCode: String, errorMessage: String): String =
@@ -35,7 +35,7 @@ trait TraderServicesApiStubs {
        |}""".stripMargin
 
   def givenCreateCaseApiRequestSucceeds(): StubMapping =
-    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), caseApiSuccessResponseBody)
+    givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), caseApiSuccessResponseBody())
 
   def givenAnExternalServiceError(): StubMapping =
     givenCreateCaseApiErrorStub(500, validRequestOfCreateCaseApi())
@@ -64,19 +64,28 @@ trait TraderServicesApiStubs {
         )
     )
 
-  def validRequestOfUpdateCaseApi(): String =
-    requestBodyOfUpdateCaseApi
-
-  val requestBodyOfUpdateCaseApi: String =
+  def validRequestOfUpdateCaseApi(
+    caseReferenceNumber: String = "A1234567890",
+    typeOfAmendment: String = "WriteResponseAndUploadDocuments",
+    description: String = "An example description."
+  ): String =
     s"""{
-       |"caseReferenceNumber":"A1234567890",
-       |"typeOfAmendment":"WriteResponseAndUploadDocuments",
-       |"responseText":"An example description.",
-       |"uploadedFiles":[{}]
+       |"caseReferenceNumber":"$caseReferenceNumber",
+       |"typeOfAmendment":"$typeOfAmendment",
+       |"responseText":"$description",
+       |"uploadedFiles":[]
        |}""".stripMargin
 
-  def givenUpdateCaseApiRequestSucceeds(): StubMapping =
-    givenUpdateCaseApiStub(200, validRequestOfUpdateCaseApi(), caseApiSuccessResponseBody)
+  def givenUpdateCaseApiRequestSucceeds(
+    caseReferenceNumber: String = "A1234567890",
+    typeOfAmendment: String = "WriteResponseAndUploadDocuments",
+    description: String = "An example description."
+  ): StubMapping =
+    givenUpdateCaseApiStub(
+      200,
+      validRequestOfUpdateCaseApi(caseReferenceNumber, typeOfAmendment, description),
+      caseApiSuccessResponseBody(caseReferenceNumber)
+    )
 
   def givenUpdateCaseApiStub(httpResponseCode: Int, requestBody: String, responseBody: String): StubMapping =
     stubFor(
