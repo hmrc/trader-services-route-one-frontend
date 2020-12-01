@@ -23,7 +23,10 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@govukLayout(pageTitle = Some(messages("view.timedout.title"))) {
+@govukLayout(
+  pageTitle = Some(messages("view.timedout.title")),
+  timeout = false
+) {
   @html.h1(messages("view.timedout.heading"))
 
   @html.p {
