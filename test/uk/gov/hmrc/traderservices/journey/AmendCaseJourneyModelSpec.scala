@@ -1261,7 +1261,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           )
       }
 
-      "goto SelectTypeOfAmendment when amendCase without case reference number provided" in {
+      "goto SelectTypeOfAmendment when amendCase without type of amendment provided" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
         }
