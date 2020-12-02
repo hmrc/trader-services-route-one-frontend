@@ -128,6 +128,9 @@ class AmendCaseJourneyController @Inject() (
 
   // ----------------------- FILES UPLOAD -----------------------
 
+  /** Initial time to wait for callback arrival. */
+  final val INITIAL_CALLBACK_WAIT_TIME_SECONDS = 2
+
   /**
     * This cookie is set by the script on each request
     * coming from one of our own pages open in the browser.
@@ -181,14 +184,17 @@ class AmendCaseJourneyController @Inject() (
   // GET /pre-clearance/amend/file-verification
   final val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
-      .waitForStateThenRedirect[FileUploadState.FileUploaded](3)
+      .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
       .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
   // GET /pre-clearance/amend/journey/:journeyId/file-verification
   final def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     actions
-      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](3, implicit request => acknowledgeFileUploadRedirect)
+      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
+        INITIAL_CALLBACK_WAIT_TIME_SECONDS,
+        implicit request => acknowledgeFileUploadRedirect
+      )
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 

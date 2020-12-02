@@ -1629,7 +1629,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to UploadFile when waitForFileVerification and rejected already" in {
+      "go to UploadFile when waitForFileVerification and file upload already rejected" in {
         given(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -1666,7 +1666,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when waitForFileVerification(
           eoriNumber
         ) should thenGo(
-          WaitingForFileVerification(
+          UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
             UploadRequest(
@@ -1677,7 +1677,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(4, "foo-bar-ref-4"),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(1, "foo-bar-ref-1"),
@@ -1691,7 +1690,16 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "test.pdf",
                   "application/pdf"
                 ),
-                FileUpload.Posted(4, "foo-bar-ref-4")
+                FileUpload.Failed(
+                  4,
+                  "foo-bar-ref-4",
+                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+                )
+              )
+            ),
+            Some(
+              FileVerificationFailed(
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
               )
             )
           )
