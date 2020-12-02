@@ -207,7 +207,7 @@ class AmendCaseJourneyController @Inject() (
     actions
       .parseJson[UpscanNotification]
       .apply(FileUploadTransitions.upscanCallbackArrived)
-      .transform { case _ => Accepted }
+      .transform { case _ => NoContent }
       .recover {
         case e: IllegalArgumentException => BadRequest
         case e                           => InternalServerError
