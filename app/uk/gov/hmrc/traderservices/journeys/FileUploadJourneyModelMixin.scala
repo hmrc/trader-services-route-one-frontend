@@ -115,6 +115,13 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
   object FileUploadTransitions {
     import FileUploadState._
 
+    private def resetFileUploadStatusToInitiated(reference: String, fileUploads: FileUploads): FileUploads =
+      fileUploads.copy(files = fileUploads.files.map {
+        case f if f.reference == reference =>
+          FileUpload.Initiated(f.orderNumber, f.reference)
+        case other => other
+      })
+
     final def initiateFileUpload(
       upscanRequest: UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
@@ -127,6 +134,15 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             state.fileUploadsOpt,
             showUploadSummaryIfAny = true
           )
+
+        case current @ UploadFile(hostData, reference, uploadRequest, fileUploads, maybeUploadError) =>
+          if (maybeUploadError.isDefined)
+            goto(
+              current
+                .copy(fileUploads = resetFileUploadStatusToInitiated(reference, fileUploads))
+            )
+          else
+            goto(current)
 
         case WaitingForFileVerification(
               hostData,
@@ -167,8 +183,62 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           goto(current.copy(fileUploads = updatedFileUploads, maybeUploadError = Some(FileTransmissionFailed(error))))
       }
 
+    /** Common transition helper based on the file upload status. */
+    private def commonFileUploadStatusHandler(
+      hostData: FileUploadHostData,
+      fileUploads: FileUploads,
+      reference: String,
+      uploadRequest: UploadRequest,
+      fallbackState: => State
+    ): PartialFunction[Option[FileUpload], Future[State]] = {
+
+      case None =>
+        goto(fallbackState)
+
+      case Some(initiatedFile: FileUpload.Initiated) =>
+        goto(UploadFile(hostData, reference, uploadRequest, fileUploads))
+
+      case Some(postedFile: FileUpload.Posted) =>
+        goto(
+          WaitingForFileVerification(
+            hostData,
+            reference,
+            uploadRequest,
+            postedFile,
+            fileUploads
+          )
+        )
+
+      case Some(acceptedFile: FileUpload.Accepted) =>
+        goto(FileUploaded(hostData, fileUploads))
+
+      case Some(failedFile: FileUpload.Failed) =>
+        goto(
+          UploadFile(
+            hostData,
+            reference,
+            uploadRequest,
+            fileUploads,
+            Some(FileVerificationFailed(failedFile.details))
+          )
+        )
+
+      case Some(rejectedFile: FileUpload.Rejected) =>
+        goto(
+          UploadFile(
+            hostData,
+            reference,
+            uploadRequest,
+            fileUploads,
+            Some(FileTransmissionFailed(rejectedFile.details))
+          )
+        )
+    }
+
+    /** Transition when file has been uploaded and should wait for verification. */
     final def waitForFileVerification(user: String) =
       Transition {
+        /** Change file status to posted and wait. */
         case current @ UploadFile(
               hostData,
               reference,
@@ -177,41 +247,21 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               errorOpt
             ) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case f: FileUpload.Accepted => f
-            case FileUpload(orderNumber, ref) if ref == reference =>
+            case FileUpload.Initiated(orderNumber, ref) if ref == reference =>
               FileUpload.Posted(orderNumber, reference)
-            case f => f
+            case other => other
           })
-          updatedFileUploads.files.find(_.reference == reference) match {
-            case Some(upload: FileUpload.Posted) =>
-              goto(
-                WaitingForFileVerification(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  upload,
-                  updatedFileUploads
-                )
-              )
+          val currentUpload = updatedFileUploads.files.find(_.reference == reference)
+          commonFileUploadStatusHandler(
+            hostData,
+            updatedFileUploads,
+            reference,
+            uploadRequest,
+            current.copy(fileUploads = updatedFileUploads)
+          )
+            .apply(currentUpload)
 
-            case Some(acceptedFile: FileUpload.Accepted) =>
-              goto(FileUploaded(hostData, updatedFileUploads))
-
-            case Some(failedFile: FileUpload.Failed) =>
-              goto(
-                UploadFile(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  updatedFileUploads,
-                  Some(FileVerificationFailed(failedFile.details))
-                )
-              )
-
-            case _ =>
-              goto(UploadFile(hostData, reference, uploadRequest, updatedFileUploads))
-          }
-
+        /** If waiting already, keep waiting. */
         case current @ WaitingForFileVerification(
               hostData,
               reference,
@@ -219,32 +269,22 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               currentFileUpload,
               fileUploads
             ) =>
-          fileUploads.files.find(_.reference == reference) match {
-            case Some(upload: FileUpload.Posted) =>
-              goto(current)
+          val currentUpload = fileUploads.files.find(_.reference == reference)
+          commonFileUploadStatusHandler(
+            hostData,
+            fileUploads,
+            reference,
+            uploadRequest,
+            UploadFile(hostData, reference, uploadRequest, fileUploads)
+          )
+            .apply(currentUpload)
 
-            case Some(acceptedFile: FileUpload.Accepted) =>
-              goto(FileUploaded(hostData, fileUploads))
-
-            case Some(failedFile: FileUpload.Failed) =>
-              goto(
-                UploadFile(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  fileUploads,
-                  Some(FileVerificationFailed(failedFile.details))
-                )
-              )
-
-            case _ =>
-              goto(UploadFile(hostData, reference, uploadRequest, fileUploads))
-          }
-
+        /** If file already uploaded, do nothing. */
         case state: FileUploaded =>
           goto(state.copy(acknowledged = true))
       }
 
+    /** Transition when notification arrives from upscan. */
     final def upscanCallbackArrived(notification: UpscanNotification) = {
 
       def updateFileUploads(fileUploads: FileUploads) =
@@ -272,7 +312,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
         })
 
       Transition {
-        case WaitingForFileVerification(
+        case current @ WaitingForFileVerification(
               hostData,
               reference,
               uploadRequest,
@@ -280,69 +320,28 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               fileUploads
             ) =>
           val updatedFileUploads = updateFileUploads(fileUploads)
-          updatedFileUploads.files.find(_.reference == reference) match {
-            case None =>
-              goto(
-                WaitingForFileVerification(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  currentFileUpload,
-                  updatedFileUploads
-                )
-              )
+          val currentUpload = updatedFileUploads.files.find(_.reference == reference)
+          commonFileUploadStatusHandler(
+            hostData,
+            updatedFileUploads,
+            reference,
+            uploadRequest,
+            current.copy(fileUploads = updatedFileUploads)
+          )
+            .apply(currentUpload)
 
-            case Some(upload: FileUpload.Posted) =>
-              goto(
-                WaitingForFileVerification(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  upload,
-                  updatedFileUploads
-                )
-              )
-
-            case Some(acceptedFile: FileUpload.Accepted) =>
-              goto(FileUploaded(hostData, updatedFileUploads))
-
-            case Some(failedFile: FileUpload.Failed) =>
-              goto(
-                UploadFile(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  updatedFileUploads,
-                  Some(FileVerificationFailed(failedFile.details))
-                )
-              )
-
-            case _ =>
-              goto(UploadFile(hostData, reference, uploadRequest, updatedFileUploads))
-
-          }
-
-        case UploadFile(hostData, reference, uploadRequest, fileUploads, errorOpt) =>
+        case current @ UploadFile(hostData, reference, uploadRequest, fileUploads, errorOpt) =>
           val updatedFileUploads = updateFileUploads(fileUploads)
-          updatedFileUploads.files.find(_.reference == reference) match {
-            case Some(acceptedFile: FileUpload.Accepted) =>
-              goto(FileUploaded(hostData, updatedFileUploads))
+          val currentUpload = updatedFileUploads.files.find(_.reference == reference)
+          commonFileUploadStatusHandler(
+            hostData,
+            updatedFileUploads,
+            reference,
+            uploadRequest,
+            current.copy(fileUploads = updatedFileUploads)
+          )
+            .apply(currentUpload)
 
-            case Some(failedFile: FileUpload.Failed) =>
-              goto(
-                UploadFile(
-                  hostData,
-                  reference,
-                  uploadRequest,
-                  updatedFileUploads,
-                  Some(FileVerificationFailed(failedFile.details))
-                )
-              )
-
-            case _ =>
-              goto(UploadFile(hostData, reference, uploadRequest, updatedFileUploads))
-
-          }
       }
     }
 

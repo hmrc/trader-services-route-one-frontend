@@ -52,23 +52,23 @@ class AmendCaseJourneyController @Inject() (
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
 
-  val controller = routes.AmendCaseJourneyController
+  final val controller = routes.AmendCaseJourneyController
 
   import AmendCaseJourneyController._
   import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel._
 
   /** AsUser authorisation request */
-  val AsUser: WithAuthorised[String] = { implicit request =>
+  final val AsUser: WithAuthorised[String] = { implicit request =>
     authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
   }
 
   /** Base authorized action builder */
-  val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
+  final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
 
   /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
 
-  def toSubscriptionJourney(continueUrl: String): Result =
+  final def toSubscriptionJourney(continueUrl: String): Result =
     Redirect(
       appConfig.subscriptionJourneyUrl,
       Map(
@@ -77,35 +77,35 @@ class AmendCaseJourneyController @Inject() (
     )
 
   // Dummy URL to use when developing the journey
-  val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
+  final val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
 
   // GET /
-  val showStart: Action[AnyContent] =
+  final val showStart: Action[AnyContent] =
     whenAuthorisedAsUser
       .apply(Transitions.start)
       .display
       .andCleanBreadcrumbs()
 
   // GET /pre-clearance/amend/case-reference-number
-  val showEnterCaseReferenceNumber: Action[AnyContent] =
+  final val showEnterCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterCaseReferenceNumber]
       .orApply(Transitions.enterCaseReferenceNumber)
 
   // POST /pre-clearance/amend/case-reference-number
-  val submitCaseReferenceNumber: Action[AnyContent] =
+  final val submitCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(EnterCaseReferenceNumberForm)
       .apply(Transitions.submitedCaseReferenceNumber)
 
   // GET /pre-clearance/amend/type-of-amendment
-  val showSelectTypeOfAmendment: Action[AnyContent] =
+  final val showSelectTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.SelectTypeOfAmendment]
       .orApply(Transitions.backToSelectTypeOfAmendment)
 
   // POST /pre-clearance/amend/type-of-amendment
-  val submitTypeOfAmendment: Action[AnyContent] =
+  final val submitTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(TypeOfAmendmentForm)
       .applyWithRequest(implicit request =>
@@ -113,13 +113,13 @@ class AmendCaseJourneyController @Inject() (
       )
 
   // GET /pre-clearance/amend/write-response
-  val showEnterResponseText: Action[AnyContent] =
+  final val showEnterResponseText: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterResponseText]
       .orApply(Transitions.backToEnterResponseText)
 
   // POST /pre-clearance/amend/write-response
-  val submitResponseText: Action[AnyContent] =
+  final val submitResponseText: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ResponseTextForm)
       .applyWithRequest(implicit request =>
@@ -128,25 +128,28 @@ class AmendCaseJourneyController @Inject() (
 
   // ----------------------- FILES UPLOAD -----------------------
 
+  /** Initial time to wait for callback arrival. */
+  final val INITIAL_CALLBACK_WAIT_TIME_SECONDS = 2
+
   /**
     * This cookie is set by the script on each request
     * coming from one of our own pages open in the browser.
     */
-  val COOKIE_JSENABLED = "jsenabled"
+  final val COOKIE_JSENABLED = "jsenabled"
 
-  def successRedirect(implicit rh: RequestHeader) =
+  final def successRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
       case None    => controller.showWaitingForFileVerification()
     })
 
-  def errorRedirect(implicit rh: RequestHeader) =
+  final def errorRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
       case None    => controller.markFileUploadAsRejected()
     })
 
-  def upscanRequest(implicit rh: RequestHeader) =
+  final def upscanRequest(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
       callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
       successRedirect = Some(successRedirect),
@@ -157,7 +160,7 @@ class AmendCaseJourneyController @Inject() (
     )
 
   // GET /pre-clearance/amend/file-upload
-  val showFileUpload: Action[AnyContent] =
+  final val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         FileUploadTransitions
@@ -166,34 +169,37 @@ class AmendCaseJourneyController @Inject() (
       .redirectOrDisplayIf[FileUploadState.UploadFile]
 
   // GET /pre-clearance/amend/file-rejected
-  val markFileUploadAsRejected: Action[AnyContent] =
+  final val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.fileUploadWasRejected)
 
   // GET /pre-clearance/amend/journey/:journeyId/file-rejected-async
-  def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
+  final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.fileUploadWasRejected(""))
-      .displayUsing(implicit request => renderNoContent)
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /pre-clearance/amend/file-verification
-  val showWaitingForFileVerification: Action[AnyContent] =
+  final val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
-      .waitForStateThenRedirect[FileUploadState.FileUploaded](3)
+      .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
       .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
-  // GET /pre-clearance/amend/journey/:journeyId/file-verification-async
-  def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
+  // GET /pre-clearance/amend/journey/:journeyId/file-verification
+  final def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     actions
-      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](3, implicit request => renderNoContent)
+      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
+        INITIAL_CALLBACK_WAIT_TIME_SECONDS,
+        implicit request => acknowledgeFileUploadRedirect
+      )
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
-      .displayUsing(implicit request => renderNoContent)
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // POST /pre-clearance/amend/journey/:journeyId/callback-from-upscan
-  def callbackFromUpscan(journeyId: String): Action[AnyContent] =
+  final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
       .parseJson[UpscanNotification]
       .apply(FileUploadTransitions.upscanCallbackArrived)
@@ -204,13 +210,13 @@ class AmendCaseJourneyController @Inject() (
       }
 
   // GET /pre-clearance/amend/file-uploaded
-  val showFileUploaded: Action[AnyContent] =
+  final val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[FileUploadState.FileUploaded]
       .orApply(FileUploadTransitions.backToFileUploaded)
 
   // POST /pre-clearance/amend/file-uploaded
-  val submitUploadAnotherFileChoice: Action[AnyContent] =
+  final val submitUploadAnotherFileChoice: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
@@ -220,7 +226,7 @@ class AmendCaseJourneyController @Inject() (
       }
 
   // GET /pre-clearance/amend/file-uploaded/:reference/remove
-  def removeFileUploadByReference(reference: String): Action[AnyContent] =
+  final def removeFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
@@ -229,21 +235,21 @@ class AmendCaseJourneyController @Inject() (
       }
 
   // GET /pre-clearance/amend/file-verification/:reference/status
-  def checkFileVerificationStatus(reference: String): Action[AnyContent] =
+  final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
       .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
   // ----------------------- CONFIRMATION -----------------------
 
   // POST /pre-clearance/amend/amend-case
-  def amendCase: Action[AnyContent] =
+  final def amendCase: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         Transitions.amendCase
       }
 
   // GET /pre-clearance/amend/confirmation
-  def showAmendCaseConfirmation: Action[AnyContent] =
+  final def showAmendCaseConfirmation: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AmendCaseConfirmation]
       .orRollback
@@ -253,7 +259,7 @@ class AmendCaseJourneyController @Inject() (
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
     */
-  override def getCallFor(state: State)(implicit request: Request[_]): Call =
+  final override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
       case Start =>
         controller.showStart()
@@ -290,7 +296,7 @@ class AmendCaseJourneyController @Inject() (
     * Function from the `State` to the `Result`,
     * used by play-fsm internally to render the actual content.
     */
-  override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+  final override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
   ): Result =
     state match {
@@ -380,7 +386,7 @@ class AmendCaseJourneyController @Inject() (
 
     }
 
-  def backLinkFromFileUpload(model: AmendCaseModel): Call =
+  private def backLinkFromFileUpload(model: AmendCaseModel): Call =
     model.typeOfAmendment match {
       case Some(TypeOfAmendment.WriteResponse) | Some(TypeOfAmendment.WriteResponseAndUploadDocuments) =>
         controller.showEnterResponseText()
@@ -388,7 +394,7 @@ class AmendCaseJourneyController @Inject() (
         controller.showSelectTypeOfAmendment()
     }
 
-  def renderFileVerificationStatus(
+  private def renderFileVerificationStatus(
     reference: String
   )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
@@ -402,12 +408,14 @@ class AmendCaseJourneyController @Inject() (
       case _ => NotFound
     }
 
-  def renderNoContent(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
+  private def acknowledgeFileUploadRedirect(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
+    implicit request: Request[_]
   ): Result =
-    state match {
-      case _ => NoContent.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
-    }
+    (state match {
+      case _: FileUploadState.FileUploaded               => Created
+      case _: FileUploadState.WaitingForFileVerification => Accepted
+      case _                                             => NoContent
+    }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 
@@ -419,12 +427,12 @@ class AmendCaseJourneyController @Inject() (
     journeyIdFromPath.orElse(rh.session.get(journeyService.journeyKey))
   }
 
-  def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get
+  private def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get
 
-  override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
+  final override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
     appendJourneyId(super.hc)
 
-  override def amendContext(headerCarrier: HeaderCarrier)(key: String, value: String): HeaderCarrier =
+  final override def amendContext(headerCarrier: HeaderCarrier)(key: String, value: String): HeaderCarrier =
     headerCarrier.withExtraHeaders(key -> value)
 }
 
