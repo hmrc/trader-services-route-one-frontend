@@ -14,9 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.views.components.FooterLinks
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
+@import uk.gov.hmrc.traderservices.views.components.FooterLinks
+@import uk.gov.hmrc.traderservices.controllers.routes
 
 @this(
 govukLayout: GovukLayout,
@@ -50,6 +51,15 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 <noscript>
  <meta http-equiv="refresh" content="@refresh"/>
 </noscript>
+}
+
+@if(timeout) {
+  <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
+  data-language="en"
+  data-timeout="@appConfig.timeout"
+  data-countdown="@appConfig.countdown"
+  data-keep-alive-url="@routes.SessionController.keepAlive"
+  data-sign-out-url="@{appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url}"/>
 }
 }
 

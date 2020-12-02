@@ -88,7 +88,11 @@ GET        /pre-clearance/amend/confirmation                        @uk.gov.hmrc
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
+GET        /timedout                                                @uk.gov.hmrc.traderservices.controllers.SessionController.showTimeoutPage
+GET        /keep-alive                                              @uk.gov.hmrc.traderservices.controllers.SessionController.keepAlive
+
 GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
+GET        /sign-out/timeout                                        @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutTimeout
 GET        /sign-out-no-survey                                      @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
 
 GET        /language/:lang                                          @uk.gov.hmrc.traderservices.controllers.LanguageSwitchController.switchToLanguage(lang: String)

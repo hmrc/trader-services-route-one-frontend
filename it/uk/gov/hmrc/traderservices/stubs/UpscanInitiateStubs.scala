@@ -1,9 +1,6 @@
 package uk.gov.hmrc.traderservices.stubs
 
-import java.time.{LocalDate, ZoneId}
-
 import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.matching.AnythingPattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.support.WireMockSupport

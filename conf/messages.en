@@ -412,7 +412,7 @@ summary.import-questions.routeType=Route
 summary.import-questions.hasPriorityGoods=Priority goods
 summary.import-questions.whichPriorityGoods=Type of priority goods
 summary.import-questions.hasALVS=ALVS
-summary.import-questions.freightType=Type of transport 
+summary.import-questions.freightType=Type of transport
 summary.export-questions.requestType=Type of export request
 summary.export-questions.routeType=Route
 summary.export-questions.hasPriorityGoods=Priority goods
@@ -545,3 +545,10 @@ time.period = am or pm
 time.period.none=
 time.period.am=am
 time.period.pm=pm
+
+# Timed Out messages
+# -----------------------------------------------------------
+view.timedout.title=For your security, we signed you out
+view.timedout.heading=For your security, we signed you out
+view.timedout.description=We did not save your answers.
+view.timedout.signIn=Sign in

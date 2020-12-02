@@ -91,9 +91,9 @@ lazy val root = (project in file("."))
         group(
           Seq(
             "lib/govuk-frontend/govuk/all.js",
-            "javascripts/jquery.min.js",
+            "lib/hmrc-frontend/hmrc/all.js",
+            "javascripts/vendor/jquery.min.js",
             "javascripts/app.js",
-            "javascripts/timeout/timeoutDialog.js",
             "javascripts/autocomplete.js",
             "javascripts/components/file-upload.js"
           )
@@ -124,3 +124,5 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests.map { test =>
     new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
   }
+
+Compile / compile / logLevel := Level.Error
