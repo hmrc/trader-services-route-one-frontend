@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.connectors
 
 import play.api.libs.json.{Format, Json}
 
-case class TraderServicesCreateCaseResponse(
+case class TraderServicesCaseResponse(
   // Identifier associated with a request,
   correlationId: String,
   // Represents an error occurred
@@ -27,7 +27,7 @@ case class TraderServicesCreateCaseResponse(
   result: Option[String] = None
 )
 
-object TraderServicesCreateCaseResponse {
-  implicit val formats: Format[TraderServicesCreateCaseResponse] =
-    Json.format[TraderServicesCreateCaseResponse]
+object TraderServicesCaseResponse {
+  implicit val formats: Format[TraderServicesCaseResponse] =
+    Json.format[TraderServicesCaseResponse]
 }

@@ -31,7 +31,7 @@ abstract class ReadSuccessOrFailure[A: Reads](implicit mf: Manifest[A]) {
     HttpReads[HttpResponse]
       .flatMap { response =>
         val status = response.status
-        if ((status >= 200 && status < 300) || status >= 400)
+        if ((status >= 200 && status < 300) || (status >= 400 && status < 500))
           implicitly[Reads[A]].reads(response.json) match {
             case JsSuccess(value, path) => HttpReads.pure(value)
             case JsError(errors) =>

@@ -41,6 +41,7 @@ trait AppConfig {
   val upscanInitiateBaseUrl: String
 
   val createCaseApiPath: String
+  val updateCaseApiPath: String
 
   val mongoSessionExpiryTime: Int
   val authorisedServiceName: String
@@ -85,7 +86,20 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
 
   override val createCaseApiPath: String =
-    config.getConfString("trader-services-api.paths.create-case", "/create-case")
+    config.getConfString(
+      "trader-services-api.paths.create-case",
+      throw new IllegalStateException(
+        "Missing configuration property microservice.services.trader-services-api.paths.create-case"
+      )
+    )
+
+  override val updateCaseApiPath: String =
+    config.getConfString(
+      "trader-services-api.paths.update-case",
+      throw new IllegalStateException(
+        "Missing configuration property microservice.services.trader-services-api.paths.update-case"
+      )
+    )
 
   override val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
 

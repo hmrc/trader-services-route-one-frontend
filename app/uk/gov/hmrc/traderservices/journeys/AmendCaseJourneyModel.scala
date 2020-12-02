@@ -20,6 +20,8 @@ import uk.gov.hmrc.traderservices.models._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.connectors.TraderServicesUpdateCaseRequest
+import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
 
 object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -40,6 +42,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   /** Opaque data carried through the file upload process. */
   override type FileUploadHostData = AmendCaseModel
+
+  type UpdateCaseApi = TraderServicesUpdateCaseRequest => Future[TraderServicesCaseResponse]
 
   /** All the possible states the journey can take. */
   object State {
@@ -128,9 +132,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
 
     final def submitedResponseText(
-      upscanRequest: UpscanInitiateRequest
-    )(
-      upscanInitiate: UpscanInitiateApi
+      upscanRequest: UpscanInitiateRequest,
+      upscanInitiate: UpscanInitiateApi,
+      updateCaseApi: UpdateCaseApi
     )(user: String)(responseText: String)(implicit ec: ExecutionContext) =
       Transition {
         case EnterResponseText(model)
@@ -140,7 +144,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             ) =>
           val updatedModel = model.copy(responseText = Some(responseText))
           if (model.typeOfAmendment.contains(TypeOfAmendment.WriteResponse))
-            amendCase(user).apply(EnterResponseText(updatedModel))
+            amendCase(updateCaseApi)(user).apply(EnterResponseText(updatedModel))
           else
             gotoFileUploadOrUploaded(
               updatedModel,
@@ -149,6 +153,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.fileUploads,
               showUploadSummaryIfAny = true
             )
+
+        case EnterResponseText(model) if model.typeOfAmendment.isEmpty =>
+          goto(SelectTypeOfAmendment(model.copy(responseText = Some(responseText))))
       }
 
     final def backFromFileUploadState(user: String) =
@@ -164,24 +171,54 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
       }
 
-    final def amendCase(user: String) =
+    final def amendCase(updateCaseApi: UpdateCaseApi)(user: String)(implicit ec: ExecutionContext) = {
+
+      def validateModelAndCallUpdateCase(model: AmendCaseModel) =
+        model.caseReferenceNumber match {
+          case Some(caseReferenceNumber) =>
+            model.typeOfAmendment match {
+              case Some(typeOfAmendment) =>
+                val request: TraderServicesUpdateCaseRequest =
+                  TraderServicesUpdateCaseRequest(
+                    caseReferenceNumber,
+                    typeOfAmendment,
+                    model.responseText,
+                    model.fileUploads.map(_.toUploadedFiles).getOrElse(Seq.empty)
+                  )
+                updateCaseApi(request)
+                  .flatMap { response =>
+                    if (response.result.isDefined)
+                      if (response.result.get == caseReferenceNumber)
+                        goto(AmendCaseConfirmation(caseReferenceNumber))
+                      else
+                        fail(
+                          new RuntimeException(
+                            s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
+                          )
+                        )
+                    else {
+                      val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                        response.error.map(_.errorMessage).getOrElse("")
+                      fail(new RuntimeException(message))
+                    }
+                  }
+
+              case None =>
+                goto(SelectTypeOfAmendment(model))
+            }
+
+          case None =>
+            goto(EnterCaseReferenceNumber(model))
+        }
+
       Transition {
         case s: FileUploadState =>
           val updatedModel = s.hostData.copy(fileUploads = Some(s.fileUploads))
-          updatedModel.caseReferenceNumber match {
-            case Some(id) =>
-              goto(AmendCaseConfirmation(id))
-            case None =>
-              goto(EnterCaseReferenceNumber(updatedModel))
-          }
+          validateModelAndCallUpdateCase(updatedModel)
 
         case EnterResponseText(model) if model.typeOfAmendment.contains(TypeOfAmendment.WriteResponse) =>
-          model.caseReferenceNumber match {
-            case Some(id) =>
-              goto(AmendCaseConfirmation(id))
-            case None =>
-              goto(EnterCaseReferenceNumber(model))
-          }
+          validateModelAndCallUpdateCase(model)
       }
+    }
   }
 }

@@ -123,7 +123,11 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ResponseTextForm)
       .applyWithRequest(implicit request =>
-        Transitions.submitedResponseText(upscanRequest)(upscanInitiateConnector.initiate(_))
+        Transitions.submitedResponseText(
+          upscanRequest,
+          upscanInitiateConnector.initiate(_),
+          traderServicesApiConnector.updateCase(_)
+        )
       )
 
   // ----------------------- FILES UPLOAD -----------------------
@@ -221,7 +225,7 @@ class AmendCaseJourneyController @Inject() (
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
         FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
-          Transitions.amendCase
+          Transitions.amendCase(traderServicesApiConnector.updateCase(_))
         ) _
       }
 
@@ -245,7 +249,7 @@ class AmendCaseJourneyController @Inject() (
   final def amendCase: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
-        Transitions.amendCase
+        Transitions.amendCase(traderServicesApiConnector.updateCase(_))
       }
 
   // GET /pre-clearance/amend/confirmation

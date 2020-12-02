@@ -31,20 +31,36 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 @Singleton
 class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
-    extends ReadSuccessOrFailure[TraderServicesCreateCaseResponse] with HttpAPIMonitor {
+    extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor {
 
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
   val createCaseApiPath = appConfig.createCaseApiPath
+  val updateCaseApiPath = appConfig.updateCaseApiPath
 
   override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
 
   def createCase(
     request: TraderServicesCreateCaseRequest
-  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCreateCaseResponse] =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCaseResponse] =
     monitor(s"ConsumedAPI-trader-services-create-case-api-POST") {
       http
-        .POST[TraderServicesCreateCaseRequest, TraderServicesCreateCaseResponse](
+        .POST[TraderServicesCreateCaseRequest, TraderServicesCaseResponse](
           new URL(baseUrl + createCaseApiPath).toExternalForm,
+          request
+        )
+        .recoverWith {
+          case e: Throwable =>
+            Future.failed(TraderServicesApiError(e))
+        }
+    }
+
+  def updateCase(
+    request: TraderServicesUpdateCaseRequest
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCaseResponse] =
+    monitor(s"ConsumedAPI-trader-services-update-case-api-POST") {
+      http
+        .POST[TraderServicesUpdateCaseRequest, TraderServicesCaseResponse](
+          new URL(baseUrl + updateCaseApiPath).toExternalForm,
           request
         )
         .recoverWith {
