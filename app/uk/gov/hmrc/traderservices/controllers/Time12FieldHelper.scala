@@ -80,22 +80,27 @@ object Time12FieldHelper {
   def validTimeFields(fieldName: String, required: Boolean): Constraint[TimeParts] =
     Constraint[TimeParts](s"constraint.$fieldName.time-fields") {
       case (h, m, p) if h.isEmpty && m.isEmpty && p.isEmpty =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required"))) else Valid
       case (h, m, p) if h.isEmpty && m.isEmpty && isValidPeriod(p) =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required"))) else Valid
       case (h, m, p) =>
         val errors = Seq(
-          if (h.isEmpty) Some(ValidationError(s"error.$fieldName.hour.required"))
-          else if (!h.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.hour.invalid-digits"))
+          // validate hour
+          if (h.isEmpty) Some(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.required")))
+          else if (!h.forall(_.isDigit))
+            Some(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-digits")))
           else if (isValidHour(h)) None
-          else Some(ValidationError(s"error.$fieldName.hour.invalid-value")),
-          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.minutes.required"))
-          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.minutes.invalid-digits"))
+          else Some(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-value"))),
+          // validate minutes
+          if (m.isEmpty) Some(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.required")))
+          else if (!m.forall(_.isDigit))
+            Some(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-digits")))
           else if (isValidMinutes(m)) None
-          else Some(ValidationError(s"error.$fieldName.minutes.invalid-value")),
-          if (p.isEmpty) Some(ValidationError(s"error.$fieldName.period.required"))
+          else Some(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-value"))),
+          // validate am-pm
+          if (p.isEmpty) Some(ValidationError(Seq("subfieldFocus=period", s"error.$fieldName.period.required")))
           else if (isValidPeriod(p)) None
-          else Some(ValidationError(s"error.$fieldName.period.invalid-value"))
+          else Some(ValidationError(Seq("subfieldFocus=period", s"error.$fieldName.period.invalid-value")))
         ).collect { case Some(e) => e }
 
         if (errors.isEmpty) Valid else Invalid(errors)

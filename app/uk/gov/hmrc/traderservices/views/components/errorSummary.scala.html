@@ -21,7 +21,11 @@
     @if(errors.nonEmpty) {
         @defining(errors.map { error =>
             val id = if(error.key == "") { errorId.getOrElse("") } else {
-                error.key + errorFieldSuffix.fold("")(suffix => s".$suffix")
+                val subfieldFocus = error.messages.headOption match {
+                    case Some(m) if m.startsWith("subfieldFocus=") => "."+m.drop("subfieldFocus=".length)
+                    case _ => ""
+                }
+                error.key + subfieldFocus + errorFieldSuffix.fold("")(suffix => s".$suffix")
             }
             ErrorLink(
                 href = Some(s"#$id"),

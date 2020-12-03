@@ -84,41 +84,46 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       val validate = t => validTimeFields("foo", required = true)(t)
       validate(("12", "00", "AM")) shouldBe Valid
       validate(("12", "00", "PM")) shouldBe Valid
-      validate(("", "", "")) shouldBe Invalid(ValidationError("error.foo.all.required"))
-      validate(("", "", "AM")) shouldBe Invalid(Seq(ValidationError("error.foo.all.required")))
+      validate(("", "", "")) shouldBe Invalid(ValidationError(Seq("subfieldFocus=hour", "error.foo.all.required")))
+      validate(("", "", "AM")) shouldBe Invalid(
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.all.required")))
+      )
       validate(("12", "", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.minutes.required"))
+        Seq(ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")))
       )
       validate(("", "59", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("", "59", "")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"), ValidationError("error.foo.period.required"))
+        Seq(
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
+        )
       )
       validate(("00", "", "SM")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.required"),
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
       validate(("00", "60", "")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.invalid-value"),
-          ValidationError("error.foo.period.required")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
         )
       )
       validate(("01", "00", "M")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
       validate(("0a", "b0", "M")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-digits"),
-          ValidationError("error.foo.minutes.invalid-digits"),
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
     }
@@ -132,44 +137,47 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("", "", "PM")) shouldBe Valid
       validate(("", "", "MP")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.required"),
-          ValidationError("error.foo.minutes.required"),
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
       validate(("12", "", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.minutes.required"))
+        Seq(ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")))
       )
       validate(("", "59", "AM")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("", "59", "")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"), ValidationError("error.foo.period.required"))
+        Seq(
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
+        )
       )
       validate(("00", "", "SM")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.required"),
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
       validate(("00", "60", "")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.invalid-value"),
-          ValidationError("error.foo.period.required")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
         )
       )
       validate(("01", "00", "M")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
       validate(("0a", "b0", "M")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-digits"),
-          ValidationError("error.foo.minutes.invalid-digits"),
-          ValidationError("error.foo.period.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
         )
       )
     }
