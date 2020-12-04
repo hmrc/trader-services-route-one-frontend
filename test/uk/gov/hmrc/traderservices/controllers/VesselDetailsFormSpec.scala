@@ -112,16 +112,6 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       )
     }
 
-    "report an error when timeOfArrival is partially missing" in {
-      val input = formInput
-        .updated("timeOfArrival.hour", "")
-        .updated("timeOfArrival.minutes", "")
-      form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.all.required"))
-      )
-    }
-
     "report an error when timeOfArrival is invalid" in {
       val input = formInput
         .updated("timeOfArrival.hour", "25")
