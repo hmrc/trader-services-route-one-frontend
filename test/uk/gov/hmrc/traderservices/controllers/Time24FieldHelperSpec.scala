@@ -84,7 +84,6 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("12", "00")) shouldBe Valid
       validate(("12", "00")) shouldBe Valid
       validate(("", "")) shouldBe Invalid(ValidationError(Seq("subfieldFocus=hour", "error.foo.all.required")))
-      validate(("", "")) shouldBe Invalid(Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.all.required"))))
       validate(("12", "")) shouldBe Invalid(
         Seq(ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")))
       )
