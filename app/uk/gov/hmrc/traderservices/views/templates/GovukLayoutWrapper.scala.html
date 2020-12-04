@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.banner._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.traderservices.views.components.FooterLinks
 @import uk.gov.hmrc.traderservices.controllers.routes
@@ -25,7 +24,6 @@ govukPhaseBanner: GovukPhaseBanner,
 govukBackLink: GovukBackLink,
 siteHeader: components.siteHeader,
 phaseBanner: components.phaseBanner,
-hmrcBanner: hmrcComponents.HmrcBanner,
 languageSelection: components.languageSelection,
 link: components.link,
 gtmHeadSnippet: GtmHeadSnippet,
@@ -74,7 +72,6 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 
   @researchBanner()
   @phaseBanner("alpha")
-  @hmrcBanner(Banner(if(messages.lang.code == "cy") {Cy} else {En}))
 
   @languageSelection(
     appConfig.languageMap,
