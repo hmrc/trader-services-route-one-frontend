@@ -151,13 +151,10 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       "error.foo.day.required"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
-      "error.foo.year.invalid-digits",
       "error.foo.all.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")) should haveOnlyErrors(
-      "error.foo.year.invalid-digits",
-      "error.foo.month.invalid-digits",
-      "error.foo.day.invalid-digits"
+      "error.foo.all.invalid-value"
     )
     dateFieldsMapping("foo").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
       "error.foo.all.invalid-value"
@@ -201,15 +198,12 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
       "error.bar.day.required"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "2020a", "month" -> "13", "day" -> "0")) should haveOnlyErrors(
-      "error.bar.year.invalid-digits",
       "error.bar.all.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(
       Map("year" -> "2020a", "month" -> "13a", "day" -> "a0")
     ) should haveOnlyErrors(
-      "error.bar.year.invalid-digits",
-      "error.bar.month.invalid-digits",
-      "error.bar.day.invalid-digits"
+      "error.bar.all.invalid-value"
     )
     optionalDateFieldsMapping("bar").bind(Map("year" -> "0", "month" -> "0", "day" -> "0")) should haveOnlyErrors(
       "error.bar.all.invalid-value"

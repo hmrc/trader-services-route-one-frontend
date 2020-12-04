@@ -147,12 +147,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         "error.entryDate.year.required"
       ).and(haveError[LocalDate]("error.entryDate.month.invalid-digits"))
       entryDateMapping.bind(Map("year" -> "2020", "month" -> "0A", "day" -> "2AA")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.month.invalid-digits",
-        "error.entryDate.day.invalid-digits"
+        "error.entryDate.all.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2021", "month" -> "0A", "day" -> "2AA")) should haveOnlyErrors[LocalDate](
-        "error.entryDate.month.invalid-digits",
-        "error.entryDate.day.invalid-digits"
+        "error.entryDate.all.invalid-value"
       )
       entryDateMapping.bind(Map("year" -> "2050", "month" -> "01", "day" -> "01")) should haveOnlyError[LocalDate](
         "error.entryDate.all.invalid-value-future"
@@ -403,8 +401,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
       mandatoryDateOfArrivalMapping
         .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.year.invalid-digits",
-        "error.dateOfArrival.month.invalid-value",
+        "error.dateOfArrival.all.invalid-value",
         "error.dateOfArrival.day.required"
       )
     }
@@ -452,8 +449,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyErrors(
-        "error.dateOfArrival.year.invalid-digits",
-        "error.dateOfArrival.month.invalid-value",
+        "error.dateOfArrival.all.invalid-value",
         "error.dateOfArrival.day.required"
       )
     }

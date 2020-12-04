@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import play.api.data.Forms.{localDate, mapping, of, optional}
+import play.api.data.Forms.{mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -96,29 +96,43 @@ object DateFieldHelper {
   def validDateFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
       case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty =>
-        if (required) Invalid(ValidationError(s"error.$fieldName.all.required")) else Valid
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.all.required"))) else Valid
       case (y, m, d) =>
         val errors = Seq(
-          if (d.isEmpty) Some(ValidationError(s"error.$fieldName.day.required"))
-          else if (!d.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.day.invalid-digits"))
+          // validate day
+          if (d.isEmpty) Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.required")))
+          else if (!d.forall(_.isDigit))
+            Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
           else if (isValidDay(d, m, y)) None
-          else Some(ValidationError(s"error.$fieldName.day.invalid-value")),
-          if (m.isEmpty) Some(ValidationError(s"error.$fieldName.month.required"))
-          else if (!m.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.month.invalid-digits"))
+          else Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-value"))),
+          // validate month
+          if (m.isEmpty) Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.required")))
+          else if (!m.forall(_.isDigit))
+            Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
           else if (isValidMonth(m)) None
-          else Some(ValidationError(s"error.$fieldName.month.invalid-value")),
-          if (y.isEmpty) Some(ValidationError(s"error.$fieldName.year.required"))
-          else if (!y.forall(_.isDigit)) Some(ValidationError(s"error.$fieldName.year.invalid-digits"))
+          else Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value"))),
+          // validate year
+          if (y.isEmpty) Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.required")))
+          else if (!y.forall(_.isDigit))
+            Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
           else if (isValidYear(y)) None
-          else Some(ValidationError(s"error.$fieldName.year.invalid-value"))
+          else Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
         ).collect { case Some(e) => e }
-        val filteredErrors =
-          if (errors.filter(_.message.endsWith(".invalid-value")).size > 1)
-            errors
-              .filterNot(_.message.endsWith(".invalid-value")) :+
-              ValidationError(s"error.$fieldName.all.invalid-value")
-          else errors
-        if (filteredErrors.isEmpty) Valid else Invalid(filteredErrors)
+
+        val reportedErrors = {
+          val (required, invalid) = errors.partition(_.message.endsWith(".required"))
+          required ++ (if (invalid.size > 1) {
+                         val ve: ValidationError = invalid.head
+                         Seq(
+                           ValidationError(
+                             ve.messages.init :+ s"error.$fieldName.all.invalid-value",
+                             ve.args
+                           )
+                         )
+                       } else invalid)
+        }
+
+        if (reportedErrors.isEmpty) Valid else Invalid(reportedErrors)
     }
 
   // empty LocalDate marker value
@@ -167,7 +181,10 @@ object DateFieldHelper {
     Constraint[LocalDate](s"constraint.$fieldName.$errorType") { date =>
       val maxDate = maxDateGen(LocalDate.now())
       if (date.isBefore(maxDate.plusDays(1))) Valid
-      else Invalid(ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(maxDate)))
+      else
+        Invalid(
+          ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.$errorType"), dateFormatter.format(maxDate))
+        )
     }
 
   def dateIsAfter(
@@ -179,7 +196,10 @@ object DateFieldHelper {
     Constraint[LocalDate](s"constraint.$fieldName.$errorType") { date =>
       val minDate = minDateGen(LocalDate.now())
       if (date.isAfter(minDate.minusDays(1))) Valid
-      else Invalid(ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(minDate)))
+      else
+        Invalid(
+          ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.$errorType"), dateFormatter.format(minDate))
+        )
     }
 
   def dateIsBetween(
@@ -196,7 +216,11 @@ object DateFieldHelper {
       if (date.isAfter(minDate.minusDays(1)) && date.isBefore(maxDate.plusDays(1))) Valid
       else
         Invalid(
-          ValidationError(s"error.$fieldName.$errorType", dateFormatter.format(minDate), dateFormatter.format(maxDate))
+          ValidationError(
+            Seq("subfieldFocus=day", s"error.$fieldName.$errorType"),
+            dateFormatter.format(minDate),
+            dateFormatter.format(maxDate)
+          )
         )
     }
 

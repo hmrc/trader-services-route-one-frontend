@@ -83,33 +83,32 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       val validate = t => validTimeFields("foo", required = true)(t)
       validate(("12", "00")) shouldBe Valid
       validate(("12", "00")) shouldBe Valid
-      validate(("", "")) shouldBe Invalid(ValidationError("error.foo.all.required"))
-      validate(("", "")) shouldBe Invalid(Seq(ValidationError("error.foo.all.required")))
+      validate(("", "")) shouldBe Invalid(ValidationError(Seq("subfieldFocus=hour", "error.foo.all.required")))
       validate(("12", "")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.minutes.required"))
+        Seq(ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")))
       )
       validate(("", "59")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("", "59")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("24", "")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.required")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("25", "60")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value"))
         )
       )
       validate(("0a", "b0")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-digits"),
-          ValidationError("error.foo.minutes.invalid-digits")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits"))
         )
       )
     }
@@ -120,30 +119,30 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("12", "00")) shouldBe Valid
       validate(("", "")) shouldBe Valid
       validate(("12", "")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.minutes.required"))
+        Seq(ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")))
       )
       validate(("", "59")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("", "59")) shouldBe Invalid(
-        Seq(ValidationError("error.foo.hour.required"))
+        Seq(ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")))
       )
       validate(("24", "")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.required")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("25", "60")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-value"),
-          ValidationError("error.foo.minutes.invalid-value")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value"))
         )
       )
       validate(("0a", "b0")) shouldBe Invalid(
         Seq(
-          ValidationError("error.foo.hour.invalid-digits"),
-          ValidationError("error.foo.minutes.invalid-digits")
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits"))
         )
       )
     }
