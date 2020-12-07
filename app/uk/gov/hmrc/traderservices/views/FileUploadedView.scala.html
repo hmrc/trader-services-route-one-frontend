@@ -45,37 +45,37 @@
 
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
-    @forms.fieldset(
-      legend = messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount)
-    ) {
+    @html.h1(
+      messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount),
+      classes = "govuk-heading-l"
+    )
 
-      @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
+    @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
 
-      @govukSummaryList(context.summaryListOfFileUploads(fileUploads, removeFileCall))
+    @govukSummaryList(context.summaryListOfFileUploads(fileUploads, removeFileCall))
 
-      @forms.inputRadio(
-        form = form,
-        idPrefix = "uploadAnotherFile",
-        name = "uploadAnotherFile",
-        items = Seq(
-          RadioItem(
-            value = Some("yes"),
-            content = Text(messages("form.file-uploaded.uploadAnotherFile.yes")),
-            checked = form("uploadAnotherFile").value.contains("yes")
-          ),
-          RadioItem(
-            value = Some("no"),
-            content = Text(messages("form.file-uploaded.uploadAnotherFile.no")),
-            checked = form("uploadAnotherFile").value.contains("no"),
-            conditionalHtml = Some(conditionalContent)
-          )
+    @forms.inputRadio(
+      form = form,
+      idPrefix = "uploadAnotherFile",
+      name = "uploadAnotherFile",
+      items = Seq(
+        RadioItem(
+          value = Some("yes"),
+          content = Text(messages("form.file-uploaded.uploadAnotherFile.yes")),
+          checked = form("uploadAnotherFile").value.contains("yes")
         ),
-        legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
-        legendAsHeading = false,
-        legendClasses = "govuk-fieldset__legend--m"
-      )
+        RadioItem(
+          value = Some("no"),
+          content = Text(messages("form.file-uploaded.uploadAnotherFile.no")),
+          checked = form("uploadAnotherFile").value.contains("no"),
+          conditionalHtml = Some(conditionalContent)
+        )
+      ),
+      legend = Some("view.file-uploaded.uploadAnotherFile.heading"),
+      legendAsHeading = false,
+      legendClasses = "govuk-fieldset__legend--m"
+    )
 
-      @html.button("form.file-uploaded.continue")
-    }
+    @html.button("form.file-uploaded.continue")
   }
 }

@@ -43,68 +43,63 @@
   data-file-upload-check-status-url="@checkStatusAction.url"
   data-file-upload-aria-live-message="@messages("view.upload-file.waiting")">
 
-    @forms.fieldset(
-      legend = messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")
-    ) {
-
-      @maybeUploadError.map { fileUploadError =>
-        @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
-      }
-
-      @uploadRequest.fields.map { case (key, value) =>
-        @forms.inputHidden(key, value)
-      }
-
-      @govukFileUpload(FileUpload(
-        name = "file",
-        id = "upload-file",
-        value = Some(""),
-        describedBy = None,
-        label = Label(
-          content = Text(messages("form.upload-file.file")),
-          isPageHeading = false,
-          classes = "govuk-label"
-        ),
-        hint = None,
-        errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
-        formGroupClasses = "",
-        classes = "",
-        attributes = Map(
-          "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
-          "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
-          "accept" -> appConfig.fileFormats.approvedFileTypes,
-          "data-msg-required" -> messages("error.file-upload.required"),
-          "data-msg-filesize" -> messages("error.file-upload.invalid-size-large",appConfig.fileFormats.maxFileSizeMb),
-          "data-msg-accept" -> messages("error.upload-file.other")
-        ))
-      )
-
-      @details(messages("view.upload-file.help.linkText")) {
-        @html.p{ @messages("view.upload-file.help.line1") }
-        @html.p{ @messages("view.upload-file.help.line2") }
-        @html.p{ @messages("view.upload-file.help.line3") }
-        @html.ul(
-          messages("view.upload-file.help.fileFormat1"),
-          messages("view.upload-file.help.fileFormat2"),
-          messages("view.upload-file.help.fileFormat3"),
-          messages("view.upload-file.help.fileFormat4"),
-          messages("view.upload-file.help.fileFormat5"),
-          messages("view.upload-file.help.fileFormat6")
-        )
-        @html.p{ @messages("view.upload-file.help.line4") }
-      }
-
-      <div>
-        @govukButton(Button(
-          content = Text(messages("form.upload-file.submit")),
-          preventDoubleClick = true,
-          classes = "file-upload__submit"
-        ))
-        <div class="file-upload__spinner ccms-loader hidden"></div>
-      </div>
-
-      <div class="file-upload__loading-container" aria-live="polite" role="region"></div>
+    @maybeUploadError.map { fileUploadError =>
+      @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
     }
+
+    @uploadRequest.fields.map { case (key, value) =>
+      @forms.inputHidden(key, value)
+    }
+
+    @govukFileUpload(FileUpload(
+      name = "file",
+      id = "upload-file",
+      value = Some(""),
+      describedBy = None,
+      label = Label(
+        content = Text(messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")),
+        isPageHeading = true,
+        classes = "govuk-label--l"
+      ),
+      hint = None,
+      errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
+      formGroupClasses = "",
+      classes = "",
+      attributes = Map(
+        "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
+        "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
+        "accept" -> appConfig.fileFormats.approvedFileTypes,
+        "data-msg-required" -> messages("error.file-upload.required"),
+        "data-msg-filesize" -> messages("error.file-upload.invalid-size-large",appConfig.fileFormats.maxFileSizeMb),
+        "data-msg-accept" -> messages("error.upload-file.other")
+      ))
+    )
+
+    @details(messages("view.upload-file.help.linkText")) {
+      @html.p{ @messages("view.upload-file.help.line1") }
+      @html.p{ @messages("view.upload-file.help.line2") }
+      @html.p{ @messages("view.upload-file.help.line3") }
+      @html.ul(
+        messages("view.upload-file.help.fileFormat1"),
+        messages("view.upload-file.help.fileFormat2"),
+        messages("view.upload-file.help.fileFormat3"),
+        messages("view.upload-file.help.fileFormat4"),
+        messages("view.upload-file.help.fileFormat5"),
+        messages("view.upload-file.help.fileFormat6")
+      )
+      @html.p{ @messages("view.upload-file.help.line4") }
+    }
+
+    <div>
+      @govukButton(Button(
+        content = Text(messages("form.upload-file.submit")),
+        preventDoubleClick = true,
+        classes = "file-upload__submit"
+      ))
+      <div class="file-upload__spinner ccms-loader hidden"></div>
+    </div>
+
+    <div class="file-upload__loading-container" aria-live="polite" role="region"></div>
 
   </form>
 }
