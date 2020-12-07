@@ -10,7 +10,10 @@ footer,
 .govuk-phase-banner,
 .print-document-header,
 .hmrc-language-select,
-.ssp-research-banner,
 .hmrc-sign-out-nav {
 	display: none;
+}
+
+.ssp-research-banner {
+	display: none !important;
 }
