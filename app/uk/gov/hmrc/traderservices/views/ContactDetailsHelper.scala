@@ -24,13 +24,17 @@ import uk.gov.hmrc.traderservices.models.ExportContactInfo
 
 trait ContactDetailsHelper extends SummaryListRowHelper {
 
+  def formatNumberForDisplay(phoneNum: String): String =
+    phoneNum.patch(5, " ", 0).patch(9, " ", 0)
+
   def summaryListOfContactDetails(contactDetails: ImportContactInfo, changeCall: Call)(implicit
     messages: Messages
   ): SummaryList = {
 
     val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
     val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
-    val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
+    val contactNumber =
+      contactDetails.contactNumber.map(value => s"<div>${formatNumberForDisplay(value)}</div>").getOrElse("")
     val value = contactName + contactEmail + contactNumber
 
     SummaryList(
@@ -51,7 +55,8 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
 
     val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
     val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
-    val contactNumber = contactDetails.contactNumber.map(value => s"<div>$value</div>").getOrElse("")
+    val contactNumber =
+      contactDetails.contactNumber.map(value => s"<div>${formatNumberForDisplay(value)}</div>").getOrElse("")
     val value = contactName + contactEmail + contactNumber
 
     SummaryList(

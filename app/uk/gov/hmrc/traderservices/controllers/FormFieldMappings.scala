@@ -52,6 +52,13 @@ object FormFieldMappings {
         .fold[ValidationResult](Invalid(ValidationError(s"error.$fieldName.$errorType")))(_ => Valid)
     }
 
+  def constraintNoErrorType[A](fieldName: String, predicate: A => Boolean): Constraint[A] =
+    Constraint[A](s"constraint.$fieldName") { s =>
+      Option(s)
+        .filter(predicate)
+        .fold[ValidationResult](Invalid(ValidationError(s"error.$fieldName")))(_ => Valid)
+    }
+
   def first[A](cs: Constraint[A]*): Constraint[A] =
     Constraint[A](s"constraints.sequence.${cs.map(_.name).mkString(".")}") { s =>
       cs.foldLeft[ValidationResult](Valid) { (r, c) =>
@@ -211,8 +218,16 @@ object FormFieldMappings {
 
   val importContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
+      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
       .verifying(
         first(
+          constraint[String](
+            "contactName",
+            "invalid-characters",
+            name =>
+              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
+                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
+          ),
           constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
           constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
@@ -224,6 +239,7 @@ object FormFieldMappings {
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
         Constraints.emailAddress(errorMessage = "error.contactEmail"),
+        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)""")),
         constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
@@ -238,8 +254,16 @@ object FormFieldMappings {
 
   val exportContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
+      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
       .verifying(
         first(
+          constraint[String](
+            "contactName",
+            "invalid-characters",
+            name =>
+              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
+                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
+          ),
           constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
           constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
@@ -251,6 +275,7 @@ object FormFieldMappings {
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
         Constraints.emailAddress(errorMessage = "error.contactEmail"),
+        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)""")),
         constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
