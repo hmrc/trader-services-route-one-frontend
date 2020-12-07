@@ -39,10 +39,10 @@ class ExportQuestionsViewContext
       Seq(
         ExportRequestType.New,
         ExportRequestType.Cancellation,
+        ExportRequestType.WithdrawalOrReturn,
         ExportRequestType.C1601,
         ExportRequestType.C1602,
-        ExportRequestType.C1603,
-        ExportRequestType.WithdrawalOrReturn
+        ExportRequestType.C1603
       ),
       form
     )

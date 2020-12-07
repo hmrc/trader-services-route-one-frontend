@@ -280,11 +280,11 @@ view.import-questions.summary.contact-details.heading=Contact details
 # Export Questions Form
 # ----------------------------------------------------------
 form.export-questions.requestType.New=New
-form.export-questions.requestType.C1601=C1601
-form.export-questions.requestType.C1603=C1603
-form.export-questions.requestType.C1602=C1602
 form.export-questions.requestType.Cancellation=Cancellation
-form.export-questions.requestType.WithdrawalOrReturn=Withdrawal or return of goods
+form.export-questions.requestType.WithdrawalOrReturn=Withdrawal
+form.export-questions.requestType.C1601=C1601 - Presentation of goods for export (arrival) 
+form.export-questions.requestType.C1602=C1602 - Notification of exit of goods (departure) 
+form.export-questions.requestType.C1603=C1603 - Retrospective notification of arrival 
 form.export-questions.routeType.Route1=Route 1
 form.export-questions.routeType.Route1Cap=Route 1 CAP
 form.export-questions.routeType.Route2=Route 2
