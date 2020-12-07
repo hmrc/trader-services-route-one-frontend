@@ -239,7 +239,7 @@ object FormFieldMappings {
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
         Constraints.emailAddress(errorMessage = "error.contactEmail"),
-        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)""")),
+        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+)""")),
         constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
@@ -275,7 +275,7 @@ object FormFieldMappings {
       first(
         constraint[String]("contactEmail", "required", _.nonEmpty),
         Constraints.emailAddress(errorMessage = "error.contactEmail"),
-        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*)""")),
+        constraintNoErrorType[String]("contactEmail", _.matches(""".*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+)""")),
         constraint[String]("contactEmail", "invalid-length", email => email.length <= 128)
       )
     )
