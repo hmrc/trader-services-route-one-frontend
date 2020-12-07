@@ -31,6 +31,7 @@
   showSelectPeriod: Boolean = true)(implicit messages: Messages)
 
 @govukTimeInput(TimeInput(
+    classes = "app-time-input",
     fieldset = Some(Fieldset(
         legend = Some(
             Legend(
