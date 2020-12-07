@@ -42,3 +42,7 @@ $hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 .govuk-file-upload {
   width: 100%;
 }
+
+.govuk-hint * {
+  color: $govuk-secondary-text-colour;
+}
