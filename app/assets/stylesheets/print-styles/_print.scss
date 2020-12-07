@@ -1,13 +1,19 @@
 * {
 	font-family: sans-serif;
+	color: #000;
 }
 
-/* Hide unecessary elements */
-.govuk-skip-link,
-header,
+/* Hide unnecessary elements */
 footer,
-.govuk-link,
+.govuk-skip-link,
+.govuk-back-link,
 .govuk-phase-banner,
-.print-document-header {
+.print-document-header,
+.hmrc-language-select,
+.hmrc-sign-out-nav {
 	display: none;
+}
+
+.ssp-research-banner {
+	display: none !important;
 }
