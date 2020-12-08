@@ -15,6 +15,7 @@
  */
 
 import com.google.inject.AbstractModule
+import com.google.inject.{Inject, Singleton}
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
@@ -22,7 +23,15 @@ import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.services._
 import uk.gov.hmrc.traderservices.repository.JourneyCacheRepository
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import scala.util.matching.Regex
+import com.google.inject.name.Named
+import uk.gov.hmrc.play.audit.http.HttpAuditing
+import play.api.libs.ws.WSClient
+import akka.actor.ActorSystem
+import com.typesafe.config.Config
+import uk.gov.hmrc.http.hooks.HttpHook
+import uk.gov.hmrc.play.http.ws.WSHttp
 
 class FrontendModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
 
@@ -32,9 +41,8 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     Logger(getClass).info(s"Starting microservice : $appName : in mode : ${environment.mode}")
 
-    bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
-
-    bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
+    bind(classOf[HttpGet]).to(classOf[CustomHttpClient])
+    bind(classOf[HttpPost]).to(classOf[CustomHttpClient])
 
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
 
@@ -46,4 +54,28 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bind(classOf[AmendCaseJourneyServiceWithHeaderCarrier])
       .to(classOf[MongoDBCachedAmendCaseJourneyService])
   }
+}
+
+@Singleton
+class CustomHttpAuditing @Inject() (
+  val auditConnector: AuditConnector,
+  @Named("appName") val appName: String
+) extends HttpAuditing {
+
+  override val auditDisabledForPattern: Regex =
+    """.*?\/auth\/authorise$""".r
+
+}
+
+@Singleton
+class CustomHttpClient @Inject() (
+  config: Configuration,
+  val httpAuditing: CustomHttpAuditing,
+  override val wsClient: WSClient,
+  override protected val actorSystem: ActorSystem
+) extends uk.gov.hmrc.http.HttpClient with WSHttp {
+
+  override lazy val configuration: Option[Config] = Option(config.underlying)
+
+  override val hooks: Seq[HttpHook] = Seq(httpAuditing.AuditingHook)
 }
