@@ -33,7 +33,18 @@ class ContactFieldHelperSpec extends UnitSpec with FormMatchers {
       ContactFieldHelper.normaliseNumber("+441234567898") shouldBe "01234567898"
       ContactFieldHelper.normaliseNumber("441234567898") shouldBe "01234567898"
       ContactFieldHelper.normaliseNumber("00441234567898") shouldBe "01234567898"
-      ContactFieldHelper.normaliseNumber("01 234 567 898") shouldBe "01234567898"
+    }
+
+    "removeNonAllowedCharacters" in {
+      ContactFieldHelper.removeNonAllowedCharacters("123456 123") shouldBe "123456123"
+      ContactFieldHelper.removeNonAllowedCharacters("123-456-123") shouldBe "123456123"
+      ContactFieldHelper.removeNonAllowedCharacters("(123456123") shouldBe "123456123"
+      ContactFieldHelper.removeNonAllowedCharacters("123)456123") shouldBe "123456123"
+      ContactFieldHelper.removeNonAllowedCharacters("(123) 456-123") shouldBe "123456123"
+    }
+
+    "formatNumber" in {
+      ContactFieldHelper.replayNumber("01234567891") shouldBe "01234 567 891"
     }
   }
 }

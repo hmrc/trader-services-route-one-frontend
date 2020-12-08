@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import java.util.stream.Collectors
+
 import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 object ContactFieldHelper {
+
+  val allowedSpecialNumberCharacterSet = Set(' ', '-', '(', ')')
 
   def contactNumber(errorMessage: String = "error.contactNumber"): Constraint[String] =
     Constraint[String]("constraint.contactNumber") { phoneNum =>
@@ -30,6 +34,7 @@ object ContactFieldHelper {
           val phoneNumberUtil = PhoneNumberUtil.getInstance()
           val sequenceToNumber = phoneNumberUtil.parse(phoneNum, "GB")
           if (!phoneNum.forall(_.isDigit)) Invalid(ValidationError(errorMessage))
+          else if (phoneNum.length != 11) Invalid(ValidationError(errorMessage))
           else if (phoneNumberUtil.isValidNumber(sequenceToNumber)) Valid
           else Invalid(ValidationError(errorMessage))
         } catch {
@@ -37,9 +42,18 @@ object ContactFieldHelper {
         }
     }
 
-  def normaliseNumber(phoneNum: String): String =
-    if (phoneNum.startsWith("+44")) phoneNum.replace("+44", "0").replaceAll("\\s", "")
-    else if (phoneNum.startsWith("44")) phoneNum.replace("44", "0").replaceAll("\\s", "")
-    else if (phoneNum.startsWith("0044")) phoneNum.replace("0044", "0").replaceAll("\\s", "")
-    else phoneNum.replaceAll("\\s", "")
+  def normaliseNumber(phoneNum: String): String = {
+    val prefixes = List("+44", "44", "0044")
+    prefixes.find(phoneNum.startsWith(_)) match {
+      case Some(n) => removeNonAllowedCharacters(phoneNum.replace(n, "0"))
+      case None    => removeNonAllowedCharacters(phoneNum)
+    }
+  }
+
+  def removeNonAllowedCharacters(phoneNum: String): String =
+    phoneNum.map(c => if (allowedSpecialNumberCharacterSet.contains(c)) "" else c).mkString("")
+
+  def replayNumber(phoneNum: String): String =
+    phoneNum.patch(5, " ", 0).patch(9, " ", 0)
+
 }

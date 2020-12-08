@@ -504,7 +504,17 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
         "error.contactEmail"
       )
-      importContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right("12@s.com")
+
+      importContactEmailMapping.bind(Map("" -> "12@c.c")) should haveOnlyError(
+        "error.contactEmail"
+      )
+
+      importContactEmailMapping.bind(Map("" -> "12@c.ccccc")) should haveOnlyError(
+        "error.contactEmail"
+      )
+
+      importContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
+      importContactEmailMapping.bind(Map("" -> "12@c.cc")) shouldBe Right("12@c.cc")
     }
 
     "validate export contactEmailMapping" in {
@@ -519,7 +529,16 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       exportContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
         "error.contactEmail"
       )
-      exportContactEmailMapping.bind(Map("" -> "12@s.com")) shouldBe Right("12@s.com")
+      exportContactEmailMapping.bind(Map("" -> "12@c.c")) should haveOnlyError(
+        "error.contactEmail"
+      )
+
+      exportContactEmailMapping.bind(Map("" -> "12@c.ccccc")) should haveOnlyError(
+        "error.contactEmail"
+      )
+
+      exportContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
+      exportContactEmailMapping.bind(Map("" -> "12@c.cc")) shouldBe Right("12@c.cc")
     }
 
     "validate import contactNumberMapping" in {
@@ -552,7 +571,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
       importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
       importContactNumberMapping.bind(Map("" -> "07930487952")) shouldBe Right(Some("07930487952"))
-      importContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "07132 432111")) shouldBe Right(Some("07132432111"))
       importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331543211"))
     }
 
