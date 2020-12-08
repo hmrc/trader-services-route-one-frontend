@@ -66,8 +66,6 @@
       formGroupClasses = "",
       classes = "",
       attributes = Map(
-        "file-extensions" -> appConfig.fileFormats.approvedFileExtensions,
-        "filesize" -> appConfig.fileFormats.maxFileSizeMb.toString,
         "accept" -> appConfig.fileFormats.approvedFileTypes,
         "data-msg-required" -> messages("error.file-upload.required"),
         "data-msg-filesize" -> messages("error.file-upload.invalid-size-large",appConfig.fileFormats.maxFileSizeMb),
