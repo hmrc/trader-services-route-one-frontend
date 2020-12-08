@@ -16,6 +16,7 @@ $hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 @import "research-banner";
 @import "responsive-table";
 @import "upload-loading";
+@import "overrides";
 
 .app-\!-previous-claims-status-width {
   width: 30.5% !important;
@@ -23,26 +24,4 @@ $hmrc-assets-path: "/trader-services/assets/lib/hmrc-frontend/hmrc/";
 
 .app-\!-previous-claims-action-width {
   width: 25% !important;
-}
-
-.govuk-button + .govuk-button--secondary {
-  @include govuk-media-query($from: tablet) {
-    margin-left: 10px;
-  }
-}
-
-.govuk-input--error {
-  border: $govuk-border-width-form-element-error solid $govuk-error-colour !important;
-
-  &:focus {
-    border-color: $govuk-input-border-colour;
-  }
-}
-
-.govuk-file-upload {
-  width: 100%;
-}
-
-.govuk-hint * {
-  color: $govuk-secondary-text-colour;
 }
