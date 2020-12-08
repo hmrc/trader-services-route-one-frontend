@@ -20,7 +20,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoField
 
 import play.api.data.FormError
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 

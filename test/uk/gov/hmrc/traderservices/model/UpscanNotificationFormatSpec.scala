@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.model
 
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.ZonedDateTime

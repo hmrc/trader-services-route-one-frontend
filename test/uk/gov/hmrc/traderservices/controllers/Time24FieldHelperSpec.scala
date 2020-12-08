@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalTime
 
 import uk.gov.hmrc.traderservices.controllers.Time24FieldHelper._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import java.time.LocalTime
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 import play.api.data.validation.Valid

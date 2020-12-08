@@ -18,8 +18,8 @@ package uk.gov.hmrc.traderservices.support
 
 import play.api.data.Form
 import play.api.data.FormError
-import org.scalatest.Matchers
 import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
 
 trait FormValidator extends FormMatchers {
   self: Matchers with OptionValues =>

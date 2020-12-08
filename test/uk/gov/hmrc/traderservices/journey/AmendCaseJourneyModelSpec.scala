@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.journey
 
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._

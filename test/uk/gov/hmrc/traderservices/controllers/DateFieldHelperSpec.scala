@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalDate
 
 import uk.gov.hmrc.traderservices.controllers.DateFieldHelper._
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
 class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {

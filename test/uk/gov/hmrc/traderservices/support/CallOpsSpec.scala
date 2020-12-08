@@ -21,7 +21,6 @@ import java.io.File
 import com.typesafe.config._
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.traderservices.support.CallOps.localFriendlyUrl
-import uk.gov.hmrc.play.test.UnitSpec
 
 class CallOpsSpec extends UnitSpec {
 
