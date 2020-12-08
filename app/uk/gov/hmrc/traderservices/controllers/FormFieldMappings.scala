@@ -30,7 +30,7 @@ object FormFieldMappings {
 
   val normalizedText: Mapping[String] = of[String].transform(_.replaceAll("\\s", ""), identity)
   val uppercaseNormalizedText: Mapping[String] = normalizedText.transform(_.toUpperCase, identity)
-  val validDomain: String = """.*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,})+)"""
+  val validDomain: String = """.*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,4})+)"""
 
   def nonEmpty(fieldName: String): Constraint[String] =
     Constraint[String]("constraint.required") { s =>
