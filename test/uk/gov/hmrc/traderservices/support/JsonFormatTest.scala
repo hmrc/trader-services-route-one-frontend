@@ -17,11 +17,11 @@
 package uk.gov.hmrc.traderservices.support
 
 import org.scalatest.Assertion
-import org.scalatest.Matchers._
 import play.api.libs.json.{Format, Json}
 import org.scalatest.Informer
+import org.scalatest.matchers.should.Matchers
 
-abstract class JsonFormatTest[A: Format](info: Informer) {
+abstract class JsonFormatTest[A: Format](info: Informer) extends Matchers {
 
   case class TestEntity(entity: A)
   implicit val testFormat: Format[TestEntity] = Json.format[TestEntity]

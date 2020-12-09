@@ -17,25 +17,23 @@ lazy val scoverageSettings = {
 lazy val compileDeps = Seq(
   ws,
   "uk.gov.hmrc"                  %% "bootstrap-frontend-play-26" % "2.25.0",
-  "uk.gov.hmrc"                  %% "auth-client"                % "3.1.0-play-26",
-  "uk.gov.hmrc"                  %% "play-partials"              % "6.11.0-play-26",
-  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.69.0-play-26",
+  "uk.gov.hmrc"                  %% "auth-client"                % "3.2.0-play-26",
+  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.70.0-play-26",
   "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-26",
-  "uk.gov.hmrc"                  %% "mongo-caching"              % "6.15.0-play-26",
+  "uk.gov.hmrc"                  %% "mongo-caching"              % "6.16.0-play-26",
   "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.53.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.26.0-play-26",
-  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.11",
+  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.56.0-play-26",
+  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.29.0-play-26",
+  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.14",
   "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )
 
 def testDeps(scope: String) =
   Seq(
-    "uk.gov.hmrc"            %% "hmrctest"           % "3.9.0-play-26" % scope,
-    "org.scalatest"          %% "scalatest"          % "3.0.9"         % scope,
-    "org.mockito"             % "mockito-core"       % "3.1.0"         % scope,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3"         % scope,
-    "com.github.tomakehurst"  % "wiremock"           % "2.27.2"        % scope
+    "org.scalatest"          %% "scalatest"          % "3.2.3"  % scope,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3"  % scope,
+    "com.github.tomakehurst"  % "wiremock"           % "2.27.2" % scope,
+    "com.vladsch.flexmark"    % "flexmark-all"       % "0.36.8" % scope
   )
 
 val jettyVersion = "9.2.24.v20180105"
@@ -124,5 +122,3 @@ def oneForkedJvmPerTest(tests: Seq[TestDefinition]) =
   tests.map { test =>
     new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
   }
-
-Compile / compile / logLevel := Level.Error

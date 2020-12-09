@@ -12,7 +12,7 @@ import uk.gov.hmrc.traderservices.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 
 abstract class BaseISpec
     extends UnitSpec with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
