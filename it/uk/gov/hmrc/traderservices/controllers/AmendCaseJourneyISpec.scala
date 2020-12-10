@@ -30,12 +30,12 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
   "AmendCaseJourneyController" when {
 
-    "GET /send-documents-for-customs-check/pre-clearance/amend/case-reference-number" should {
+    "GET /send-documents-for-customs-check/add/case-reference-number" should {
       "show enter case reference number page" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend/case-reference-number").get())
+        val result = await(request("/add/case-reference-number").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
@@ -44,7 +44,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /send-documents-for-customs-check/pre-clearance/amend/case-reference-number" should {
+    "POST /send-documents-for-customs-check/add/case-reference-number" should {
       "sumbit case reference number and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterCaseReferenceNumber())
@@ -54,7 +54,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           "caseReferenceNumber" -> "PC12010081330XGBNZJO04"
         )
 
-        val result = await(request("/pre-clearance/amend/case-reference-number").post(payload))
+        val result = await(request("/add/case-reference-number").post(payload))
 
         result.status shouldBe 200
         journey.getState shouldBe SelectTypeOfAmendment(
@@ -63,7 +63,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /send-documents-for-customs-check/pre-clearance/amend/type-of-amendment" should {
+    "GET /send-documents-for-customs-check/add/type-of-amendment" should {
       "show select type of amendment page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = SelectTypeOfAmendment(
@@ -72,7 +72,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend/type-of-amendment").get())
+        val result = await(request("/add/type-of-amendment").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.type-of-amendment.title"))
@@ -81,7 +81,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /send-documents-for-customs-check/pre-clearance/amend/type-of-amendment" should {
+    "POST /send-documents-for-customs-check/add/type-of-amendment" should {
       "sumbit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -95,7 +95,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           "typeOfAmendment" -> "WriteResponse"
         )
 
-        val result = await(request("/pre-clearance/amend/type-of-amendment").post(payload))
+        val result = await(request("/add/type-of-amendment").post(payload))
 
         result.status shouldBe 200
         journey.getState shouldBe EnterResponseText(
@@ -107,7 +107,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /send-documents-for-customs-check/pre-clearance/amend/write-response" should {
+    "GET /send-documents-for-customs-check/add/write-response" should {
       "show write response page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = EnterResponseText(
@@ -119,7 +119,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend/write-response").get())
+        val result = await(request("/add/write-response").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.write-response-text.title"))
@@ -128,7 +128,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /send-documents-for-customs-check/pre-clearance/amend/write-response" should {
+    "POST /send-documents-for-customs-check/add/write-response" should {
       "sumbit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -147,18 +147,18 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           "responseText" -> text
         )
 
-        val result = await(request("/pre-clearance/amend/write-response").post(payload))
+        val result = await(request("/add/write-response").post(payload))
 
         result.status shouldBe 200
         journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO05")
       }
     }
 
-    "GET /pre-clearance/amend/file-upload" should {
+    "GET /add/file-upload" should {
       "show the upload first document page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -188,7 +188,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/pre-clearance/amend/file-upload").get())
+        val result = await(request("/add/file-upload").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
@@ -197,7 +197,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /pre-clearance/amend/journey/:journeyId/file-rejected" should {
+    "GET /add/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
         implicit val journeyId: JourneyId = JourneyId()
 
@@ -222,7 +222,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result1 =
           await(
             requestWithoutJourneyId(
-              s"/pre-clearance/amend/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+              s"/add/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
             ).get()
           )
 
@@ -260,7 +260,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /pre-clearance/amend/journey/:journeyId/file-verification" should {
+    "GET /add/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -282,7 +282,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result1 =
-          await(requestWithoutJourneyId(s"/pre-clearance/amend/journey/${journeyId.value}/file-verification").get())
+          await(requestWithoutJourneyId(s"/add/journey/${journeyId.value}/file-verification").get())
 
         result1.status shouldBe 202
         result1.body.isEmpty shouldBe true
@@ -306,7 +306,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /pre-clearance/amend/file-verification/:reference/status" should {
+    "GET /add/file-verification/:reference/status" should {
       "return file verification status" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = FileUploaded(
@@ -341,7 +341,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         val result1 =
           await(
-            request("/pre-clearance/amend/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status")
+            request("/add/file-verification/11370e18-6e24-453e-b45a-76d3e32ea33d/status")
               .get()
           )
         result1.status shouldBe 200
@@ -349,38 +349,38 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.getState shouldBe state
 
         val result2 =
-          await(request("/pre-clearance/amend/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
+          await(request("/add/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
         result2.status shouldBe 200
         result2.body shouldBe """{"fileStatus":"WAITING"}"""
         journey.getState shouldBe state
 
         val result3 =
-          await(request("/pre-clearance/amend/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
+          await(request("/add/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
         result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
         journey.getState shouldBe state
 
         val result4 =
-          await(request("/pre-clearance/amend/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
+          await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
         result4.body shouldBe """{"fileStatus":"FAILED"}"""
         journey.getState shouldBe state
 
         val result5 =
-          await(request("/pre-clearance/amend/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
+          await(request("/add/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
         result5.status shouldBe 404
         journey.getState shouldBe state
       }
     }
 
-    "GET /send-documents-for-customs-check/pre-clearance/amend/confirmation" should {
+    "GET /send-documents-for-customs-check/add/confirmation" should {
       "show confirmation page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AmendCaseConfirmation("PC12010081330XGBNZJO04")
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/pre-clearance/amend/confirmation").get())
+        val result = await(request("/add/confirmation").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.amend-case-confirmation.title"))
