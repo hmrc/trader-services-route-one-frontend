@@ -52,7 +52,7 @@ trait SessionControllerISpecSetup extends ServerISpec {
   lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
   lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
 
-  val baseUrl: String = s"http://localhost:$port/trader-services"
+  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
 
   def requestWithoutJourneyId(path: String) =
     wsClient
@@ -61,7 +61,10 @@ trait SessionControllerISpecSetup extends ServerISpec {
   def givenSignOutWithContinueToTimedOut(): Unit =
     stubFor(
       get(urlPathEqualTo("/dummy-sign-out-url"))
-        .withQueryParam("continue", matching("http://baseExternalCallbackUrl/trader-services/timedout"))
+        .withQueryParam(
+          "continue",
+          matching("http://baseExternalCallbackUrl/send-documents-for-customs-check/timedout")
+        )
         .willReturn(
           aResponse()
             .withStatus(200)

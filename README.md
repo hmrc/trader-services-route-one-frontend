@@ -1,4 +1,4 @@
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/hmrc/trader-services-route-one-frontend) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/hmrc/trader-services-route-one-frontend) ![GitHub last commit](https://img.shields.io/github/last-commit/hmrc/trader-services-route-one-frontend)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/hmrc/trader-services-route-one-frontend) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/hmrc/send-documents-for-customs-check-route-one-frontend) ![GitHub last commit](https://img.shields.io/github/last-commit/hmrc/trader-services-route-one-frontend)
 
 # trader-services-route-one-frontend
 
@@ -23,7 +23,7 @@ Features:
 
 It should then be listening on port 9379
 
-    browse http://localhost:9379/trader-services
+    browse http://localhost:9379/send-documents-for-customs-check
 
 ### License
 

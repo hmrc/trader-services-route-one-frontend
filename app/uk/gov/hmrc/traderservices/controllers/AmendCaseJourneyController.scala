@@ -77,7 +77,7 @@ class AmendCaseJourneyController @Inject() (
     )
 
   // Dummy URL to use when developing the journey
-  final val workInProgresDeadEndCall = Call("GET", "/trader-services/amend/work-in-progress")
+  final val workInProgresDeadEndCall = Call("GET", "/send-documents-for-customs-check/amend/work-in-progress")
 
   // GET /
   final val showStart: Action[AnyContent] =

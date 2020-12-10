@@ -15,7 +15,7 @@ abstract class NonAuthPageISpec(config: (String, Any)*) extends ServerISpec with
     .configure(config: _*)
     .build()
 
-  val baseUrl: String = s"http://localhost:$port/trader-services"
+  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
   implicit val configuration: Configuration = app.configuration
   implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq.empty[Lang])
   implicit val timeout: Timeout = Timeout(5 seconds)
