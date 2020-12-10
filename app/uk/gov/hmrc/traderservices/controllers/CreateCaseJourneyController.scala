@@ -80,7 +80,7 @@ class CreateCaseJourneyController @Inject() (
     )
 
   // Dummy URL to use when developing the journey
-  final val workInProgresDeadEndCall = Call("GET", "/trader-services/work-in-progress")
+  final val workInProgresDeadEndCall = Call("GET", "/send-documents-for-customs-check/work-in-progress")
 
   // GET /
   final val showStart: Action[AnyContent] =

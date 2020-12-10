@@ -23,7 +23,7 @@ Features:
 
 It should then be listening on port 9379
 
-    browse http://localhost:9379/trader-services
+    browse http://localhost:9379/send-documents-for-customs-check
 
 ### License
 

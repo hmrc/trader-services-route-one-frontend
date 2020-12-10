@@ -30,7 +30,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
   "AmendCaseJourneyController" when {
 
-    "GET /trader-services/pre-clearance/amend/case-reference-number" should {
+    "GET /send-documents-for-customs-check/pre-clearance/amend/case-reference-number" should {
       "show enter case reference number page" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -44,7 +44,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /trader-services/pre-clearance/amend/case-reference-number" should {
+    "POST /send-documents-for-customs-check/pre-clearance/amend/case-reference-number" should {
       "sumbit case reference number and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterCaseReferenceNumber())
@@ -63,7 +63,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /trader-services/pre-clearance/amend/type-of-amendment" should {
+    "GET /send-documents-for-customs-check/pre-clearance/amend/type-of-amendment" should {
       "show select type of amendment page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = SelectTypeOfAmendment(
@@ -81,7 +81,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /trader-services/pre-clearance/amend/type-of-amendment" should {
+    "POST /send-documents-for-customs-check/pre-clearance/amend/type-of-amendment" should {
       "sumbit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -107,7 +107,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /trader-services/pre-clearance/amend/write-response" should {
+    "GET /send-documents-for-customs-check/pre-clearance/amend/write-response" should {
       "show write response page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = EnterResponseText(
@@ -128,7 +128,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "POST /trader-services/pre-clearance/amend/write-response" should {
+    "POST /send-documents-for-customs-check/pre-clearance/amend/write-response" should {
       "sumbit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -158,7 +158,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       "show the upload first document page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/pre-clearance/amend/journey/${journeyId.value}/callback-from-upscan"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -373,7 +373,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /trader-services/pre-clearance/amend/confirmation" should {
+    "GET /send-documents-for-customs-check/pre-clearance/amend/confirmation" should {
       "show confirmation page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = AmendCaseConfirmation("PC12010081330XGBNZJO04")
@@ -415,7 +415,7 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec {
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
 
-  val baseUrl: String = s"http://localhost:$port/trader-services"
+  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
 
   def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))

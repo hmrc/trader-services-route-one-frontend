@@ -34,7 +34,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
   val dateTime = LocalDateTime.now()
 
   "CreateCaseJourneyController" when {
-    "GET /trader-services/" should {
+    "GET /send-documents-for-customs-check/" should {
       "show the start page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(Start)
@@ -49,7 +49,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "GET /trader-services/pre-clearance/new-or-existing" should {
+    "GET /send-documents-for-customs-check/pre-clearance/new-or-existing" should {
       "show the choice between new and existing case" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(ChooseNewOrExistingCase())
@@ -117,7 +117,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "GET /trader-services/pre-clearance/declaration-details" should {
+    "GET /send-documents-for-customs-check/pre-clearance/declaration-details" should {
       "show declaration details page if at Start" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails())
@@ -1694,7 +1694,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/pre-clearance/file-upload").get())
@@ -1734,7 +1734,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/trader-services/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/pre-clearance/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/pre-clearance/file-upload").get())
@@ -2007,7 +2007,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "GET /trader-services/foo" should {
+    "GET /send-documents-for-customs-check/foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -2046,7 +2046,7 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
 
-  val baseUrl: String = s"http://localhost:$port/trader-services"
+  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
 
   def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
