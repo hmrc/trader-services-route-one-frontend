@@ -86,25 +86,25 @@ class AmendCaseJourneyController @Inject() (
       .display
       .andCleanBreadcrumbs()
 
-  // GET /pre-clearance/amend/case-reference-number
+  // GET /add/case-reference-number
   final val showEnterCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterCaseReferenceNumber]
       .orApply(Transitions.enterCaseReferenceNumber)
 
-  // POST /pre-clearance/amend/case-reference-number
+  // POST /add/case-reference-number
   final val submitCaseReferenceNumber: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(EnterCaseReferenceNumberForm)
       .apply(Transitions.submitedCaseReferenceNumber)
 
-  // GET /pre-clearance/amend/type-of-amendment
+  // GET /add/type-of-amendment
   final val showSelectTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.SelectTypeOfAmendment]
       .orApply(Transitions.backToSelectTypeOfAmendment)
 
-  // POST /pre-clearance/amend/type-of-amendment
+  // POST /add/type-of-amendment
   final val submitTypeOfAmendment: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(TypeOfAmendmentForm)
@@ -112,13 +112,13 @@ class AmendCaseJourneyController @Inject() (
         Transitions.submitedTypeOfAmendment(upscanRequest)(upscanInitiateConnector.initiate(_))
       )
 
-  // GET /pre-clearance/amend/write-response
+  // GET /add/write-response
   final val showEnterResponseText: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterResponseText]
       .orApply(Transitions.backToEnterResponseText)
 
-  // POST /pre-clearance/amend/write-response
+  // POST /add/write-response
   final val submitResponseText: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ResponseTextForm)
@@ -163,7 +163,7 @@ class AmendCaseJourneyController @Inject() (
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
     )
 
-  // GET /pre-clearance/amend/file-upload
+  // GET /add/file-upload
   final val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
@@ -172,27 +172,27 @@ class AmendCaseJourneyController @Inject() (
       }
       .redirectOrDisplayIf[FileUploadState.UploadFile]
 
-  // GET /pre-clearance/amend/file-rejected
+  // GET /add/file-rejected
   final val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.fileUploadWasRejected)
 
-  // GET /pre-clearance/amend/journey/:journeyId/file-rejected-async
+  // GET /add/journey/:journeyId/file-rejected-async
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.fileUploadWasRejected(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
-  // GET /pre-clearance/amend/file-verification
+  // GET /add/file-verification
   final val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
       .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
       .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
-  // GET /pre-clearance/amend/journey/:journeyId/file-verification
+  // GET /add/journey/:journeyId/file-verification
   final def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     actions
       .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
@@ -202,7 +202,7 @@ class AmendCaseJourneyController @Inject() (
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
-  // POST /pre-clearance/amend/journey/:journeyId/callback-from-upscan
+  // POST /add/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
       .parseJson[UpscanNotification]
@@ -213,13 +213,13 @@ class AmendCaseJourneyController @Inject() (
         case e                           => InternalServerError
       }
 
-  // GET /pre-clearance/amend/file-uploaded
+  // GET /add/file-uploaded
   final val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[FileUploadState.FileUploaded]
       .orApply(FileUploadTransitions.backToFileUploaded)
 
-  // POST /pre-clearance/amend/file-uploaded
+  // POST /add/file-uploaded
   final val submitUploadAnotherFileChoice: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
@@ -229,7 +229,7 @@ class AmendCaseJourneyController @Inject() (
         ) _
       }
 
-  // GET /pre-clearance/amend/file-uploaded/:reference/remove
+  // GET /add/file-uploaded/:reference/remove
   final def removeFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
@@ -238,21 +238,21 @@ class AmendCaseJourneyController @Inject() (
         ) _
       }
 
-  // GET /pre-clearance/amend/file-verification/:reference/status
+  // GET /add/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
       .displayUsing(implicit request => renderFileVerificationStatus(reference))
 
   // ----------------------- CONFIRMATION -----------------------
 
-  // POST /pre-clearance/amend/amend-case
+  // POST /add/amend-case
   final def amendCase: Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
         Transitions.amendCase(traderServicesApiConnector.updateCase(_))
       }
 
-  // GET /pre-clearance/amend/confirmation
+  // GET /add/confirmation
   final def showAmendCaseConfirmation: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AmendCaseConfirmation]
