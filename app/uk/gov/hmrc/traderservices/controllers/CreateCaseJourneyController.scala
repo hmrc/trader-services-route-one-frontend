@@ -27,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, NewOrExistingCase, S3UploadError, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType, NewOrExistingCase, QuestionsAnswers, S3UploadError, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -35,10 +35,9 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
 import play.api.libs.json.Json
 import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.traderservices.models.ExportQuestions
-import uk.gov.hmrc.traderservices.models.QuestionsAnswers
-import uk.gov.hmrc.traderservices.models.ImportQuestions
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.models.ExportRequestType.{C1601, C1602}
+import uk.gov.hmrc.traderservices.models.ExportRouteType.Hold
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -847,6 +846,8 @@ class CreateCaseJourneyController @Inject() (
       case _ => NotImplemented
 
     }
+
+  private def validVesselJourney(requestType: String, routeType: String): Boolean = true
 
   private def backLinkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {

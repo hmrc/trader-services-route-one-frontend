@@ -16,31 +16,23 @@
 
 package uk.gov.hmrc.traderservices.journey
 
-import java.time.LocalDate
-
-import uk.gov.hmrc.traderservices.support.UnitSpec
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, UpscanInitiateRequest, UpscanInitiateResponse}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{Merger, State, Transition, TransitionNotAllowed, UpscanInitiateApi}
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{start => _, _}
+import uk.gov.hmrc.traderservices.models.ImportFreightType.Air
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
-import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
+import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
 
+import java.time.{LocalDate, LocalTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
-import java.time.LocalTime
-import scala.reflect.ClassTag
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.Future
-import java.time.ZonedDateTime
-import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
+import scala.reflect.ClassTag
 import scala.util.Try
-import uk.gov.hmrc.traderservices.connectors.ApiError
-import views.html.defaultpages.error
 
 class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
@@ -432,7 +424,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
       }
-
     }
 
     "at state AnswerExportQuestionsFreightType" should {
@@ -725,6 +716,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+      for (
+        requestType <- ExportRequestType.C1601;
+        routeType   <- ExportRouteType.Hold
+      )
+        "go to AnswerExportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
+          val answerMandatoryVesselInfo = AnswerExportQuestionsMandatoryVesselInfo(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(routeType),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
+              )
+            )
+          )
+          given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+            answerMandatoryVesselInfo
+          )
+        }
 
       "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
         val vesselDetails =
@@ -1137,6 +1148,28 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
     }
+    "at state AnswerImportQuestionsMandatoryVesselInfo" should {
+      for (
+        routeType   <- ImportRouteType.Hold;
+        requestType <- ImportRequestType.New
+      )
+        "go to AnswerImportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
+          val answerMandatoryVesselInfo = AnswerImportQuestionsMandatoryVesselInfo(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(requestType),
+                routeType = Some(routeType),
+                freightType = Some(Air),
+                hasALVS = Some(false)
+              )
+            )
+          )
+          given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+            answerMandatoryVesselInfo
+          )
+        }
+    }
 
     "at state AnswerImportQuestionsFreightType" should {
       for (
@@ -1261,7 +1294,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       }
     }
-
     "at state AnswerImportQuestionsOptionalVesselInfo" should {
       "go to AnswerImportQuestionsContactInfo when submitted required vessel details" in {
         given(
