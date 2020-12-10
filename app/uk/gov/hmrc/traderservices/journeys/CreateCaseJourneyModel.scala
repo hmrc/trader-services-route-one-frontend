@@ -479,6 +479,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def backToAnswerExportQuestionsOptionalVesselInfo(user: String) =
       Transition {
+        case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.exportQuestionsAnswers) =>
+          goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.vesselDetails.isDefined =>
           goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
       }
@@ -653,6 +655,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def backToAnswerImportQuestionsOptionalVesselInfo(user: String) =
       Transition {
+        case s: ImportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.importQuestionsAnswers) =>
+          goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.vesselDetails.isDefined =>
           goto(AnswerImportQuestionsOptionalVesselInfo(s.model))
       }
