@@ -1,5 +1,6 @@
 .*
 
+!.eslintrc.*
 !.gitignore
 !.scalafmt.conf
 !.description
