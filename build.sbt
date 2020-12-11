@@ -90,10 +90,7 @@ lazy val root = (project in file("."))
           Seq(
             "lib/govuk-frontend/govuk/all.js",
             "lib/hmrc-frontend/hmrc/all.js",
-            "javascripts/vendor/jquery.min.js",
-            "javascripts/app.js",
-            "javascripts/autocomplete.js",
-            "javascripts/components/file-upload.js"
+            "build/application.min.js"
           )
         )
     ),
