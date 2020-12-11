@@ -20,6 +20,7 @@ import uk.gov.hmrc.traderservices.models.DeclarationDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.i18n.Messages
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 
 trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper {
 
@@ -30,13 +31,13 @@ trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatH
       Seq(
         summaryListRow(
           label = "summary.declaration-details.epu",
-          value = declarationDetails.epu.value.toString(),
+          value = declarationDetails.epu.value.format3d,
           visuallyHiddenText = Some("summary.declaration-details.epu"),
           action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),
         summaryListRow(
           label = "summary.declaration-details.entryNumber",
-          value = declarationDetails.entryNumber.value.toString(),
+          value = declarationDetails.entryNumber.value,
           visuallyHiddenText = Some("summary.declaration-details.entryNumber"),
           action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),

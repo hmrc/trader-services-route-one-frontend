@@ -17,12 +17,12 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import java.time.{LocalDate, LocalTime}
-
 import play.api.data.Forms.{nonEmptyText, of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 
 import scala.util.Try
 
@@ -98,7 +98,7 @@ object FormFieldMappings {
         constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, _ <= 700))
       )
     )
-    .transform(s => EPU(s.toInt), _.value.toString)
+    .transform(s => EPU(s.toInt), _.value.format3d)
 
   val entryNumberMapping: Mapping[EntryNumber] = uppercaseNormalizedText
     .verifying(
