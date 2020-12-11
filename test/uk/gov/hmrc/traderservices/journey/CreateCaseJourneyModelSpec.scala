@@ -716,26 +716,22 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
-      for (
-        requestType <- ExportRequestType.C1601;
-        routeType   <- ExportRouteType.Hold
-      )
-        "go to AnswerExportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
-          val answerMandatoryVesselInfo = AnswerExportQuestionsMandatoryVesselInfo(
-            ExportQuestionsStateModel(
-              exportDeclarationDetails,
-              ExportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(routeType),
-                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-                freightType = Some(ExportFreightType.Air)
-              )
+      "go to AnswerExportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
+        val answerMandatoryVesselInfo = AnswerExportQuestionsMandatoryVesselInfo(
+          ExportQuestionsStateModel(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Hold),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
             )
           )
-          given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
-            answerMandatoryVesselInfo
-          )
-        }
+        )
+        given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+          answerMandatoryVesselInfo
+        )
+      }
 
       "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
         val vesselDetails =
@@ -1149,26 +1145,22 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
     }
     "at state AnswerImportQuestionsMandatoryVesselInfo" should {
-      for (
-        routeType   <- ImportRouteType.Hold;
-        requestType <- ImportRequestType.New
-      )
-        "go to AnswerImportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
-          val answerMandatoryVesselInfo = AnswerImportQuestionsMandatoryVesselInfo(
-            ImportQuestionsStateModel(
-              importDeclarationDetails,
-              ImportQuestions(
-                requestType = Some(requestType),
-                routeType = Some(routeType),
-                freightType = Some(Air),
-                hasALVS = Some(false)
-              )
+      "go to AnswerImportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
+        val answerMandatoryVesselInfo = AnswerImportQuestionsMandatoryVesselInfo(
+          ImportQuestionsStateModel(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Hold),
+              freightType = Some(Air),
+              hasALVS = Some(false)
             )
           )
-          given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
-            answerMandatoryVesselInfo
-          )
-        }
+        )
+        given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+          answerMandatoryVesselInfo
+        )
+      }
     }
 
     "at state AnswerImportQuestionsFreightType" should {
