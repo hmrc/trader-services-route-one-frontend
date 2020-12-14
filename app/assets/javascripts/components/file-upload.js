@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 $(document).ready(function () {
   var Upload = function () {
     this.$form = $('.file-upload');

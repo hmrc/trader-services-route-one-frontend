@@ -1,32 +1,36 @@
-const path = require("path");
+const path = require('path');
 
 module.exports = {
   watch: true,
-  entry: "./javascripts/index.js",
+  devtool: 'source-map',
+  entry: './javascripts/index.ts',
   resolve: {
-    extensions: ['*', '.js']
+    extensions: ['*', '.js', '.ts']
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: /node_modules/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env']
+            presets: [
+              '@babel/typescript',
+              '@babel/preset-env'
+            ]
           }
         }
       },
-      // {
-      //   test: /\.js$/,
-      //   exclude: /node_modules|vendor/,
-      //   loader: 'eslint-loader'
-      // }
+      {
+        test: /\.ts$/,
+        exclude: /node_modules|legacy/,
+        loader: 'eslint-loader'
+      }
     ]
   },
   output: {
-    path: path.resolve(__dirname, "build"),
-    filename: "application.min.js"
+    path: path.resolve(__dirname, 'build'),
+    filename: 'application.min.js'
   }
 };

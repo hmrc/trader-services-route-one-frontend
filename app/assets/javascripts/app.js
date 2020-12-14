@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 $(document).ready(function() {
 
     $("body").addClass( "js-enabled" );
