@@ -1,6 +1,4 @@
-/**
- Overrides for GOV UK frontend CSS rules
- */
+// Overrides for GOV UK frontend CSS rules
 
 .govuk-button + .govuk-button--secondary {
   @include govuk-media-query($from: tablet) {
@@ -33,5 +31,13 @@
     margin-right: 6px;
     font-size: 30px;
     content: ":";
+  }
+}
+
+.app-reference-number {
+  // Using a custom breakpoint value because govuk desktop breakpoint is at 769px and it wasn't enough to fix the issue (DOR-194)
+  @include govuk-media-query($until: 1019) {
+    @include govuk-font($size: 24);
+    font-weight: bold;
   }
 }
