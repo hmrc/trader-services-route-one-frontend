@@ -33,22 +33,23 @@ package uk.gov.hmrc.traderservices.wiring
  */
 
 import com.google.inject.name.Named
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.Results._
 import play.api.mvc.{Request, RequestHeader, Result}
 import play.api.{Configuration, Environment, Mode}
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesApiError
-import uk.gov.hmrc.traderservices.views.html.components.h1
-import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
-import uk.gov.hmrc.traderservices.views.html.PageNotFoundErrorView
 import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
+import uk.gov.hmrc.traderservices.connectors.TraderServicesApiError
+import uk.gov.hmrc.traderservices.views.html.PageNotFoundErrorView
+import uk.gov.hmrc.traderservices.views.html.InternalErrorView
+import uk.gov.hmrc.traderservices.views.html.components.h1
+import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -60,7 +61,8 @@ class ErrorHandler @Inject() (
   @Named("appName") val appName: String,
   govUkWrapper: GovukLayoutWrapper,
   h1: h1,
-  pageNotFoundErrorView: PageNotFoundErrorView
+  pageNotFoundErrorView: PageNotFoundErrorView,
+  internalErrorView: InternalErrorView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
 
@@ -80,7 +82,7 @@ class ErrorHandler @Inject() (
       case _: NoActiveSession        => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments => Forbidden
       case _: TraderServicesApiError => Ok(externalErrorTemplate())
-      case _                         => Ok(internalErrorTemplate())
+      case _                         => Ok(internalErrorView())
     }
   }
 
@@ -96,13 +98,6 @@ class ErrorHandler @Inject() (
       Messages("external.error.500.title"),
       Messages("external.error.500.heading"),
       Messages("external.error.500.message")
-    )
-
-  def internalErrorTemplate()(implicit request: Request[_]) =
-    new ErrorTemplate(govUkWrapper, h1)(
-      Messages("internal.error.500.title"),
-      Messages("internal.error.500.heading"),
-      Messages("internal.error.500.message")
     )
 }
 

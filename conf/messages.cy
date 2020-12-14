@@ -67,9 +67,10 @@ external.error.500.listParagraph=This could be for a number of reasons, includin
 external.error.500.list-item1=An external service error
 external.error.500.list-item2=Too many users on the service
 
-internal.error.500.title=There is a problem with the service
+internal.error.500.title=Sorry, there is a problem with the service
 internal.error.500.heading=Sorry, there is a problem with the service
-internal.error.500.message=Contact the Helpline.
+internal.error.500.line1=Try again later.
+internal.error.500.line2=Any answers you provided may not have been saved. When the service is available, you might have to start again.
 
 # Banner
 # ----------------------------------------------------------
