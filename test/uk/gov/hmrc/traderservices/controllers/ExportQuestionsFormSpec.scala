@@ -98,7 +98,18 @@ class ExportQuestionsFormSpec extends UnitSpec with FormValidator {
           contactNumber = Some("01234567891")
         )
       )
+      validate(
+        form,
+        "contactNumber",
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> " "),
+        Seq("error.contactNumber")
+      )
+      validate(
+        form,
+        "contactNumber",
+        Map("contactName" -> "Full Name", "contactEmail" -> "name@example.com", "contactNumber" -> "00000000000"),
+        Seq("error.contactNumber")
+      )
     }
-
   }
 }
