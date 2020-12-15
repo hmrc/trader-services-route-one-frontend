@@ -183,7 +183,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
                     caseReferenceNumber,
                     typeOfAmendment,
                     model.responseText,
-                    model.fileUploads.map(_.toUploadedFiles).getOrElse(Seq.empty)
+                    model.fileUploads.map(_.toUploadedFiles).getOrElse(Seq.empty),
+                    eori = user
                   )
                 updateCaseApi(request)
                   .flatMap { response =>
