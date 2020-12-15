@@ -22,7 +22,6 @@
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
-        govukSummaryList: GovukSummaryList,
         context: ExportQuestionsViewContext
 )
 
@@ -36,20 +35,20 @@
 
   @html.h2(messages("view.export-questions.summary.declaration-details.heading"))
 
-  @govukSummaryList(context.summaryListOfDeclarationDetails(declarationDetails))
+  @html.summaryList(context.summaryListOfDeclarationDetails(declarationDetails))
 
   @html.h2(messages("view.export-questions.summary.pre-clearance.heading"))
 
-  @govukSummaryList(context.summaryListOfExportQuestions(exportQuestions))
+  @html.summaryList(context.summaryListOfExportQuestions(exportQuestions))
 
   @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
 
-  @govukSummaryList(context.summaryListOfVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()), 
+  @html.summaryList(context.summaryListOfVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
     context.getChangeCallForVesselDetails(exportQuestions)))
 
   @html.h2(messages("view.export-questions.summary.contact-details.heading"))
 
-  @govukSummaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
+  @html.summaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
     CreateCaseJourneyController.showAnswerExportQuestionsContactInfo))
 
   @html.a(postAction.url, messages("form.export-questions.summary.continue"), useButtonStyle = true)
