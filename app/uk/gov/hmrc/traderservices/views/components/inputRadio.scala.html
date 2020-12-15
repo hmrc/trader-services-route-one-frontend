@@ -22,10 +22,19 @@
         items: Seq[RadioItem],
         legend: Option[String] = None,
         legendAsHeading: Boolean = true,
+        legendAsH2: Boolean = false,
         hint: Option[Html] = None,
         legendClasses: String = "govuk-fieldset__legend--l",
         inline: Boolean = false
 )(implicit messages: Messages)
+
+@legendContent(messageKey: String) = {
+  @if(legendAsH2) {
+    <h2 class="govuk-heading-m">@messages(messageKey)</h2>
+  } else {
+    @messages(messageKey)
+  }
+}
 
 @govukRadios(Radios(
     classes = s"${if(inline){"govuk-radios--inline"}}",
@@ -33,7 +42,7 @@
     name = name,
     fieldset = legend.map(messageKey => Fieldset(
         legend = Some(Legend(
-            content = Text(messages(messageKey)),
+            content = HtmlContent(legendContent(messageKey)),
             isPageHeading = legendAsHeading,
             classes = legendClasses
         ))
