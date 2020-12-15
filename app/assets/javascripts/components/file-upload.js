@@ -12,7 +12,8 @@ $(document).ready(function () {
       successUrl: this.$form.data('file-upload-redirect-success-url'),
       failureUrl: this.$form.data('file-upload-redirect-failure-url'),
       checkStatusUrl: this.$form.data('file-upload-check-status-url'),
-      ariaLiveMessage: this.$form.data('file-upload-aria-live-message')
+      ariaLiveMessage: this.$form.data('file-upload-aria-live-message'),
+      fileInputName: 'file'
     };
 
     this.cacheTemplates();
@@ -28,6 +29,7 @@ $(document).ready(function () {
     this.$loadingContainer = this.$form.find('.file-upload__loading-container');
     this.$spinner = this.$form.find('.file-upload__spinner');
     this.$submit = this.$form.find('.file-upload__submit');
+    this.$fileInput = this.$form.find('[name="' + this.config.fileInputName + '"]');
   };
 
   Upload.prototype.bindEvents = function () {
@@ -48,10 +50,16 @@ $(document).ready(function () {
   };
 
   Upload.prototype.submitForm = function () {
+    var formData = new FormData(this.$form.get(0));
+
+    if (!this.$fileInput.val()) {
+      formData.delete(this.config.fileInputName);
+    }
+
     $.ajax({
       url: this.config.uploadUrl,
       type: "POST",
-      data: new FormData(this.$form.get(0)),
+      data: formData,
       processData: false,
       contentType: false,
       crossDomain: true
