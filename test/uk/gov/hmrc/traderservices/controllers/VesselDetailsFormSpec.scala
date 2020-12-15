@@ -76,7 +76,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
           .updated("dateOfArrival.month", "")
           .updated("dateOfArrival.day", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.required"))
       )
     }
@@ -106,7 +106,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.hour", "")
         .updated("timeOfArrival.minutes", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.all.required"))
       )
     }

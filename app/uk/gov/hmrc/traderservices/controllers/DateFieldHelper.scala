@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import play.api.data.Forms.{mapping, of, optional}
+import play.api.data.Forms.{boolean, mapping, of, optional}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
@@ -95,45 +95,47 @@ object DateFieldHelper {
 
   def validDateFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
     Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
-      case (y, m, d) if y.isEmpty && m.isEmpty && d.isEmpty =>
-        if (required) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.all.required"))) else Valid
       case (y, m, d) =>
-        val errors = Seq(
-          // validate day
-          if (d.isEmpty) Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.required")))
-          else if (!d.forall(_.isDigit))
-            Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
-          else if (isValidDay(d, m, y)) None
-          else Some(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-value"))),
-          // validate month
-          if (m.isEmpty) Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.required")))
-          else if (!m.forall(_.isDigit))
-            Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
-          else if (isValidMonth(m)) None
-          else Some(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value"))),
-          // validate year
-          if (y.isEmpty) Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.required")))
-          else if (!y.forall(_.isDigit))
-            Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
-          else if (isValidYear(y)) None
-          else Some(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
-        ).collect { case Some(e) => e }
-
-        val reportedErrors = {
-          val (required, invalid) = errors.partition(_.message.endsWith(".required"))
-          required ++ (if (invalid.size > 1) {
-                         val ve: ValidationError = invalid.head
-                         Seq(
-                           ValidationError(
-                             ve.messages.init :+ s"error.$fieldName.all.invalid-value",
-                             ve.args
-                           )
-                         )
-                       } else invalid)
-        }
-
-        if (reportedErrors.isEmpty) Valid else Invalid(reportedErrors.head)
+        if (y.isEmpty && m.isEmpty && d.isEmpty)
+          if (required) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.all.required")))
+          else Valid
+        else if (d.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.required")))
+        else if (m.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.required")))
+        else if (y.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.required")))
+        else if (atLeastTwoOfThree(!isValidDay(d, m, y), !isValidMonth(m), !isValidYear(y)))
+          Invalid(
+            ValidationError(
+              Seq(
+                s"subfieldFocus=${if (!isValidDay(d, m, y)) "day" else if (!isValidMonth(m)) "month" else "year"}",
+                s"error.$fieldName.all.invalid-value"
+              )
+            )
+          )
+        else if (!isValidDay(d, m, y))
+          Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-value")))
+        else if (!isValidMonth(m))
+          Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value")))
+        else if (!isValidYear(y))
+          Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
+        else if (atLeastTwoOfThree(!d.forall(_.isDigit), !m.forall(_.isDigit), !y.forall(_.isDigit)))
+          Invalid(
+            ValidationError(
+              Seq(
+                s"subfieldFocus=${if (!d.forall(_.isDigit)) "day" else if (!m.forall(_.isDigit)) "month" else "year"}",
+                s"error.$fieldName.all.invalid-digits"
+              )
+            )
+          )
+        else if (!d.forall(_.isDigit))
+          Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
+        else if (!m.forall(_.isDigit))
+          Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
+        else if (!y.forall(_.isDigit))
+          Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
+        else Valid
     }
+
+  def atLeastTwoOfThree(a: Boolean, b: Boolean, c: Boolean): Boolean = (a && b) || (b && c) || (a && c)
 
   // empty LocalDate marker value
   val emptyDate: LocalDate = LocalDate.of(0, 1, 13)

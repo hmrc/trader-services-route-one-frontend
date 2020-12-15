@@ -94,7 +94,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput.updated("entryDate.year", "197B")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyError(
-        FormError("entryDate", Seq("subfieldFocus=year", "error.entryDate.year.invalid-digits"))
+        FormError("entryDate", Seq("subfieldFocus=year", "error.entryDate.year.invalid-value"))
       )
     }
 
@@ -102,7 +102,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput.updated("entryDate.day", "0X")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyError(
-        FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.invalid-digits"))
+        FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.invalid-value"))
       )
     }
 
@@ -118,7 +118,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
       val input = formInput.updated("entryDate.month", "1X")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyError(
-        FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.invalid-digits"))
+        FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.invalid-value"))
       )
     }
 
