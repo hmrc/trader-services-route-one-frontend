@@ -6,8 +6,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.api.{Application, Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.traderservices.support.AppISpec
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
+import uk.gov.hmrc.traderservices.support.AppISpec
 
 import scala.concurrent.Future
 
@@ -48,8 +48,28 @@ class AuthActionsISpec extends AuthActionISpecSetup {
       status(result) shouldBe 303
       redirectLocation(result).get should include("/stride/sign-in")
     }
-  }
 
+    "redirect to login page when stride group is 'Any'" in {
+      givenAuthorisedForStride("ANY", "StrideUserId")
+      val result = TestController.withAuthorisedWithStrideGroup("ANY")
+      status(result) shouldBe 303
+      redirectLocation(result).get should include("/stride/sign-in")
+    }
+
+    "redirect to subscription journey when insufficient enrollments" in {
+      givenRequestIsNotAuthorised("InsufficientEnrolments")
+      val result = TestController.withAuthorisedEnrolment("serviceName", "serviceKey")
+      status(result) shouldBe 303
+      redirectLocation(result).get should include("/subscription")
+    }
+
+    "redirect to government gateway login when authorization fails" in {
+      givenRequestIsNotAuthorised("IncorrectCredentialStrength")
+      val result = TestController.withAuthorisedEnrolment("serviceName", "serviceKey")
+      status(result) shouldBe 303
+      redirectLocation(result).get should include("/gg/sign-in")
+    }
+  }
 }
 
 trait AuthActionISpecSetup extends AppISpec {
@@ -64,16 +84,20 @@ trait AuthActionISpecSetup extends AppISpec {
 
     override def env: Environment = app.injector.instanceOf[Environment]
 
+    import scala.concurrent.ExecutionContext.Implicits.global
+
     implicit val hc: HeaderCarrier = HeaderCarrier()
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
-
-    import scala.concurrent.ExecutionContext.Implicits.global
 
     def withAuthorisedWithStrideGroup[A](group: String): Result =
       await(super.authorisedWithStrideGroup(group) { pid =>
         Future.successful(Ok(pid))
       })
 
+    def withAuthorisedEnrolment[A](serviceName: String, identifierKey: String): Result =
+      await(super.authorisedWithEnrolment(serviceName, identifierKey) { res =>
+        Future.successful(Ok(res))
+      })
     override def toSubscriptionJourney(continueUrl: String): Result = Redirect("/subscription")
   }
 
