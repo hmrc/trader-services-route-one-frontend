@@ -26,6 +26,7 @@ case class FileUploads(
   def isEmpty: Boolean = acceptedCount == 0
   def nonEmpty: Boolean = !isEmpty
   def isSingle: Boolean = acceptedCount == 1
+
   def acceptedCount: Int =
     files
       .count { case _: FileUpload.Accepted => true; case _ => false }
@@ -33,7 +34,7 @@ case class FileUploads(
   def toUploadedFiles: Seq[UploadedFile] =
     files.collect {
       case f: FileUpload.Accepted =>
-        UploadedFile(f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType)
+        UploadedFile(f.reference, f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType)
     }
 
 }

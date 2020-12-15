@@ -96,6 +96,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
       questionsAnswers = TestData.fullExportQuestions(dateTimeOfArrival),
       uploadedFiles = Seq(
         UploadedFile(
+          "foo-1234567890",
           "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
@@ -115,6 +116,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
       responseText = Some("An example description."),
       uploadedFiles = Seq(
         UploadedFile(
+          "foo-0123456789",
           "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
