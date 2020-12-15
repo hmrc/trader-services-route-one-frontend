@@ -95,20 +95,17 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("24", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
           ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("25", "60")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value"))
         )
       )
       validate(("0a", "b0")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits"))
         )
       )
     }
@@ -129,20 +126,17 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("24", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
           ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("25", "60")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value"))
         )
       )
       validate(("0a", "b0")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits"))
         )
       )
     }
@@ -176,12 +170,11 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       timeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) should haveError(
         "error.bar.all.required"
       )
-      timeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyErrors(
+      timeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyError(
         "error.bar.minutes.required"
       )
-      timeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
-        "error.bar.hour.invalid-value",
-        "error.bar.minutes.invalid-value"
+      timeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyError(
+        "error.bar.hour.invalid-value"
       )
     }
 
@@ -219,12 +212,11 @@ class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeFieldsMapping("bar").bind(Map()) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
-      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyErrors(
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyError(
         "error.bar.minutes.required"
       )
-      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
-        "error.bar.hour.invalid-value",
-        "error.bar.minutes.invalid-value"
+      optionalTimeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyError(
+        "error.bar.hour.invalid-value"
       )
     }
   }

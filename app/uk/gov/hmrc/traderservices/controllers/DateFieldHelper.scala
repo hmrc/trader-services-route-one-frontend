@@ -132,7 +132,7 @@ object DateFieldHelper {
                        } else invalid)
         }
 
-        if (reportedErrors.isEmpty) Valid else Invalid(reportedErrors)
+        if (reportedErrors.isEmpty) Valid else Invalid(reportedErrors.head)
     }
 
   // empty LocalDate marker value

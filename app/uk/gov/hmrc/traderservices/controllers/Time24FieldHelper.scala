@@ -79,7 +79,14 @@ object Time24FieldHelper {
   def validTimeFields(fieldName: String, required: Boolean): Constraint[TimeParts] =
     Constraint[TimeParts](s"constraint.$fieldName.time-fields") {
       case (h, m) if h.isEmpty && m.isEmpty =>
-        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required"))) else Valid
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required")))
+        else Valid
+//      case (h, m) if h.isEmpty && !m.isEmpty =>
+//        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.required")))
+//        else Valid
+//      case (h, m) if !h.isEmpty && m.isEmpty =>
+//        if (required) Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.required")))
+//        else Valid
       case (h, m) =>
         val errors = Seq(
           // validate hour
@@ -96,7 +103,11 @@ object Time24FieldHelper {
           else Some(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-value")))
         ).collect { case Some(e) => e }
 
-        if (errors.isEmpty) Valid else Invalid(errors)
+        val reportedErrors = {
+          val (required, invalid) = errors.partition(_.message.endsWith(".required"))
+          required ++ invalid
+        }
+        if (errors.isEmpty) Valid else Invalid(reportedErrors.head)
     }
 
   @tailrec
