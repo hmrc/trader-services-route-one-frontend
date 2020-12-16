@@ -28,5 +28,6 @@ class html @Inject() (
   val a: uk.gov.hmrc.traderservices.views.html.components.link,
   val ul: uk.gov.hmrc.traderservices.views.html.components.bullets,
   val ol: uk.gov.hmrc.traderservices.views.html.components.orderedList,
-  val button: uk.gov.hmrc.traderservices.views.html.components.button
+  val button: uk.gov.hmrc.traderservices.views.html.components.button,
+  val summaryList: uk.gov.hmrc.traderservices.views.html.components.summaryList
 )

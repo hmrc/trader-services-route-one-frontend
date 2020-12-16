@@ -23,7 +23,6 @@
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
-        govukSummaryList: GovukSummaryList,
         appConfig: AppConfig,
         context: FileUploadedViewContext
 )
@@ -38,7 +37,7 @@
 
   @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
 
-  @govukSummaryList(context.summaryListOfFileUploads(fileUploads,removeFileCall))
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,removeFileCall))
   
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 
