@@ -104,7 +104,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           "application/pdf"
         )
       ),
-      "GB123456789012345"
+      eori = "GB123456789012345"
     )
   }
 
@@ -123,7 +123,8 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           "test.pdf",
           "application/pdf"
         )
-      )
+      ),
+      eori = "GB123456789012345"
     )
   }
 }
