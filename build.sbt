@@ -19,7 +19,7 @@ lazy val compileDeps = Seq(
   ws,
   "uk.gov.hmrc"                  %% "bootstrap-frontend-play-26" % "2.25.0",
   "uk.gov.hmrc"                  %% "auth-client"                % "3.2.0-play-26",
-  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.70.0-play-26",
+  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.71.0-play-26",
   "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-26",
   "uk.gov.hmrc"                  %% "mongo-caching"              % "6.16.0-play-26",
   "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
