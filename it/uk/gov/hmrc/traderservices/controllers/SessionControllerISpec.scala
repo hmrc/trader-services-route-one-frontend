@@ -49,15 +49,6 @@ trait SessionControllerISpecSetup extends ServerISpec {
 
   override def fakeApplication: Application = appBuilder.build()
 
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
-
-  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
-
-  def requestWithoutJourneyId(path: String) =
-    wsClient
-      .url(s"$baseUrl$path")
-
   def givenSignOutWithContinueToTimedOut(): Unit =
     stubFor(
       get(urlPathEqualTo("/dummy-sign-out-url"))
