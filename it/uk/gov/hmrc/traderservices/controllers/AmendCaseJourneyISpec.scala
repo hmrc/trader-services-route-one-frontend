@@ -1,30 +1,23 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import java.util.UUID
-
-import play.api.Application
 import play.api.libs.json.Format
-import play.api.libs.ws.WSClient
-import play.api.mvc.{Cookies, Session, SessionCookieBaker}
+import play.api.mvc.{Cookies, Session}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 
+import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import scala.util.Random
-import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
-  import journey.model.State._
   import journey.model.FileUploadState._
+  import journey.model.State._
 
   val dateTime = LocalDateTime.now()
 
@@ -392,16 +385,6 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 }
 
 trait AmendCaseJourneyISpecSetup extends ServerISpec {
-
-  override def fakeApplication: Application = appBuilder.build()
-
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
-  lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
-  lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
-
-  case class JourneyId(value: String = UUID.randomUUID().toString)
-
   // define test service capable of manipulating journey state
   lazy val journey = new TestJourneyService[JourneyId]
     with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
@@ -414,9 +397,6 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec {
 
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
-
-  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
-
   def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
 
@@ -430,9 +410,4 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec {
         )
       )
   }
-
-  def requestWithoutJourneyId(path: String) =
-    wsClient
-      .url(s"$baseUrl$path")
-
 }
