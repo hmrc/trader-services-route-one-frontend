@@ -76,7 +76,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
           .updated("dateOfArrival.month", "")
           .updated("dateOfArrival.day", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.required"))
       )
     }
@@ -86,8 +86,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.year", "")
         .updated("dateOfArrival.month", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", Seq("subfieldFocus=year", "error.dateOfArrival.year.required")),
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.month.required"))
       )
     }
@@ -97,7 +96,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.year", "202a")
         .updated("dateOfArrival.month", "13")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.all.invalid-value"))
       )
     }
@@ -107,7 +106,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.hour", "")
         .updated("timeOfArrival.minutes", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.all.required"))
       )
     }
@@ -117,16 +116,15 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.hour", "25")
         .updated("timeOfArrival.minutes", "60")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value")),
-        FormError("timeOfArrival", Seq("subfieldFocus=minutes", "error.timeOfArrival.minutes.invalid-value"))
+      form.bind(input).errors should haveOnlyError(
+        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value"))
       )
     }
 
     "report an error when dateOfArrival is more than 6 months in the past" in {
       val input = formInputFor(dateTime.minusMonths(6).minusDays(2))
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
       )
     }
@@ -180,8 +178,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.year", "")
         .updated("dateOfArrival.month", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("dateOfArrival", Seq("subfieldFocus=year", "error.dateOfArrival.year.required")),
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.month.required"))
       )
     }
@@ -191,7 +188,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("dateOfArrival.year", "202a")
         .updated("dateOfArrival.month", "13")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.all.invalid-value"))
       )
     }
@@ -220,8 +217,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
         .updated("timeOfArrival.minutes", "60")
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
-        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value")),
-        FormError("timeOfArrival", Seq("subfieldFocus=minutes", "error.timeOfArrival.minutes.invalid-value"))
+        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value"))
       )
     }
 

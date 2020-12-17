@@ -43,10 +43,11 @@ object ContactFieldHelper {
     }
 
   def normaliseNumber(phoneNum: String): String = {
+    val updatedNum = removeNonAllowedCharacters(phoneNum)
     val prefixes = List("+44", "44", "0044")
-    prefixes.find(phoneNum.startsWith(_)) match {
-      case Some(n) => removeNonAllowedCharacters(phoneNum.replace(n, "0"))
-      case None    => removeNonAllowedCharacters(phoneNum)
+    prefixes.find(updatedNum.startsWith(_)) match {
+      case Some(n) => updatedNum.replace(n, "0")
+      case None    => updatedNum
     }
   }
 

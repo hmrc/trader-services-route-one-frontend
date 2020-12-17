@@ -94,7 +94,8 @@ object FormFieldMappings {
     .verifying(
       first(
         nonEmpty("epu"),
-        all(haveLength("epu", 3), constraint[String]("epu", "invalid-only-digits", _.forall(_.isDigit))),
+        constraint[String]("epu", "invalid-only-digits", _.forall(_.isDigit)),
+        haveLength("epu", 3),
         constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, _ <= 700))
       )
     )
@@ -104,16 +105,14 @@ object FormFieldMappings {
     .verifying(
       first(
         nonEmpty("entryNumber"),
-        all(
-          haveLength("entryNumber", 7),
-          constraint[String]("entryNumber", "invalid-only-digits-and-letters", _.forall(_.isLetterOrDigit)),
-          constraint[String](
-            "entryNumber",
-            "invalid-ends-with-letter",
-            s => s.lastOption.forall(_.isLetter) || s.drop(6).headOption.forall(_.isLetter)
-          ),
-          constraint[String]("entryNumber", "invalid-letter-wrong-position", _.slice(1, 6).forall(_.isDigit))
-        )
+        constraint[String]("entryNumber", "invalid-only-digits-and-letters", _.forall(_.isLetterOrDigit)),
+        haveLength("entryNumber", 7),
+        constraint[String](
+          "entryNumber",
+          "invalid-ends-with-letter",
+          s => s.lastOption.forall(_.isLetter) || s.drop(6).headOption.forall(_.isLetter)
+        ),
+        constraint[String]("entryNumber", "invalid-letter-wrong-position", _.slice(1, 6).forall(_.isDigit))
       )
     )
     .transform(EntryNumber.apply, _.value)
@@ -166,16 +165,14 @@ object FormFieldMappings {
     .verifying(
       first(
         constraint[String]("vesselName", "required", _.length > 0),
-        all(
-          constraint[String]("vesselName", "invalid-length", _.length <= 128),
-          constraint[String](
-            "vesselName",
-            "invalid-characters",
-            name =>
-              name.exists(Character.isLetterOrDigit) &&
-                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c))
-          )
-        )
+        constraint[String](
+          "vesselName",
+          "invalid-characters",
+          name =>
+            name.exists(Character.isLetterOrDigit) &&
+              name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c))
+        ),
+        constraint[String]("vesselName", "invalid-length", _.length <= 128)
       )
     )
     .transform(Option.apply, _.getOrElse(""))
@@ -184,15 +181,15 @@ object FormFieldMappings {
     of[String]
       .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
       .verifying(
-        all(
-          constraint[String]("vesselName", "invalid-length", name => name.isEmpty || name.length <= 128),
+        first(
           constraint[String](
             "vesselName",
             "invalid-characters",
             name =>
               name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
                 name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
-          )
+          ),
+          constraint[String]("vesselName", "invalid-length", name => name.isEmpty || name.length <= 128)
         )
       )
   ).transform({ case Some("") => None; case o => o }, identity[Option[String]])

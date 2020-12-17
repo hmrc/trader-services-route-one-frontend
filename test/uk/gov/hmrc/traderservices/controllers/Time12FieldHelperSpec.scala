@@ -96,21 +96,16 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("", "59", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required"))
         )
       )
       validate(("00", "", "SM")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("00", "60", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value")),
           ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
         )
       )
@@ -121,9 +116,7 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("0a", "b0", "M")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits"))
         )
       )
     }
@@ -137,9 +130,7 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       validate(("", "", "PM")) shouldBe Valid
       validate(("", "", "MP")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required"))
         )
       )
       validate(("12", "", "AM")) shouldBe Invalid(
@@ -150,21 +141,16 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("", "59", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.required"))
         )
       )
       validate(("00", "", "SM")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
+          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.required"))
         )
       )
       validate(("00", "60", "")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-value")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-value")),
           ValidationError(Seq("subfieldFocus=period", "error.foo.period.required"))
         )
       )
@@ -175,9 +161,7 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
       validate(("0a", "b0", "M")) shouldBe Invalid(
         Seq(
-          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=minutes", "error.foo.minutes.invalid-digits")),
-          ValidationError(Seq("subfieldFocus=period", "error.foo.period.invalid-value"))
+          ValidationError(Seq("subfieldFocus=hour", "error.foo.hour.invalid-digits"))
         )
       )
     }
@@ -218,12 +202,9 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
         "error.bar.all.required"
       )
       timeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyErrors(
-        "error.bar.minutes.required",
-        "error.bar.period.required"
+        "error.bar.minutes.required"
       )
       timeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
-        "error.bar.hour.invalid-value",
-        "error.bar.minutes.invalid-value",
         "error.bar.period.required"
       )
     }
@@ -268,12 +249,9 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "", "period" -> "")) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "12")) should haveOnlyErrors(
-        "error.bar.minutes.required",
-        "error.bar.period.required"
+        "error.bar.minutes.required"
       )
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "25", "minutes" -> "60")) should haveOnlyErrors(
-        "error.bar.hour.invalid-value",
-        "error.bar.minutes.invalid-value",
         "error.bar.period.required"
       )
     }

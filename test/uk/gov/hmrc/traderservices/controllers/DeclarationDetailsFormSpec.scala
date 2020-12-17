@@ -63,8 +63,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when EPU is invalid" in {
       val input = formInput.updated("epu", "ABCD")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("epu", "error.epu.invalid-length"),
+      form.bind(input).errors should haveOnlyError(
         FormError("epu", "error.epu.invalid-only-digits")
       )
     }
@@ -72,22 +71,21 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when EntryNumber is missing" in {
       val input = formInput.updated("entryNumber", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(FormError("entryNumber", "error.entryNumber.required"))
+      form.bind(input).errors should haveOnlyError(FormError("entryNumber", "error.entryNumber.required"))
     }
 
     "report an error when EntryNumber is invalid" in {
       val input = formInput.updated("entryNumber", "00000Z")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("entryNumber", "error.entryNumber.invalid-length"),
-        FormError("entryNumber", "error.entryNumber.invalid-letter-wrong-position")
+      form.bind(input).errors should haveOnlyError(
+        FormError("entryNumber", "error.entryNumber.invalid-length")
       )
     }
 
     "report an error when entryDate.year is missing" in {
       val input = formInput.updated("entryDate.year", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=year", "error.entryDate.year.required"))
       )
     }
@@ -95,23 +93,23 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when entryDate.year is invalid" in {
       val input = formInput.updated("entryDate.year", "197B")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("entryDate", Seq("subfieldFocus=year", "error.entryDate.year.invalid-digits"))
+      form.bind(input).errors should haveOnlyError(
+        FormError("entryDate", Seq("subfieldFocus=year", "error.entryDate.year.invalid-value"))
       )
     }
 
     "report an error when entryDate.day is invalid - contains digit and letter" in {
       val input = formInput.updated("entryDate.day", "0X")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.invalid-digits"))
+      form.bind(input).errors should haveOnlyError(
+        FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.invalid-value"))
       )
     }
 
     "report an error when entryDate.day is invalid - contains value out-of-scope" in {
       val input = formInput.updated("entryDate.day", "32")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.invalid-value"))
       )
     }
@@ -119,15 +117,15 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when entryDate.month is invalid - contains digit and letter" in {
       val input = formInput.updated("entryDate.month", "1X")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.invalid-digits"))
+      form.bind(input).errors should haveOnlyError(
+        FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.invalid-value"))
       )
     }
 
     "report an error when entryDate.month is invalid - contains value out-of-scope" in {
       val input = formInput.updated("entryDate.month", "13")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.invalid-value"))
       )
     }
@@ -143,7 +141,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when empty entryDate.month " in {
       val input = formInput.updated("entryDate.month", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.required"))
       )
     }
@@ -151,7 +149,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "report an error when entryDate in the future" in {
       val input = formInputFor(date.plusDays(1))
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.all.invalid-value-future"))
       )
     }
@@ -159,8 +157,7 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
     "disallow empty entryDate.day and empty entryDate.month" in {
       val input = formInput.updated("entryDate.day", "").updated("entryDate.month", "")
       form.bind(input).value shouldBe None
-      form.bind(input).errors should haveOnlyErrors(
-        FormError("entryDate", Seq("subfieldFocus=month", "error.entryDate.month.required")),
+      form.bind(input).errors should haveOnlyError(
         FormError("entryDate", Seq("subfieldFocus=day", "error.entryDate.day.required"))
       )
     }
