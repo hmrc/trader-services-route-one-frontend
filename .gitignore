@@ -1,5 +1,6 @@
 .*
 
+!.eslintrc.*
 !.gitignore
 !.scalafmt.conf
 !.description
@@ -38,3 +39,6 @@ bin
 .metals/
 .vscode/
 project/metals.sbt
+
+node_modules/
+app/assets/build/

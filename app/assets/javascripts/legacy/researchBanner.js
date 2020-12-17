@@ -10,7 +10,7 @@
   var closeLink = document.querySelector(LINK_QUERY);
 
   function getCookie(name) {
-    var key = name + "="
+    var key = name + "=";
     var cookies = decodeURIComponent(document.cookie).split(';');
 
     for (var i = 0; i < cookies.length; i++) {

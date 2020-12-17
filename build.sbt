@@ -1,3 +1,4 @@
+import JavaScriptBuild.{javaScriptDirectory, javaScriptSettings}
 import sbt.Tests.{Group, SubProcess}
 import uk.gov.hmrc.SbtAutoBuildPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
@@ -69,6 +70,7 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.traderservices.views.html.components",
       "uk.gov.hmrc.traderservices.views.ViewHelpers._"
     ),
+    PlayKeys.playRunHooks += Webpack(javaScriptDirectory.value),
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),
       Resolver.bintrayRepo("hmrc", "release-candidates"),
@@ -78,6 +80,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
     dependencyOverrides ++= jettyOverrides,
     publishingSettings,
+    javaScriptSettings,
     scoverageSettings,
     unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
     scalafmtOnCompile in Compile := true,
@@ -90,10 +93,7 @@ lazy val root = (project in file("."))
           Seq(
             "lib/govuk-frontend/govuk/all.js",
             "lib/hmrc-frontend/hmrc/all.js",
-            "javascripts/vendor/jquery.min.js",
-            "javascripts/app.js",
-            "javascripts/autocomplete.js",
-            "javascripts/components/file-upload.js"
+            "build/application.min.js"
           )
         )
     ),
