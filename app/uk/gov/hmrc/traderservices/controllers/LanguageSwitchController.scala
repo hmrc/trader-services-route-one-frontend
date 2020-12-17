@@ -17,10 +17,10 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import com.google.inject.Inject
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 import play.api.i18n.{I18nSupport, Lang, MessagesApi}
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 class LanguageSwitchController @Inject() (
   appConfig: AppConfig,
