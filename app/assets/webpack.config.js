@@ -18,13 +18,16 @@ module.exports = {
             presets: [
               '@babel/typescript',
               '@babel/preset-env'
+            ],
+            plugins: [
+              '@babel/plugin-proposal-class-properties'
             ]
           }
         }
       },
       {
         test: /\.ts$/,
-        exclude: /node_modules|legacy/,
+        exclude: /node_modules/,
         loader: 'eslint-loader'
       }
     ]
