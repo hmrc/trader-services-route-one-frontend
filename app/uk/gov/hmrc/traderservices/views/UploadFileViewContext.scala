@@ -40,11 +40,11 @@ class UploadFileViewContext @Inject() (appConfig: AppConfig) {
 
   def toMessageKey(error: S3UploadError): String =
     error.errorCode match {
-      case "400"            => "error.file-upload.required"
-      case "InternalError"  => "error.file-upload.try-again"
-      case "EntityTooLarge" => "error.file-upload.invalid-size-large"
-      case "EntityTooSmall" => "error.file-upload.invalid-size-small"
-      case _                => "error.file-upload.unknown"
+      case "400" | "InvalidArgument" => "error.file-upload.required"
+      case "InternalError"           => "error.file-upload.try-again"
+      case "EntityTooLarge"          => "error.file-upload.invalid-size-large"
+      case "EntityTooSmall"          => "error.file-upload.invalid-size-small"
+      case _                         => "error.file-upload.unknown"
     }
 
   def toMessageKey(details: UpscanNotification.FailureDetails): String =
