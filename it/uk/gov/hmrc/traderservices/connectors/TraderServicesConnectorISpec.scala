@@ -26,6 +26,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
 
         result.result shouldBe Some("A1234567890")
         result.error shouldBe None
+        result.generatedAt shouldBe Some(generatedAt)
       }
 
       "return error code and message if failure" in {

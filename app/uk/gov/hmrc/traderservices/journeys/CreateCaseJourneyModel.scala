@@ -17,11 +17,13 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.traderservices.models._
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
 import uk.gov.hmrc.traderservices.connectors.ApiError
+import java.time.LocalDateTime
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -265,7 +267,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
       uploadedFiles: Seq[UploadedFile],
-      caseReferenceId: String
+      caseReferenceId: String,
+      generatedAt: Option[LocalDateTime] = None
     ) extends EndState
 
     final case class CaseAlreadyExists(
@@ -708,7 +711,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                   state.hostData.declarationDetails,
                   state.hostData.questionsAnswers,
                   state.fileUploads.toUploadedFiles,
-                  response.result.get
+                  response.result.get,
+                  response.generatedAt
                 )
               )
             else

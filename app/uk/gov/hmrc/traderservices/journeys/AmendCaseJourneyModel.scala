@@ -17,11 +17,14 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.traderservices.models._
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesUpdateCaseRequest
 import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
+
+import java.time.LocalDateTime
 
 object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -60,7 +63,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
 
-    final case class AmendCaseConfirmation(caseReferenceNumber: String) extends State
+    final case class AmendCaseConfirmation(caseReferenceNumber: String, generatedAt: Option[LocalDateTime] = None)
+        extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -190,7 +194,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
                   .flatMap { response =>
                     if (response.result.isDefined)
                       if (response.result.get == caseReferenceNumber)
-                        goto(AmendCaseConfirmation(caseReferenceNumber))
+                        goto(AmendCaseConfirmation(caseReferenceNumber, response.generatedAt))
                       else
                         fail(
                           new RuntimeException(

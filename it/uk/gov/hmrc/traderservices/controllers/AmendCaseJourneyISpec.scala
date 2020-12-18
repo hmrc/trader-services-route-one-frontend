@@ -9,6 +9,7 @@ import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -75,7 +76,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     }
 
     "POST /send-documents-for-customs-check/add/type-of-amendment" should {
-      "sumbit type of amendment choice and show next page" in {
+      "submit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           SelectTypeOfAmendment(
@@ -122,7 +123,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     }
 
     "POST /send-documents-for-customs-check/add/write-response" should {
-      "sumbit type of amendment choice and show next page" in {
+      "submit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           EnterResponseText(
@@ -143,7 +144,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/add/write-response").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO05")
+        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO05", Some(generatedAt))
       }
     }
 
@@ -369,7 +370,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     "GET /send-documents-for-customs-check/add/confirmation" should {
       "show confirmation page" in {
         implicit val journeyId: JourneyId = JourneyId()
-        val state = AmendCaseConfirmation("PC12010081330XGBNZJO04")
+        val state = AmendCaseConfirmation("PC12010081330XGBNZJO04", Some(generatedAt))
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -378,6 +379,9 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.amend-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
+        result.body should include(
+          s"${htmlEscapedMessage("view.amend-case-confirmation.date")} ${Some(generatedAt).ddMMYYYYAtTimeFormat}"
+        )
         journey.getState shouldBe state
       }
     }
