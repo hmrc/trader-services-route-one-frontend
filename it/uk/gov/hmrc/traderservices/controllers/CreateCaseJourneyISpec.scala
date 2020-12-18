@@ -2,7 +2,6 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
 import java.util.UUID
-
 import play.api.Application
 import play.api.libs.json.Format
 import play.api.libs.ws.WSClient
@@ -10,9 +9,9 @@ import play.api.mvc.{Cookies, Session, SessionCookieBaker}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
+import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyStateFormats, CreateCaseJourneyStateFormats}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
+import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, CreateCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 import uk.gov.hmrc.traderservices.support.TestData
@@ -22,8 +21,10 @@ import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.time.LocalDateTime
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
+
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -2026,16 +2027,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
 
 trait CreateCaseJourneyISpecSetup extends ServerISpec {
 
-  override def fakeApplication: Application = appBuilder.build()
-
-  lazy val wsClient: WSClient = app.injector.instanceOf[WSClient]
-  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
-  lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
-  lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
-
-  case class JourneyId(value: String = UUID.randomUUID().toString)
-
-  // define test service capable of manipulating journey state
   lazy val journey = new TestJourneyService[JourneyId]
     with CreateCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
@@ -2047,8 +2038,6 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
 
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
-
-  val baseUrl: String = s"http://localhost:$port/send-documents-for-customs-check"
 
   def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
@@ -2063,9 +2052,4 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
         )
       )
   }
-
-  def requestWithoutJourneyId(path: String) =
-    wsClient
-      .url(s"$baseUrl$path")
-
 }
