@@ -36,6 +36,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateConnector
 import play.api.libs.json.Json
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -378,10 +379,11 @@ class AmendCaseJourneyController @Inject() (
             )
         )
 
-      case AmendCaseConfirmation(caseReferenceNumber) =>
+      case AmendCaseConfirmation(caseReferenceNumber, generatedAt) =>
         Ok(
           views.amendCaseConfirmationView(
             caseReferenceNumber,
+            generatedAt.ddMMYYYYAtTimeFormat,
             routes.CreateCaseJourneyController.showStart()
           )
         )

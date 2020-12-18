@@ -18,13 +18,16 @@ package uk.gov.hmrc.traderservices.connectors
 
 import play.api.libs.json.{Format, Json}
 
+import java.time.LocalDateTime
+
 case class TraderServicesCaseResponse(
   // Identifier associated with a request,
   correlationId: String,
   // Represents an error occurred
   error: Option[ApiError] = None,
   // Represents the result
-  result: Option[String] = None
+  result: Option[String] = None,
+  generatedAt: Option[LocalDateTime] = None
 )
 
 object TraderServicesCaseResponse {

@@ -5,11 +5,15 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.support.WireMockSupport
 
+import java.time.LocalDateTime
+
 trait TraderServicesApiStubs {
   me: WireMockSupport =>
 
   def validRequestOfCreateCaseApi(): String =
     requestBodyOfCreateCaseApi
+
+  lazy val generatedAt = LocalDateTime.of(2020, 2, 29, 15, 29, 28)
 
   val requestBodyOfCreateCaseApi: String =
     s"""{
@@ -22,7 +26,8 @@ trait TraderServicesApiStubs {
   def caseApiSuccessResponseBody(caseReferenceNumber: String = "A1234567890"): String =
     s"""{
        |  "correlationId": "",
-       |  "result": "$caseReferenceNumber"
+       |  "result": "$caseReferenceNumber",
+       |  "generatedAt": "${generatedAt.toString}"
        |}""".stripMargin
 
   def createCaseApiErrorResponseBody(errorCode: String, errorMessage: String): String =

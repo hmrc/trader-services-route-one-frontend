@@ -1,36 +1,24 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import java.time.LocalDate
-import java.util.UUID
-import play.api.Application
 import play.api.libs.json.Format
-import play.api.libs.ws.WSClient
-import play.api.mvc.{Cookies, Session, SessionCookieBaker}
+import play.api.mvc.{Cookies, Session}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
-import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyStateFormats, CreateCaseJourneyStateFormats}
-import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, CreateCaseJourneyService, MongoDBCachedJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
-import uk.gov.hmrc.traderservices.support.TestData
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import java.time.temporal.ChronoField
-import java.time.temporal.ChronoUnit
-import java.time.LocalDateTime
-import uk.gov.hmrc.traderservices.models.ExportContactInfo
-
-import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.wiring.AppConfig
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
+import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
+import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.support.{ServerISpec, TestData, TestJourneyService}
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
+import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
+import java.time.temporal.{ChronoField, ChronoUnit}
+import scala.concurrent.ExecutionContext.Implicits.global
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
-  import journey.model.State._
   import journey.model.FileUploadState._
+  import journey.model.State._
 
   val dateTime = LocalDateTime.now()
 
@@ -1811,7 +1799,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          "A1234567890"
+          "A1234567890",
+          Some(generatedAt)
         )
       }
     }
@@ -1833,7 +1822,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          "TBC"
+          "TBC",
+          Some(generatedAt)
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1843,6 +1833,10 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body should include(
+          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${Some(generatedAt).ddMMYYYYAtTimeFormat}"
+        )
+
         journey.getState shouldBe state
       }
     }

@@ -16,10 +16,23 @@
 
 package uk.gov.hmrc.traderservices.views
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 object CommonUtilsHelper {
 
   implicit class Improvements(s: Int) {
     def format3d = "%03d".format(s)
+  }
+
+  implicit class DateTimeUtilities(s: Option[LocalDateTime]) {
+    def ddMMYYYYAtTimeFormat =
+      s match {
+        case Some(datetime) =>
+          val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+          formatter.format(datetime)
+        case None => ""
+      }
   }
 
   /**

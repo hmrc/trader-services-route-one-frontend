@@ -15,7 +15,7 @@
  */
 
 package uk.gov.hmrc.traderservices.controllers
-
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -829,15 +829,16 @@ class CreateCaseJourneyController @Inject() (
             )
         )
 
-      case CreateCaseConfirmation(_, _, _, caseReferenceId) =>
+      case CreateCaseConfirmation(_, _, _, caseReferenceId, generatedAt) =>
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
+            generatedAt.ddMMYYYYAtTimeFormat,
             controller.showStart()
           )
         )
 
-      case CaseAlreadyExists(caseReferenceId) =>
+      case CaseAlreadyExists(_) =>
         Ok(
           views.caseAlreadyExistsView(
             routes.AmendCaseJourneyController.showStart()
