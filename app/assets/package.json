@@ -11,9 +11,7 @@
   "browserslist": [
     "defaults"
   ],
-  "dependencies": {
-    "jquery": "3.5.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "7.12.9",
     "@babel/plugin-proposal-class-properties": "7.12.1",
