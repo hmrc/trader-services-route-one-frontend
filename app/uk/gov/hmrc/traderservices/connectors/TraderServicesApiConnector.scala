@@ -65,10 +65,11 @@ class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet 
         )
         .recoverWith {
           case e: Throwable =>
-            Future.failed(TraderServicesApiError(e))
+            Future.failed(TraderServicesAmendApiError(e))
         }
     }
 
 }
 
 case class TraderServicesApiError(e: Throwable) extends RuntimeException(e)
+case class TraderServicesAmendApiError(e: Throwable) extends RuntimeException(e)
