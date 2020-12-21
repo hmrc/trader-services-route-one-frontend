@@ -24,9 +24,8 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.createCase(createCaseRequest))
 
-        result.result shouldBe Some("A1234567890")
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
         result.error shouldBe None
-        result.generatedAt shouldBe Some(generatedAt)
       }
 
       "return error code and message if failure" in {
@@ -55,7 +54,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.updateCase(updateCaseRequest))
 
-        result.result shouldBe Some("A1234567890")
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
         result.error shouldBe None
       }
 

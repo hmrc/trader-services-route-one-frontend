@@ -26,8 +26,10 @@ trait TraderServicesApiStubs {
   def caseApiSuccessResponseBody(caseReferenceNumber: String = "A1234567890"): String =
     s"""{
        |  "correlationId": "",
-       |  "result": "$caseReferenceNumber",
-       |  "generatedAt": "${generatedAt.toString}"
+       |  "result": {
+       |      "caseId": "$caseReferenceNumber",
+       |      "generatedAt": "${generatedAt.toString}"
+       |  } 
        |}""".stripMargin
 
   def createCaseApiErrorResponseBody(errorCode: String, errorMessage: String): String =

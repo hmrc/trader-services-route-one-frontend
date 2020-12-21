@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.journey
 
-import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, UpscanInitiateRequest, UpscanInitiateResponse}
+import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesResult, UpscanInitiateRequest, UpscanInitiateResponse}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
@@ -28,7 +28,7 @@ import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
 
-import java.time.{LocalDate, LocalTime, ZonedDateTime}
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.ClassTag
@@ -38,7 +38,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
   import scala.concurrent.duration._
   override implicit val defaultTimeout: FiniteDuration = 60 seconds
-
   // dummy journey context
   case class DummyContext()
   implicit val dummyContext: DummyContext = DummyContext()
@@ -2336,7 +2335,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "go to CreateCaseConfirmation when createCase" in {
         val mockCreateCaseApi: CreateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("A1234567890")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
+            )
+          )
         }
         given(
           FileUploaded(
@@ -2370,7 +2374,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            "A1234567890"
+            TraderServicesResult("A1234567890", generatedAt)
           )
         )
       }
@@ -2424,7 +2428,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            "A1234567890"
+            TraderServicesResult("A1234567890", generatedAt)
           )
         ) when start(eoriNumber) should thenGo(Start)
       }
@@ -2444,7 +2448,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            "A1234567890"
+            TraderServicesResult("A1234567890", generatedAt)
           )
         ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
       }
@@ -2491,6 +2495,7 @@ trait TestData {
 
   val eoriNumber = "foo"
   val correlationId = "123"
+  val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 0)
 
   val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
   val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))

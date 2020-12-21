@@ -4,6 +4,7 @@ import play.api.libs.json.Format
 import play.api.mvc.{Cookies, Session}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
@@ -1799,8 +1800,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          "A1234567890",
-          Some(generatedAt)
+          TraderServicesResult("A1234567890", generatedAt)
         )
       }
     }
@@ -1822,8 +1822,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          "TBC",
-          Some(generatedAt)
+          TraderServicesResult("TBC", generatedAt)
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1834,7 +1833,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         result.body should include(
-          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${Some(generatedAt).ddMMYYYYAtTimeFormat}"
+          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
         )
 
         journey.getState shouldBe state

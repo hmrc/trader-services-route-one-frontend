@@ -20,14 +20,19 @@ import play.api.libs.json.{Format, Json}
 
 import java.time.LocalDateTime
 
+case class TraderServicesResult(caseId: String, generatedAt: LocalDateTime)
+
+object TraderServicesResult {
+  implicit val formats: Format[TraderServicesResult] =
+    Json.format[TraderServicesResult]
+}
 case class TraderServicesCaseResponse(
   // Identifier associated with a request,
   correlationId: String,
   // Represents an error occurred
   error: Option[ApiError] = None,
   // Represents the result
-  result: Option[String] = None,
-  generatedAt: Option[LocalDateTime] = None
+  result: Option[TraderServicesResult] = None
 )
 
 object TraderServicesCaseResponse {

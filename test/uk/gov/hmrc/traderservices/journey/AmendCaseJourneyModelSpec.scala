@@ -16,28 +16,21 @@
 
 package uk.gov.hmrc.traderservices.journey
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadTransitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{Merger, State, Transition, UpdateCaseApi, UpscanInitiateApi}
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{start => _, _}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyService
-import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers}
+import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.reflect.ClassTag
-import scala.concurrent.Future
-import scala.util.Random
-import scala.util.Try
 import java.time.ZonedDateTime
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
-import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
-import uk.gov.hmrc.traderservices.connectors.ApiError
-import views.html.defaultpages.error
-
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+import scala.reflect.ClassTag
+import scala.util.{Random, Try}
 class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
   import scala.concurrent.duration._
@@ -46,7 +39,6 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
   // dummy journey context
   case class DummyContext()
   implicit val dummyContext: DummyContext = DummyContext()
-
   val mockUpscanInitiate: UpscanInitiateApi = request =>
     Future.successful(
       UpscanInitiateResponse(
@@ -185,7 +177,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     "at state EnterResponseText" should {
       "goto AmendCaseConfirmation when submited response text in WriteResponse mode" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
@@ -198,7 +195,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) when submitedResponseText(upscanRequest, mockUpscanInitiate, updateCaseApi)(eoriNumber)(
           responseText
         ) should thenGo(
-          AmendCaseConfirmation("PC12010081330XGBNZJO04")
+          AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
         )
       }
 
@@ -222,7 +219,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "fail when submited response text in WriteResponse mode and UpdateCase API returned sucess with different case reference number" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
-            TraderServicesCaseResponse(correlationId = "", result = Some("not_the_same_case_reference"))
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("not_the_same_case_reference", generatedAt))
+            )
           )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
@@ -240,7 +240,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto EnterCaseReferenceNumber when submited response text in WriteResponse mode but case reference number is missing" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
@@ -265,7 +270,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto SelectTypeOfAmendment when submited response text in WriteResponse mode but type of amendment is missing" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
@@ -290,7 +300,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto UploadFile when submited response text in WriteResponseAndUploadDocuments mode" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
@@ -328,7 +343,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "fail when submited response text in UploadDocuments mode" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
@@ -1198,7 +1218,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto AmendCaseConfirmation when amendCase" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         given(
           FileUploaded(
@@ -1209,7 +1234,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) when
           amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
-            AmendCaseConfirmation("PC12010081330XGBNZJO04")
+            AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
       }
 
@@ -1231,7 +1256,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "fail when amendCase and received case reference doesn't match" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
-            TraderServicesCaseResponse(correlationId = "", result = Some("not_the_same_case_reference"))
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("not_the_same_case_reference", generatedAt))
+            )
           )
         }
         given(
@@ -1245,7 +1273,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto EnterCaseReferenceNumber when amendCase without case reference number provided" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val model = fullAmendCaseStateModel.copy(caseReferenceNumber = None)
         given(
@@ -1263,7 +1296,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
       "goto SelectTypeOfAmendment when amendCase without type of amendment provided" in {
         val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(TraderServicesCaseResponse(correlationId = "", result = Some("PC12010081330XGBNZJO04")))
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
         }
         val model = fullAmendCaseStateModel.copy(typeOfAmendment = None)
         given(

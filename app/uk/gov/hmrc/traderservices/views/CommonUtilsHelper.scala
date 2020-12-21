@@ -25,14 +25,11 @@ object CommonUtilsHelper {
     def format3d = "%03d".format(s)
   }
 
-  implicit class DateTimeUtilities(s: Option[LocalDateTime]) {
-    def ddMMYYYYAtTimeFormat =
-      s match {
-        case Some(datetime) =>
-          val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
-          formatter.format(datetime)
-        case None => ""
-      }
+  implicit class DateTimeUtilities(s: LocalDateTime) {
+    def ddMMYYYYAtTimeFormat = {
+      val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'at' HH:mm")
+      formatter.format(s)
+    }
   }
 
   /**
