@@ -5,7 +5,7 @@ module.exports = {
   devtool: 'source-map',
   entry: './javascripts/index.ts',
   resolve: {
-    extensions: ['*', '.js', '.ts']
+    extensions: ['.js', '.ts']
   },
   module: {
     rules: [
@@ -27,7 +27,7 @@ module.exports = {
       },
       {
         test: /\.ts$/,
-        exclude: /node_modules/,
+        exclude: /node_modules|legacy/,
         loader: 'eslint-loader'
       }
     ]

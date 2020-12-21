@@ -1,5 +1,6 @@
-export class FileUpload {
-  private readonly form: HTMLFormElement;
+import {Component} from './component';
+
+export class FileUpload extends Component {
   private config;
   private ariaLiveMessageTpl: string;
   private loadingContainer: HTMLDivElement;
@@ -8,7 +9,7 @@ export class FileUpload {
   private fileInput: HTMLInputElement;
 
   constructor(form: HTMLFormElement) {
-    this.form = form;
+    super(form);
 
     this.config = {
       uploadUrl: form.action,
@@ -30,14 +31,14 @@ export class FileUpload {
   }
 
   private cacheElements(): void {
-    this.loadingContainer = this.form.querySelector('.file-upload__loading-container');
-    this.spinner = this.form.querySelector('.file-upload__spinner');
-    this.submit = this.form.querySelector('.file-upload__submit');
-    this.fileInput = this.form.querySelector(`[name="${this.config.fileInputName}"]`);
+    this.loadingContainer = this.container.querySelector('.file-upload__loading-container');
+    this.spinner = this.container.querySelector('.file-upload__spinner');
+    this.submit = this.container.querySelector('.file-upload__submit');
+    this.fileInput = this.container.querySelector(`[name="${this.config.fileInputName}"]`);
   }
 
   private bindEvents(): void {
-    this.form.addEventListener('submit', this.handleSubmit.bind(this));
+    this.container.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
   private handleSubmit(e: Event): void {
@@ -54,7 +55,7 @@ export class FileUpload {
   }
 
   private submitForm(): void {
-    const formData: FormData = new FormData(this.form);
+    const formData: FormData = new FormData(this.container as HTMLFormElement);
 
     if (!this.fileInput.value) {
       formData.delete(this.config.fileInputName);

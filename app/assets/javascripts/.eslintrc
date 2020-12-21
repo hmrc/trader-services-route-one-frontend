@@ -1,7 +1,6 @@
 {
   "env": {
-    "browser": true,
-    "node": true
+    "browser": true
   },
   "extends": [
     "eslint:recommended",
@@ -17,7 +16,7 @@
   },
   "rules": {
     "indent": [
-      "error",
+      "warn",
       2,
       {
         "SwitchCase": 1

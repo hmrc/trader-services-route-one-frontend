@@ -1,5 +1,6 @@
 {
   "name": "trader-services-route-one-frontend",
+  "repository": "https://github.com/hmrc/trader-services-route-one-frontend",
   "version": "1.0.0",
   "description": "Frontend components",
   "scripts": {
