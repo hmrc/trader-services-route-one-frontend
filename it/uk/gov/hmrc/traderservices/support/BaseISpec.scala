@@ -27,8 +27,7 @@ abstract class BaseISpec
         "auditing.consumer.baseUri.host"       -> wireMockHost,
         "auditing.consumer.baseUri.port"       -> wireMockPort,
         "play.filters.csrf.method.whiteList.0" -> "POST",
-        "play.filters.csrf.method.whiteList.1" -> "GET",
-        "play.ws.ahc.useCookieStore"           -> true
+        "play.filters.csrf.method.whiteList.1" -> "GET"
       )
       .overrides(bind[AppConfig].toInstance(TestAppConfig(wireMockBaseUrlAsString, wireMockPort)))
 
