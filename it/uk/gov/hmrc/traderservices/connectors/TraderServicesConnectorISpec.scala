@@ -71,7 +71,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
       "throw exception if returns 500" in {
         givenUpdateCaseApiStub(500, validRequestOfUpdateCaseApi(), "")
 
-        an[TraderServicesApiError] shouldBe thrownBy {
+        an[TraderServicesAmendApiError] shouldBe thrownBy {
           await(connector.updateCase(updateCaseRequest))
         }
       }

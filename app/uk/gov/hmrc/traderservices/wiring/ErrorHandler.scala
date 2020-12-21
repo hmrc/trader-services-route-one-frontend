@@ -43,9 +43,8 @@ import uk.gov.hmrc.play.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import uk.gov.hmrc.traderservices.connectors.TraderServicesApiError
-import uk.gov.hmrc.traderservices.views.html.PageNotFoundErrorView
-import uk.gov.hmrc.traderservices.views.html.InternalErrorView
+import uk.gov.hmrc.traderservices.connectors.{TraderServicesAmendApiError, TraderServicesApiError}
+import uk.gov.hmrc.traderservices.views.html.{AmendCaseErrorView, InternalErrorView, PageNotFoundErrorView}
 import uk.gov.hmrc.traderservices.views.html.components.h1
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
 
@@ -62,6 +61,7 @@ class ErrorHandler @Inject() (
   govUkWrapper: GovukLayoutWrapper,
   h1: h1,
   pageNotFoundErrorView: PageNotFoundErrorView,
+  amendCaseErrorView: AmendCaseErrorView,
   internalErrorView: InternalErrorView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
@@ -79,10 +79,11 @@ class ErrorHandler @Inject() (
     auditServerError(request, exception)
     implicit val r = Request(request, "")
     exception match {
-      case _: NoActiveSession        => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments => Forbidden
-      case _: TraderServicesApiError => Ok(externalErrorTemplate())
-      case _                         => Ok(internalErrorView())
+      case _: NoActiveSession             => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
+      case _: InsufficientEnrolments      => Forbidden
+      case _: TraderServicesApiError      => Ok(externalErrorTemplate())
+      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
+      case _                              => Ok(internalErrorView())
     }
   }
 
@@ -99,6 +100,8 @@ class ErrorHandler @Inject() (
       Messages("external.error.500.heading"),
       Messages("external.error.500.message")
     )
+
+  def externalAmendErrorTemplate()(implicit request: Request[_]) = amendCaseErrorView()
 }
 
 object EventTypes {
