@@ -23,7 +23,7 @@ trait DateTimeFormatHelper {
 
   val govUkDateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
 
-  val govUkTimeFormat = DateTimeFormatter.ofPattern("h:mm a")
+  val govUkTimeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
   def formatDateForDisplay(date: TemporalAccessor): String = govUkDateFormat.format(date)
 
