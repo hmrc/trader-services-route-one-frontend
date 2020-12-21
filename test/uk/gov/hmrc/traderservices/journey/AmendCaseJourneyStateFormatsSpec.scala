@@ -17,18 +17,21 @@
 package uk.gov.hmrc.traderservices.journey
 
 import play.api.libs.json.{Format, JsResultException, Json}
+import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
+
 import java.time.ZonedDateTime
 import scala.util.Random
 
 class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
 
   implicit val formats: Format[State] = AmendCaseJourneyStateFormats.formats
+  val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 30)
 
   "AmendCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
@@ -56,8 +59,8 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
       )
       val text = Random.alphanumeric.take(1000).mkString
       validateJsonFormat(
-        s"""{"state":"AmendCaseConfirmation","properties":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}""",
-        State.AmendCaseConfirmation("PC12010081330XGBNZJO04")
+        s"""{"state":"AmendCaseConfirmation","properties":{"result":{"caseId":"PC12010081330XGBNZJO04","generatedAt":"${generatedAt.toString}"}}}""".stripMargin,
+        State.AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
       )
       val fileUploadHostData =
         AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse), Some(text))

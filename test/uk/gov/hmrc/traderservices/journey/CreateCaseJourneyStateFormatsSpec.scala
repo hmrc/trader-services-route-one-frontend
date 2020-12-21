@@ -17,14 +17,15 @@
 package uk.gov.hmrc.traderservices.journey
 
 import java.time.LocalDate
-
 import play.api.libs.json.{Format, JsResultException, Json}
+import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
+
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
@@ -32,6 +33,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHost
 class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
 
   implicit val formats: Format[State] = CreateCaseJourneyStateFormats.formats
+  val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 30)
 
   "CreateCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
@@ -572,14 +574,14 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        """{"state":"CreateCaseConfirmation","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
-          |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
-          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
-          |"uploadedFiles":[
-          |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}
-          |],
-          |"caseReferenceId":"7w7e7wq87ABDFD78wq7e87"}}""".stripMargin,
+        s"""{"state":"CreateCaseConfirmation","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
+           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
+           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
+           |"uploadedFiles":[
+           |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}
+           |],
+           |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"}}}""".stripMargin,
         State.CreateCaseConfirmation(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           exportQuestions,
@@ -593,7 +595,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               "application/pdf"
             )
           ),
-          "7w7e7wq87ABDFD78wq7e87"
+          TraderServicesResult("7w7e7wq87ABDFD78wq7e87", generatedAt)
         )
       )
       validateJsonFormat(

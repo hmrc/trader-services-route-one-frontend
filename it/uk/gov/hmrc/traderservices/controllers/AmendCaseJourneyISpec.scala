@@ -4,6 +4,7 @@ import play.api.libs.json.Format
 import play.api.mvc.{Cookies, Session}
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
@@ -144,7 +145,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/add/write-response").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AmendCaseConfirmation("PC12010081330XGBNZJO05", Some(generatedAt))
+        journey.getState shouldBe AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO05", generatedAt))
       }
     }
 
@@ -370,7 +371,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     "GET /send-documents-for-customs-check/add/confirmation" should {
       "show confirmation page" in {
         implicit val journeyId: JourneyId = JourneyId()
-        val state = AmendCaseConfirmation("PC12010081330XGBNZJO04", Some(generatedAt))
+        val state = AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -380,7 +381,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.body should include(htmlEscapedPageTitle("view.amend-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
         result.body should include(
-          s"${htmlEscapedMessage("view.amend-case-confirmation.date")} ${Some(generatedAt).ddMMYYYYAtTimeFormat}"
+          s"${htmlEscapedMessage("view.amend-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
         )
         journey.getState shouldBe state
       }
