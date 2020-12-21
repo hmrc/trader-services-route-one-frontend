@@ -35,7 +35,7 @@ import uk.gov.hmrc.play.http.ws.WSHttp
 
 class FrontendModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
 
-  def configure(): Unit = {
+  override def configure(): Unit = {
 
     val appName = "trader-services-route-one-frontend"
 

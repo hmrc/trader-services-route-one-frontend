@@ -16,15 +16,14 @@ lazy val scoverageSettings = {
 }
 
 lazy val compileDeps = Seq(
-  ws,
-  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-26" % "2.25.0",
-  "uk.gov.hmrc"                  %% "auth-client"                % "3.2.0-play-26",
-  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.71.0-play-26",
-  "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-26",
-  "uk.gov.hmrc"                  %% "mongo-caching"              % "6.16.0-play-26",
-  "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.56.0-play-26",
-  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.29.0-play-26",
+  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-27" % "3.2.0",
+  "uk.gov.hmrc"                  %% "auth-client"                % "3.2.0-play-27",
+  "uk.gov.hmrc"                  %% "play-fsm"                   % "0.71.0-play-27",
+  "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-27",
+  "uk.gov.hmrc"                  %% "mongo-caching"              % "6.16.0-play-27",
+  "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-27",
+  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.56.0-play-27",
+  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.34.0-play-27",
   "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.14",
   "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )
@@ -32,29 +31,10 @@ lazy val compileDeps = Seq(
 def testDeps(scope: String) =
   Seq(
     "org.scalatest"          %% "scalatest"          % "3.2.3"  % scope,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3"  % scope,
-    "com.github.tomakehurst"  % "wiremock"           % "2.27.2" % scope,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3"  % scope,
+    "com.github.tomakehurst"  % "wiremock-jre8"      % "2.27.2" % scope,
     "com.vladsch.flexmark"    % "flexmark-all"       % "0.36.8" % scope
   )
-
-val jettyVersion = "9.2.24.v20180105"
-
-val jettyOverrides = Seq(
-  "org.eclipse.jetty"           % "jetty-server"       % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-servlet"      % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-security"     % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-servlets"     % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-continuation" % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-webapp"       % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-xml"          % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-client"       % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-http"         % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-io"           % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty"           % "jetty-util"         % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-api"      % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-common"   % jettyVersion % IntegrationTest,
-  "org.eclipse.jetty.websocket" % "websocket-client"   % jettyVersion % IntegrationTest
-)
 
 lazy val root = (project in file("."))
   .settings(
@@ -78,7 +58,6 @@ lazy val root = (project in file("."))
       Resolver.jcenterRepo
     ),
     libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
-    dependencyOverrides ++= jettyOverrides,
     publishingSettings,
     javaScriptSettings,
     scoverageSettings,

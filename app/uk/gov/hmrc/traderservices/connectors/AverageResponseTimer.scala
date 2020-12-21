@@ -33,7 +33,7 @@ trait AverageResponseTimer {
         kenshooRegistry.getTimers
           .getOrDefault(timerName(serviceName), kenshooRegistry.timer(timerName(serviceName)))
           .update(duration.length, duration.unit)
-        Logger.debug(
+        Logger(getClass).debug(
           s"kenshoo-event::timer::${timerName(serviceName)}::duration:{'length':${duration.length}, 'unit':${duration.unit}}"
         )
     }

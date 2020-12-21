@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Format
 
 case class EntryNumber(value: String)
 
