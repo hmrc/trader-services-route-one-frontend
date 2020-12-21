@@ -19,7 +19,6 @@ package uk.gov.hmrc.traderservices.views.components
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import uk.gov.hmrc.govukfrontend.views.viewmodels.footer.FooterItem
-import play.api.http.HeaderNames.REFERER
 
 object FooterLinks {
 

@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import java.util.stream.Collectors
-
 import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 

@@ -885,7 +885,11 @@ class CreateCaseJourneyController @Inject() (
       case journeyIdPathParamRegex(id) => Some(id)
       case _                           => None
     }
-    journeyIdFromPath.orElse(rh.session.get(journeyService.journeyKey))
+
+    val idOpt = journeyIdFromPath
+      .orElse(rh.session.get(journeyService.journeyKey))
+
+    idOpt
   }
 
   private def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get

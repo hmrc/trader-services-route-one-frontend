@@ -14,6 +14,7 @@ import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+import play.api.libs.ws.DefaultWSCookie
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -401,17 +402,14 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec {
 
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
+
   def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
 
     wsClient
       .url(s"$baseUrl$path")
-      .withHttpHeaders(
-        play.api.http.HeaderNames.COOKIE -> Cookies.encodeCookieHeader(
-          Seq(
-            sessionCookie.copy(value = sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
-          )
-        )
+      .withCookies(
+        DefaultWSCookie(sessionCookie.name, sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
       )
   }
 }

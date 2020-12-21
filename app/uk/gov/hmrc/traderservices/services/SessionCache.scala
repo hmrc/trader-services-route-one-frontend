@@ -37,7 +37,7 @@ trait SessionCache[T, C] {
     get.flatMap {
       case Right(cache) => cache
       case Left(error) =>
-        Logger.warn(error)
+        Logger(getClass).warn(error)
         Future.failed(new RuntimeException(error))
     }
 
@@ -45,7 +45,7 @@ trait SessionCache[T, C] {
     store(input).flatMap {
       case Right(_) => input
       case Left(error) =>
-        Logger.warn(error)
+        Logger(getClass).warn(error)
         Future.failed(new RuntimeException(error))
     }
 

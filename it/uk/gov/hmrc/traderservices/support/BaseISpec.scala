@@ -12,7 +12,6 @@ import uk.gov.hmrc.traderservices.stubs.{AuthStubs, DataStreamStubs}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.traderservices.support.UnitSpec
 
 abstract class BaseISpec
     extends UnitSpec with WireMockSupport with AuthStubs with DataStreamStubs with MetricsTestSupport {
@@ -28,7 +27,8 @@ abstract class BaseISpec
         "auditing.consumer.baseUri.host"       -> wireMockHost,
         "auditing.consumer.baseUri.port"       -> wireMockPort,
         "play.filters.csrf.method.whiteList.0" -> "POST",
-        "play.filters.csrf.method.whiteList.1" -> "GET"
+        "play.filters.csrf.method.whiteList.1" -> "GET",
+        "play.ws.ahc.useCookieStore"           -> true
       )
       .overrides(bind[AppConfig].toInstance(TestAppConfig(wireMockBaseUrlAsString, wireMockPort)))
 
