@@ -5,7 +5,7 @@ module.exports = {
   devtool: 'source-map',
   entry: './javascripts/index.ts',
   resolve: {
-    extensions: ['*', '.js', '.ts']
+    extensions: ['.js', '.ts']
   },
   module: {
     rules: [
@@ -18,6 +18,9 @@ module.exports = {
             presets: [
               '@babel/typescript',
               '@babel/preset-env'
+            ],
+            plugins: [
+              '@babel/plugin-proposal-class-properties'
             ]
           }
         }

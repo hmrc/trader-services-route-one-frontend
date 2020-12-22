@@ -1,7 +1,7 @@
-declare const GOVUKFrontend: any;
-declare const HMRCFrontend: any;
+declare const GOVUKFrontend: { initAll };
+declare const HMRCFrontend: { initAll };
 
-export default function init() {
+export default function init(): void {
   GOVUKFrontend.initAll();
   HMRCFrontend.initAll();
 

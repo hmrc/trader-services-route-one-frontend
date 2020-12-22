@@ -1,6 +1,5 @@
 import init from './init';
+import loadComponents from './load-components';
 
 init();
-
-require('./legacy/researchBanner.js');
-require('./components/file-upload.js');
+loadComponents();
