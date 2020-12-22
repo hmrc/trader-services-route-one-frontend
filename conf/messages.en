@@ -80,7 +80,7 @@ internal.error.500.line2=Any answers you provided may not have been saved. When 
 external.update.error.500.title=Sorry, something has gone wrong
 external.update.error.500.heading=Sorry, something has gone wrong
 external.update.error.500.line1=You may have entered some incorrect details.
-external.update.error.500.line2=Try to <a class="govuk-link" href="{0}">Enter your case reference number</a> again.
+external.update.error.500.line2=Try to <a class="govuk-link" href="{0}">enter your case reference number</a> again.
 
 # Banner
 # ----------------------------------------------------------

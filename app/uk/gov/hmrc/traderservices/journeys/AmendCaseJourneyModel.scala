@@ -20,7 +20,7 @@ import uk.gov.hmrc.traderservices.models._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.traderservices.connectors.{TraderServicesCaseResponse, TraderServicesResult, TraderServicesUpdateCaseRequest, UpscanInitiateRequest}
+import uk.gov.hmrc.traderservices.connectors.{TraderServicesAmendApiError, TraderServicesCaseResponse, TraderServicesResult, TraderServicesUpdateCaseRequest, UpscanInitiateRequest}
 
 import java.time.LocalDateTime
 
@@ -198,14 +198,16 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
                         )
                       else
                         fail(
-                          new RuntimeException(
-                            s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
+                          TraderServicesAmendApiError(
+                            new RuntimeException(
+                              s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
+                            )
                           )
                         )
                     else {
                       val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
                         response.error.map(_.errorMessage).getOrElse("")
-                      fail(new RuntimeException(message))
+                      fail(TraderServicesAmendApiError(new RuntimeException(message)))
                     }
                   }
 
