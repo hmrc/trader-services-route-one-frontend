@@ -65,9 +65,7 @@ class ExportQuestionsFormSpec extends UnitSpec with FormValidator {
       val form = CreateCaseJourneyController.ExportPriorityGoodsForm
       validate(form, Map("priorityGoods" -> "LiveAnimals"), ExportPriorityGoods.LiveAnimals)
       validate(form, Map("priorityGoods" -> "HumanRemains"), ExportPriorityGoods.HumanRemains)
-      validate(form, Map("priorityGoods" -> "HighValueArt"), ExportPriorityGoods.HighValueArt)
       validate(form, Map("priorityGoods" -> "ExplosivesOrFireworks"), ExportPriorityGoods.ExplosivesOrFireworks)
-      validate(form, Map("priorityGoods" -> "ClassADrugs"), ExportPriorityGoods.ClassADrugs)
       validate(form, "priorityGoods", Map(), Seq("error.exportPriorityGoods.required"))
       validate(form, "priorityGoods", Map("priorityGoods" -> "Foo"), Seq("error.exportPriorityGoods.invalid-option"))
     }

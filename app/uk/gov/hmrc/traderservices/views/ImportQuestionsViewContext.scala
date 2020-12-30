@@ -59,9 +59,7 @@ class ImportQuestionsViewContext
     )
 
   val importPriorityGoodsList = Seq(
-    ImportPriorityGoods.ClassADrugs,
     ImportPriorityGoods.ExplosivesOrFireworks,
-    ImportPriorityGoods.HighValueArt,
     ImportPriorityGoods.HumanRemains,
     ImportPriorityGoods.LiveAnimals
   )

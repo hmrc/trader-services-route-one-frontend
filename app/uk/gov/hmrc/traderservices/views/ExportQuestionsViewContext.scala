@@ -63,9 +63,7 @@ class ExportQuestionsViewContext
     )
 
   val exportPriorityGoodsList = Seq(
-    ExportPriorityGoods.ClassADrugs,
     ExportPriorityGoods.ExplosivesOrFireworks,
-    ExportPriorityGoods.HighValueArt,
     ExportPriorityGoods.HumanRemains,
     ExportPriorityGoods.LiveAnimals
   )

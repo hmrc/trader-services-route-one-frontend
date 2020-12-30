@@ -23,8 +23,6 @@ object ExportPriorityGoods extends EnumerationFormats[ExportPriorityGoods] {
   case object LiveAnimals extends ExportPriorityGoods
   case object HumanRemains extends ExportPriorityGoods
   case object ExplosivesOrFireworks extends ExportPriorityGoods
-  case object HighValueArt extends ExportPriorityGoods
-  case object ClassADrugs extends ExportPriorityGoods
 
-  val values = Set(LiveAnimals, HumanRemains, ExplosivesOrFireworks, HighValueArt, ClassADrugs)
+  val values = Set(LiveAnimals, HumanRemains, ExplosivesOrFireworks)
 }

@@ -216,8 +216,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate export priorityGoods" in {
       exportPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportPriorityGoods.LiveAnimals)
       exportPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportPriorityGoods.HumanRemains)
-      exportPriorityGoodsMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ExportPriorityGoods.HighValueArt)
-      exportPriorityGoodsMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ExportPriorityGoods.ClassADrugs)
       exportPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
         ExportPriorityGoods.ExplosivesOrFireworks
       )
@@ -232,8 +230,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     "validate import priorityGoods" in {
       importPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ImportPriorityGoods.LiveAnimals)
       importPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ImportPriorityGoods.HumanRemains)
-      importPriorityGoodsMapping.bind(Map("" -> "HighValueArt")) shouldBe Right(ImportPriorityGoods.HighValueArt)
-      importPriorityGoodsMapping.bind(Map("" -> "ClassADrugs")) shouldBe Right(ImportPriorityGoods.ClassADrugs)
       importPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
         ImportPriorityGoods.ExplosivesOrFireworks
       )

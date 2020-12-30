@@ -61,9 +61,7 @@ class ImportQuestionsFormSpec extends UnitSpec with FormValidator {
       val form = CreateCaseJourneyController.ImportPriorityGoodsForm
       validate(form, Map("priorityGoods" -> "LiveAnimals"), ImportPriorityGoods.LiveAnimals)
       validate(form, Map("priorityGoods" -> "HumanRemains"), ImportPriorityGoods.HumanRemains)
-      validate(form, Map("priorityGoods" -> "HighValueArt"), ImportPriorityGoods.HighValueArt)
       validate(form, Map("priorityGoods" -> "ExplosivesOrFireworks"), ImportPriorityGoods.ExplosivesOrFireworks)
-      validate(form, Map("priorityGoods" -> "ClassADrugs"), ImportPriorityGoods.ClassADrugs)
       validate(form, "priorityGoods", Map(), Seq("error.importPriorityGoods.required"))
       validate(form, "priorityGoods", Map("priorityGoods" -> "Foo"), Seq("error.importPriorityGoods.invalid-option"))
     }

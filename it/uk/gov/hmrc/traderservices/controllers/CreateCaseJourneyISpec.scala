@@ -559,7 +559,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt)
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains)
             )
           )
         )
@@ -686,7 +686,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -713,7 +713,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Hold),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -741,7 +741,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1602),
                 routeType = Some(ExportRouteType.Route6),
-                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ExportPriorityGoods.HumanRemains),
                 freightType = Some(ExportFreightType.Air)
               )
             )
@@ -770,7 +770,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air),
               vesselDetails = Some(
                 VesselDetails(
@@ -792,7 +792,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -823,7 +823,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -850,7 +850,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
-                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ExportPriorityGoods.HumanRemains),
                 freightType = Some(ExportFreightType.Air)
               )
             )
@@ -881,7 +881,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air),
               vesselDetails = Some(
                 VesselDetails(
@@ -904,7 +904,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
-                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ExportPriorityGoods.HumanRemains),
                 freightType = Some(ExportFreightType.Air)
               )
             )
@@ -926,7 +926,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air),
               vesselDetails = Some(VesselDetails())
             )
@@ -942,7 +942,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -999,7 +999,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
-                priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ExportPriorityGoods.HumanRemains),
                 freightType = Some(ExportFreightType.Air)
               )
             )
@@ -1022,7 +1022,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air),
               contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
             )
@@ -1038,7 +1038,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
-              priorityGoods = Some(ExportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ExportPriorityGoods.HumanRemains),
               freightType = Some(ExportFreightType.Air)
             )
           )
@@ -1485,7 +1485,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
-              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
               freightType = Some(ImportFreightType.Air)
             )
           )
@@ -1513,7 +1513,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
-                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ImportPriorityGoods.HumanRemains),
                 freightType = Some(ImportFreightType.Air)
               )
             )
@@ -1542,7 +1542,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
-              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
               freightType = Some(ImportFreightType.Air),
               vesselDetails = Some(
                 VesselDetails(
@@ -1565,7 +1565,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
-                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ImportPriorityGoods.HumanRemains),
                 freightType = Some(ImportFreightType.Air)
               )
             )
@@ -1585,7 +1585,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
-              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
               freightType = Some(ImportFreightType.Air),
               vesselDetails = Some(VesselDetails())
             )
@@ -1625,7 +1625,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
-                priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+                priorityGoods = Some(ImportPriorityGoods.HumanRemains),
                 freightType = Some(ImportFreightType.Air)
               )
             )
@@ -1647,7 +1647,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
-              priorityGoods = Some(ImportPriorityGoods.HighValueArt),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
               freightType = Some(ImportFreightType.Air),
               contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
             )

@@ -37,6 +37,9 @@ class ExportQuestionsFormatSpec extends UnitSpec {
     }
 
     "serialize and deserialize ExportRouteType" in new JsonFormatTest[ExportRouteType](info) {
+
+      ExportRouteType.values.size shouldBe 6
+
       validateJsonFormat("Route1", ExportRouteType.Route1)
       validateJsonFormat("Route1Cap", ExportRouteType.Route1Cap)
       validateJsonFormat("Route2", ExportRouteType.Route2)
@@ -46,14 +49,18 @@ class ExportQuestionsFormatSpec extends UnitSpec {
     }
 
     "serialize and deserialize ExportPriorityGoods" in new JsonFormatTest[ExportPriorityGoods](info) {
+
+      ExportPriorityGoods.values.size shouldBe 3
+
       validateJsonFormat("LiveAnimals", ExportPriorityGoods.LiveAnimals)
       validateJsonFormat("HumanRemains", ExportPriorityGoods.HumanRemains)
       validateJsonFormat("ExplosivesOrFireworks", ExportPriorityGoods.ExplosivesOrFireworks)
-      validateJsonFormat("HighValueArt", ExportPriorityGoods.HighValueArt)
-      validateJsonFormat("ClassADrugs", ExportPriorityGoods.ClassADrugs)
     }
 
     "serialize and deserialize ExportFreightType" in new JsonFormatTest[ExportFreightType](info) {
+
+      ExportFreightType.values.size shouldBe 3
+
       validateJsonFormat("Air", ExportFreightType.Air)
       validateJsonFormat("Maritime", ExportFreightType.Maritime)
       validateJsonFormat("RORO", ExportFreightType.RORO)
