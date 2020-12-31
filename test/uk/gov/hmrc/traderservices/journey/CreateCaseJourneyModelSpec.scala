@@ -440,7 +440,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
                 )
               )
             )
@@ -453,7 +453,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
                   freightType = Some(freightType)
                 )
               )
@@ -498,7 +498,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
                 )
               )
             )
@@ -511,7 +511,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
                   freightType = Some(freightType)
                 )
               )
@@ -556,7 +556,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs)
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
                 )
               )
             )
@@ -569,7 +569,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold),
-                  priorityGoods = Some(ExportPriorityGoods.ClassADrugs),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
                   freightType = Some(freightType)
                 )
               )

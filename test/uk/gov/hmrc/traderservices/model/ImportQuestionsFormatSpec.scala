@@ -46,13 +46,11 @@ class ImportQuestionsFormatSpec extends UnitSpec {
 
     "serialize and deserialize ImportGoodsPriority" in new JsonFormatTest[ImportPriorityGoods](info) {
 
-      ImportPriorityGoods.values.size shouldBe 5
+      ImportPriorityGoods.values.size shouldBe 3
 
       validateJsonFormat("LiveAnimals", ImportPriorityGoods.LiveAnimals)
       validateJsonFormat("HumanRemains", ImportPriorityGoods.HumanRemains)
       validateJsonFormat("ExplosivesOrFireworks", ImportPriorityGoods.ExplosivesOrFireworks)
-      validateJsonFormat("HighValueArt", ImportPriorityGoods.HighValueArt)
-      validateJsonFormat("ClassADrugs", ImportPriorityGoods.ClassADrugs)
     }
 
     "serialize and deserialize ImportFreightType" in new JsonFormatTest[ImportFreightType](info) {
@@ -65,3 +63,4 @@ class ImportQuestionsFormatSpec extends UnitSpec {
     }
   }
 }
+
