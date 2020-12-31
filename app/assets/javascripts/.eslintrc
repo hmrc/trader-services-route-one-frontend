@@ -12,8 +12,7 @@
   ],
   "parserOptions": {
     "ecmaVersion": 6,
-    "sourceType": "module",
-    "project": "javascripts/tsconfig.json"
+    "sourceType": "module"
   },
   "rules": {
     "indent": [

@@ -5,9 +5,7 @@
   "description": "Frontend components",
   "scripts": {
     "start": "webpack --config webpack.dev.config.js",
-    "build": "npm test && webpack --config webpack.prod.config.js",
-    "test": "node_modules/karma/bin/karma start --single-run",
-    "test-watch": "node_modules/karma/bin/karma start"
+    "build": "webpack --config webpack.prod.config.js"
   },
   "author": "HMRC",
   "license": "Apache-2.0",
@@ -20,20 +18,13 @@
     "@babel/plugin-proposal-class-properties": "7.12.1",
     "@babel/preset-env": "7.12.7",
     "@babel/preset-typescript": "7.12.7",
-    "@typescript-eslint/eslint-plugin": "4.11.1",
+    "@typescript-eslint/eslint-plugin": "4.9.1",
     "@typescript-eslint/parser": "4.9.1",
     "babel-loader": "8.2.2",
     "eslint": "7.15.0",
     "eslint-loader": "4.0.2",
-    "jasmine": "3.6.3",
-    "jasmine-core": "3.6.0",
-    "karma": "5.2.3",
-    "karma-chrome-launcher": "3.1.0",
-    "karma-jasmine": "4.0.1",
-    "karma-spec-reporter": "0.0.32",
-    "karma-webpack": "4.0.2",
     "typescript": "4.1.3",
-    "webpack": "4.44.2",
+    "webpack": "5.10.0",
     "webpack-cli": "4.2.0",
     "webpack-merge": "5.5.0"
   }
