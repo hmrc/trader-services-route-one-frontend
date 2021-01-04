@@ -1,10 +1,10 @@
 import {Component} from './components/component';
 import {FileUpload} from './components/file-upload';
 
+import './legacy/research-banner';
+
 export default function loadComponents(): void {
   loadComponent(FileUpload, '.file-upload');
-
-  loadLegacyComponents();
 }
 
 function loadComponent(component: new(container: HTMLElement) => Component, selector: string): void {
@@ -13,8 +13,4 @@ function loadComponent(component: new(container: HTMLElement) => Component, sele
   containers.forEach(container => {
     new component(container);
   });
-}
-
-function loadLegacyComponents(): void {
-  require('./legacy/research-banner.js');
 }
