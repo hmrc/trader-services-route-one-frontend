@@ -54,7 +54,8 @@ class FileUploadedViewContext extends RadioItemsHelper with SummaryListRowHelper
         visuallyHiddenText = Some(fileUpload.fileName),
         keyClasses = Some(""),
         valueClasses = Some("govuk-!-width-full"),
-        action = (removeFileCall(fileUpload.reference), "site.file.remove")
+        action = (removeFileCall(fileUpload.reference), "site.file.remove"),
+        url = Some(fileUpload.url)
       )
 
     SummaryList(

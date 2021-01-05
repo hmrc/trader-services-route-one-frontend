@@ -33,7 +33,8 @@ trait SummaryListRowHelper {
     visuallyHiddenText: Option[String],
     action: (Call, String),
     keyClasses: Option[String] = None,
-    valueClasses: Option[String] = None
+    valueClasses: Option[String] = None,
+    url: Option[String] = None
   )(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(
@@ -41,7 +42,11 @@ trait SummaryListRowHelper {
         classes = keyClasses.getOrElse("govuk-!-width-one-third")
       ),
       value = Value(
-        content = HtmlContent(value),
+        content = HtmlContent(
+          if (url.nonEmpty)
+            s"<a class='govuk-link' href='${url.get}' target='_blank' rel='noopener noreferrer'>$value</a>"
+          else value
+        ),
         classes = valueClasses.getOrElse("govuk-!-width-two-thirds")
       ),
       actions = Some(
