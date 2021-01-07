@@ -1,0 +1,4 @@
+# microservice specific routes
+
++nocsrf
+POST       /get-file                                                @uk.gov.hmrc.traderservices.controllers.proxy.FileProxyController.getFile

@@ -1,5 +1,5 @@
 ->         /send-documents-for-customs-check      app.Routes
+->         /proxy                                 proxy.Routes
 ->         /                                      health.Routes
 
 GET        /admin/metrics        @com.kenshoo.play.metrics.MetricsController.metrics
-
