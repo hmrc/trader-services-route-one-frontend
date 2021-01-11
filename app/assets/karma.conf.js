@@ -3,6 +3,11 @@ process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
   config.set({
+    client: {
+      jasmine:{
+        random: false
+      }
+    },
     frameworks: ['jasmine'],
     exclude: [],
     basePath: '',
@@ -16,6 +21,9 @@ module.exports = function (config) {
       'karma-spec-reporter',
       'karma-chrome-launcher'
     ],
+    specReporter: {
+      suppressSkipped: true
+    },
     port: 9876,
     colors: true,
     logLevel: config.LOG_INFO,

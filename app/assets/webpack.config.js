@@ -27,7 +27,7 @@ module.exports = {
       },
       {
         test: /\.ts$/,
-        exclude: /node_modules|legacy/,
+        exclude: /node_modules/,
         loader: 'eslint-loader'
       }
     ]

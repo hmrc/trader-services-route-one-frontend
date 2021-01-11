@@ -26,13 +26,10 @@
 <div class="ssp-research-banner">
     <div class="ssp-research-banner--content">
         @h2(messages("researchBanner.heading"), classes = "govuk-heading-s ssp-research-banner--heading")
-        @bannerLink(appConfig.researchBannerUrl, messages("researchBanner.inviteLink"))
+        <a href="@appConfig.researchBannerUrl" class="govuk-body govuk-link ssp-research-banner--link" rel="external noopener noreferrer" target="_blank">@messages("researchBanner.inviteLink")</a>
     </div>
-    <div class="ssp-research-banner--close-link">
-        @bannerLink("#", messages("researchBanner.closeLink"))
+
+    <div class="ssp-research-banner__button-container">
+        <button class="govuk-button ssp-research-banner__button">@messages("researchBanner.closeLink")</button>
     </div>
 </div>
-
-@bannerLink(url: String, content: String) = {
-    <a href="@url" class="govuk-body govuk-link ssp-research-banner--link">@content</a>
-}
