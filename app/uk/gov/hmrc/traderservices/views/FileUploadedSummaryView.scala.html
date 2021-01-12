@@ -27,7 +27,7 @@
         context: FileUploadedViewContext
 )
 
-@(fileUploads: FileUploads, postAction: Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(fileUploads: FileUploads, postAction: Call, previewFileCall: String => Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)),
@@ -37,7 +37,7 @@
 
   @html.h2(messages("view.file-uploaded.list.heading"), classes = "govuk-heading-m")
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,removeFileCall))
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,previewFileCall,removeFileCall))
   
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
 

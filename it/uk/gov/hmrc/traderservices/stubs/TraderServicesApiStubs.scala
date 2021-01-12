@@ -107,4 +107,35 @@ trait TraderServicesApiStubs {
         )
     )
 
+  def stubForFileDownload(status: Int, bytes: Array[Byte], fileName: String): String = {
+    val url = s"$wireMockBaseUrlAsString/bucket/$fileName"
+
+    stubFor(
+      get(urlPathEqualTo(s"/bucket/$fileName"))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+            .withHeader("Content-Type", "application/octet-stream")
+            .withHeader("Content-Length", s"${bytes.length}")
+            .withBody(bytes)
+        )
+    )
+
+    url
+  }
+
+  def stubForFileDownloadFailure(status: Int, fileName: String): String = {
+    val url = s"$wireMockBaseUrlAsString/bucket/$fileName"
+
+    stubFor(
+      get(urlPathEqualTo(s"/bucket/$fileName"))
+        .willReturn(
+          aResponse()
+            .withStatus(status)
+        )
+    )
+
+    url
+  }
+
 }
