@@ -12,8 +12,8 @@ object Webpack {
       val log = ConsoleLogger()
 
       override def beforeStarted(): Unit = {
-        log.info("run npm install...")
-        Process("npm install", base).!
+        log.info("run npm ci...")
+        Process("npm ci", base).!
 
         log.info("Starting webpack in watch mode...")
         watchProcess = Some(Process("npm start", base).run)
