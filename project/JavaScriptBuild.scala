@@ -31,7 +31,7 @@ object JavaScriptBuild {
     }.value,
     // this enables 'sbt "npm <args>"' commands
     commands ++= javaScriptDirectory(base => Seq(Npm.npmCommand(base))).value,
-    npmInstall := Npm.npmProcess("npm install failed")(javaScriptDirectory.value, "install"),
+    npmInstall := Npm.npmProcess("npm ci failed")(javaScriptDirectory.value, "ci"),
     npmBuild := Npm.npmProcess("npm build failed")(javaScriptDirectory.value, "run", "build"),
     npmBuild := (npmBuild dependsOn npmInstall).value,
 //    npmTest := Npm.npmProcess("npm test failed")(javaScriptDirectory.value, "test"),
