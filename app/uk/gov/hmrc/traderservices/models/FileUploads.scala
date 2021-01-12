@@ -47,6 +47,7 @@ object FileUploads {
 sealed trait FileUpload {
   def orderNumber: Int
   def reference: String
+  def checksumOpt: Option[String] = None
 }
 
 object FileUpload extends SealedTraitFormats[FileUpload] {
@@ -70,13 +71,13 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     details: S3UploadError
   ) extends FileUpload
 
-  /** Status when file has successfully arrived to AWS S3 for verification. */
+  /** Status when the file has successfully arrived to AWS S3 for verification. */
   case class Posted(
     orderNumber: Int,
     reference: String
   ) extends FileUpload
 
-  /** Status when file has been positively verified and is ready for further actions. */
+  /** Status when the file has been positively verified and is ready for further actions. */
   case class Accepted(
     orderNumber: Int,
     reference: String,
@@ -85,13 +86,25 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     checksum: String,
     fileName: String,
     fileMimeType: String
-  ) extends FileUpload
+  ) extends FileUpload {
 
-  /** When file has failed verification and may not be used. */
+    override def checksumOpt: Option[String] = Some(checksum)
+  }
+
+  /** Status when the file has failed verification and may not be used. */
   case class Failed(
     orderNumber: Int,
     reference: String,
     details: UpscanNotification.FailureDetails
+  ) extends FileUpload
+
+  /** Status when the file is a duplicate of an existing upload. */
+  case class Duplicate(
+    orderNumber: Int,
+    reference: String,
+    checksum: String,
+    existingFileName: String,
+    duplicateFileName: String
   ) extends FileUpload
 
   override val formats = Set(
@@ -99,7 +112,8 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     Case[Rejected](Json.format[Rejected]),
     Case[Posted](Json.format[Posted]),
     Case[Accepted](Json.format[Accepted]),
-    Case[Failed](Json.format[Failed])
+    Case[Failed](Json.format[Failed]),
+    Case[Duplicate](Json.format[Duplicate])
   )
 
 }

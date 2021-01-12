@@ -25,6 +25,7 @@ import uk.gov.hmrc.traderservices.models.S3UploadError
 import uk.gov.hmrc.traderservices.models.UpscanNotification
 import com.google.inject.Inject
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import uk.gov.hmrc.traderservices.models.DuplicateFileUpload
 
 @Singleton
 class UploadFileViewContext @Inject() (appConfig: AppConfig) {
@@ -36,6 +37,9 @@ class UploadFileViewContext @Inject() (appConfig: AppConfig) {
 
       case FileVerificationFailed(details) =>
         FormError("file", Seq(toMessageKey(details)))
+
+      case DuplicateFileUpload(checksum, existingFileName, duplicateFileName) =>
+        FormError("file", Seq("error.file-upload.duplicate"))
     }
 
   def toMessageKey(error: S3UploadError): String =

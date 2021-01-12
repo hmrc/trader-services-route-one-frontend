@@ -27,7 +27,6 @@ import uk.gov.hmrc.traderservices.models.ImportFreightType.Air
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
-
 import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -1770,6 +1769,88 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "test.pdf",
                   "application/pdf"
                 )
+              )
+            )
+          )
+        )
+      }
+
+      "go to UploadFile when upscanCallbackArrived and accepted, and reference matches but upload is a duplicate" in {
+        given(
+          UploadFile(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "foo-bar-ref-1"),
+                FileUpload.Accepted(
+                  2,
+                  "foo-bar-ref-2",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2020-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test1.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2020-04-24T09:32:13Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test2.png",
+              fileMimeType = "image/png"
+            )
+          )
+        ) should thenGo(
+          UploadFile(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-1",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Duplicate(
+                  1,
+                  "foo-bar-ref-1",
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test1.pdf",
+                  "test2.png"
+                ),
+                FileUpload.Accepted(
+                  2,
+                  "foo-bar-ref-2",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2020-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test1.pdf",
+                  "application/pdf"
+                )
+              )
+            ),
+            Some(
+              DuplicateFileUpload(
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.pdf",
+                "test2.png"
               )
             )
           )

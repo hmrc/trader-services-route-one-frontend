@@ -1,4 +1,4 @@
-import {Component} from './component';
+import { Component } from './component';
 
 export class FileUpload extends Component {
   private config;
@@ -98,6 +98,7 @@ export class FileUpload extends Component {
 
       case 'FAILED':
       case 'REJECTED':
+      case 'DUPLICATE':
         window.location.href = this.config.failureUrl;
         break;
 

@@ -233,6 +233,23 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             Some(FileTransmissionFailed(rejectedFile.details))
           )
         )
+
+      case Some(duplicatedFile: FileUpload.Duplicate) =>
+        goto(
+          UploadFile(
+            hostData,
+            reference,
+            uploadRequest,
+            fileUploads,
+            Some(
+              DuplicateFileUpload(
+                duplicatedFile.checksum,
+                duplicatedFile.existingFileName,
+                duplicatedFile.duplicateFileName
+              )
+            )
+          )
+        )
     }
 
     /** Transition when file has been uploaded and should wait for verification. */
@@ -289,18 +306,36 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
       def updateFileUploads(fileUploads: FileUploads) =
         fileUploads.copy(files = fileUploads.files.map {
+          // update status of the file with matching upscan reference
           case FileUpload(orderNumber, ref) if ref == notification.reference =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
-                FileUpload.Accepted(
-                  orderNumber,
-                  ref,
-                  url,
-                  uploadDetails.uploadTimestamp,
-                  uploadDetails.checksum,
-                  uploadDetails.fileName,
-                  uploadDetails.fileMimeType
-                )
+                //check for existing file uploads with duplicated checksum
+                val modifiedFileUpload: FileUpload = fileUploads.files
+                  .find(file =>
+                    file.checksumOpt.contains(uploadDetails.checksum) && file.reference != notification.reference
+                  ) match {
+                  case Some(existingFileUpload: FileUpload.Accepted) =>
+                    FileUpload.Duplicate(
+                      orderNumber,
+                      ref,
+                      uploadDetails.checksum,
+                      existingFileName = existingFileUpload.fileName,
+                      duplicateFileName = uploadDetails.fileName
+                    )
+                  case _ =>
+                    FileUpload.Accepted(
+                      orderNumber,
+                      ref,
+                      url,
+                      uploadDetails.uploadTimestamp,
+                      uploadDetails.checksum,
+                      uploadDetails.fileName,
+                      uploadDetails.fileMimeType
+                    )
+                }
+                modifiedFileUpload
+
               case UpscanFileFailed(_, failureDetails) =>
                 FileUpload.Failed(
                   orderNumber,
