@@ -22,11 +22,14 @@ sealed trait FileUploadError
 
 case class FileTransmissionFailed(error: S3UploadError) extends FileUploadError
 case class FileVerificationFailed(details: UpscanNotification.FailureDetails) extends FileUploadError
+case class DuplicateFileUpload(checksum: String, existingFileName: String, duplicateFileName: String)
+    extends FileUploadError
 
 object FileUploadError extends SealedTraitFormats[FileUploadError] {
 
   override val formats = Set(
     Case[FileTransmissionFailed](Json.format[FileTransmissionFailed]),
-    Case[FileVerificationFailed](Json.format[FileVerificationFailed])
+    Case[FileVerificationFailed](Json.format[FileVerificationFailed]),
+    Case[DuplicateFileUpload](Json.format[DuplicateFileUpload])
   )
 }

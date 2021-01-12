@@ -468,6 +468,7 @@ error.file-upload.quarantine=The selected file contains a virus - upload a diffe
 error.file-upload.unknown=The selected file could not be uploaded
 error.file-upload.try-again=The selected file could not be uploaded - try again
 error.uploadAnotherFile.required=Select yes if you want to upload another document
+error.file-upload.duplicate=The selected file has already been uploaded
 
 # Confirmation messages
 # ----------------------------------------------------------
