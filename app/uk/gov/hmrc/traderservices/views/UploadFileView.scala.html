@@ -37,6 +37,8 @@
   backLink = Some(backLink.url)
 ) {
 
+  @html.h1(messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading"), classes = "govuk-heading-l")
+
   <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form file-upload" novalidate
   data-file-upload-redirect-success-url="@successAction.url"
   data-file-upload-redirect-failure-url="@failureAction.url"
@@ -51,15 +53,29 @@
       @forms.inputHidden(key, value)
     }
 
+    @html.p{ @messages("view.upload-file.line1") }
+    @html.p{ @messages("view.upload-file.line2") }
+
+    @details(messages("view.upload-file.help.linkText")) {
+      @html.p{ @messages("view.upload-file.help.line1") }
+      @html.ul(
+        messages("view.upload-file.help.fileFormat1"),
+        messages("view.upload-file.help.fileFormat2"),
+        messages("view.upload-file.help.fileFormat3"),
+        messages("view.upload-file.help.fileFormat4"),
+        messages("view.upload-file.help.fileFormat5"),
+        messages("view.upload-file.help.fileFormat6")
+      )
+      @html.p{ @messages("view.upload-file.help.line4") }
+    }
+
     @govukFileUpload(FileUpload(
       name = "file",
       id = "upload-file",
       value = Some(""),
       describedBy = None,
       label = Label(
-        content = Text(messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading")),
-        isPageHeading = true,
-        classes = "govuk-label--l"
+        content = Text(messages(if(fileUploads.isEmpty) "view.upload-file.first.fileLabel" else "view.upload-file.next.fileLabel"))
       ),
       hint = None,
       errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
@@ -72,21 +88,6 @@
         "data-msg-accept" -> messages("error.upload-file.other")
       ))
     )
-
-    @details(messages("view.upload-file.help.linkText")) {
-      @html.p{ @messages("view.upload-file.help.line1") }
-      @html.p{ @messages("view.upload-file.help.line2") }
-      @html.p{ @messages("view.upload-file.help.line3") }
-      @html.ul(
-        messages("view.upload-file.help.fileFormat1"),
-        messages("view.upload-file.help.fileFormat2"),
-        messages("view.upload-file.help.fileFormat3"),
-        messages("view.upload-file.help.fileFormat4"),
-        messages("view.upload-file.help.fileFormat5"),
-        messages("view.upload-file.help.fileFormat6")
-      )
-      @html.p{ @messages("view.upload-file.help.line4") }
-    }
 
     <div>
       @govukButton(Button(
