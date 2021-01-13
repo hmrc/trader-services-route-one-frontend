@@ -17,6 +17,7 @@ import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import java.time.temporal.{ChronoField, ChronoUnit}
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.ws.DefaultWSCookie
+import scala.util.Random
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
@@ -2004,7 +2005,95 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "GET /send-documents-for-customs-check/foo" should {
+    "GET /new/file-uploaded/:reference" should {
+      "stream the uploaded file content back if exists" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val bytes = Array.ofDim[Byte](1024 * 1024)
+        Random.nextBytes(bytes)
+        val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Accepted(
+                4,
+                "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                upscanUrl,
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Failed(
+                3,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          ),
+          acknowledged = false
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result =
+          await(
+            request("/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8")
+              .get()
+          )
+        result.status shouldBe 200
+        result.header("Content-Type") shouldBe Some("application/pdf")
+        result.header("Content-Length") shouldBe Some(s"${bytes.length}")
+        result.header("Content-Disposition") shouldBe Some("""inline; filename="test.pdf"""")
+        result.bodyAsBytes.toArray[Byte] shouldBe bytes
+        journey.getState shouldBe state
+      }
+
+      "return 500 if file does not exist" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Accepted(
+                4,
+                "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                upscanUrl,
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Failed(
+                3,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e2",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          ),
+          acknowledged = false
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result =
+          await(
+            request("/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8")
+              .get()
+          )
+        result.status shouldBe 500
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /foo" should {
       "return an error page not found" in {
         implicit val journeyId: JourneyId = JourneyId()
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))

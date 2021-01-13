@@ -35,6 +35,7 @@ import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import akka.actor.ActorSystem
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -47,9 +48,9 @@ class AmendCaseJourneyController @Inject() (
   override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.AmendCaseViews
-)(implicit val config: Configuration, ec: ExecutionContext)
+)(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
-    with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
+    with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
 
   final val controller = routes.AmendCaseJourneyController
 
@@ -237,6 +238,11 @@ class AmendCaseJourneyController @Inject() (
         ) _
       }
 
+  // GET /add/file-uploaded/:reference
+  final def previewFileUploadByReference(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayUsing(implicit request => streamFileFromUspcan(reference))
+
   // GET /add/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
@@ -365,6 +371,7 @@ class AmendCaseJourneyController @Inject() (
               formWithErrors.or(UploadAnotherFileChoiceForm),
               fileUploads,
               controller.submitUploadAnotherFileChoice,
+              controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkFromFileUpload(model)
             )
@@ -372,6 +379,7 @@ class AmendCaseJourneyController @Inject() (
             views.fileUploadedSummaryView(
               fileUploads,
               controller.amendCase,
+              controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkFromFileUpload(model)
             )
@@ -408,6 +416,22 @@ class AmendCaseJourneyController @Inject() (
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
           case None    => NotFound
+        }
+      case _ => NotFound
+    }
+
+  private def streamFileFromUspcan(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState =>
+        s.fileUploads.files.find(_.reference == reference) match {
+          case Some(file: FileUpload.Accepted) =>
+            fileStream(file.url, file.fileName, file.fileMimeType)
+
+          case _ => NotFound
         }
       case _ => NotFound
     }

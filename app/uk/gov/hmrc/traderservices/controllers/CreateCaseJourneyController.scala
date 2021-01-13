@@ -38,6 +38,8 @@ import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.models.ExportQuestions
 import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 import uk.gov.hmrc.traderservices.models.ImportQuestions
+import uk.gov.hmrc.traderservices.models.FileUpload
+import akka.actor.ActorSystem
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -50,9 +52,9 @@ class CreateCaseJourneyController @Inject() (
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews
-)(implicit val config: Configuration, ec: ExecutionContext)
+)(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
-    with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
+    with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
 
   final val controller = routes.CreateCaseJourneyController
 
@@ -440,6 +442,11 @@ class CreateCaseJourneyController @Inject() (
         ) _
       }
 
+  // GET /new/file-uploaded/:reference
+  final def previewFileUploadByReference(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayUsing(implicit request => streamFileFromUspcan(reference))
+
   // GET /new/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
@@ -816,6 +823,7 @@ class CreateCaseJourneyController @Inject() (
               formWithErrors.or(UploadAnotherFileChoiceForm),
               fileUploads,
               controller.submitUploadAnotherFileChoice,
+              controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkToSummary(model.questionsAnswers)
             )
@@ -823,6 +831,7 @@ class CreateCaseJourneyController @Inject() (
             views.fileUploadedSummaryView(
               fileUploads,
               controller.createCase,
+              controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkToSummary(model.questionsAnswers)
             )
@@ -864,6 +873,22 @@ class CreateCaseJourneyController @Inject() (
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
           case None    => NotFound
+        }
+      case _ => NotFound
+    }
+
+  private def streamFileFromUspcan(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState =>
+        s.fileUploads.files.find(_.reference == reference) match {
+          case Some(file: FileUpload.Accepted) =>
+            fileStream(file.url, file.fileName, file.fileMimeType)
+
+          case _ => NotFound
         }
       case _ => NotFound
     }
