@@ -5,10 +5,8 @@
 }
 
 .ssp-research-banner {
-
-  display: none;
   background-color: $govuk-brand-colour;
-  padding: 1em 1em 1em 1em;
+  padding: 1em;
 
   @include print {
     display: none;
@@ -50,7 +48,7 @@
     }
   }
 
-  &--close-link {
+  &__button-container {
     @include govuk-media-query($from: desktop) {
       width: 20%;
       float: right;
@@ -58,4 +56,23 @@
     }
   }
 
+  &__button {
+    @include govuk-media-query($from: tablet) {
+      font-size: 19px;
+    }
+
+    font-size: 16px;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    cursor: pointer;
+    color: govuk-colour("white");
+    text-decoration: underline;
+
+    &:hover {
+      background: none;
+      text-decoration: underline;
+    }
+  }
 }
