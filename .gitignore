@@ -42,4 +42,3 @@ project/metals.sbt
 
 node_modules/
 app/assets/build/
-package-lock.json
