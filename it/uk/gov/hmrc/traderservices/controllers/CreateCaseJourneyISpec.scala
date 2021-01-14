@@ -991,7 +991,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
     }
 
     "POST /new/export/contact-information" should {
-      "ask for the next page when only email submitted" in {
+      "go to upload file page when an email submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerExportQuestionsContactInfo(
@@ -1006,6 +1006,9 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -1014,11 +1017,11 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/new/export/contact-information").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
 
-        journey.getState shouldBe ExportQuestionsSummary(
-          ExportQuestionsStateModel(
+        journey.getState shouldBe UploadFile(
+          hostData = FileUploadHostData(
             DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
@@ -1027,7 +1030,25 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               freightType = Some(ExportFreightType.Air),
               contactInfo = Some(ExportContactInfo(contactEmail = "someone@email.com"))
             )
-          )
+          ),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
       }
 
@@ -1617,7 +1638,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
     }
 
     "POST /new/import/contact-information" should {
-      "ask for the next page when only email submitted" in {
+      "go to upload file page when an email submitted" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
           AnswerImportQuestionsContactInfo(
@@ -1632,6 +1653,11 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -1641,9 +1667,11 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result = await(request("/new/import/contact-information").post(payload))
 
         result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
 
-        journey.getState shouldBe ImportQuestionsSummary(
-          ImportQuestionsStateModel(
+        journey.getState shouldBe UploadFile(
+          hostData = FileUploadHostData(
             DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
@@ -1652,7 +1680,25 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               freightType = Some(ImportFreightType.Air),
               contactInfo = Some(ImportContactInfo(contactEmail = "someone@email.com"))
             )
-          )
+          ),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
       }
     }
@@ -1763,22 +1809,26 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
-          FileUploaded(
-            FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  1,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf"
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              TestData.exportDeclarationDetails,
+              TestData.fullExportQuestions(dateTimeOfArrival),
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      1,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf"
+                    )
+                  )
                 )
               )
-            ),
-            acknowledged = true
+            )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))

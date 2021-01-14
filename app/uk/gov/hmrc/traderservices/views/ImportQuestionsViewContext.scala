@@ -30,7 +30,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel
 @Singleton
 class ImportQuestionsViewContext
     extends RadioItemsHelper with SummaryListRowHelper with DateTimeFormatHelper with DeclarationDetailsHelper
-    with VesselDetailsHelper with ContactDetailsHelper {
+    with VesselDetailsHelper with ContactDetailsHelper with FileUploadsHelper {
 
   def importRequestTypeItems(form: Form[_])(implicit messages: Messages): Seq[RadioItem] =
     radioItems[ImportRequestType](

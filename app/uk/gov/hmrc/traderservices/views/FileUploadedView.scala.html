@@ -67,7 +67,7 @@
           value = Some("no"),
           content = Text(messages("form.file-uploaded.uploadAnotherFile.no")),
           checked = form("uploadAnotherFile").value.contains("no"),
-          conditionalHtml = Some(conditionalContent)
+          conditionalHtml = None
         )
       ),
       legend = Some("view.file-uploaded.uploadAnotherFile.heading"),

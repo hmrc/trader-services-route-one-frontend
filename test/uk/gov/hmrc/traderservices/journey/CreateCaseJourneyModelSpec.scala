@@ -140,11 +140,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ExportQuestionsSummary when submitted declaration details for export and answers are complete" in {
+      "go to ExportQuestionsSummary when submitted declaration details for export and all answers are complete" in {
         given(
           EnterDeclarationDetails(
             declarationDetailsOpt = None,
-            exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers)
+            exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads)
           )
         ) when submittedDeclarationDetails(eoriNumber)(
           exportDeclarationDetails
@@ -152,7 +153,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers
+              completeExportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -166,11 +168,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when submitted declaration details for import and answers are complete" in {
+      "go to ImportQuestionsSummary when submitted declaration details for import and all answers are complete" in {
         given(
           EnterDeclarationDetails(
             declarationDetailsOpt = None,
-            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers)
+            importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+            fileUploadsOpt = Some(nonEmptyFileUploads)
           )
         ) when submittedDeclarationDetails(eoriNumber)(
           importDeclarationDetails
@@ -178,7 +181,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers
+              completeImportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -217,10 +221,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ExportQuestionsSummary when submitted request type ${ExportRequestType.keyOf(requestType).get} and answers are complete" in {
+        s"go to ExportQuestionsSummary when submitted request type ${ExportRequestType.keyOf(requestType).get} and all answers are complete" in {
           given(
             AnswerExportQuestionsRequestType(
-              ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
+              )
             )
           ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
             requestType
@@ -228,7 +236,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -259,10 +268,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ExportQuestionsSummary when submitted route ${ExportRouteType.keyOf(routeType).get} and answers are complete" in {
+        s"go to ExportQuestionsSummary when submitted route ${ExportRouteType.keyOf(routeType).get} and all answers are complete" in {
           given(
             AnswerExportQuestionsRouteType(
-              ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
+              ExportQuestionsStateModel(
+                exportDeclarationDetails,
+                completeExportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
+              )
             )
           ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
             routeType
@@ -270,7 +283,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(routeType = Some(routeType))
+                completeExportQuestionsAnswers.copy(routeType = Some(routeType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -357,18 +371,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ExportQuestionsSummary when selected YES and answers are complete" in {
+      "go to ExportQuestionsSummary when selected YES and all answers are complete" in {
         val answers = completeExportQuestionsAnswers
           .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ExportPriorityGoods.HumanRemains))
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+            ExportQuestionsStateModel(exportDeclarationDetails, answers, Some(nonEmptyFileUploads))
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              answers
+              answers,
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -402,12 +417,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ExportQuestionsSummary when submitted priority good ${ExportPriorityGoods.keyOf(priorityGood).get} and answers are complete" in {
+        s"go to ExportQuestionsSummary when submitted priority good ${ExportPriorityGoods.keyOf(priorityGood).get} and all answers are complete" in {
           given(
             AnswerExportQuestionsWhichPriorityGoods(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers
+                completeExportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
@@ -416,7 +432,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(priorityGoods = Some(priorityGood))
+                completeExportQuestionsAnswers.copy(priorityGoods = Some(priorityGood)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -462,12 +479,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
-          .get}, and answers are complete" in {
+          .get}, and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
@@ -476,7 +494,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -520,12 +539,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
-          .get}, and answers are complete" in {
+          .get}, and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(requestType = Some(requestType))
+                completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
@@ -534,7 +554,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportDeclarationDetails,
-                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+                completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -578,7 +599,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
           .keyOf(requestType)
-          .get} when route is Hold and answers are complete" in {
+          .get} when route is Hold and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -586,7 +607,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 completeExportQuestionsAnswers.copy(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold)
-                )
+                ),
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
@@ -599,7 +621,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   freightType = Some(freightType),
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold)
-                )
+                ),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -641,21 +664,23 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
+      "go to ExportQuestionsSummary when submitted required vessel details and all answers are complete" in {
         val vesselDetails =
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers
+              completeExportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -731,21 +756,23 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ExportQuestionsSummary when submitted required vessel details and answers are complete" in {
+      "go to ExportQuestionsSummary when submitted required vessel details and all answers are complete" in {
         val vesselDetails =
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers
+              completeExportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -782,20 +809,22 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ExportQuestionsSummary when submitted empty vessel details and answers are complete" in {
+      "go to ExportQuestionsSummary when submitted empty vessel details and all answers are complete" in {
         val vesselDetails = VesselDetails()
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers
+              completeExportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
-              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+              completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -803,7 +832,22 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerExportQuestionsContactInfo" should {
-      "go to ExportQuestionsSummary when submitted required contact details" in {
+      "go to UploadFile when submitted required contact details and none file uploads exist yet" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+            )
+          )
+        val upscanRequest =
+          UpscanInitiateRequest(
+            "https://foo.bar/callback",
+            Some("https://foo.bar/success"),
+            Some("https://foo.bar/failure"),
+            Some(10 * 1024 * 1024)
+          )
         given(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -818,11 +862,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsContactInfo(eoriNumber)(
+        ) when submittedExportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
-          ExportQuestionsSummary(
-            ExportQuestionsStateModel(
+          UploadFile(
+            hostData = FileUploadHostData(
               exportDeclarationDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
@@ -833,7 +877,63 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
                 contactInfo = Some(ExportContactInfo(contactEmail = "name@somewhere.com"))
               )
+            ),
+            reference = "foo-bar-ref",
+            uploadRequest =
+              UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+
+      "go to FileUploaded when submitted required contact details and holds already some file uploads" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
             )
+          )
+        val upscanRequest =
+          UpscanInitiateRequest(
+            "https://foo.bar/callback",
+            Some("https://foo.bar/success"),
+            Some("https://foo.bar/failure"),
+            Some(10 * 1024 * 1024)
+          )
+        given(
+          AnswerExportQuestionsContactInfo(
+            ExportQuestionsStateModel(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              ),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedExportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+          ExportContactInfo(contactEmail = "name@somewhere.com")
+        ) should thenGo(
+          FileUploaded(
+            hostData = FileUploadHostData(
+              exportDeclarationDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.New),
+                routeType = Some(ExportRouteType.Route3),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))),
+                contactInfo = Some(ExportContactInfo(contactEmail = "name@somewhere.com"))
+              )
+            ),
+            fileUploads = nonEmptyFileUploads
           )
         )
       }
@@ -853,10 +953,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ImportQuestionsSummary when submitted request type ${ImportRequestType.keyOf(requestType).get} and answers are complete" in {
+        s"go to ImportQuestionsSummary when submitted request type ${ImportRequestType.keyOf(requestType).get} and all answers are complete" in {
           given(
             AnswerImportQuestionsRequestType(
-              ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
+              ImportQuestionsStateModel(
+                importDeclarationDetails,
+                completeImportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
+              )
             )
           ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
             requestType
@@ -864,7 +968,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers.copy(requestType = Some(requestType))
+                completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -896,12 +1001,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ImportQuestionsSummary when submitted route ${ImportRouteType.keyOf(routeType).get} and answers are complete" in {
+        s"go to ImportQuestionsSummary when submitted route ${ImportRouteType.keyOf(routeType).get} and all answers are complete" in {
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers
+                completeImportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
@@ -910,7 +1016,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers.copy(routeType = Some(routeType))
+                completeImportQuestionsAnswers.copy(routeType = Some(routeType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -996,18 +1103,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when selected YES and answers are complete" in {
+      "go to ImportQuestionsSummary when selected YES and all answers are complete" in {
         val answers = completeImportQuestionsAnswers
           .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ImportPriorityGoods.HumanRemains))
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            ImportQuestionsStateModel(importDeclarationDetails, answers)
+            ImportQuestionsStateModel(importDeclarationDetails, answers, Some(nonEmptyFileUploads))
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              answers
+              answers,
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -1039,12 +1147,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
-        s"go to ImportQuestionsSummary when submitted priority good ${ImportPriorityGoods.keyOf(priorityGoods).get} and answers are complete" in {
+        s"go to ImportQuestionsSummary when submitted priority good ${ImportPriorityGoods.keyOf(priorityGoods).get} and all answers are complete" in {
           given(
             AnswerImportQuestionsWhichPriorityGoods(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers
+                completeImportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
@@ -1053,7 +1162,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers.copy(priorityGoods = Some(priorityGoods))
+                completeImportQuestionsAnswers.copy(priorityGoods = Some(priorityGoods)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -1084,19 +1194,21 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when selected YES and answers are complete" in {
+      "go to ImportQuestionsSummary when selected YES and all answers are complete" in {
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers
+              completeImportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers.copy(hasALVS = Some(true))
+              completeImportQuestionsAnswers.copy(hasALVS = Some(true)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -1124,19 +1236,21 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when selected NO and answers are complete" in {
+      "go to ImportQuestionsSummary when selected NO and all answers are complete" in {
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers
+              completeImportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers.copy(hasALVS = Some(false))
+              completeImportQuestionsAnswers.copy(hasALVS = Some(false)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -1199,12 +1313,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
         s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} and requestType is ${ImportRequestType
           .keyOf(requestType)
-          .get}, and answers are complete" in {
+          .get}, and all answers are complete" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers.copy(requestType = Some(requestType))
+                completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
@@ -1213,7 +1328,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
-                completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType))
+                completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -1257,13 +1373,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         }
         s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
           .keyOf(requestType)
-          .get} when route is Hold and answers are complete" in {
+          .get} when route is Hold and all answers are complete" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
                 importDeclarationDetails,
                 completeImportQuestionsAnswers
-                  .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold))
+                  .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold)),
+                Some(nonEmptyFileUploads)
               )
             )
           ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
@@ -1276,7 +1393,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   freightType = Some(freightType),
                   requestType = Some(requestType),
                   routeType = Some(ImportRouteType.Hold)
-                )
+                ),
+                Some(nonEmptyFileUploads)
               )
             )
           )
@@ -1318,14 +1436,15 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when submitted required vessel details and answers are complete" in {
+      "go to ImportQuestionsSummary when submitted required vessel details and all answers are complete" in {
         val vesselDetails =
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers
+              completeImportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
@@ -1334,7 +1453,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -1371,13 +1491,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "go to ImportQuestionsSummary when submitted empty vessel details and answers are complete" in {
+      "go to ImportQuestionsSummary when submitted empty vessel details and all answers are complete" in {
         val vesselDetails = VesselDetails()
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers
+              completeImportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
             )
           )
         ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
@@ -1386,7 +1507,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
-              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
+              completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
             )
           )
         )
@@ -1394,7 +1516,22 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerImportQuestionsContactInfo" should {
-      "go to ImportQuestionsSummary when submitted required contact details" in {
+      "go to UploadFile when submitted required contact details and none file uploads exist yet" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
+            )
+          )
+        val upscanRequest =
+          UpscanInitiateRequest(
+            "https://foo.bar/callback",
+            Some("https://foo.bar/success"),
+            Some("https://foo.bar/failure"),
+            Some(10 * 1024 * 1024)
+          )
         given(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
@@ -1409,11 +1546,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedImportQuestionsContactInfo(eoriNumber)(
+        ) when submittedImportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
-          ImportQuestionsSummary(
-            ImportQuestionsStateModel(
+          UploadFile(
+            hostData = FileUploadHostData(
               importDeclarationDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
@@ -1424,7 +1561,63 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 vesselDetails =
                   Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
               )
+            ),
+            reference = "foo-bar-ref",
+            uploadRequest =
+              UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+          )
+        )
+      }
+
+      "go to FileUploaded when submitted required contact details and some file uploads already exist" in {
+        val mockUpscanInitiate: UpscanInitiateRequest => Future[UpscanInitiateResponse] = request =>
+          Future.successful(
+            UpscanInitiateResponse(
+              reference = "foo-bar-ref",
+              uploadRequest =
+                UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> request.callbackUrl))
             )
+          )
+        val upscanRequest =
+          UpscanInitiateRequest(
+            "https://foo.bar/callback",
+            Some("https://foo.bar/success"),
+            Some("https://foo.bar/failure"),
+            Some(10 * 1024 * 1024)
+          )
+        given(
+          AnswerImportQuestionsContactInfo(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              ),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedImportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+          ImportContactInfo(contactEmail = "name@somewhere.com")
+        ) should thenGo(
+          FileUploaded(
+            hostData = FileUploadHostData(
+              importDeclarationDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route3),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                contactInfo = Some(ImportContactInfo(contactEmail = "name@somewhere.com")),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
+            ),
+            fileUploads = nonEmptyFileUploads
           )
         )
       }
@@ -2354,7 +2547,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "retreat to ImportQuestionsSummary when none file has been uploaded yet" in {
+      "retreat to AnswerImportQuestionsContactInfo when none file has been uploaded and accepted yet" in {
         given(
           WaitingForFileVerification(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
@@ -2371,7 +2564,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
           )
         ) when backToFileUploaded(eoriNumber) should thenGo(
-          ImportQuestionsSummary(
+          AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
               importDeclarationDetails,
               completeImportQuestionsAnswers,
@@ -2424,22 +2617,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
         given(
-          FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  1,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf"
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      1,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf"
+                    )
+                  )
                 )
               )
-            ),
-            acknowledged = false
+            )
           )
         ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
           CreateCaseConfirmation(
@@ -2470,22 +2667,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
         given(
-          FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  1,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf"
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importDeclarationDetails,
+              completeImportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      1,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf"
+                    )
+                  )
                 )
               )
-            ),
-            acknowledged = false
+            )
           )
         ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
           CaseAlreadyExists("A1234567890")

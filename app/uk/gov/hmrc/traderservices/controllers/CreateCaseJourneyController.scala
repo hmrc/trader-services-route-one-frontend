@@ -40,6 +40,7 @@ import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 import uk.gov.hmrc.traderservices.models.ImportQuestions
 import uk.gov.hmrc.traderservices.models.FileUpload
 import akka.actor.ActorSystem
+import uk.gov.hmrc.traderservices.models.FileUploads
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -210,13 +211,15 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ExportContactForm)
-      .apply(Transitions.submittedExportQuestionsContactInfo)
+      .applyWithRequest(implicit request =>
+        Transitions.submittedExportQuestionsContactInfo(upscanRequest)(upscanInitiateConnector.initiate(_))
+      )
 
-  // GET /new/export/summary
+  // GET /new/export/check-your-answers
   final val showExportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ExportQuestionsSummary]
-      .orApply(Transitions.backToQuestionsSummary)
+      .orApply(Transitions.toSummary)
 
   // ----------------------- IMPORT QUESTIONS -----------------------
 
@@ -326,13 +329,15 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ImportContactForm)
-      .apply(Transitions.submittedImportQuestionsContactInfo)
+      .applyWithRequest(implicit request =>
+        Transitions.submittedImportQuestionsContactInfo(upscanRequest)(upscanInitiateConnector.initiate(_))
+      )
 
-  // GET /new/import/summary
+  // GET /new/import/check-your-answers
   final val showImportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ImportQuestionsSummary]
-      .orApply(Transitions.backToQuestionsSummary)
+      .orApply(Transitions.toSummary)
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -429,7 +434,7 @@ class CreateCaseJourneyController @Inject() (
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
         FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
-          Transitions.createCase(traderServicesApiConnector.createCase(_))
+          Transitions.toSummary
         ) _
       }
 
@@ -691,8 +696,9 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsSummaryView(
             model.declarationDetails,
             model.exportQuestionsAnswers,
-            controller.showFileUpload,
-            controller.showAnswerExportQuestionsContactInfo()
+            model.fileUploadsOpt.getOrElse(FileUploads()),
+            controller.createCase,
+            controller.showFileUploaded
           )
         )
 
@@ -786,8 +792,9 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsSummaryView(
             model.declarationDetails,
             model.importQuestionsAnswers,
-            controller.showFileUpload,
-            controller.showAnswerImportQuestionsContactInfo()
+            model.fileUploadsOpt.getOrElse(FileUploads()),
+            controller.createCase,
+            controller.showFileUploaded
           )
         )
 
@@ -801,7 +808,7 @@ class CreateCaseJourneyController @Inject() (
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),
             backLink =
-              if (fileUploads.isEmpty) backLinkToSummary(model.questionsAnswers)
+              if (fileUploads.isEmpty) backLinkFromFileUpload(model.questionsAnswers)
               else controller.showFileUploaded()
           )
         )
@@ -825,15 +832,15 @@ class CreateCaseJourneyController @Inject() (
               controller.submitUploadAnotherFileChoice,
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkToSummary(model.questionsAnswers)
+              backLinkFromFileUpload(model.questionsAnswers)
             )
           else
             views.fileUploadedSummaryView(
               fileUploads,
-              controller.createCase,
+              linkToSummary(model.questionsAnswers),
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkToSummary(model.questionsAnswers)
+              backLinkFromFileUpload(model.questionsAnswers)
             )
         )
 
@@ -857,10 +864,16 @@ class CreateCaseJourneyController @Inject() (
 
     }
 
-  private def backLinkToSummary(questionsAnswers: QuestionsAnswers): Call =
+  private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
       case _: ExportQuestions => controller.showExportQuestionsSummary()
       case _: ImportQuestions => controller.showImportQuestionsSummary()
+    }
+
+  private def backLinkFromFileUpload(questionsAnswers: QuestionsAnswers): Call =
+    questionsAnswers match {
+      case _: ExportQuestions => controller.showAnswerExportQuestionsContactInfo()
+      case _: ImportQuestions => controller.showAnswerImportQuestionsContactInfo()
     }
 
   private def renderFileVerificationStatus(
