@@ -417,10 +417,16 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     final def backToFileUploaded(user: String) =
       Transition {
         case s: FileUploadState =>
-          if (s.fileUploads.isEmpty)
-            retreatFromFileUpload(user).apply(s)
-          else
+          if (s.fileUploads.nonEmpty)
             goto(FileUploaded(s.hostData, s.fileUploads, acknowledged = true))
+          else
+            retreatFromFileUpload(user).apply(s)
+
+        case s: CanEnterFileUpload =>
+          if (s.fileUploadsOpt.exists(_.nonEmpty))
+            goto(FileUploaded(s.hostData, s.fileUploadsOpt.get, acknowledged = true))
+          else
+            retreatFromFileUpload(user).apply(s)
       }
   }
 

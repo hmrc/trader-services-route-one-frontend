@@ -21,8 +21,7 @@ import uk.gov.hmrc.traderservices.models._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
-
-import java.time.LocalDateTime
+import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -41,7 +40,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
   override val maxFileUploadsNumber: Int = 10
 
   def retreatFromFileUpload: String => Transition =
-    Transitions.backToQuestionsSummary
+    Transitions.backFromFileUpload
 
   /** Model parametrization and rules. */
   object Rules {
@@ -56,7 +55,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     final def isVesselDetailsAnswerMandatory(importQuestions: ImportQuestions): Boolean =
       importQuestions.routeType.contains(ImportRouteType.Hold)
 
-    /** Checks is all export questions answers are in place. */
+    /** Checks is all export questions answers and file uploads are in place. */
     final def isComplete(exportQuestionsStateModel: ExportQuestionsStateModel): Boolean = {
       val answers = exportQuestionsStateModel.exportQuestionsAnswers
 
@@ -67,15 +66,18 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
         .getOrElse(false)
 
+      val isFileUploadComplete = exportQuestionsStateModel.fileUploadsOpt.exists(_.nonEmpty)
+
       answers.requestType.isDefined &&
       answers.routeType.isDefined &&
       isPriorityGoodsComplete &&
       answers.freightType.isDefined &&
       isVesselDetailsComplete &&
-      answers.contactInfo.isDefined
+      answers.contactInfo.isDefined &&
+      isFileUploadComplete
     }
 
-    /** Checks is all import questions answers are in place. */
+    /** Checks is all import questions answers and file uploads are in place. */
     final def isComplete(importQuestionsStateModel: ImportQuestionsStateModel): Boolean = {
       val answers = importQuestionsStateModel.importQuestionsAnswers
 
@@ -86,13 +88,16 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
         .getOrElse(false)
 
+      val isFileUploadComplete = importQuestionsStateModel.fileUploadsOpt.exists(_.nonEmpty)
+
       answers.requestType.isDefined &&
       answers.routeType.isDefined &&
       isPriorityGoodsComplete &&
       answers.freightType.isDefined &&
       answers.hasALVS.isDefined &&
       isVesselDetailsComplete &&
-      answers.contactInfo.isDefined
+      answers.contactInfo.isDefined &&
+      isFileUploadComplete
     }
 
   }
@@ -198,7 +203,14 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class AnswerExportQuestionsContactInfo(
       model: ExportQuestionsStateModel
-    ) extends ExportQuestionsState
+    ) extends ExportQuestionsState with CanEnterFileUpload {
+
+      final def hostData: FileUploadHostData =
+        FileUploadHostData(model.declarationDetails, model.exportQuestionsAnswers)
+
+      final def fileUploadsOpt: Option[FileUploads] =
+        model.fileUploadsOpt
+    }
 
     final case class ExportQuestionsSummary(
       model: ExportQuestionsStateModel
@@ -247,7 +259,14 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class AnswerImportQuestionsContactInfo(
       model: ImportQuestionsStateModel
-    ) extends ImportQuestionsState
+    ) extends ImportQuestionsState with CanEnterFileUpload {
+
+      final def hostData: FileUploadHostData =
+        FileUploadHostData(model.declarationDetails, model.importQuestionsAnswers)
+
+      final def fileUploadsOpt: Option[FileUploads] =
+        model.fileUploadsOpt
+    }
 
     final case class ImportQuestionsSummary(
       model: ImportQuestionsStateModel
@@ -278,7 +297,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
   /**
     * Function determining if all questions were answered
     * and the user can proceed straight to the summary,
-    * or rather shall she go to the next question.
+    * or rather she shall go to the next question.
     */
   final def gotoSummaryIfCompleteOr(state: State): Future[State] =
     state match {
@@ -289,6 +308,24 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       case s: State.ImportQuestionsState =>
         if (Rules.isComplete(s.model)) goto(State.ImportQuestionsSummary(s.model))
         else goto(s)
+
+      case s => goto(s)
+    }
+
+  /**
+    * Function determining if all questions were answered
+    * and the user can proceed straight to the summary,
+    * or rather she shall go to the next state.
+    */
+  final def gotoSummaryIfCompleteOrApplyTransition(state: State)(transition: Transition): Future[State] =
+    state match {
+      case s: State.ExportQuestionsState =>
+        if (Rules.isComplete(s.model)) goto(State.ExportQuestionsSummary(s.model))
+        else transition.apply(s)
+
+      case s: State.ImportQuestionsState =>
+        if (Rules.isComplete(s.model)) goto(State.ImportQuestionsSummary(s.model))
+        else transition.apply(s)
 
       case s => goto(s)
     }
@@ -502,32 +539,54 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.contactInfo.isDefined =>
           goto(AnswerExportQuestionsContactInfo(s.model))
+
+        case s: FileUploadState =>
+          s.hostData.questionsAnswers match {
+            case exportQuestionsAnswers: ExportQuestions =>
+              goto(
+                AnswerExportQuestionsContactInfo(
+                  ExportQuestionsStateModel(
+                    declarationDetails = s.hostData.declarationDetails,
+                    exportQuestionsAnswers = exportQuestionsAnswers,
+                    fileUploadsOpt = Some(s.fileUploads)
+                  )
+                )
+              )
+
+            case importQuestionsAnswers: ImportQuestions =>
+              goto(Start)
+          }
       }
 
-    final def submittedExportQuestionsContactInfo(user: String)(contactInfo: ExportContactInfo) =
+    final def submittedExportQuestionsContactInfo(
+      upscanRequest: UpscanInitiateRequest
+    )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ExportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
         case AnswerExportQuestionsContactInfo(model) =>
-          gotoSummaryIfCompleteOr(
-            ExportQuestionsSummary(
+          gotoSummaryIfCompleteOrApplyTransition(
+            AnswerExportQuestionsContactInfo(
               model.updated(model.exportQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
+          )(
+            FileUploadTransitions
+              .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
           )
       }
 
-    final def backToQuestionsSummary(user: String) =
+    final def backFromFileUpload(user: String) =
       Transition {
         case s: FileUploadState =>
           s.hostData.questionsAnswers match {
             case answers: ExportQuestions =>
               goto(
-                ExportQuestionsSummary(
+                AnswerExportQuestionsContactInfo(
                   ExportQuestionsStateModel(s.hostData.declarationDetails, answers, Some(s.fileUploads))
                 )
               )
 
             case answers: ImportQuestions =>
               goto(
-                ImportQuestionsSummary(
+                AnswerImportQuestionsContactInfo(
                   ImportQuestionsStateModel(s.hostData.declarationDetails, answers, Some(s.fileUploads))
                 )
               )
@@ -678,51 +737,120 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.contactInfo.isDefined =>
           goto(AnswerImportQuestionsContactInfo(s.model))
+
+        case s: FileUploadState =>
+          s.hostData.questionsAnswers match {
+            case exportQuestionsAnswers: ExportQuestions =>
+              goto(Start)
+
+            case importQuestionsAnswers: ImportQuestions =>
+              goto(
+                AnswerImportQuestionsContactInfo(
+                  ImportQuestionsStateModel(
+                    declarationDetails = s.hostData.declarationDetails,
+                    importQuestionsAnswers = importQuestionsAnswers,
+                    fileUploadsOpt = Some(s.fileUploads)
+                  )
+                )
+              )
+          }
       }
 
-    final def submittedImportQuestionsContactInfo(user: String)(contactInfo: ImportContactInfo) =
+    final def submittedImportQuestionsContactInfo(
+      upscanRequest: UpscanInitiateRequest
+    )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ImportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
         case AnswerImportQuestionsContactInfo(model) =>
-          gotoSummaryIfCompleteOr(
-            ImportQuestionsSummary(
+          gotoSummaryIfCompleteOrApplyTransition(
+            AnswerImportQuestionsContactInfo(
               model.updated(model.importQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
+          )(
+            FileUploadTransitions
+              .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
           )
+      }
+
+    final def toSummary(eori: String) =
+      Transition {
+        case state: FileUploadState =>
+          state.hostData.questionsAnswers match {
+            case exportQuestionsAnswers: ExportQuestions =>
+              goto(
+                ExportQuestionsSummary(
+                  ExportQuestionsStateModel(
+                    declarationDetails = state.hostData.declarationDetails,
+                    exportQuestionsAnswers = exportQuestionsAnswers,
+                    fileUploadsOpt = Some(state.fileUploads)
+                  )
+                )
+              )
+
+            case importQuestionsAnswers: ImportQuestions =>
+              goto(
+                ImportQuestionsSummary(
+                  ImportQuestionsStateModel(
+                    declarationDetails = state.hostData.declarationDetails,
+                    importQuestionsAnswers = importQuestionsAnswers,
+                    fileUploadsOpt = Some(state.fileUploads)
+                  )
+                )
+              )
+          }
       }
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
-    final def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) =
+    final def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) = {
+
+      def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
+        createCaseApi(request).flatMap { response =>
+          if (response.result.isDefined)
+            goto(
+              CreateCaseConfirmation(
+                request.declarationDetails,
+                request.questionsAnswers,
+                request.uploadedFiles,
+                response.result.get
+              )
+            )
+          else
+            response.error match {
+              case Some(ApiError("409", Some(caseReferenceId))) =>
+                goto(CaseAlreadyExists(caseReferenceId))
+
+              case _ =>
+                val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                  response.error.map(_.errorMessage).getOrElse("")
+                fail(new RuntimeException(message))
+            }
+        }
+
       Transition {
-        case state: FileUploadState =>
-          val request =
+        case state: ExportQuestionsSummary =>
+          val uploadedFiles =
+            state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
+          val createCaseRequest =
             TraderServicesCreateCaseRequest(
-              state.hostData.declarationDetails,
-              state.hostData.questionsAnswers,
-              state.fileUploads.toUploadedFiles,
+              state.model.declarationDetails,
+              state.model.exportQuestionsAnswers,
+              uploadedFiles,
               eori
             )
-          createCaseApi(request).flatMap { response =>
-            if (response.result.isDefined)
-              goto(
-                CreateCaseConfirmation(
-                  state.hostData.declarationDetails,
-                  state.hostData.questionsAnswers,
-                  state.fileUploads.toUploadedFiles,
-                  response.result.get
-                )
-              )
-            else
-              response.error match {
-                case Some(ApiError("409", Some(caseReferenceId))) =>
-                  goto(CaseAlreadyExists(caseReferenceId))
+          invokeCreateCaseApi(createCaseRequest)
 
-                case _ =>
-                  val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
-                    response.error.map(_.errorMessage).getOrElse("")
-                  fail(new RuntimeException(message))
-              }
-          }
+        case state: ImportQuestionsSummary =>
+          val uploadedFiles =
+            state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
+          val createCaseRequest =
+            TraderServicesCreateCaseRequest(
+              state.model.declarationDetails,
+              state.model.importQuestionsAnswers,
+              uploadedFiles,
+              eori
+            )
+          invokeCreateCaseApi(createCaseRequest)
       }
+    }
   }
 }

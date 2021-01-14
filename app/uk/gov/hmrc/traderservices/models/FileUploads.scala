@@ -37,6 +37,8 @@ case class FileUploads(
         UploadedFile(f.reference, f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType)
     }
 
+  def +(file: FileUpload): FileUploads = copy(files = files :+ file)
+
 }
 
 object FileUploads {

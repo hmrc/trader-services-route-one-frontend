@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions, VesselDetails, ImportContactInfo}
+@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions, VesselDetails, ImportContactInfo, FileUploads}
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 
@@ -25,7 +25,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.summary.title"),
@@ -51,5 +51,12 @@
   @html.summaryList(context.summaryListOfContactDetails(importQuestions.contactInfo.get,
     CreateCaseJourneyController.showAnswerImportQuestionsContactInfo))
 
-  @html.a(postAction.url, messages("form.import-questions.summary.continue"), useButtonStyle = true)
+  @html.h2(messages("view.import-questions.summary.files-uploaded.heading")) 
+
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,
+    CreateCaseJourneyController.showFileUploaded))  
+
+  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @html.button("form.import-questions.summary.continue")
+  }
 }

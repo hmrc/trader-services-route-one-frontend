@@ -247,6 +247,7 @@ view.export-questions.summary.declaration-details.heading=Declaration informatio
 view.export-questions.summary.pre-clearance.heading=Customs information
 view.export-questions.summary.vessel-details.heading=Transport information
 view.export-questions.summary.contact-details.heading=Contact details
+view.export-questions.summary.files-uploaded.heading=Documents you are submitting
 
 # Import Questions View
 # ----------------------------------------------------------
@@ -279,6 +280,7 @@ view.import-questions.summary.declaration-details.heading=Declaration informatio
 view.import-questions.summary.pre-clearance.heading=Customs information
 view.import-questions.summary.vessel-details.heading=Transport information
 view.import-questions.summary.contact-details.heading=Contact details
+view.import-questions.summary.files-uploaded.heading=Documents you are submitting
 
 # Export Questions Form
 # ----------------------------------------------------------
@@ -316,7 +318,7 @@ form.export-questions.contactEmail=Email address
 form.export-questions.contactNumber=UK telephone number (optional)
 form.export-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900 982
 form.export-questions.continue=Continue
-form.export-questions.summary.continue=Continue to file upload
+form.export-questions.summary.continue=Submit
 
 error.exportRequestType.required=Select the type of export request
 error.exportRouteType.required=Select the route
@@ -383,7 +385,7 @@ form.import-questions.contactEmail=Email address
 form.import-questions.contactNumber=UK telephone number (optional)
 form.import-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900 982
 form.import-questions.continue=Continue
-form.import-questions.summary.continue=Continue to file upload
+form.import-questions.summary.continue=Submit
 
 error.importRequestType.required=Select the type of import request
 error.importRouteType.required=Select the route
@@ -425,6 +427,7 @@ summary.contact-details=Contact details
 summary.contact-details.contactName=Full name
 summary.contact-details.contactEmail=Email address
 summary.contact-details.contactNumber=Phone number
+summary.file-names=File names
 
 # File upload messages
 # ----------------------------------------------------------

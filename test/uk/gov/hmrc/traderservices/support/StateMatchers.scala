@@ -25,7 +25,7 @@ trait StateMatchers[S] {
       override def apply(result: (S, List[S])): MatchResult =
         result match {
           case (thisState, _) if state != thisState =>
-            MatchResult(false, s"Expected state \n$state but got state \n$thisState", s"")
+            MatchResult(false, s"Expected state: \n- $state but got state: \n+ $thisState", s"")
           case (thisState, _) if state == thisState =>
             MatchResult(true, "", s"")
         }
