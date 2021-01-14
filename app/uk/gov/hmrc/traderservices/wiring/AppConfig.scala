@@ -131,8 +131,8 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),
-    approvedFileTypes = config.getString("file-formats.approved-file-extensions"),
-    approvedFileExtensions = config.getString("file-formats.approved-file-types")
+    approvedFileExtensions = config.getString("file-formats.approved-file-extensions"),
+    approvedFileTypes = config.getString("file-formats.approved-file-types")
   )
 
   override val traceFSM: Boolean = config.getBoolean("trace.fsm")
