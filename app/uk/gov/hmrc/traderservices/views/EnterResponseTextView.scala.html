@@ -27,7 +27,7 @@
 @govukLayout2(
   pageTitle("view.write-response-text.title",form),
   backLink = Some(backLink.url),
-  mainContentClasses = "govuk-grid-column-full") {
+  mainContentClasses = "govuk-grid-column-two-thirds") {
 
   @forms.errorSummary(form.errors)
 
@@ -44,7 +44,7 @@
       isInFieldset = false,
       classes = Some("govuk-js-character-count"),
       hint = Some(Html(messages("view.write-response-text.hint"))),
-      rows = 6,
+      rows = 4,
       countMessageClasses = "",
       spellcheck = None,
       describedBy = Some("response-text-info")
