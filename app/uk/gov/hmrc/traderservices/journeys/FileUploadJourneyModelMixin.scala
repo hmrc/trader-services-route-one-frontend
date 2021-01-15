@@ -82,6 +82,12 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       acknowledged: Boolean = false
     ) extends FileUploadState
 
+    case class UploadMultipleFiles(
+      hostData: FileUploadHostData,
+      uploadRequestMap: Map[String, UploadRequest],
+      fileUploads: FileUploads
+    ) extends FileUploadState
+
   }
 
   type UpscanInitiateApi = UpscanInitiateRequest => Future[UpscanInitiateResponse]

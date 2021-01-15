@@ -79,6 +79,7 @@ object CreateCaseJourneyStateFormats
     case s: UploadFile                               => uploadFileFormat.writes(s)
     case s: FileUploaded                             => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification               => waitingForFileVerificationFormat.writes(s)
+    case s: UploadMultipleFiles                      => uploadMultipleFilesFormat.writes(s)
     case s: CreateCaseConfirmation                   => createCaseConfirmationFormat.writes(s)
     case s: CaseAlreadyExists                        => caseAlreadyExistsFormat.writes(s)
   }
@@ -113,6 +114,7 @@ object CreateCaseJourneyStateFormats
       case "UploadFile"                       => uploadFileFormat.reads(properties)
       case "FileUploaded"                     => fileUploadedFormat.reads(properties)
       case "WaitingForFileVerification"       => waitingForFileVerificationFormat.reads(properties)
+      case "UploadMultipleFiles"              => uploadMultipleFilesFormat.reads(properties)
       case "CreateCaseConfirmation"           => createCaseConfirmationFormat.reads(properties)
       case "CaseAlreadyExists"                => caseAlreadyExistsFormat.reads(properties)
       case "WorkInProgressDeadEnd"            => JsSuccess(WorkInProgressDeadEnd)

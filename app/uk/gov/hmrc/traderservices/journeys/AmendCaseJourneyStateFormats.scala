@@ -43,21 +43,26 @@ object AmendCaseJourneyStateFormats
     case s: FileUploaded               => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification => waitingForFileVerificationFormat.writes(s)
     case s: AmendCaseSummary           => amendCaseSummaryFormat.writes(s)
+    case s: UploadMultipleFiles        => uploadMultipleFilesFormat.writes(s)
     case s: AmendCaseConfirmation      => amendCaseConfirmationFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
-      case "Start"                      => JsSuccess(Start)
-      case "EnterCaseReferenceNumber"   => enterCaseReferenceNumberFormat.reads(properties)
-      case "SelectTypeOfAmendment"      => selectTypeOfAmendmentFormat.reads(properties)
-      case "EnterResponseText"          => enterResponseTextFormat.reads(properties)
-      case "UploadFile"                 => uploadFileFormat.reads(properties)
-      case "FileUploaded"               => fileUploadedFormat.reads(properties)
-      case "WaitingForFileVerification" => waitingForFileVerificationFormat.reads(properties)
-      case "AmendCaseSummary"           => amendCaseSummaryFormat.reads(properties)
-      case "AmendCaseConfirmation"      => amendCaseConfirmationFormat.reads(properties)
-      case "WorkInProgressDeadEnd"      => JsSuccess(WorkInProgressDeadEnd)
-      case _                            => JsError(s"Unknown state name $stateName")
+      case "Start"                    => JsSuccess(Start)
+      case "EnterCaseReferenceNumber" => enterCaseReferenceNumberFormat.reads(properties)
+      case "SelectTypeOfAmendment"    => selectTypeOfAmendmentFormat.reads(properties)
+      case "EnterResponseText"        => enterResponseTextFormat.reads(properties)
+      case "UploadFile"               => uploadFileFormat.reads(properties)
+      case "FileUploaded"             => fileUploadedFormat.reads(properties)
+      case "WaitingForFileVerification" =>
+        waitingForFileVerificationFormat.reads(properties)
+      case "AmendCaseSummary" =>
+        amendCaseSummaryFormat.reads(properties)
+      case "UploadMultipleFiles" =>
+        uploadMultipleFilesFormat.reads(properties)
+      case "AmendCaseConfirmation" => amendCaseConfirmationFormat.reads(properties)
+      case "WorkInProgressDeadEnd" => JsSuccess(WorkInProgressDeadEnd)
+      case _                       => JsError(s"Unknown state name $stateName")
     }
 }
