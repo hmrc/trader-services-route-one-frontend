@@ -488,6 +488,12 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               .apply(updatedCurrentState)
           else
             goto(updatedCurrentState)
+
+        case current: UploadMultipleFiles =>
+          val updatedFileUploads = current.fileUploads
+            .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
+          val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
+          goto(updatedCurrentState)
       }
 
     final def backToFileUploaded(user: String) =

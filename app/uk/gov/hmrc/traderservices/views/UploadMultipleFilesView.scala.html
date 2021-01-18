@@ -29,7 +29,7 @@
         context: UploadFileViewContext
 )
 
-@(maxFileUploadsNumber: Int, initialFileUploads: Seq[FileUpload], initiateNextFileUpload: String => Call, checkFileVerificationStatus: String => Call, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(maxFileUploadsNumber: Int, initialFileUploads: Seq[FileUpload], initiateNextFileUpload: String => Call, checkFileVerificationStatus: String => Call, removeFile: String => Call, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.upload-multiple-files.title"),
@@ -37,14 +37,30 @@
 ) {
 
   @*
-   * checkFileVerificationStatus - function accepting upscan reference and returning a call,
-   *     which will return 200 with JSON payload, i.e. one of: 
+   * Available parameters:
+   * + maxFileUploadsNumber - this is the value the frontend service will check file upload list against, 
+   *                          if number of upload will exceed the limit, user will be not able to progress
+   *
+   * + initialFileUploads - existing file uploads in different states, 
+   *                        use to provide initial input for multi-file upload script
+   *
+   * + initiateNextFileUpload - a function accepting UPLOAD_ID (some unique string) and returning a call to frontend service,
+   *                            PUT request to this call will provision new file upload and return 200 with JSON result 
+              {"uploadId":"123abc","upscanReference":"f029444f-415c-4dec-9cf2-36774ec63ab8","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}      
+   * 
+   * + checkFileVerificationStatus - a function accepting upscan reference and returning a call to frontend service,
+   *                                 GET request to this call will return either 404 or 200 with JSON status, i.e. one of: 
    *         - {"fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}
    *         - {"fileStatus":"POSTED"}
    *         - {"fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}
    *         - {"fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}
    *         - {"fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}
    *         - {"fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}
+   *
+   * + removeFile - a function accepting upscan reference and returning a call to frontend service,
+   *                PUT request to this call will remove specified file upload and return 204
+   * 
+   * + continueAction - a call to proceed next (i.e. to the check-your-answers page)
    *@
 
   @html.h1(messages("view.upload-multiple-files.heading"), classes = "govuk-heading-l")

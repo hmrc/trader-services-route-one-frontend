@@ -494,6 +494,16 @@ class CreateCaseJourneyController @Inject() (
         ) _
       }
 
+  // PUT /new/file-uploaded/:reference/remove
+  final def removeFileUploadByReferenceAsync(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
+          upscanInitiateConnector.initiate(_)
+        ) _
+      }
+      .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
+
   // GET /new/file-uploaded/:reference
   final def previewFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
@@ -855,6 +865,7 @@ class CreateCaseJourneyController @Inject() (
             fileUploads.files,
             initiateNextFileUpload = controller.initiateNextFileUpload,
             checkFileVerificationStatus = controller.checkFileVerificationStatus,
+            removeFile = controller.removeFileUploadByReferenceAsync,
             continueAction = linkToSummary(model.questionsAnswers),
             backLink = backLinkFromFileUpload(model.questionsAnswers)
           )
@@ -979,6 +990,15 @@ class CreateCaseJourneyController @Inject() (
           case None => NotFound
         }
       case _ => NotFound
+    }
+
+  private def renderFileRemovalStatusJson(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState => NoContent
     }
 
   private def streamFileFromUspcan(
