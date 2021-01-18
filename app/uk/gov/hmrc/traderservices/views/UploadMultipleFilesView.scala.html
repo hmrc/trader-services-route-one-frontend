@@ -49,4 +49,8 @@
 
   @html.h1(messages("view.upload-multiple-files.heading"), classes = "govuk-heading-l")
 
+  @forms.formWithCSRF(action = continueAction, args = 'novalidate -> "novalidate") {
+      @html.button("form.upload-multiple-files.continue")
+  }
+
 }

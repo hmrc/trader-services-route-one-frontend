@@ -137,6 +137,10 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               fileUploads = state.fileUploadsOpt.getOrElse(FileUploads())
             )
           )
+
+        case state: FileUploadState =>
+          goto(UploadMultipleFiles(state.hostData, state.fileUploads))
+
       }
 
     final def initiateNextFileUpload(uploadId: String)(
@@ -207,6 +211,16 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               Some(fileUploads),
               showUploadSummaryIfAny = false
             )
+
+        case UploadMultipleFiles(hostData, fileUploads) =>
+          gotoFileUploadOrUploaded(
+            hostData,
+            upscanRequest,
+            upscanInitiate,
+            Some(fileUploads),
+            showUploadSummaryIfAny = false
+          )
+
       }
 
     final def markUploadAsRejected(user: String)(error: S3UploadError) =
