@@ -66,7 +66,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
         .getOrElse(false)
 
-      val isFileUploadComplete = exportQuestionsStateModel.fileUploadsOpt.exists(_.nonEmpty)
+      val isFileUploadComplete =
+        exportQuestionsStateModel.fileUploadsOpt.exists(fu => fu.nonEmpty && fu.acceptedCount <= maxFileUploadsNumber)
 
       answers.requestType.isDefined &&
       answers.routeType.isDefined &&
@@ -88,7 +89,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         .map(b => if (isVesselDetailsAnswerMandatory(answers)) b.isComplete else true)
         .getOrElse(false)
 
-      val isFileUploadComplete = importQuestionsStateModel.fileUploadsOpt.exists(_.nonEmpty)
+      val isFileUploadComplete =
+        importQuestionsStateModel.fileUploadsOpt.exists((fu => fu.nonEmpty && fu.acceptedCount <= maxFileUploadsNumber))
 
       answers.requestType.isDefined &&
       answers.routeType.isDefined &&
@@ -784,26 +786,27 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         case state: FileUploadState =>
           state.hostData.questionsAnswers match {
             case exportQuestionsAnswers: ExportQuestions =>
-              goto(
-                ExportQuestionsSummary(
-                  ExportQuestionsStateModel(
-                    declarationDetails = state.hostData.declarationDetails,
-                    exportQuestionsAnswers = exportQuestionsAnswers,
-                    fileUploadsOpt = Some(state.fileUploads)
-                  )
-                )
+              val updatedModel = ExportQuestionsStateModel(
+                declarationDetails = state.hostData.declarationDetails,
+                exportQuestionsAnswers = exportQuestionsAnswers,
+                fileUploadsOpt = Some(state.fileUploads)
               )
+              if (Rules.isComplete(updatedModel))
+                goto(ExportQuestionsSummary(updatedModel))
+              else
+                goto(state)
 
             case importQuestionsAnswers: ImportQuestions =>
-              goto(
-                ImportQuestionsSummary(
-                  ImportQuestionsStateModel(
-                    declarationDetails = state.hostData.declarationDetails,
-                    importQuestionsAnswers = importQuestionsAnswers,
-                    fileUploadsOpt = Some(state.fileUploads)
-                  )
+              val updatedModel =
+                ImportQuestionsStateModel(
+                  declarationDetails = state.hostData.declarationDetails,
+                  importQuestionsAnswers = importQuestionsAnswers,
+                  fileUploadsOpt = Some(state.fileUploads)
                 )
-              )
+              if (Rules.isComplete(updatedModel))
+                goto(ImportQuestionsSummary(updatedModel))
+              else
+                goto(state)
           }
       }
 

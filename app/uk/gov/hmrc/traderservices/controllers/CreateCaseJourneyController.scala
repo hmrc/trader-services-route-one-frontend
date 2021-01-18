@@ -215,7 +215,7 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ExportContactForm)
       .applyWithRequest(implicit request =>
-        Transitions.submittedExportQuestionsContactInfo(appConfig.uploadMultipleFilesFeature)(upscanRequest)(
+        Transitions.submittedExportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
         )
       )
@@ -335,7 +335,7 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ImportContactForm)
       .applyWithRequest(implicit request =>
-        Transitions.submittedImportQuestionsContactInfo(appConfig.uploadMultipleFilesFeature)(upscanRequest)(
+        Transitions.submittedImportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
         )
       )
@@ -356,6 +356,9 @@ class CreateCaseJourneyController @Inject() (
     * coming from one of our own pages open in the browser.
     */
   final val COOKIE_JSENABLED = "jsenabled"
+
+  final def preferUploadMultipleFiles(implicit rh: RequestHeader): Boolean =
+    rh.cookies.get(COOKIE_JSENABLED).isDefined && appConfig.uploadMultipleFilesFeature
 
   final def successRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
