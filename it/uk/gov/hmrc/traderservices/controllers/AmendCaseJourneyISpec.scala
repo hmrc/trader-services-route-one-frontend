@@ -1,7 +1,8 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import play.api.libs.json.Format
-import play.api.mvc.{Cookies, Session}
+import play.api.libs.ws.DefaultWSCookie
+import play.api.mvc.Session
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
@@ -15,7 +16,6 @@ import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import play.api.libs.ws.DefaultWSCookie
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -127,17 +127,17 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
     "POST /send-documents-for-customs-check/add/write-response" should {
       "submit type of amendment choice and show next page" in {
         implicit val journeyId: JourneyId = JourneyId()
+        val model = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO05"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
         journey.setState(
           EnterResponseText(
-            AmendCaseModel(
-              caseReferenceNumber = Some("PC12010081330XGBNZJO05"),
-              typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
-            )
+            model
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val text = Random.alphanumeric.take(1000).mkString
-        givenUpdateCaseApiRequestSucceeds("PC12010081330XGBNZJO05", "WriteResponse", text)
 
         val payload = Map(
           "responseText" -> text
@@ -146,7 +146,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result = await(request("/add/write-response").post(payload))
 
         result.status shouldBe 200
-        journey.getState shouldBe AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO05", generatedAt))
+        journey.getState shouldBe AmendCaseSummary(model.copy(responseText = Some(text)))
       }
     }
 
@@ -477,6 +477,110 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           )
         result.status shouldBe 500
         journey.getState shouldBe state
+      }
+      "GET /amendment-review" should {
+        "show the amendment review page with both uploaded files and additional information section from WriteResponseAndUploadDocuments mode" in {
+          val bytes = Array.ofDim[Byte](1024 * 1024)
+
+          val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
+          implicit val journeyId: JourneyId = JourneyId()
+          val fullAmendCaseStateModel = AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+            responseText = Some(Random.alphanumeric.take(1000).mkString),
+            fileUploads = Some(
+              FileUploads(files =
+                Seq(
+                  FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                  FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                  FileUpload.Accepted(
+                    4,
+                    "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                    upscanUrl,
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                    "test.pdf",
+                    "application/pdf"
+                  )
+                )
+              )
+            )
+          )
+          val state = AmendCaseSummary(fullAmendCaseStateModel)
+          journey.setState(state)
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/amendment-review").get())
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+          journey.getState shouldBe state
+        }
+        "show the amendment review page with only additional information section from WriteResponse mode" in {
+
+          implicit val journeyId: JourneyId = JourneyId()
+          val model = AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
+            responseText = Some(Random.alphanumeric.take(1000).mkString),
+            fileUploads = None
+          )
+          val state = AmendCaseSummary(model)
+          journey.setState(state)
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/amendment-review").get())
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+          result.body should not include (htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+          journey.getState shouldBe state
+        }
+        "show the amendment review page with only uploaded files section from UploadDocuments mode" in {
+          val bytes = Array.ofDim[Byte](1024 * 1024)
+
+          val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
+          implicit val journeyId: JourneyId = JourneyId()
+          val model = AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+            responseText = None,
+            fileUploads = Some(
+              FileUploads(files =
+                Seq(
+                  FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                  FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                  FileUpload.Accepted(
+                    4,
+                    "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                    upscanUrl,
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                    "test.pdf",
+                    "application/pdf"
+                  )
+                )
+              )
+            )
+          )
+          val state = AmendCaseSummary(model)
+          journey.setState(state)
+          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+          val result = await(request("/amendment-review").get())
+
+          result.status shouldBe 200
+          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+          result.body should not include (htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+          result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+          journey.getState shouldBe state
+        }
       }
     }
   }

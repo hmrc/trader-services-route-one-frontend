@@ -15,14 +15,22 @@
  */
 
 package uk.gov.hmrc.traderservices.models
-
-sealed trait TypeOfAmendment
+sealed trait View {
+  def viewFormat: String
+}
+sealed trait TypeOfAmendment extends View
 
 object TypeOfAmendment extends EnumerationFormats[TypeOfAmendment] {
 
-  case object WriteResponse extends TypeOfAmendment
-  case object UploadDocuments extends TypeOfAmendment
-  case object WriteResponseAndUploadDocuments extends TypeOfAmendment
+  case object WriteResponse extends TypeOfAmendment {
+    override def viewFormat = "Message"
+  }
+  case object UploadDocuments extends TypeOfAmendment {
+    override def viewFormat = "Documents"
+  }
+  case object WriteResponseAndUploadDocuments extends TypeOfAmendment {
+    override def viewFormat = "Message and documents"
+  }
 
   val values = Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
 }

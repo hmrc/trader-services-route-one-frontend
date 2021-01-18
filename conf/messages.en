@@ -540,6 +540,16 @@ view.amend-case-confirmation.next.description=Once the information checks are co
 view.amend-case-confirmation.continue=Send documents for a customs check
 view.amend-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603 forms</a>.
 
+
+view.amend-case.summary.title=Review your case details
+view.amend-case.summary.declaration.details.heading=Declaration information
+view.amend-case.summary.caseReferenceNumber=Case reference number
+view.amend-case.summary.additionalInfo.heading=Additional information
+view.amend-case.summary.additionalInfo.type=Information type
+view.amend-case.summary.additionalInfo.message=Message
+view.amend-case.summary.documents.heading=Documents you are submitting
+view.amend-case.summary.filenames=File names
+form.amend-case.summary.continue=Submit
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:
