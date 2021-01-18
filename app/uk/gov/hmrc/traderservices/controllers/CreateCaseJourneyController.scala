@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, NewOrExistingCase, S3UploadError, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, NewOrExistingCase, S3UploadError, S3UploadSuccess, UpscanNotification, VesselDetails}
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -41,6 +41,8 @@ import uk.gov.hmrc.traderservices.models.ImportQuestions
 import uk.gov.hmrc.traderservices.models.FileUpload
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.models.FileUploads
+import uk.gov.hmrc.traderservices.models.UploadRequest
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -52,7 +54,8 @@ class CreateCaseJourneyController @Inject() (
   val env: Environment,
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
-  views: uk.gov.hmrc.traderservices.views.CreateCaseViews
+  views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
+  uploadFileViewContext: UploadFileViewContext
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
@@ -212,7 +215,9 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ExportContactForm)
       .applyWithRequest(implicit request =>
-        Transitions.submittedExportQuestionsContactInfo(upscanRequest)(upscanInitiateConnector.initiate(_))
+        Transitions.submittedExportQuestionsContactInfo(appConfig.uploadMultipleFilesFeature)(upscanRequest)(
+          upscanInitiateConnector.initiate(_)
+        )
       )
 
   // GET /new/export/check-your-answers
@@ -330,7 +335,9 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ImportContactForm)
       .applyWithRequest(implicit request =>
-        Transitions.submittedImportQuestionsContactInfo(upscanRequest)(upscanInitiateConnector.initiate(_))
+        Transitions.submittedImportQuestionsContactInfo(appConfig.uploadMultipleFilesFeature)(upscanRequest)(
+          upscanInitiateConnector.initiate(_)
+        )
       )
 
   // GET /new/import/check-your-answers
@@ -356,6 +363,9 @@ class CreateCaseJourneyController @Inject() (
       case None    => controller.showWaitingForFileVerification()
     })
 
+  final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
+    appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId.get)
+
   final def errorRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
@@ -372,6 +382,33 @@ class CreateCaseJourneyController @Inject() (
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
     )
 
+  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
+    UpscanInitiateRequest(
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
+      successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
+      errorRedirect = Some(errorRedirect),
+      minimumFileSize = Some(1),
+      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+    )
+
+  // GET /new/upload-multiple-files
+  final val showUploadMultipleFiles: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .apply(FileUploadTransitions.toUploadMultipleFiles)
+      .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
+
+  // PUT /new/upload-multiple-files/initiate-next
+  final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        FileUploadTransitions
+          .initiateNextFileUpload(uploadId)(upscanRequestWhenUploadingMultipleFiles)(
+            upscanInitiateConnector.initiate(_)
+          )
+      }
+      .displayUsing(implicit request => renderUploadRequestJson(uploadId))
+
   // GET /new/file-upload
   final val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -385,13 +422,13 @@ class CreateCaseJourneyController @Inject() (
   final val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.fileUploadWasRejected)
+      .apply(FileUploadTransitions.markUploadAsRejected)
 
-  // GET /new/journey/:journeyId/file-rejected-async
+  // GET /new/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.fileUploadWasRejected(""))
+      .apply(FileUploadTransitions.markUploadAsRejected(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /new/file-verification
@@ -409,6 +446,13 @@ class CreateCaseJourneyController @Inject() (
         implicit request => acknowledgeFileUploadRedirect
       )
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+
+  // GET /new/journey/:journeyId/file-posted
+  final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
+    actions
+      .bindForm(UpscanUploadSuccessForm)
+      .apply(FileUploadTransitions.markUploadAsPosted)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // POST /new/journey/:journeyId/callback-from-upscan
@@ -455,7 +499,7 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayUsing(implicit request => renderFileVerificationStatus(reference))
+      .displayUsing(implicit request => renderFileVerificationStatusJson(reference))
 
   // ----------------------- CONFIRMATION -----------------------
 
@@ -556,6 +600,9 @@ class CreateCaseJourneyController @Inject() (
 
       case _: ImportQuestionsSummary =>
         controller.showImportQuestionsSummary()
+
+      case _: FileUploadState.UploadMultipleFiles =>
+        controller.showUploadMultipleFiles()
 
       case _: FileUploadState.UploadFile =>
         controller.showFileUpload()
@@ -798,6 +845,18 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
+      case FileUploadState.UploadMultipleFiles(model, fileUploads) =>
+        Ok(
+          views.uploadMultipleFilesView(
+            maxFileUploadsNumber,
+            fileUploads.files,
+            initiateNextFileUpload = controller.initiateNextFileUpload,
+            checkFileVerificationStatus = controller.checkFileVerificationStatus,
+            continueAction = linkToSummary(model.questionsAnswers),
+            backLink = backLinkFromFileUpload(model.questionsAnswers)
+          )
+        )
+
       case FileUploadState.UploadFile(model, reference, uploadRequest, fileUploads, maybeUploadError) =>
         Ok(
           views.uploadFileView(
@@ -876,16 +935,45 @@ class CreateCaseJourneyController @Inject() (
       case _: ImportQuestions => controller.showAnswerImportQuestionsContactInfo()
     }
 
-  private def renderFileVerificationStatus(
+  private def renderUploadRequestJson(
+    uploadId: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState.UploadMultipleFiles =>
+        s.fileUploads
+          .findReferenceAndUploadRequestForUploadId(uploadId) match {
+          case Some((reference, uploadRequest)) =>
+            val json =
+              Json.obj(
+                "reference"     -> reference,
+                "uploadId"      -> uploadId,
+                "uploadRequest" -> UploadRequest.formats.writes(uploadRequest)
+              )
+            Ok(json)
+
+          case None => NotFound
+        }
+
+      case _ => Forbidden
+    }
+
+  private def renderFileVerificationStatusJson(
     reference: String
   )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
   ): Result =
     state match {
       case s: FileUploadState =>
-        s.fileUploads.files.find(_.reference == reference) match {
-          case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
-          case None    => NotFound
+        s.fileUploads.findUploadWithUpscanReference(reference) match {
+          case Some(file) =>
+            Ok(
+              Json.toJson(
+                FileVerificationStatus(file, uploadFileViewContext, controller.previewFileUploadByReference(_))
+              )
+            )
+          case None => NotFound
         }
       case _ => NotFound
     }
@@ -910,6 +998,7 @@ class CreateCaseJourneyController @Inject() (
     implicit request: Request[_]
   ): Result =
     (state match {
+      case _: FileUploadState.UploadMultipleFiles        => Created
       case _: FileUploadState.FileUploaded               => Created
       case _: FileUploadState.WaitingForFileVerification => Accepted
       case _                                             => NoContent
@@ -1034,6 +1123,13 @@ object CreateCaseJourneyController {
 
   val UploadAnotherFileChoiceForm = Form[Boolean](
     mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)
+  )
+
+  val UpscanUploadSuccessForm = Form[S3UploadSuccess](
+    mapping(
+      "key"    -> nonEmptyText,
+      "bucket" -> nonEmptyText
+    )(S3UploadSuccess.apply)(S3UploadSuccess.unapply)
   )
 
   val UpscanUploadErrorForm = Form[S3UploadError](

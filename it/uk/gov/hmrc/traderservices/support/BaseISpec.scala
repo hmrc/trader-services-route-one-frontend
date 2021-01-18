@@ -19,6 +19,8 @@ abstract class BaseISpec
   import scala.concurrent.duration._
   override implicit val defaultTimeout: FiniteDuration = 5 seconds
 
+  val uploadMultipleFilesFeature: Boolean = false
+
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
@@ -29,7 +31,12 @@ abstract class BaseISpec
         "play.filters.csrf.method.whiteList.0" -> "POST",
         "play.filters.csrf.method.whiteList.1" -> "GET"
       )
-      .overrides(bind[AppConfig].toInstance(TestAppConfig(wireMockBaseUrlAsString, wireMockPort)))
+      .overrides(
+        bind[AppConfig]
+          .toInstance(
+            TestAppConfig(wireMockBaseUrlAsString, wireMockPort, uploadMultipleFilesFeature)
+          )
+      )
 
   override def commonStubs(): Unit = {
     givenCleanMetricRegistry()

@@ -84,7 +84,6 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     case class UploadMultipleFiles(
       hostData: FileUploadHostData,
-      uploadRequestMap: Map[String, UploadRequest],
       fileUploads: FileUploads
     ) extends FileUploadState
 
@@ -112,9 +111,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
         hostData,
         upscanResponse.reference,
         upscanResponse.uploadRequest,
-        fileUploads.copy(files =
-          fileUploads.files :+ FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference)
-        )
+        fileUploads + FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference, None, None)
       )
   }
 
@@ -124,9 +121,49 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     private def resetFileUploadStatusToInitiated(reference: String, fileUploads: FileUploads): FileUploads =
       fileUploads.copy(files = fileUploads.files.map {
         case f if f.reference == reference =>
-          FileUpload.Initiated(f.orderNumber, f.reference)
+          FileUpload.Initiated(f.orderNumber, f.reference, None, None)
         case other => other
       })
+
+    final def toUploadMultipleFiles(user: String) =
+      Transition {
+        case current: UploadMultipleFiles =>
+          goto(current)
+
+        case state: CanEnterFileUpload =>
+          goto(
+            UploadMultipleFiles(
+              hostData = state.hostData,
+              fileUploads = state.fileUploadsOpt.getOrElse(FileUploads())
+            )
+          )
+      }
+
+    final def initiateNextFileUpload(uploadId: String)(
+      upscanRequest: UpscanInitiateRequest
+    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
+      Transition {
+        case state: UploadMultipleFiles =>
+          if (
+            !state.fileUploads.hasUploadId(uploadId) &&
+            state.fileUploads.initiatedOrAcceptedCount < maxFileUploadsNumber
+          )
+            upscanInitiate(upscanRequest)
+              .flatMap { upscanResponse =>
+                goto(
+                  state.copy(fileUploads =
+                    state.fileUploads + FileUpload
+                      .Initiated(
+                        state.fileUploads.files.size + 1,
+                        upscanResponse.reference,
+                        Some(upscanResponse.uploadRequest),
+                        Some(uploadId)
+                      )
+                  )
+                )
+              }
+          else goto(state)
+      }
 
     final def initiateFileUpload(
       upscanRequest: UpscanInitiateRequest
@@ -172,7 +209,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             )
       }
 
-    final def fileUploadWasRejected(user: String)(error: S3UploadError) =
+    final def markUploadAsRejected(user: String)(error: S3UploadError) =
       Transition {
         case current @ UploadFile(
               hostData,
@@ -182,11 +219,30 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               maybeUploadError
             ) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(orderNumber, ref) if ref == error.key =>
-              FileUpload.Rejected(orderNumber, reference, error)
+            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == error.key =>
+              FileUpload.Rejected(orderNumber, ref, error)
             case u => u
           })
           goto(current.copy(fileUploads = updatedFileUploads, maybeUploadError = Some(FileTransmissionFailed(error))))
+
+        case current @ UploadMultipleFiles(hostData, fileUploads) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == error.key =>
+              FileUpload.Rejected(orderNumber, ref, error)
+            case u => u
+          })
+          goto(current.copy(fileUploads = updatedFileUploads))
+      }
+
+    final def markUploadAsPosted(receipt: S3UploadSuccess) =
+      Transition {
+        case current @ UploadMultipleFiles(hostData, fileUploads) =>
+          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
+            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == receipt.key =>
+              FileUpload.Posted(orderNumber, ref)
+            case u => u
+          })
+          goto(current.copy(fileUploads = updatedFileUploads))
       }
 
     /** Common transition helper based on the file upload status. */
@@ -270,7 +326,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               errorOpt
             ) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(orderNumber, ref) if ref == reference =>
+            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == reference =>
               FileUpload.Posted(orderNumber, reference)
             case other => other
           })

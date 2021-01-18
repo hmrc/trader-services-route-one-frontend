@@ -208,9 +208,8 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
 
       validateJsonFormat(
         s"""{"state":"UploadMultipleFiles","properties":{"hostData":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"},
-           |"uploadRequestMap":{"foo1":{"href":"https://foo.bar","fields":{"amz":"123"}}},
            |"fileUploads":{"files":[
-           |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
+           |{"Initiated":{"orderNumber":1,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"aBc"}},
            |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
            |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
@@ -218,13 +217,14 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
            |]}}}""".stripMargin,
         FileUploadState.UploadMultipleFiles(
           fileUploadHostData,
-          Map(
-            "foo1" ->
-              UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123"))
-          ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Initiated(
+                1,
+                "foo1",
+                uploadRequest = Some(UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123"))),
+                uploadId = Some("aBc")
+              ),
               FileUpload.Accepted(
                 4,
                 "foo4",

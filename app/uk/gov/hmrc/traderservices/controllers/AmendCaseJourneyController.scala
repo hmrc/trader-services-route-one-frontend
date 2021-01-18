@@ -36,6 +36,11 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
+import play.api.libs.json.Json
+import play.mvc.Http.HeaderNames
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import akka.actor.ActorSystem
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -47,7 +52,8 @@ class AmendCaseJourneyController @Inject() (
   val env: Environment,
   override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
-  views: uk.gov.hmrc.traderservices.views.AmendCaseViews
+  views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
+  uploadFileViewContext: UploadFileViewContext
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
@@ -178,13 +184,13 @@ class AmendCaseJourneyController @Inject() (
   final val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.fileUploadWasRejected)
+      .apply(FileUploadTransitions.markUploadAsRejected)
 
   // GET /add/journey/:journeyId/file-rejected-async
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.fileUploadWasRejected(""))
+      .apply(FileUploadTransitions.markUploadAsRejected(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /add/file-verification
@@ -432,8 +438,13 @@ class AmendCaseJourneyController @Inject() (
     state match {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
-          case Some(f) => Ok(Json.toJson(FileVerificationStatus(f)))
-          case None    => NotFound
+          case Some(file) =>
+            Ok(
+              Json.toJson(
+                FileVerificationStatus(file, uploadFileViewContext, controller.previewFileUploadByReference(_))
+              )
+            )
+          case None => NotFound
         }
       case _ => NotFound
     }

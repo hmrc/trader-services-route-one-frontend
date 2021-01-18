@@ -862,7 +862,9 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submittedExportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        )(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadFile(
@@ -917,7 +919,9 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedExportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submittedExportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        )(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           FileUploaded(
@@ -1546,7 +1550,9 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedImportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submittedImportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        )(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadFile(
@@ -1601,7 +1607,9 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedImportQuestionsContactInfo(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submittedImportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        )(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           FileUploaded(
@@ -2119,7 +2127,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
 
-        given(state) when fileUploadWasRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(eoriNumber)(
           S3UploadError(
             key = "foo-bar-ref-1",
             errorCode = "a",

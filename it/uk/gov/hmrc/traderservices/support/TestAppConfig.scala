@@ -2,7 +2,8 @@ package uk.gov.hmrc.traderservices.support
 
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
-case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int) extends AppConfig {
+case class TestAppConfig(wireMockBaseUrl: String, wireMockPort: Int, val uploadMultipleFilesFeature: Boolean)
+    extends AppConfig {
 
   override val appName: String = "trader-services-frontend"
   override val baseInternalCallbackUrl: String = s"http://baseInternalCallbackUrl"

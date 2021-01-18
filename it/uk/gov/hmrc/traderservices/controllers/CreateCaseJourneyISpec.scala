@@ -1998,7 +1998,12 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                uploadRequest =
+                  Some(UploadRequest(href = "https://s3.amazonaws.com/bucket/123abc", fields = Map("foo1" -> "bar1")))
+              ),
               FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
                 4,
@@ -2013,6 +2018,18 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 3,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              ),
+              FileUpload.Rejected(
+                5,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e3",
+                details = S3UploadError("key", "errorCode", "Invalid file type.")
+              ),
+              FileUpload.Duplicate(
+                6,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e4",
+                checksum = "0" * 64,
+                existingFileName = "test1.pdf",
+                duplicateFileName = "test1.png"
               )
             )
           ),
@@ -2027,7 +2044,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               .get()
           )
         result1.status shouldBe 200
-        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
         journey.getState shouldBe state
 
         val result2 =
@@ -2039,18 +2056,30 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result3 =
           await(request("/new/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+        result3.body shouldBe """{"fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}"""
         journey.getState shouldBe state
 
         val result4 =
           await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
-        result4.body shouldBe """{"fileStatus":"FAILED"}"""
+        result4.body shouldBe """{"fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
         journey.getState shouldBe state
 
         val result5 =
           await(request("/new/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
         result5.status shouldBe 404
+        journey.getState shouldBe state
+
+        val result6 =
+          await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e3/status").get())
+        result6.status shouldBe 200
+        result6.body shouldBe """{"fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
+        journey.getState shouldBe state
+
+        val result7 =
+          await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e4/status").get())
+        result7.status shouldBe 200
+        result7.body shouldBe """{"fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
         journey.getState shouldBe state
       }
     }

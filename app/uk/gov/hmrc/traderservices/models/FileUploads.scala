@@ -31,6 +31,18 @@ case class FileUploads(
     files
       .count { case _: FileUpload.Accepted => true; case _ => false }
 
+  def initiatedOrAcceptedCount: Int =
+    files
+      .count {
+        case _: FileUpload.Accepted  => true
+        case _: FileUpload.Initiated => true
+        case _: FileUpload.Posted    => true
+        case _                       => false
+      }
+
+  def findUploadWithUpscanReference(reference: String): Option[FileUpload] =
+    files.find(_.reference == reference)
+
   def toUploadedFiles: Seq[UploadedFile] =
     files.collect {
       case f: FileUpload.Accepted =>
@@ -38,6 +50,18 @@ case class FileUploads(
     }
 
   def +(file: FileUpload): FileUploads = copy(files = files :+ file)
+
+  def hasUploadId(uploadId: String): Boolean =
+    files.exists {
+      case FileUpload.Initiated(_, _, _, Some(`uploadId`)) => true
+      case _                                               => false
+    }
+
+  def findReferenceAndUploadRequestForUploadId(uploadId: String): Option[(String, UploadRequest)] =
+    files.collectFirst {
+      case FileUpload.Initiated(_, reference, Some(uploadRequest), Some(`uploadId`)) =>
+        (reference, uploadRequest)
+    }
 
 }
 
@@ -63,7 +87,9 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     */
   case class Initiated(
     orderNumber: Int,
-    reference: String
+    reference: String,
+    uploadRequest: Option[UploadRequest] = None,
+    uploadId: Option[String] = None
   ) extends FileUpload
 
   /** Status when file transmission has been rejected by AWS S3. */

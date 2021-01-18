@@ -558,7 +558,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
       }
 
-    final def submittedExportQuestionsContactInfo(
+    final def submittedExportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
       upscanRequest: UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ExportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
@@ -568,8 +568,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.updated(model.exportQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
           )(
-            FileUploadTransitions
-              .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
+            if (uploadMultipleFiles)
+              FileUploadTransitions
+                .toUploadMultipleFiles(user)
+            else
+              FileUploadTransitions
+                .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
           )
       }
 
@@ -756,7 +760,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
       }
 
-    final def submittedImportQuestionsContactInfo(
+    final def submittedImportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
       upscanRequest: UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ImportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
@@ -766,8 +770,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.updated(model.importQuestionsAnswers.copy(contactInfo = Some(contactInfo)))
             )
           )(
-            FileUploadTransitions
-              .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
+            if (uploadMultipleFiles)
+              FileUploadTransitions
+                .toUploadMultipleFiles(user)
+            else
+              FileUploadTransitions
+                .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
           )
       }
 

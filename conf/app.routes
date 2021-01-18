@@ -48,8 +48,13 @@ GET        /new/import/contact-information                          @uk.gov.hmrc
 POST       /new/import/contact-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsContactInfoAnswer
 GET        /new/import/check-your-answers                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showImportQuestionsSummary
 
+GET        /new/upload-multiple-files                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showUploadMultipleFiles
++ nocsrf
+PUT        /new/upload-multiple-files/initiate-next                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.initiateNextFileUpload(uploadId: String)
+
 GET        /new/file-upload                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUpload
 GET        /new/file-rejected                                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.markFileUploadAsRejected
+GET        /new/journey/:journeyId/file-posted                      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncMarkFileUploadAsPosted(journeyId: String)
 GET        /new/journey/:journeyId/file-rejected                    @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncMarkFileUploadAsRejected(journeyId: String)
 GET        /new/file-verification                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showWaitingForFileVerification
 GET        /new/journey/:journeyId/file-verification                @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncWaitingForFileVerification(journeyId: String)

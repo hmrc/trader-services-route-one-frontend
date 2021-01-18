@@ -93,12 +93,10 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
   lazy val uploadMultipleFilesFormat = Format(
     (
       (__ \ "hostData").read[model.FileUploadHostData](fileUploadHostDataFormat) and
-        (__ \ "uploadRequestMap").read(uploadRequestMapFormat) and
         (__ \ "fileUploads").read[FileUploads]
     )(UploadMultipleFiles.apply _),
     (
       (__ \ "hostData").write[model.FileUploadHostData](fileUploadHostDataFormat) and
-        (__ \ "uploadRequestMap").write(uploadRequestMapFormat) and
         (__ \ "fileUploads").write[FileUploads]
     )(unlift(UploadMultipleFiles.unapply))
   )

@@ -670,7 +670,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
 
-        given(state) when fileUploadWasRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(eoriNumber)(
           S3UploadError(
             key = "foo-bar-ref-1",
             errorCode = "a",
