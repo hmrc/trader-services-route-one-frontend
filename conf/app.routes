@@ -50,7 +50,7 @@ GET        /new/import/check-your-answers                           @uk.gov.hmrc
 
 GET        /new/upload-multiple-files                               @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showUploadMultipleFiles
 + nocsrf
-PUT        /new/upload-multiple-files/initiate-next                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.initiateNextFileUpload(uploadId: String)
+PUT        /new/upload-multiple-files/initialise/:uploadId          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.initiateNextFileUpload(uploadId: String)
 
 GET        /new/file-upload                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUpload
 GET        /new/file-rejected                                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.markFileUploadAsRejected
@@ -81,7 +81,7 @@ POST       /add/write-response                                      @uk.gov.hmrc
 
 GET        /add/upload-multiple-files                               @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showUploadMultipleFiles
 + nocsrf
-PUT        /add/upload-multiple-files/initiate-next                 @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.initiateNextFileUpload(uploadId: String)
+PUT        /add/upload-multiple-files/initialise/:uploadId          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.initiateNextFileUpload(uploadId: String)
 
 GET        /add/file-upload                                         @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showFileUpload
 GET        /add/file-rejected                                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.markFileUploadAsRejected

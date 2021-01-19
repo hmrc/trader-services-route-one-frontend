@@ -195,7 +195,7 @@ class AmendCaseJourneyController @Inject() (
       .apply(FileUploadTransitions.toUploadMultipleFiles)
       .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
 
-  // PUT /add/upload-multiple-files/initiate-next
+  // PUT /add/upload-multiple-files/initialise/:uploadId
   final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>

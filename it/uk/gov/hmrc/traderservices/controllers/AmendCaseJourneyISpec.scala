@@ -16,6 +16,9 @@ import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 
 class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
@@ -147,6 +150,258 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 
         result.status shouldBe 200
         journey.getState shouldBe AmendCaseSummary(model.copy(responseText = Some(text)))
+      }
+    }
+
+    "GET /add/upload-multiple-files" should {
+      "show the upload multiple files page when in UploadDocuments mode" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          ),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/add/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "show the upload multiple files page when in WriteResponseAndUploadDocuments mode" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+            responseText = Some("abc")
+          ),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/add/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "retreat from summary to the upload multiple files when in UploadDocuments mode" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AmendCaseSummary(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/add/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          ),
+          fileUploads = FileUploads()
+        )
+      }
+
+      "retreat from summary to the upload multiple files when in WriteResponseAndUploadDocuments mode" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = AmendCaseSummary(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+            responseText = Some("abc")
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/add/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+            responseText = Some("abc")
+          ),
+          fileUploads = FileUploads()
+        )
+      }
+    }
+
+    "PUT /add/upload-multiple-files/initialise/:uploadId" should {
+      "initialise first file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+            fileUploads = Some(FileUploads())
+          ),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/add/upload-multiple-files/initialise/001").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "001"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+              fileUploads = Some(FileUploads())
+            ),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Initiated(
+                  1,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("001"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+      }
+
+      "initialise next file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val state = UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+            fileUploads = Some(FileUploads(Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+          ),
+          fileUploads = FileUploads(
+            Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/add/upload-multiple-files/initialise/002").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "002"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+              fileUploads = Some(FileUploads(Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+            ),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"),
+                FileUpload.Initiated(
+                  2,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("002"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
       }
     }
 
@@ -507,109 +762,109 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.status shouldBe 500
         journey.getState shouldBe state
       }
-      "GET /add/check-your-answers" should {
-        "show the amendment review page with both uploaded files and additional information section from WriteResponseAndUploadDocuments mode" in {
-          val bytes = Array.ofDim[Byte](1024 * 1024)
+    }
 
-          val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
-          implicit val journeyId: JourneyId = JourneyId()
-          val fullAmendCaseStateModel = AmendCaseModel(
-            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
-            responseText = Some(Random.alphanumeric.take(1000).mkString),
-            fileUploads = Some(
-              FileUploads(files =
-                Seq(
-                  FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                  FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
-                  FileUpload.Accepted(
-                    4,
-                    "f029444f-415c-4dec-9cf2-36774ec63ab8",
-                    upscanUrl,
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf"
-                  )
+    "GET /add/check-your-answers" should {
+      "show the amendment review page with both uploaded files and additional information section from WriteResponseAndUploadDocuments mode" in {
+        val bytes = Array.ofDim[Byte](1024 * 1024)
+
+        val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
+        implicit val journeyId: JourneyId = JourneyId()
+        val fullAmendCaseStateModel = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          responseText = Some(Random.alphanumeric.take(1000).mkString),
+          fileUploads = Some(
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Accepted(
+                  4,
+                  "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                  upscanUrl,
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
                 )
               )
             )
           )
-          val state = AmendCaseSummary(fullAmendCaseStateModel)
-          journey.setState(state)
-          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        )
+        val state = AmendCaseSummary(fullAmendCaseStateModel)
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          val result = await(request("/add/check-your-answers").get())
+        val result = await(request("/add/check-your-answers").get())
 
-          result.status shouldBe 200
-          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-          journey.getState shouldBe state
-        }
-        "show the amendment review page with only additional information section from WriteResponse mode" in {
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        journey.getState shouldBe state
+      }
+      "show the amendment review page with only additional information section from WriteResponse mode" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val model = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
+          responseText = Some(Random.alphanumeric.take(1000).mkString),
+          fileUploads = None
+        )
+        val state = AmendCaseSummary(model)
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          implicit val journeyId: JourneyId = JourneyId()
-          val model = AmendCaseModel(
-            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-            typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
-            responseText = Some(Random.alphanumeric.take(1000).mkString),
-            fileUploads = None
-          )
-          val state = AmendCaseSummary(model)
-          journey.setState(state)
-          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val result = await(request("/add/check-your-answers").get())
 
-          val result = await(request("/add/check-your-answers").get())
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body should not include (htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        journey.getState shouldBe state
+      }
+      "show the amendment review page with only uploaded files section from UploadDocuments mode" in {
+        val bytes = Array.ofDim[Byte](1024 * 1024)
 
-          result.status shouldBe 200
-          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-          result.body should not include (htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-          journey.getState shouldBe state
-        }
-        "show the amendment review page with only uploaded files section from UploadDocuments mode" in {
-          val bytes = Array.ofDim[Byte](1024 * 1024)
-
-          val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
-          implicit val journeyId: JourneyId = JourneyId()
-          val model = AmendCaseModel(
-            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
-            responseText = None,
-            fileUploads = Some(
-              FileUploads(files =
-                Seq(
-                  FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                  FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
-                  FileUpload.Accepted(
-                    4,
-                    "f029444f-415c-4dec-9cf2-36774ec63ab8",
-                    upscanUrl,
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf"
-                  )
+        val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
+        implicit val journeyId: JourneyId = JourneyId()
+        val model = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+          responseText = None,
+          fileUploads = Some(
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Accepted(
+                  4,
+                  "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                  upscanUrl,
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
                 )
               )
             )
           )
-          val state = AmendCaseSummary(model)
-          journey.setState(state)
-          givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        )
+        val state = AmendCaseSummary(model)
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          val result = await(request("/add/check-your-answers").get())
+        val result = await(request("/add/check-your-answers").get())
 
-          result.status shouldBe 200
-          result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-          result.body should not include (htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-          result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-          journey.getState shouldBe state
-        }
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body should not include (htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        journey.getState shouldBe state
       }
     }
   }

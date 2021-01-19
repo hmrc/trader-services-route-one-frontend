@@ -1,7 +1,7 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import play.api.libs.json.Format
-import play.api.mvc.{Cookies, Session}
+import play.api.mvc.Session
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
@@ -18,6 +18,9 @@ import java.time.temporal.{ChronoField, ChronoUnit}
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.ws.DefaultWSCookie
 import scala.util.Random
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
@@ -1719,6 +1722,227 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
         journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/upload-multiple-files" should {
+      "show the upload multiple files page for an importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "show the upload multiple files page for an exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "retreat from summary to the upload multiple files page for an importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ImportQuestionsSummary(
+          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+      }
+
+      "retreat from summary to the upload multiple files page for an exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ExportQuestionsSummary(
+          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-multiple-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+      }
+    }
+
+    "PUT /new/upload-multiple-files/initialise/:uploadId" should {
+      "initialise first file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/new/upload-multiple-files/initialise/001").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "001"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Initiated(
+                  1,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("001"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+      }
+
+      "initialise next file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(
+            Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/new/upload-multiple-files/initialise/002").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "002"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"),
+                FileUpload.Initiated(
+                  2,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("002"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
       }
     }
 
