@@ -31,6 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 import scala.util.{Random, Try}
+import uk.gov.hmrc.traderservices.models.TypeOfAmendment.UploadDocuments
 class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
   import scala.concurrent.duration._
@@ -69,7 +70,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to SelectTypeOfAmendment when sumbited case reference number" in {
+      "go to SelectTypeOfAmendment when submited case reference number" in {
         given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(eoriNumber)(
           "PC12010081330XGBNZJO04"
         ) should thenGo(
@@ -79,10 +80,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     }
 
     "at state SelectTypeOfAmendment" should {
-      "go to EnterResponseText when sumbited type of amendment WriteResponse" in {
+      "go to EnterResponseText when submited type of amendment WriteResponse" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.WriteResponse
         ) should thenGo(
           EnterResponseText(
@@ -94,10 +95,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to EnterResponseText when sumbited type of amendment WriteResponseAndUploadDocuments" in {
+      "go to EnterResponseText when submited type of amendment WriteResponseAndUploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
         ) should thenGo(
           EnterResponseText(
@@ -109,10 +110,26 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "go to UploadFile when sumbited type of amendment UploadDocuments" in {
+      "go to UploadMultipleFiles when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched on" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+          TypeOfAmendment.UploadDocuments
+        ) should thenGo(
+          UploadMultipleFiles(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+            ),
+            FileUploads()
+          )
+        )
+      }
+
+      "go to UploadFile when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched off" in {
+        given(
+          SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.UploadDocuments
         ) should thenGo(
           UploadFile(
@@ -157,7 +174,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           EnterResponseText(model)
-        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(AmendCaseSummary(model.copy(responseText = Some(responseText))))
       }
@@ -171,7 +188,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
-        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           EnterCaseReferenceNumber(
@@ -193,7 +210,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = None
             )
           )
-        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           SelectTypeOfAmendment(
@@ -206,15 +223,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "goto UploadFile when submited response text in WriteResponseAndUploadDocuments mode" in {
-        val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(
-            TraderServicesCaseResponse(
-              correlationId = "",
-              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
-            )
-          )
-        }
+      "goto UploadMultipleFiles when submited response text in WriteResponseAndUploadDocuments mode and uploadMultipleFiles feature switched on" in {
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
           EnterResponseText(
@@ -223,7 +232,30 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
             )
           )
-        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+          responseText
+        ) should thenGo(
+          UploadMultipleFiles(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+              responseText = Some(responseText)
+            ),
+            FileUploads()
+          )
+        )
+      }
+
+      "goto UploadFile when submited response text in WriteResponseAndUploadDocuments mode and uploadMultipleFiles feature switched off" in {
+        val responseText = Random.alphanumeric.take(1000).mkString
+        given(
+          EnterResponseText(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
+            )
+          )
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           UploadFile(
@@ -250,14 +282,6 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
 
       "fail when submited response text in UploadDocuments mode" in {
-        val updateCaseApi: UpdateCaseApi = { request =>
-          Future.successful(
-            TraderServicesCaseResponse(
-              correlationId = "",
-              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
-            )
-          )
-        }
         val responseText = Random.alphanumeric.take(1000).mkString
         given(
           EnterResponseText(
@@ -266,7 +290,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
             )
           )
-        ) shouldFailWhen submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) shouldFailWhen submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        )(
           responseText
         )
       }
@@ -313,6 +339,625 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       )
     )
+
+    "at state UploadMultipleFiles" should {
+      "go to AmendCaseSummary when non-empty file uploads and toAmendSummary transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            nonEmptyFileUploads
+          )
+        ) when toAmendSummary(eoriNumber) should thenGo(
+          AmendCaseSummary(
+            fullAmendCaseStateModel
+              .copy(fileUploads = Some(nonEmptyFileUploads))
+          )
+        )
+      }
+
+      "stay when empty file uploads, and transition toAmendSummary" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel
+            .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)),
+          FileUploads()
+        )
+        given(state) when toAmendSummary(eoriNumber) should thenGo(state)
+      }
+
+      "stay when toUploadMultipleFiles transition" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          nonEmptyFileUploads
+        )
+        given(state) when toUploadMultipleFiles(eoriNumber) should thenGo(state)
+      }
+
+      "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads()
+          )
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads() +
+              FileUpload.Initiated(
+                1,
+                "foo-bar-ref",
+                uploadId = Some("001"),
+                uploadRequest = Some(someUploadRequest(testUpscanRequest))
+              )
+          )
+        )
+      }
+
+      "initiate new file upload when initiateNextFileUpload transition and some uploads exist already" in {
+        val fileUploads = FileUploads(files =
+          (0 until (maxFileUploadsNumber - 1))
+            .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+        ) + FileUpload.Rejected(9, "foo-bar-ref-9", S3UploadError("a", "b", "c"))
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            fileUploads
+          )
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            fileUploads +
+              FileUpload.Initiated(
+                fileUploads.files.size + 1,
+                "foo-bar-ref",
+                uploadId = Some("001"),
+                uploadRequest = Some(someUploadRequest(testUpscanRequest))
+              )
+          )
+        )
+      }
+
+      "do nothing when initiateNextFileUpload with existing uploadId" in {
+
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            nonEmptyFileUploads +
+              FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
+          )
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            nonEmptyFileUploads +
+              FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
+          )
+        )
+      }
+
+      "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
+
+        val fileUploads = FileUploads(files =
+          (0 until maxFileUploadsNumber)
+            .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+        )
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            fileUploads
+          )
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            fileUploads
+          )
+        )
+      }
+
+      "mark file upload as POSTED when markUploadAsPosted transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", "bucket-123")) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
+      "do nothing when markUploadAsPosted transition and already in POSTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", "bucket-123")) should thenGo(state)
+      }
+
+      "do nothing when markUploadAsPosted transition and already in ACCEPTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Accepted(
+                4,
+                "foo-bar-ref-4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            )
+          )
+        )
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", "bucket-123")) should thenGo(state)
+      }
+
+      "do nothing when markUploadAsPosted transition and none matching upload exist" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", "bucket-123")) should thenGo(state)
+      }
+
+      "mark file upload as REJECTED when markUploadAsRejected transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when markUploadAsRejected(eoriNumber)(
+          S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
+        ) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Rejected(2, "foo-bar-ref-2", S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
+      "do nothing when markUploadAsRejected transition and already in REJECTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when markUploadAsRejected(eoriNumber)(
+          S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
+        ) should thenGo(state)
+      }
+
+      "do nothing when markUploadAsRejected transition and already in ACCEPTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Accepted(
+                4,
+                "foo-bar-ref-4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            )
+          )
+        )
+        given(state) when markUploadAsRejected(eoriNumber)(
+          S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
+        ) should thenGo(state)
+      }
+
+      "do nothing when markUploadAsRejected transition and none matching file upload found" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when markUploadAsRejected(eoriNumber)(
+          S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
+        ) should thenGo(state)
+      }
+
+      "update file upload status to ACCEPTED when positive upscanCallbackArrived transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
+      "do nothing when positive upscanCallbackArrived transition and none matching file upload found" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-4",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "do nothing when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                "test.png",
+                "image/png"
+              ),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "do nothing when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Rejected(1, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "do nothing when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                1,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.QUARANTINE,
+                  message = "e.g. This file has a virus"
+                )
+              ),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = "test.pdf",
+              fileMimeType = "application/pdf"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(
+                    failureReason = UpscanNotification.QUARANTINE,
+                    message = "e.g. This file has a virus"
+                  )
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
+      "do nothing when negative upscanCallbackArrived transition and none matching file upload found" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-4",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "do nothing when negative upscanCallbackArrived transition and upload already in FAILED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                1,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.REJECTED,
+                  message = "e.g. This file has wrong type"
+                )
+              ),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "do nothing when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                "test.png",
+                "image/png"
+              ),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when upscanCallbackArrived(
+          UpscanFileFailed(
+            reference = "foo-bar-ref-1",
+            failureDetails = UpscanNotification.FailureDetails(
+              failureReason = UpscanNotification.QUARANTINE,
+              message = "e.g. This file has a virus"
+            )
+          )
+        ) should thenGo(state)
+      }
+
+      "remove file upload when removeFileUploadByReference transition and reference exists" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Accepted(
+                  3,
+                  "foo-bar-ref-3",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        ) should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
+      "do nothing when removeFileUploadByReference transition and none file upload matches" in {
+        val state = UploadMultipleFiles(
+          fullAmendCaseStateModel,
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(1, "foo-bar-ref-1"),
+              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                3,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(mockUpscanInitiate)(
+          eoriNumber
+        ) should thenGo(state)
+      }
+    }
 
     "at state UploadFile" should {
       "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
@@ -1171,6 +1816,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
       }
     }
+
     "at state AmendCaseSummary" should {
       "goto AmendConfirmation when in AmendSummary mode and response text is entered" in {
         val updateCaseApi: UpdateCaseApi = { request =>

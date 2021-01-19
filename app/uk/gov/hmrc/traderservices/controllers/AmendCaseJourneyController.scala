@@ -115,7 +115,9 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(TypeOfAmendmentForm)
       .applyWithRequest(implicit request =>
-        Transitions.submitedTypeOfAmendment(upscanRequest)(upscanInitiateConnector.initiate(_))
+        Transitions.submitedTypeOfAmendment(preferUploadMultipleFiles)(upscanRequest)(
+          upscanInitiateConnector.initiate(_)
+        )
       )
 
   // GET /add/write-response
@@ -129,7 +131,7 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ResponseTextForm)
       .applyWithRequest(implicit request =>
-        Transitions.submitedResponseText(upscanRequest)(upscanInitiateConnector.initiate(_))
+        Transitions.submitedResponseText(preferUploadMultipleFiles)(upscanRequest)(upscanInitiateConnector.initiate(_))
       )
 
   // GET 	/add/check-your-answers
@@ -480,12 +482,15 @@ class AmendCaseJourneyController @Inject() (
 
     }
 
-  private def backLinkFromSummary(model: AmendCaseModel): Call =
+  private def backLinkFromSummary(model: AmendCaseModel)(implicit rh: RequestHeader): Call =
     model.typeOfAmendment match {
       case Some(TypeOfAmendment.WriteResponse) =>
         controller.showEnterResponseText()
       case _ =>
-        controller.showFileUploaded()
+        if (preferUploadMultipleFiles)
+          controller.showUploadMultipleFiles
+        else
+          controller.showFileUploaded
     }
 
   private def backLinkFromFileUpload(model: AmendCaseModel): Call =
