@@ -126,7 +126,7 @@ class AmendCaseJourneyController @Inject() (
         Transitions.submitedResponseText(upscanRequest)(upscanInitiateConnector.initiate(_))
       )
 
-  // GET 	/amendment-review
+  // GET 	/add/check-your-answers
   final val showAmendCaseSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AmendCaseSummary]
