@@ -65,8 +65,45 @@
 
   @html.h1(messages("view.upload-multiple-files.heading"), classes = "govuk-heading-l")
 
-  @forms.formWithCSRF(action = continueAction, args = 'novalidate -> "novalidate") {
-      @html.button("form.upload-multiple-files.continue")
+  @html.p{ @messages("view.upload-file.line1") }
+  @html.p{ @messages("view.upload-file.line2") }
+
+  @details(messages("view.upload-file.help.linkText")) {
+    @html.p{ @messages("view.upload-file.help.line1") }
+    @html.ul(
+      messages("view.upload-file.help.fileFormat1"),
+      messages("view.upload-file.help.fileFormat2"),
+      messages("view.upload-file.help.fileFormat3"),
+      messages("view.upload-file.help.fileFormat4"),
+      messages("view.upload-file.help.fileFormat5"),
+      messages("view.upload-file.help.fileFormat6")
+    )
+    @html.p{ @messages("view.upload-file.help.line4") }
   }
 
+  <form action="@continueAction" class="multi-file-upload"
+    data-multi-file-upload-max-files="@maxFileUploadsNumber"
+    data-multi-file-upload-send-url-tpl="@initiateNextFileUpload("{fileId}")"
+    data-multi-file-upload-status-url-tpl="@checkFileVerificationStatus("{fileRef}")"
+    data-multi-file-upload-remove-url-tpl="@removeFile("{fileRef}")"
+    data-multi-file-upload-uploaded-files="@context.initialScriptStateFrom(initialFileUploads, previewFile)">
+    <ul class="multi-file-upload__item-list">
+      <li class="multi-file-upload__item">
+        <label class="govuk-label" for="file-1">Document <span class="multi-file-upload__number">1</span></label>
+        <div class="multi-file-upload__item-content">
+          <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-1">
+          <button type="button" class="multi-file-upload__remove-item govuk-link">
+            Remove
+            <span class="govuk-visually-hidden">document <span class="multi-file-upload__number">1</span></span>
+          </button>
+        </div>
+      </li>
+    </ul>
+
+    <button type="button" class="multi-file-upload__add-another govuk-button govuk-button--secondary">Add another document</button>
+
+    <div>
+      @html.button("form.upload-multiple-files.continue")
+    </div>
+  </form>
 }

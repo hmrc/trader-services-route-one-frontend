@@ -1,0 +1,109 @@
+.multi-file-upload__item-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.multi-file-upload__item {
+  padding: 10px 0;
+  border-bottom: 1px solid $govuk-border-colour;
+}
+
+.multi-file-upload__item:last-of-type {
+  border-bottom: none;
+}
+
+.multi-file-upload__item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.multi-file-upload__file {
+  width: auto;
+}
+
+.multi-file-upload__remove-item {
+  margin-left: 10px;
+  color: 	#1d70b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 19px;
+}
+
+.multi-file-upload__remove-item:hover {
+  color: $govuk-link-hover-colour;
+}
+
+.multi-file-upload__meta-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.multi-file-upload__file-name {
+  font-size: 19px;
+  font-family: "GDS Transport", arial, sans-serif;
+  display: none;
+}
+
+.multi-file-upload__status {
+  position: relative;
+}
+
+.multi-file-upload__progress {
+  position: absolute;
+  display: none;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #1d70b8;
+}
+
+.multi-file-upload__progress-bar {
+  display: block;
+  background-color: #1d70b8;
+  box-sizing: border-box;
+  width: 0;
+  height: 21px;
+  padding: 4px 0 3px;
+}
+
+.multi-file-upload__tag {
+  visibility: hidden;
+}
+
+.multi-file-upload__item--uploading {
+  .multi-file-upload__file {
+    display: none;
+  }
+
+  .multi-file-upload__file-name {
+    display: inline-block;
+  }
+
+  .multi-file-upload__progress {
+    display: inline-block;
+  }
+
+  .multi-file-upload__tag {
+    visibility: hidden;
+  }
+}
+
+.multi-file-upload__item--uploaded {
+  .multi-file-upload__file {
+    display: none;
+  }
+
+  .multi-file-upload__file-name {
+    display: inline-block;
+  }
+
+  .multi-file-upload__progress {
+    display: none;
+  }
+
+  .multi-file-upload__tag {
+    visibility: visible;
+  }
+}

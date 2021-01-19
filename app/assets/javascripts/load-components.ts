@@ -1,9 +1,11 @@
 import {Component} from './components/component';
 import {FileUpload} from './components/file-upload';
+import {MultiFileUpload} from './components/multi-file-upload';
 import {ResearchBanner} from './components/research-banner';
 
 export default function loadComponents(): void {
   loadComponent(FileUpload, '.file-upload');
+  loadComponent(MultiFileUpload, '.multi-file-upload');
   loadComponent(ResearchBanner, '.ssp-research-banner');
 }
 

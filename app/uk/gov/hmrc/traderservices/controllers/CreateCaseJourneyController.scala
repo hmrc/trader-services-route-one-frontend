@@ -470,9 +470,7 @@ class CreateCaseJourneyController @Inject() (
 
   // GET /new/journey/:journeyId/file-posted
   final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
-    actions
-      .bindForm(UpscanUploadSuccessForm)
-      .apply(FileUploadTransitions.markUploadAsPosted)
+    actions.showCurrentState
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // POST /new/journey/:journeyId/callback-from-upscan
