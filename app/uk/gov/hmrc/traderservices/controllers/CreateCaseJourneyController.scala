@@ -43,6 +43,7 @@ import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.models.FileUploads
 import uk.gov.hmrc.traderservices.models.UploadRequest
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+import play.api.data.FormError
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -819,10 +820,13 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case AnswerImportQuestionsMandatoryVesselInfo(model) =>
+      case AnswerImportQuestionsMandatoryVesselInfo(model, arrivalDateValidationError) =>
         Ok(
           views.importQuestionsMandatoryVesselDetailsView(
-            formWithErrors.or(MandatoryVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
+            withArrivalDateValidationError(
+              arrivalDateValidationError,
+              formWithErrors.or(MandatoryVesselDetailsForm, model.importQuestionsAnswers.vesselDetails)
+            ),
             controller.submitImportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
           )
@@ -1167,4 +1171,10 @@ object CreateCaseJourneyController {
       "errorResource"  -> optional(text)
     )(S3UploadError.apply)(S3UploadError.unapply)
   )
+
+  def withFormError[T](enabled: Boolean, key: String, message: String, form: Form[T]): Form[T] =
+    if (enabled) form.withError(key, message) else form
+
+  def withArrivalDateValidationError[T](enabled: Boolean, form: Form[T]): Form[T] =
+    withFormError(enabled, "dateOfArrival", "error.dateOfArrival.all.invalid-date-wrt-entry-date", form)
 }

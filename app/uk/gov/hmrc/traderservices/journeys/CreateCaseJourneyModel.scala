@@ -256,7 +256,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ImportQuestionsState
 
     final case class AnswerImportQuestionsMandatoryVesselInfo(
-      model: ImportQuestionsStateModel
+      model: ImportQuestionsStateModel,
+      arrivalDateValidationError: Boolean = false
     ) extends ImportQuestionsState
 
     final case class AnswerImportQuestionsContactInfo(
@@ -707,16 +708,22 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
-          gotoSummaryIfCompleteOr(
-            AnswerImportQuestionsContactInfo(
-              model.updated(
-                model.importQuestionsAnswers.copy(vesselDetails =
-                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
+        case current @ AnswerImportQuestionsMandatoryVesselInfo(model, _) if vesselDetails.isComplete =>
+          if (
+            vesselDetails.dateOfArrival.forall(arrivalDate =>
+              model.declarationDetails.entryDate.isEqual(arrivalDate) || model.declarationDetails.entryDate
+                .isBefore(arrivalDate)
+            )
+          )
+            gotoSummaryIfCompleteOr(
+              AnswerImportQuestionsContactInfo(
+                model.updated(
+                  model.importQuestionsAnswers
+                    .copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
                 )
               )
             )
-          )
+          else goto(current.copy(arrivalDateValidationError = true))
       }
 
     final def backToAnswerImportQuestionsOptionalVesselInfo(user: String) =
