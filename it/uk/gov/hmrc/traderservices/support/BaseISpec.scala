@@ -55,11 +55,13 @@ abstract class BaseISpec
   private lazy val messagesApi = app.injector.instanceOf[MessagesApi]
   private implicit val messages: Messages = messagesApi.preferred(Seq.empty[Lang])
 
-  final def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
-  final def htmlEscapedPageTitle(key: String): String =
-    htmlEscapedMessage(key) + " - " + htmlEscapedMessage("site.serviceName") + " - " + htmlEscapedMessage("site.govuk")
-  final def htmlEscapedPageTitleWithError(key: String): String =
-    htmlEscapedMessage("error.browser.title.prefix") + " " + htmlEscapedPageTitle(key)
+  final def htmlEscapedMessage(key: String, args: String*): String = HtmlFormat.escape(Messages(key, args: _*)).toString
+  final def htmlEscapedPageTitle(key: String, args: String*): String =
+    htmlEscapedMessage(key, args: _*) + " - " + htmlEscapedMessage("site.serviceName") + " - " + htmlEscapedMessage(
+      "site.govuk"
+    )
+  final def htmlEscapedPageTitleWithError(key: String, args: String*): String =
+    htmlEscapedMessage("error.browser.title.prefix", args: _*) + " " + htmlEscapedPageTitle(key)
 
   implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
     HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))

@@ -1001,6 +1001,7 @@ class CreateCaseJourneyController @Inject() (
   ): Result =
     state match {
       case s: FileUploadState => NoContent
+      case _                  => BadRequest
     }
 
   private def streamFileFromUspcan(
