@@ -17,10 +17,10 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.libs.json._
+import uk.gov.hmrc.play.fsm.JsonStateFormats
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
-import uk.gov.hmrc.play.fsm.JsonStateFormats
 import uk.gov.hmrc.traderservices.models.AmendCaseModel
 
 object AmendCaseJourneyStateFormats
@@ -30,6 +30,7 @@ object AmendCaseJourneyStateFormats
   val selectTypeOfAmendmentFormat = Json.format[SelectTypeOfAmendment]
   val enterResponseTextFormat = Json.format[EnterResponseText]
   val amendCaseConfirmationFormat = Json.format[AmendCaseConfirmation]
+  val amendCaseSummaryFormat = Json.format[AmendCaseSummary]
 
   override val fileUploadHostDataFormat: Format[AmendCaseModel] =
     AmendCaseModel.formats
@@ -41,6 +42,7 @@ object AmendCaseJourneyStateFormats
     case s: UploadFile                 => uploadFileFormat.writes(s)
     case s: FileUploaded               => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification => waitingForFileVerificationFormat.writes(s)
+    case s: AmendCaseSummary           => amendCaseSummaryFormat.writes(s)
     case s: AmendCaseConfirmation      => amendCaseConfirmationFormat.writes(s)
   }
 
@@ -53,6 +55,7 @@ object AmendCaseJourneyStateFormats
       case "UploadFile"                 => uploadFileFormat.reads(properties)
       case "FileUploaded"               => fileUploadedFormat.reads(properties)
       case "WaitingForFileVerification" => waitingForFileVerificationFormat.reads(properties)
+      case "AmendCaseSummary"           => amendCaseSummaryFormat.reads(properties)
       case "AmendCaseConfirmation"      => amendCaseConfirmationFormat.reads(properties)
       case "WorkInProgressDeadEnd"      => JsSuccess(WorkInProgressDeadEnd)
       case _                            => JsError(s"Unknown state name $stateName")

@@ -27,7 +27,7 @@ import uk.gov.hmrc.traderservices.models.ImportFreightType.Air
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
 import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
-import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
+import java.time.{LocalDate, LocalTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.ClassTag

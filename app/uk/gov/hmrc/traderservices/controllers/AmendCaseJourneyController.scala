@@ -16,26 +16,26 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import javax.inject.{Inject, Singleton}
+import akka.actor.ActorSystem
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
+import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
-import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
+import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
-import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
-import akka.actor.ActorSystem
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -123,12 +123,14 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ResponseTextForm)
       .applyWithRequest(implicit request =>
-        Transitions.submitedResponseText(
-          upscanRequest,
-          upscanInitiateConnector.initiate(_),
-          traderServicesApiConnector.updateCase(_)
-        )
+        Transitions.submitedResponseText(upscanRequest)(upscanInitiateConnector.initiate(_))
       )
+
+  // GET 	/amendment-review
+  final val showAmendCaseSummary: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AmendCaseSummary]
+      .orApply(Transitions.toAmendSummary)
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -225,7 +227,7 @@ class AmendCaseJourneyController @Inject() (
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
       .applyWithRequest { implicit request =>
         FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
-          Transitions.amendCase(traderServicesApiConnector.updateCase(_))
+          Transitions.toAmendSummary
         ) _
       }
 
@@ -290,6 +292,9 @@ class AmendCaseJourneyController @Inject() (
 
       case _: FileUploadState.FileUploaded =>
         controller.showFileUploaded()
+
+      case _: AmendCaseSummary =>
+        controller.showAmendCaseSummary()
 
       case _: AmendCaseConfirmation =>
         controller.showAmendCaseConfirmation()
@@ -378,11 +383,16 @@ class AmendCaseJourneyController @Inject() (
           else
             views.fileUploadedSummaryView(
               fileUploads,
-              controller.amendCase,
+              controller.showAmendCaseSummary(),
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkFromFileUpload(model)
             )
+        )
+
+      case AmendCaseSummary(model) =>
+        Ok(
+          views.amendCaseSummaryView(model, controller.amendCase, backLinkFromSummary(model))
         )
 
       case AmendCaseConfirmation(TraderServicesResult(caseReferenceNumber, generatedAt)) =>
@@ -396,6 +406,14 @@ class AmendCaseJourneyController @Inject() (
 
       case _ => NotImplemented
 
+    }
+
+  private def backLinkFromSummary(model: AmendCaseModel): Call =
+    model.typeOfAmendment match {
+      case Some(TypeOfAmendment.WriteResponse) =>
+        controller.showEnterResponseText()
+      case _ =>
+        controller.showFileUploaded()
     }
 
   private def backLinkFromFileUpload(model: AmendCaseModel): Call =

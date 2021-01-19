@@ -85,7 +85,7 @@ GET        /add/file-uploaded/:reference/remove                     @uk.gov.hmrc
 GET        /add/file-uploaded/:reference                            @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.previewFileUploadByReference(reference: String)
 + nocsrf
 POST       /add/journey/:journeyId/callback-from-upscan             @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String)
-
+GET        	/amendment-review                                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
 GET        /add/confirmation                                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
 

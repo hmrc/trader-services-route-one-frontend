@@ -28,5 +28,6 @@ class AmendCaseViews @Inject() (
   val waitingForFileVerificationView: WaitingForFileVerificationView,
   val fileUploadedView: FileUploadedView,
   val fileUploadedSummaryView: FileUploadedSummaryView,
+  val amendCaseSummaryView: AmendCaseSummaryView,
   val amendCaseConfirmationView: AmendCaseConfirmationView
 )
