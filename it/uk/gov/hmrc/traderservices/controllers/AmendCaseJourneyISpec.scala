@@ -478,7 +478,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.status shouldBe 500
         journey.getState shouldBe state
       }
-      "GET /amendment-review" should {
+      "GET /add/check-your-answers" should {
         "show the amendment review page with both uploaded files and additional information section from WriteResponseAndUploadDocuments mode" in {
           val bytes = Array.ofDim[Byte](1024 * 1024)
 
@@ -510,7 +510,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           journey.setState(state)
           givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          val result = await(request("/amendment-review").get())
+          val result = await(request("/add/check-your-answers").get())
 
           result.status shouldBe 200
           result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
@@ -532,7 +532,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           journey.setState(state)
           givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          val result = await(request("/amendment-review").get())
+          val result = await(request("/add/check-your-answers").get())
 
           result.status shouldBe 200
           result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
@@ -572,7 +572,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           journey.setState(state)
           givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-          val result = await(request("/amendment-review").get())
+          val result = await(request("/add/check-your-answers").get())
 
           result.status shouldBe 200
           result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
