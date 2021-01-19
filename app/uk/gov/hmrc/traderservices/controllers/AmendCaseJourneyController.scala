@@ -149,11 +149,17 @@ class AmendCaseJourneyController @Inject() (
     */
   final val COOKIE_JSENABLED = "jsenabled"
 
+  final def preferUploadMultipleFiles(implicit rh: RequestHeader): Boolean =
+    rh.cookies.get(COOKIE_JSENABLED).isDefined && appConfig.uploadMultipleFilesFeature
+
   final def successRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
       case None    => controller.showWaitingForFileVerification()
     })
+
+  final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
+    appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId.get)
 
   final def errorRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
@@ -170,6 +176,33 @@ class AmendCaseJourneyController @Inject() (
       maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
     )
+
+  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
+    UpscanInitiateRequest(
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
+      successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
+      errorRedirect = Some(errorRedirect),
+      minimumFileSize = Some(1),
+      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+    )
+
+  // GET /add/upload-multiple-files
+  final val showUploadMultipleFiles: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .apply(FileUploadTransitions.toUploadMultipleFiles)
+      .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
+
+  // PUT /add/upload-multiple-files/initiate-next
+  final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        FileUploadTransitions
+          .initiateNextFileUpload(uploadId)(upscanRequestWhenUploadingMultipleFiles)(
+            upscanInitiateConnector.initiate(_)
+          )
+      }
+      .displayUsing(implicit request => renderUploadRequestJson(uploadId))
 
   // GET /add/file-upload
   final val showFileUpload: Action[AnyContent] =
@@ -210,6 +243,13 @@ class AmendCaseJourneyController @Inject() (
       .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
+  // GET /add/journey/:journeyId/file-posted
+  final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
+    actions
+      .bindForm(UpscanUploadSuccessForm)
+      .apply(FileUploadTransitions.markUploadAsPosted)
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+
   // POST /add/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
@@ -245,6 +285,16 @@ class AmendCaseJourneyController @Inject() (
           upscanInitiateConnector.initiate(_)
         ) _
       }
+
+  // PUT /add/file-uploaded/:reference/remove
+  final def removeFileUploadByReferenceAsync(reference: String): Action[AnyContent] =
+    whenAuthorisedAsUser
+      .applyWithRequest { implicit request =>
+        FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
+          upscanInitiateConnector.initiate(_)
+        ) _
+      }
+      .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
 
   // GET /add/file-uploaded/:reference
   final def previewFileUploadByReference(reference: String): Action[AnyContent] =
@@ -289,6 +339,9 @@ class AmendCaseJourneyController @Inject() (
 
       case _: EnterResponseText =>
         controller.showEnterResponseText()
+
+      case _: FileUploadState.UploadMultipleFiles =>
+        controller.showUploadMultipleFiles()
 
       case _: FileUploadState.UploadFile =>
         controller.showFileUpload()
@@ -347,6 +400,19 @@ class AmendCaseJourneyController @Inject() (
             formWithErrors.or(ResponseTextForm, model.responseText),
             controller.submitResponseText(),
             controller.showSelectTypeOfAmendment()
+          )
+        )
+
+      case FileUploadState.UploadMultipleFiles(model, fileUploads) =>
+        Ok(
+          views.uploadMultipleFilesView(
+            maxFileUploadsNumber,
+            fileUploads.files,
+            initiateNextFileUpload = controller.initiateNextFileUpload,
+            checkFileVerificationStatus = controller.checkFileVerificationStatus,
+            removeFile = controller.removeFileUploadByReferenceAsync,
+            continueAction = controller.amendCase,
+            backLink = backLinkFromFileUpload(model)
           )
         )
 
@@ -430,6 +496,30 @@ class AmendCaseJourneyController @Inject() (
         controller.showSelectTypeOfAmendment()
     }
 
+  private def renderUploadRequestJson(
+    uploadId: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState.UploadMultipleFiles =>
+        s.fileUploads
+          .findReferenceAndUploadRequestForUploadId(uploadId) match {
+          case Some((reference, uploadRequest)) =>
+            val json =
+              Json.obj(
+                "upscanReference" -> reference,
+                "uploadId"        -> uploadId,
+                "uploadRequest"   -> UploadRequest.formats.writes(uploadRequest)
+              )
+            Ok(json)
+
+          case None => NotFound
+        }
+
+      case _ => Forbidden
+    }
+
   private def renderFileVerificationStatus(
     reference: String
   )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
@@ -447,6 +537,15 @@ class AmendCaseJourneyController @Inject() (
           case None => NotFound
         }
       case _ => NotFound
+    }
+
+  private def renderFileRemovalStatusJson(
+    reference: String
+  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+    request: Request[_]
+  ): Result =
+    state match {
+      case s: FileUploadState => NoContent
     }
 
   private def streamFileFromUspcan(
@@ -469,6 +568,7 @@ class AmendCaseJourneyController @Inject() (
     implicit request: Request[_]
   ): Result =
     (state match {
+      case _: FileUploadState.UploadMultipleFiles        => Created
       case _: FileUploadState.FileUploaded               => Created
       case _: FileUploadState.WaitingForFileVerification => Accepted
       case _                                             => NoContent
@@ -511,6 +611,13 @@ object AmendCaseJourneyController {
 
   val UploadAnotherFileChoiceForm = Form[Boolean](
     mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)
+  )
+
+  val UpscanUploadSuccessForm = Form[S3UploadSuccess](
+    mapping(
+      "key"    -> nonEmptyText,
+      "bucket" -> nonEmptyText
+    )(S3UploadSuccess.apply)(S3UploadSuccess.unapply)
   )
 
   val UpscanUploadErrorForm = Form[S3UploadError](

@@ -157,7 +157,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           EnterResponseText(model)
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(AmendCaseSummary(model.copy(responseText = Some(responseText))))
       }
@@ -171,7 +171,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           EnterCaseReferenceNumber(
@@ -193,7 +193,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = None
             )
           )
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           SelectTypeOfAmendment(
@@ -223,7 +223,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
             )
           )
-        ) when submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         ) should thenGo(
           UploadFile(
@@ -266,7 +266,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
             )
           )
-        ) shouldFailWhen submitedResponseText(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) shouldFailWhen submitedResponseText(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           responseText
         )
       }
