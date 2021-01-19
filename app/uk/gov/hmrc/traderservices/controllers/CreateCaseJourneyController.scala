@@ -395,13 +395,13 @@ class CreateCaseJourneyController @Inject() (
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
     )
 
-  // GET /new/upload-multiple-files
+  // GET /new/upload-files
   final val showUploadMultipleFiles: Action[AnyContent] =
     whenAuthorisedAsUser
       .apply(FileUploadTransitions.toUploadMultipleFiles)
       .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
 
-  // PUT /new/upload-multiple-files/initialise/:uploadId
+  // PUT /new/upload-files/initialise/:uploadId
   final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>

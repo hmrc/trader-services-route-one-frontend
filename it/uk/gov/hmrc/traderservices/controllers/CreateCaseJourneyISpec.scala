@@ -1725,7 +1725,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "GET /new/upload-multiple-files" should {
+    "GET /new/upload-files" should {
       "show the upload multiple files page for an importer" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -1736,7 +1736,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/upload-multiple-files").get())
+        val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -1754,7 +1754,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/upload-multiple-files").get())
+        val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -1771,7 +1771,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/upload-multiple-files").get())
+        val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -1791,7 +1791,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/upload-multiple-files").get())
+        val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -1803,7 +1803,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
-    "PUT /new/upload-multiple-files/initialise/:uploadId" should {
+    "PUT /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -1817,7 +1817,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-multiple-files/initialise/001").put(""))
+        val result = await(request("/new/upload-files/initialise/001").put(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -1888,7 +1888,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-multiple-files/initialise/002").put(""))
+        val result = await(request("/new/upload-files/initialise/002").put(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]

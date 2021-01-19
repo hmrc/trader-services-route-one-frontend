@@ -153,7 +153,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "GET /add/upload-multiple-files" should {
+    "GET /add/upload-files" should {
       "show the upload multiple files page when in UploadDocuments mode" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = UploadMultipleFiles(
@@ -166,7 +166,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/add/upload-multiple-files").get())
+        val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -187,7 +187,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/add/upload-multiple-files").get())
+        val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -206,7 +206,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/add/upload-multiple-files").get())
+        val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -232,7 +232,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/add/upload-multiple-files").get())
+        val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
@@ -248,7 +248,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "PUT /add/upload-multiple-files/initialise/:uploadId" should {
+    "PUT /add/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = UploadMultipleFiles(
@@ -265,7 +265,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/add/upload-multiple-files/initialise/001").put(""))
+        val result = await(request("/add/upload-files/initialise/001").put(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -343,7 +343,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/add/upload-multiple-files/initialise/002").put(""))
+        val result = await(request("/add/upload-files/initialise/002").put(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
