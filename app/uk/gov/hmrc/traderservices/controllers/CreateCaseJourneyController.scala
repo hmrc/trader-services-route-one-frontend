@@ -961,9 +961,9 @@ class CreateCaseJourneyController @Inject() (
           case Some((reference, uploadRequest)) =>
             val json =
               Json.obj(
-                "reference"     -> reference,
-                "uploadId"      -> uploadId,
-                "uploadRequest" -> UploadRequest.formats.writes(uploadRequest)
+                "upscanReference" -> reference,
+                "uploadId"        -> uploadId,
+                "uploadRequest"   -> UploadRequest.formats.writes(uploadRequest)
               )
             Ok(json)
 

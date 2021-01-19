@@ -73,6 +73,7 @@ object FileUploads {
 sealed trait FileUpload {
   def orderNumber: Int
   def reference: String
+  def isReady: Boolean
   def checksumOpt: Option[String] = None
 }
 
@@ -90,20 +91,26 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     reference: String,
     uploadRequest: Option[UploadRequest] = None,
     uploadId: Option[String] = None
-  ) extends FileUpload
+  ) extends FileUpload {
+    override def isReady: Boolean = false
+  }
+
+  /** Status when the file has successfully arrived to AWS S3 for verification. */
+  case class Posted(
+    orderNumber: Int,
+    reference: String
+  ) extends FileUpload {
+    override def isReady: Boolean = false
+  }
 
   /** Status when file transmission has been rejected by AWS S3. */
   case class Rejected(
     orderNumber: Int,
     reference: String,
     details: S3UploadError
-  ) extends FileUpload
-
-  /** Status when the file has successfully arrived to AWS S3 for verification. */
-  case class Posted(
-    orderNumber: Int,
-    reference: String
-  ) extends FileUpload
+  ) extends FileUpload {
+    override def isReady: Boolean = true
+  }
 
   /** Status when the file has been positively verified and is ready for further actions. */
   case class Accepted(
@@ -116,6 +123,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     fileMimeType: String
   ) extends FileUpload {
 
+    override def isReady: Boolean = true
     override def checksumOpt: Option[String] = Some(checksum)
   }
 
@@ -124,7 +132,9 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     orderNumber: Int,
     reference: String,
     details: UpscanNotification.FailureDetails
-  ) extends FileUpload
+  ) extends FileUpload {
+    override def isReady: Boolean = true
+  }
 
   /** Status when the file is a duplicate of an existing upload. */
   case class Duplicate(
@@ -133,7 +143,9 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     checksum: String,
     existingFileName: String,
     duplicateFileName: String
-  ) extends FileUpload
+  ) extends FileUpload {
+    override def isReady: Boolean = true
+  }
 
   override val formats = Set(
     Case[Initiated](Json.format[Initiated]),

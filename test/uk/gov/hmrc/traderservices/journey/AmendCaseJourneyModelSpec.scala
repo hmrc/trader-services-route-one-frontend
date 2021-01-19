@@ -39,33 +39,6 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
   // dummy journey context
   case class DummyContext()
   implicit val dummyContext: DummyContext = DummyContext()
-  val mockUpscanInitiate: UpscanInitiateApi = request =>
-    Future.successful(
-      UpscanInitiateResponse(
-        reference = "foo-bar-ref",
-        uploadRequest = UploadRequest(
-          href = "https://s3.bucket",
-          fields = Map(
-            "callbackUrl"         -> request.callbackUrl,
-            "successRedirect"     -> request.successRedirect.getOrElse(""),
-            "errorRedirect"       -> request.errorRedirect.getOrElse(""),
-            "minimumFileSize"     -> request.minimumFileSize.getOrElse(0).toString,
-            "maximumFileSize"     -> request.maximumFileSize.getOrElse(0).toString,
-            "expectedContentType" -> request.expectedContentType.getOrElse("")
-          )
-        )
-      )
-    )
-
-  val upscanRequest =
-    UpscanInitiateRequest(
-      callbackUrl = "https://foo.bar/callback",
-      successRedirect = Some("https://foo.bar/success"),
-      errorRedirect = Some("https://foo.bar/failure"),
-      minimumFileSize = Some(0),
-      maximumFileSize = Some(10 * 1024 * 1024),
-      expectedContentType = Some("image/jpeg,image/png")
-    )
 
   "AmendCaseJourneyModel" when {
     "at state Start" should {
@@ -109,7 +82,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to EnterResponseText when sumbited type of amendment WriteResponse" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.WriteResponse
         ) should thenGo(
           EnterResponseText(
@@ -124,7 +97,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to EnterResponseText when sumbited type of amendment WriteResponseAndUploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
         ) should thenGo(
           EnterResponseText(
@@ -139,7 +112,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to UploadFile when sumbited type of amendment UploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(upscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
           TypeOfAmendment.UploadDocuments
         ) should thenGo(
           UploadFile(

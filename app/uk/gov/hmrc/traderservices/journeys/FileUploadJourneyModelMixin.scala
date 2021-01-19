@@ -383,7 +383,8 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       def updateFileUploads(fileUploads: FileUploads) =
         fileUploads.copy(files = fileUploads.files.map {
           // update status of the file with matching upscan reference
-          case FileUpload(orderNumber, ref) if ref == notification.reference =>
+          case fileUpload @ FileUpload(orderNumber, reference)
+              if !fileUpload.isReady && reference == notification.reference =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
                 //check for existing file uploads with duplicated checksum
@@ -394,7 +395,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                   case Some(existingFileUpload: FileUpload.Accepted) =>
                     FileUpload.Duplicate(
                       orderNumber,
-                      ref,
+                      reference,
                       uploadDetails.checksum,
                       existingFileName = existingFileUpload.fileName,
                       duplicateFileName = uploadDetails.fileName
@@ -402,7 +403,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                   case _ =>
                     FileUpload.Accepted(
                       orderNumber,
-                      ref,
+                      reference,
                       url,
                       uploadDetails.uploadTimestamp,
                       uploadDetails.checksum,
@@ -415,7 +416,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               case UpscanFileFailed(_, failureDetails) =>
                 FileUpload.Failed(
                   orderNumber,
-                  ref,
+                  reference,
                   failureDetails
                 )
             }
@@ -453,6 +454,9 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           )
             .apply(currentUpload)
 
+        case current @ UploadMultipleFiles(hostData, fileUploads) =>
+          val updatedFileUploads = updateFileUploads(fileUploads)
+          goto(current.copy(fileUploads = updatedFileUploads))
       }
     }
 
