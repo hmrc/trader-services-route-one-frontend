@@ -43,4 +43,9 @@ trait FormValidator extends FormMatchers {
     form.bind(formInput).errors should haveOnlyErrors(errors.map(e => FormError(fieldName, e)): _*)
     form.bind(formInput).value shouldBe None
   }
+
+  def validateErrors[A](form: Form[A], formInput: Map[String, String], errors: Seq[(String, String)]): Unit = {
+    form.bind(formInput).errors should haveOnlyErrors(errors.map { case (k, e) => FormError(k, e) }: _*)
+    form.bind(formInput).value shouldBe None
+  }
 }
