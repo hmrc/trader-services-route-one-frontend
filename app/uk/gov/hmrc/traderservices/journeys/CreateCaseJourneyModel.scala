@@ -196,11 +196,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ExportQuestionsState
 
     final case class AnswerExportQuestionsMandatoryVesselInfo(
-      model: ExportQuestionsStateModel
+      model: ExportQuestionsStateModel,
+      arrivalDateValidationError: Boolean = false
     ) extends ExportQuestionsState
 
     final case class AnswerExportQuestionsOptionalVesselInfo(
-      model: ExportQuestionsStateModel
+      model: ExportQuestionsStateModel,
+      arrivalDateValidationError: Boolean = false
     ) extends ExportQuestionsState
 
     final case class AnswerExportQuestionsContactInfo(
@@ -252,7 +254,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ImportQuestionsState
 
     final case class AnswerImportQuestionsOptionalVesselInfo(
-      model: ImportQuestionsStateModel
+      model: ImportQuestionsStateModel,
+      arrivalDateValidationError: Boolean = false
     ) extends ImportQuestionsState
 
     final case class AnswerImportQuestionsMandatoryVesselInfo(
@@ -510,12 +513,22 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerExportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
-          gotoSummaryIfCompleteOr(
-            AnswerExportQuestionsContactInfo(
-              model.updated(model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)))
+        case current @ AnswerExportQuestionsMandatoryVesselInfo(model, _) if vesselDetails.isComplete =>
+          if (
+            vesselDetails.dateOfArrival.forall(arrivalDate =>
+              model.declarationDetails.entryDate.isEqual(arrivalDate) || model.declarationDetails.entryDate
+                .isBefore(arrivalDate)
             )
           )
+            gotoSummaryIfCompleteOr(
+              AnswerExportQuestionsContactInfo(
+                model.updated(
+                  model.exportQuestionsAnswers
+                    .copy(vesselDetails = if (vesselDetails.isEmpty) None else Some(vesselDetails))
+                )
+              )
+            )
+          else goto(current.copy(arrivalDateValidationError = true))
       }
 
     final def backToAnswerExportQuestionsOptionalVesselInfo(user: String) =
@@ -528,14 +541,23 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedExportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerExportQuestionsOptionalVesselInfo(model) =>
-          gotoSummaryIfCompleteOr(
-            AnswerExportQuestionsContactInfo(
-              model.updated(
-                model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
-              )
+        case current @ AnswerExportQuestionsOptionalVesselInfo(model, _)
+            if vesselDetails.isComplete || vesselDetails.isEmpty =>
+          if (
+            vesselDetails.dateOfArrival.forall(arrivalDate =>
+              model.declarationDetails.entryDate.isEqual(arrivalDate) || model.declarationDetails.entryDate
+                .isBefore(arrivalDate)
             )
           )
+            gotoSummaryIfCompleteOr(
+              AnswerExportQuestionsContactInfo(
+                model.updated(
+                  model.exportQuestionsAnswers
+                    .copy(vesselDetails = Some(vesselDetails))
+                )
+              )
+            )
+          else goto(current.copy(arrivalDateValidationError = true))
       }
 
     final def backToAnswerExportQuestionsContactInfo(user: String) =
@@ -736,14 +758,23 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
       Transition {
-        case AnswerImportQuestionsOptionalVesselInfo(model) =>
-          gotoSummaryIfCompleteOr(
-            AnswerImportQuestionsContactInfo(
-              model.updated(
-                model.importQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
-              )
+        case current @ AnswerImportQuestionsOptionalVesselInfo(model, _)
+            if vesselDetails.isComplete || vesselDetails.isEmpty =>
+          if (
+            vesselDetails.dateOfArrival.forall(arrivalDate =>
+              model.declarationDetails.entryDate.isEqual(arrivalDate) || model.declarationDetails.entryDate
+                .isBefore(arrivalDate)
             )
           )
+            gotoSummaryIfCompleteOr(
+              AnswerImportQuestionsContactInfo(
+                model.updated(
+                  model.importQuestionsAnswers
+                    .copy(vesselDetails = Some(vesselDetails))
+                )
+              )
+            )
+          else goto(current.copy(arrivalDateValidationError = true))
       }
 
     final def backToAnswerImportQuestionsContactInfo(user: String) =

@@ -723,19 +723,25 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case AnswerExportQuestionsMandatoryVesselInfo(model) =>
+      case AnswerExportQuestionsMandatoryVesselInfo(model, arrivalDateValidationError) =>
         Ok(
-          views.exportQuestionsMandatoryVesselDetailsView(
-            formWithErrors.or(MandatoryVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
+          views.importQuestionsMandatoryVesselDetailsView(
+            withArrivalDateValidationError(
+              arrivalDateValidationError,
+              formWithErrors.or(MandatoryVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails)
+            ),
             controller.submitExportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
           )
         )
 
-      case AnswerExportQuestionsOptionalVesselInfo(model) =>
+      case AnswerExportQuestionsOptionalVesselInfo(model, arrivalDateValidationError) =>
         Ok(
           views.exportQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(OptionalVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
+            withArrivalDateValidationError(
+              arrivalDateValidationError,
+              formWithErrors.or(OptionalVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails)
+            ),
             controller.submitExportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
           )
@@ -759,8 +765,7 @@ class CreateCaseJourneyController @Inject() (
             model.exportQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
-            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
-            else controller.showFileUploaded
+            controller.showFileUploaded
           )
         )
 
@@ -832,10 +837,13 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case AnswerImportQuestionsOptionalVesselInfo(model) =>
+      case AnswerImportQuestionsOptionalVesselInfo(model, arrivalDateValidationError) =>
         Ok(
           views.importQuestionsOptionalVesselDetailsView(
-            formWithErrors.or(OptionalVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
+            withArrivalDateValidationError(
+              arrivalDateValidationError,
+              formWithErrors.or(OptionalVesselDetailsForm, model.importQuestionsAnswers.vesselDetails)
+            ),
             controller.submitImportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
           )
@@ -859,8 +867,7 @@ class CreateCaseJourneyController @Inject() (
             model.importQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
-            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
-            else controller.showFileUploaded
+            controller.showFileUploaded
           )
         )
 
