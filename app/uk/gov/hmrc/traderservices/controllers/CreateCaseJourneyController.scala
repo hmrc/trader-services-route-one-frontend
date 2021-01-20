@@ -15,8 +15,9 @@
  */
 
 package uk.gov.hmrc.traderservices.controllers
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import java.time.LocalDate
 
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.data.Forms._
@@ -728,7 +729,8 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsMandatoryVesselDetailsView(
             withArrivalDateValidationError(
               arrivalDateValidationError,
-              formWithErrors.or(MandatoryVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails)
+              formWithErrors.or(MandatoryVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
+              model.declarationDetails.entryDate
             ),
             controller.submitExportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
@@ -740,7 +742,8 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsOptionalVesselDetailsView(
             withArrivalDateValidationError(
               arrivalDateValidationError,
-              formWithErrors.or(OptionalVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails)
+              formWithErrors.or(OptionalVesselDetailsForm, model.exportQuestionsAnswers.vesselDetails),
+              model.declarationDetails.entryDate
             ),
             controller.submitExportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
@@ -830,7 +833,8 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsMandatoryVesselDetailsView(
             withArrivalDateValidationError(
               arrivalDateValidationError,
-              formWithErrors.or(MandatoryVesselDetailsForm, model.importQuestionsAnswers.vesselDetails)
+              formWithErrors.or(MandatoryVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
+              model.declarationDetails.entryDate
             ),
             controller.submitImportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
@@ -842,7 +846,8 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsOptionalVesselDetailsView(
             withArrivalDateValidationError(
               arrivalDateValidationError,
-              formWithErrors.or(OptionalVesselDetailsForm, model.importQuestionsAnswers.vesselDetails)
+              formWithErrors.or(OptionalVesselDetailsForm, model.importQuestionsAnswers.vesselDetails),
+              model.declarationDetails.entryDate
             ),
             controller.submitImportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
@@ -1179,9 +1184,12 @@ object CreateCaseJourneyController {
     )(S3UploadError.apply)(S3UploadError.unapply)
   )
 
-  def withFormError[T](enabled: Boolean, key: String, message: String, form: Form[T]): Form[T] =
-    if (enabled) form.withError(key, message) else form
-
-  def withArrivalDateValidationError[T](enabled: Boolean, form: Form[T]): Form[T] =
-    withFormError(enabled, "dateOfArrival", "error.dateOfArrival.all.invalid-date-wrt-entry-date", form)
+  def withArrivalDateValidationError[T](enabled: Boolean, form: Form[T], entryDate: LocalDate): Form[T] =
+    withFormError(
+      enabled,
+      "dateOfArrival",
+      "error.dateOfArrival.all.invalid-date-wrt-entry-date",
+      form,
+      DateFieldHelper.govukDateFormat.format(entryDate)
+    )
 }

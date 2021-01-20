@@ -18,6 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import java.time.{LocalDate, LocalTime}
 import play.api.data.Forms.{of, optional, text}
+import play.api.data.Form
 import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation._
@@ -310,4 +311,7 @@ object FormFieldMappings {
       )
     )
     .transform(_.filter(isAllowedResponseCharacter), identity)
+
+  def withFormError[T](enabled: Boolean, key: String, message: String, form: Form[T], args: String*): Form[T] =
+    if (enabled) form.withError(key, message, args: _*) else form
 }
