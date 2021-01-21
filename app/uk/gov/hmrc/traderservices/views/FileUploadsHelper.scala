@@ -20,6 +20,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.traderservices.models.FileUploads
+import play.twirl.api.HtmlFormat
 
 trait FileUploadsHelper extends SummaryListRowHelper {
 
@@ -29,7 +30,7 @@ trait FileUploadsHelper extends SummaryListRowHelper {
 
     val value =
       fileUploads.toUploadedFiles
-        .map(file => s"<div>${file.fileName}</div>")
+        .map(file => s"<div>${HtmlFormat.escape(file.fileName)}</div>")
         .mkString
 
     SummaryList(
@@ -38,7 +39,8 @@ trait FileUploadsHelper extends SummaryListRowHelper {
           label = "summary.file-names",
           value = if (value.nonEmpty) value else "-",
           visuallyHiddenText = Some("summary.file-names"),
-          action = (changeCall, "site.change")
+          action = (changeCall, "site.change"),
+          escape = false
         )
       )
     )
