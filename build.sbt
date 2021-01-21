@@ -16,15 +16,15 @@ lazy val scoverageSettings = {
 }
 
 lazy val compileDeps = Seq(
-  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-27" % "3.2.0",
+  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-27" % "3.3.0",
   "uk.gov.hmrc"                  %% "auth-client"                % "3.2.0-play-27",
   "uk.gov.hmrc"                  %% "play-fsm"                   % "0.71.0-play-27",
   "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-27",
   "uk.gov.hmrc"                  %% "mongo-caching"              % "6.16.0-play-27",
   "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-27",
-  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.56.0-play-27",
-  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.34.0-play-27",
-  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.14",
+  "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.60.0-play-27",
+  "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.38.0-play-27",
+  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.16",
   "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )
 
@@ -93,7 +93,7 @@ lazy val root = (project in file("."))
     scalafmtOnCompile in IntegrationTest := true
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
+  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin)
 
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 

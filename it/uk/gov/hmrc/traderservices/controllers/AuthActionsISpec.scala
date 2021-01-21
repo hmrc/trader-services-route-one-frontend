@@ -67,7 +67,9 @@ class AuthActionsISpec extends AuthActionISpecSetup {
       givenRequestIsNotAuthorised("IncorrectCredentialStrength")
       val result = TestController.withAuthorisedEnrolment("serviceName", "serviceKey")
       status(result) shouldBe 303
-      redirectLocation(result).get should include("/gg/sign-in")
+      redirectLocation(result).get should include(
+        "/bas-gateway/sign-in?continue_url=%2F&origin=trader-services-route-one-frontend"
+      )
     }
   }
 }

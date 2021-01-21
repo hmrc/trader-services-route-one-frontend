@@ -20,7 +20,6 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.govukfrontend.views.html.components._
 import uk.gov.hmrc.govukfrontend.views.viewmodels.CommonJsonFormats._
-import uk.gov.hmrc.govukfrontend.views.viewmodels.JsonDefaultValueFormatter
 
 case class TimeInput(
   id: String = "",
@@ -36,26 +35,26 @@ case class TimeInput(
   showSelectPeriod: Boolean = true
 )
 
-object TimeInput extends JsonDefaultValueFormatter[TimeInput] {
+object TimeInput {
 
-  override def defaultObject: TimeInput = TimeInput()
+  def defaultObject: TimeInput = TimeInput()
 
-  override def defaultReads: Reads[TimeInput] =
+  implicit def jsonReads: Reads[TimeInput] =
     (
-      (__ \ "id").read[String] and
+      (__ \ "id").readWithDefault[String](defaultObject.id) and
         (__ \ "namePrefix").readNullable[String] and
-        (__ \ "items").read[Seq[InputItem]] and
-        (__ \ "periodSelectItems").read[Seq[SelectItem]] and
+        (__ \ "items").readWithDefault[Seq[InputItem]](defaultObject.items) and
+        (__ \ "periodSelectItems").readWithDefault[Seq[SelectItem]](defaultObject.periodSelectItems) and
         (__ \ "hint").readNullable[Hint] and
         (__ \ "errorMessage").readNullable[ErrorMessage] and
         readsFormGroupClasses and
         (__ \ "fieldset").readNullable[Fieldset] and
-        (__ \ "classes").read[String] and
-        (__ \ "attributes").read[Map[String, String]] and
-        (__ \ "showSelectPeriod").read[Boolean]
+        (__ \ "classes").readWithDefault[String](defaultObject.classes) and
+        (__ \ "attributes").readWithDefault[Map[String, String]](defaultObject.attributes) and
+        (__ \ "showSelectPeriod").readWithDefault[Boolean](defaultObject.showSelectPeriod)
     )(TimeInput.apply _)
 
-  override implicit def jsonWrites: OWrites[TimeInput] =
+  implicit def jsonWrites: OWrites[TimeInput] =
     (
       (__ \ "id").write[String] and
         (__ \ "namePrefix").writeNullable[String] and
