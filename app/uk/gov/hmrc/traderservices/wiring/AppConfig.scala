@@ -77,6 +77,8 @@ trait AppConfig {
 
   val timeout: Int
   val countdown: Int
+
+  val uploadMultipleFilesFeature: Boolean
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -137,4 +139,5 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val traceFSM: Boolean = config.getBoolean("trace.fsm")
 
+  override val uploadMultipleFilesFeature: Boolean = config.getBoolean("features.uploadMultipleFiles")
 }

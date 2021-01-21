@@ -17,19 +17,56 @@
 package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+import play.api.i18n.Messages
+import play.api.mvc.Call
 
-case class FileVerificationStatus private (fileStatus: String)
+case class FileVerificationStatus(
+  fileStatus: String,
+  fileMimeType: Option[String] = None,
+  fileName: Option[String] = None,
+  previewUrl: Option[String] = None,
+  errorMessage: Option[String] = None,
+  uploadRequest: Option[UploadRequest] = None
+)
 
 object FileVerificationStatus {
 
-  def apply(fileUpload: FileUpload): FileVerificationStatus =
+  def apply(fileUpload: FileUpload, uploadFileViewContext: UploadFileViewContext, filePreviewUrl: String => Call)(
+    implicit messages: Messages
+  ): FileVerificationStatus =
     fileUpload match {
-      case f: FileUpload.Accepted  => FileVerificationStatus("ACCEPTED")
-      case f: FileUpload.Failed    => FileVerificationStatus("FAILED")
-      case f: FileUpload.Posted    => FileVerificationStatus("WAITING")
-      case f: FileUpload.Rejected  => FileVerificationStatus("REJECTED")
-      case f: FileUpload.Initiated => FileVerificationStatus("NOT_UPLOADED")
-      case f: FileUpload.Duplicate => FileVerificationStatus("DUPLICATE")
+      case f: FileUpload.Initiated =>
+        FileVerificationStatus("NOT_UPLOADED", uploadRequest = f.uploadRequest)
+
+      case f: FileUpload.Posted =>
+        FileVerificationStatus("WAITING")
+
+      case f: FileUpload.Accepted =>
+        FileVerificationStatus(
+          "ACCEPTED",
+          fileMimeType = Some(f.fileMimeType),
+          fileName = Some(f.fileName),
+          previewUrl = Some(s"${filePreviewUrl(f.reference).url}")
+        )
+
+      case f: FileUpload.Failed =>
+        FileVerificationStatus(
+          "FAILED",
+          errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details)))
+        )
+
+      case f: FileUpload.Rejected =>
+        FileVerificationStatus(
+          "REJECTED",
+          errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details)))
+        )
+
+      case f: FileUpload.Duplicate =>
+        FileVerificationStatus(
+          "DUPLICATE",
+          errorMessage = Some(messages(uploadFileViewContext.duplicateFileMessageKey))
+        )
     }
 
   implicit val formats: Format[FileVerificationStatus] = Json.format[FileVerificationStatus]

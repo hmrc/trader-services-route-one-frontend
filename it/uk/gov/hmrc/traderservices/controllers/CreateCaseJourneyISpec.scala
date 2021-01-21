@@ -1,7 +1,7 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import play.api.libs.json.Format
-import play.api.mvc.{Cookies, Session}
+import play.api.mvc.Session
 import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
@@ -18,6 +18,9 @@ import java.time.temporal.{ChronoField, ChronoUnit}
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.ws.DefaultWSCookie
 import scala.util.Random
+import play.api.libs.json.JsValue
+import play.api.libs.json.JsObject
+import play.api.libs.json.Json
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
@@ -1722,6 +1725,227 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
+    "GET /new/upload-files" should {
+      "show the upload multiple files page for an importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "show the upload multiple files page for an exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe state
+      }
+
+      "retreat from summary to the upload multiple files page for an importer" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ImportQuestionsSummary(
+          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+      }
+
+      "retreat from summary to the upload multiple files page for an exporter" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = ExportQuestionsSummary(
+          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/upload-files").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+      }
+    }
+
+    "PUT /new/upload-files/initialise/:uploadId" should {
+      "initialise first file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads()
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/new/upload-files/initialise/001").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "001"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Initiated(
+                  1,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("001"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+      }
+
+      "initialise next file upload" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(
+            Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(request("/new/upload-files/initialise/002").put(""))
+
+        result.status shouldBe 200
+        val json = result.body[JsValue]
+        (json \ "upscanReference").as[String] shouldBe "11370e18-6e24-453e-b45a-76d3e32ea33d"
+        (json \ "uploadId").as[String] shouldBe "002"
+        (json \ "uploadRequest").as[JsObject] shouldBe Json.obj(
+          "href" -> "https://bucketName.s3.eu-west-2.amazonaws.com",
+          "fields" -> Json.obj(
+            "Content-Type"            -> "application/xml",
+            "acl"                     -> "private",
+            "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            "policy"                  -> "xxxxxxxx==",
+            "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+            "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+            "x-amz-date"              -> "yyyyMMddThhmmssZ",
+            "x-amz-meta-callback-url" -> callbackUrl,
+            "x-amz-signature"         -> "xxxx",
+            "success_action_redirect" -> "https://myservice.com/nextPage",
+            "error_action_redirect"   -> "https://myservice.com/errorPage"
+          )
+        )
+
+        journey.getState shouldBe
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            fileUploads = FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"),
+                FileUpload.Initiated(
+                  2,
+                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  uploadId = Some("002"),
+                  uploadRequest = Some(
+                    UploadRequest(
+                      href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+                      fields = Map(
+                        "Content-Type"            -> "application/xml",
+                        "acl"                     -> "private",
+                        "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                        "policy"                  -> "xxxxxxxx==",
+                        "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+                        "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+                        "x-amz-date"              -> "yyyyMMddThhmmssZ",
+                        "x-amz-meta-callback-url" -> callbackUrl,
+                        "x-amz-signature"         -> "xxxx",
+                        "success_action_redirect" -> "https://myservice.com/nextPage",
+                        "error_action_redirect"   -> "https://myservice.com/errorPage"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          )
+      }
+    }
+
     "GET /new/file-upload" should {
       "show the upload first document page for the importer" in {
         implicit val journeyId: JourneyId = JourneyId()
@@ -1998,7 +2222,12 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
           FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                uploadRequest =
+                  Some(UploadRequest(href = "https://s3.amazonaws.com/bucket/123abc", fields = Map("foo1" -> "bar1")))
+              ),
               FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
                 4,
@@ -2013,6 +2242,18 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 3,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              ),
+              FileUpload.Rejected(
+                5,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e3",
+                details = S3UploadError("key", "errorCode", "Invalid file type.")
+              ),
+              FileUpload.Duplicate(
+                6,
+                "4b1e15a4-4152-4328-9448-4924d9aee6e4",
+                checksum = "0" * 64,
+                existingFileName = "test1.pdf",
+                duplicateFileName = "test1.png"
               )
             )
           ),
@@ -2027,7 +2268,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               .get()
           )
         result1.status shouldBe 200
-        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED"}"""
+        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
         journey.getState shouldBe state
 
         val result2 =
@@ -2039,19 +2280,213 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         val result3 =
           await(request("/new/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"fileStatus":"ACCEPTED"}"""
+        result3.body shouldBe """{"fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}"""
         journey.getState shouldBe state
 
         val result4 =
           await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
-        result4.body shouldBe """{"fileStatus":"FAILED"}"""
+        result4.body shouldBe """{"fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
         journey.getState shouldBe state
 
         val result5 =
           await(request("/new/file-verification/f0e317f5-d394-42cc-93f8-e89f4fc0114c/status").get())
         result5.status shouldBe 404
         journey.getState shouldBe state
+
+        val result6 =
+          await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e3/status").get())
+        result6.status shouldBe 200
+        result6.body shouldBe """{"fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
+        journey.getState shouldBe state
+
+        val result7 =
+          await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e4/status").get())
+        result7.status shouldBe 200
+        result7.body shouldBe """{"fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/file-uploaded" should {
+      "show uploaded singular file view" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf"
+              )
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/file-uploaded").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        journey.getState shouldBe state
+      }
+
+      "show uploaded plural file view" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test2.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Accepted(
+                2,
+                "22370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.png",
+                "image/png"
+              )
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/file-uploaded").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
+        result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/file-uploaded/:reference/remove" should {
+      "remove file from upload list by reference" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test2.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Accepted(
+                2,
+                "22370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.png",
+                "image/png"
+              )
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        journey.getState shouldBe FileUploaded(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                2,
+                "22370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.png",
+                "image/png"
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "PUT /new/file-uploaded/:reference/remove" should {
+      "remove file from upload list by reference" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                1,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test2.pdf",
+                "application/pdf"
+              ),
+              FileUpload.Accepted(
+                2,
+                "22370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.png",
+                "image/png"
+              )
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").put(""))
+
+        result.status shouldBe 204
+
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                2,
+                "22370e18-6e24-453e-b45a-76d3e32ea33d",
+                "https://s3.amazonaws.com/bucket/123",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test1.png",
+                "image/png"
+              )
+            )
+          )
+        )
       }
     }
 

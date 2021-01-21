@@ -39,7 +39,7 @@ class UploadFileViewContext @Inject() (appConfig: AppConfig) {
         FormError("file", Seq(toMessageKey(details)))
 
       case DuplicateFileUpload(checksum, existingFileName, duplicateFileName) =>
-        FormError("file", Seq("error.file-upload.duplicate"))
+        FormError("file", Seq(duplicateFileMessageKey))
     }
 
   def toMessageKey(error: S3UploadError): String =
@@ -57,4 +57,6 @@ class UploadFileViewContext @Inject() (appConfig: AppConfig) {
       case UpscanNotification.REJECTED   => "error.file-upload.invalid-type"
       case UpscanNotification.UNKNOWN    => "error.file-upload.unknown"
     }
+
+  val duplicateFileMessageKey: String = "error.file-upload.duplicate"
 }
