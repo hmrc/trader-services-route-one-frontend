@@ -25,11 +25,11 @@ import play.api.libs.json.{Format, Json}
   * that was allocated by the initiate request to identify the upload.
   *
   * @param key file upload reference
-  * @param bucket upscan inbound bucket name
+  * @param bucket upscan inbound bucket name, optional
   */
 case class S3UploadSuccess(
   key: String,
-  bucket: String
+  bucket: Option[String]
 )
 
 object S3UploadSuccess {

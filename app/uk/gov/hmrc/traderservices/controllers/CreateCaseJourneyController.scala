@@ -1154,7 +1154,7 @@ object CreateCaseJourneyController {
   val UpscanUploadSuccessForm = Form[S3UploadSuccess](
     mapping(
       "key"    -> nonEmptyText,
-      "bucket" -> nonEmptyText
+      "bucket" -> optional(nonEmptyText)
     )(S3UploadSuccess.apply)(S3UploadSuccess.unapply)
   )
 

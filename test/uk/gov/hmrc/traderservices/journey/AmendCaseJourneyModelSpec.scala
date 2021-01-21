@@ -464,7 +464,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", "bucket-123")) should thenGo(
+        ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", Some("bucket-123"))) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -489,7 +489,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", "bucket-123")) should thenGo(state)
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(state)
       }
 
       "do nothing when markUploadAsPosted transition and already in ACCEPTED state" in {
@@ -512,7 +512,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", "bucket-123")) should thenGo(state)
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(state)
       }
 
       "do nothing when markUploadAsPosted transition and none matching upload exist" in {
@@ -526,7 +526,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", "bucket-123")) should thenGo(state)
+        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(state)
       }
 
       "mark file upload as REJECTED when markUploadAsRejected transition" in {

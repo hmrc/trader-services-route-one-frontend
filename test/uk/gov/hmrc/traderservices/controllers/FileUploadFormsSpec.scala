@@ -38,10 +38,14 @@ class FileUploadFormsSpec extends UnitSpec with FormValidator {
       validate(
         form,
         Map("key" -> "ABC-123", "bucket" -> "foo-bar-bucket"),
-        S3UploadSuccess(key = "ABC-123", bucket = "foo-bar-bucket")
+        S3UploadSuccess(key = "ABC-123", bucket = Some("foo-bar-bucket"))
       )
-      validateErrors(form, Map(), Seq("key" -> "error.required", "bucket" -> "error.required"))
-      validateErrors(form, Map("key" -> "123-ABC"), Seq("bucket" -> "error.required"))
+      validate(
+        form,
+        Map("key" -> "ABC-123"),
+        S3UploadSuccess(key = "ABC-123", bucket = None)
+      )
+      validateErrors(form, Map(), Seq("key" -> "error.required"))
     }
   }
 
