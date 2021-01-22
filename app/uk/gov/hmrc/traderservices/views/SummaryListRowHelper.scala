@@ -24,6 +24,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.Actions
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.ActionItem
 import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
 
 trait SummaryListRowHelper {
 
@@ -34,7 +35,8 @@ trait SummaryListRowHelper {
     action: (Call, String),
     keyClasses: Option[String] = None,
     valueClasses: Option[String] = None,
-    url: Option[String] = None
+    url: Option[String] = None,
+    escape: Boolean = true
   )(implicit messages: Messages): SummaryListRow =
     SummaryListRow(
       key = Key(
@@ -44,8 +46,10 @@ trait SummaryListRowHelper {
       value = Value(
         content = HtmlContent(
           if (url.nonEmpty)
-            s"<a class='govuk-link' href='${url.get}' target='_blank' rel='noopener noreferrer'>$value</a>"
-          else value
+            s"<a class='govuk-link' href='${url.get}' target='_blank' rel='noopener noreferrer'>${if (escape) HtmlFormat.escape(value)
+            else value}</a>"
+          else
+            s"${if (escape) HtmlFormat.escape(value) else value}"
         ),
         classes = valueClasses.getOrElse("govuk-!-width-two-thirds")
       ),

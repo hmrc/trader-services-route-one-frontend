@@ -21,6 +21,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import play.api.i18n.Messages
 import play.api.mvc.Call
 import uk.gov.hmrc.traderservices.models.ExportContactInfo
+import play.twirl.api.HtmlFormat
 
 trait ContactDetailsHelper extends SummaryListRowHelper {
 
@@ -31,10 +32,12 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
-    val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
+    val contactName = contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
+    val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
     val contactNumber =
-      contactDetails.contactNumber.map(value => s"<div>${formatNumberForDisplay(value)}</div>").getOrElse("")
+      contactDetails.contactNumber
+        .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
+        .getOrElse("")
     val value = contactName + contactEmail + contactNumber
 
     SummaryList(
@@ -43,7 +46,8 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
           label = "summary.contact-details",
           value = value,
           visuallyHiddenText = Some("summary.contact-details"),
-          action = (changeCall, "site.change")
+          action = (changeCall, "site.change"),
+          escape = false
         )
       )
     )
@@ -53,10 +57,12 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     messages: Messages
   ): SummaryList = {
 
-    val contactName = contactDetails.contactName.map(value => s"<div>$value</div>").getOrElse("")
-    val contactEmail = s"<div>${contactDetails.contactEmail}</div>"
+    val contactName = contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
+    val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
     val contactNumber =
-      contactDetails.contactNumber.map(value => s"<div>${formatNumberForDisplay(value)}</div>").getOrElse("")
+      contactDetails.contactNumber
+        .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
+        .getOrElse("")
     val value = contactName + contactEmail + contactNumber
 
     SummaryList(
@@ -65,7 +71,8 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
           label = "summary.contact-details",
           value = value,
           visuallyHiddenText = Some("summary.contact-details"),
-          action = (changeCall, "site.change")
+          action = (changeCall, "site.change"),
+          escape = false
         )
       )
     )
