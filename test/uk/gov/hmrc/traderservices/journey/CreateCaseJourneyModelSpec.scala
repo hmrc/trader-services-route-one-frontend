@@ -705,6 +705,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
       }
+
+      "stay with error flag when submitted arrival date is before entry date" in {
+        val state = AnswerExportQuestionsMandatoryVesselInfo(
+          ExportQuestionsStateModel(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        val sumbmitedVesselDetails =
+          VesselDetails(
+            Some("Foo"),
+            Some(exportDeclarationDetails.entryDate.minusDays(1)),
+            Some(LocalTime.parse("00:00"))
+          )
+        given(state) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
+          sumbmitedVesselDetails
+        ) should thenGo(
+          state.copy(
+            model = state.model.updated(
+              state.model.exportQuestionsAnswers.copy(vesselDetails = Some(sumbmitedVesselDetails))
+            ),
+            arrivalDateValidationError = true
+          )
+        )
+      }
     }
 
     "at state AnswerExportQuestionsOptionalVesselInfo" should {
@@ -826,6 +856,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
+          )
+        )
+      }
+
+      "stay with error flag when submitted arrival date is before entry date" in {
+        val state = AnswerExportQuestionsOptionalVesselInfo(
+          ExportQuestionsStateModel(
+            exportDeclarationDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route3),
+              priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ExportFreightType.Air)
+            )
+          )
+        )
+        val sumbmitedVesselDetails =
+          VesselDetails(
+            Some("Foo"),
+            Some(exportDeclarationDetails.entryDate.minusDays(1)),
+            Some(LocalTime.parse("00:00"))
+          )
+        given(state) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
+          sumbmitedVesselDetails
+        ) should thenGo(
+          state.copy(
+            model = state.model.updated(
+              state.model.exportQuestionsAnswers.copy(vesselDetails = Some(sumbmitedVesselDetails))
+            ),
+            arrivalDateValidationError = true
           )
         )
       }
@@ -1331,6 +1391,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           answerMandatoryVesselInfo
         )
       }
+
+      "stay with error flag when submitted arrival date is before entry date" in {
+        val state = AnswerImportQuestionsMandatoryVesselInfo(
+          ImportQuestionsStateModel(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Hold),
+              freightType = Some(Air),
+              hasALVS = Some(false)
+            )
+          )
+        )
+        val sumbmitedVesselDetails =
+          VesselDetails(
+            Some("Foo"),
+            Some(importDeclarationDetails.entryDate.minusDays(1)),
+            Some(LocalTime.parse("00:00"))
+          )
+        given(state) when submittedImportQuestionsMandatoryVesselDetails(eoriNumber)(
+          sumbmitedVesselDetails
+        ) should thenGo(
+          state.copy(
+            model = state.model.updated(
+              state.model.importQuestionsAnswers.copy(vesselDetails = Some(sumbmitedVesselDetails))
+            ),
+            arrivalDateValidationError = true
+          )
+        )
+      }
     }
 
     "at state AnswerImportQuestionsFreightType" should {
@@ -1568,6 +1658,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
+          )
+        )
+      }
+
+      "stay with error flag when submitted arrival date is before entry date" in {
+        val state = AnswerImportQuestionsOptionalVesselInfo(
+          ImportQuestionsStateModel(
+            importDeclarationDetails,
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+              freightType = Some(ImportFreightType.Air)
+            )
+          )
+        )
+        val sumbmitedVesselDetails =
+          VesselDetails(
+            Some("Foo"),
+            Some(importDeclarationDetails.entryDate.minusDays(1)),
+            Some(LocalTime.parse("00:00"))
+          )
+        given(state) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+          sumbmitedVesselDetails
+        ) should thenGo(
+          state.copy(
+            model = state.model.updated(
+              state.model.importQuestionsAnswers.copy(vesselDetails = Some(sumbmitedVesselDetails))
+            ),
+            arrivalDateValidationError = true
           )
         )
       }

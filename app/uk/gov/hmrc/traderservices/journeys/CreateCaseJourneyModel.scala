@@ -23,6 +23,11 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 
+/**
+  * FSM Journey is a complete set of possible [[State]]s, and [[Transition]]s between states.
+  * This journey models process of creating a case in PEGA system.
+  * File upload states and transtions comes from the shared [[FileUploadJourneyModelMixin]] journey.
+  */
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   sealed trait IsError
