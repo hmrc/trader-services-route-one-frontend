@@ -44,6 +44,13 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       "timeOfArrival.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d"
     )
 
+  def formOutputFor(dateTime: LocalDateTime) =
+    VesselDetails(
+      vesselName = Some("Foo Bar"),
+      dateOfArrival = Some(dateTime.toLocalDate()),
+      timeOfArrival = Some(dateTime.toLocalTime().truncatedTo(ChronoUnit.MINUTES))
+    )
+
   val formInput = formInputFor(dateTime)
 
   "MandatoryVesselDetailsForm" should {
@@ -134,6 +141,31 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "bind input when dateOfArrival is after provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryVesselDetailsForm(Some(dateTime.minusDays(1).toLocalDate))
+      val input = formInputFor(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe formInput
+    }
+
+    "bind input when dateOfArrival is equal to provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryVesselDetailsForm(Some(dateTime.toLocalDate))
+      val input = formInputFor(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe formInput
+    }
+
+    "report an error when dateOfArrival is before provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate))
+      val input = formInputFor(dateTime)
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-before-entry-date"))
       )
     }
   }
@@ -234,6 +266,31 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "bind input when dateOfArrival is after provided entry date" in {
+      val form = CreateCaseJourneyController.optionalVesselDetailsForm(Some(dateTime.minusDays(1).toLocalDate))
+      val input = formInputFor(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe formInput
+    }
+
+    "bind input when dateOfArrival is equal to provided entry date" in {
+      val form = CreateCaseJourneyController.optionalVesselDetailsForm(Some(dateTime.toLocalDate))
+      val input = formInputFor(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe formInput
+    }
+
+    "report an error when dateOfArrival is before provided entry date" in {
+      val form = CreateCaseJourneyController.optionalVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate))
+      val input = formInputFor(dateTime)
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-before-entry-date"))
       )
     }
   }

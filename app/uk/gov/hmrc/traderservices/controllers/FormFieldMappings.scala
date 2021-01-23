@@ -194,9 +194,15 @@ object FormFieldMappings {
       )
   ).transform({ case Some("") => None; case o => o }, identity[Option[String]])
 
-  val dateOfArrivalRangeConstraint = some(
-    DateFieldHelper.dateIsBetween("dateOfArrival.all", "invalid-value-range", _.minusMonths(6), _.plusMonths(6))
-  )
+  def dateOfArrivalRangeConstraint(entryDate: Option[LocalDate]) =
+    some(
+      DateFieldHelper.dateIsBetween(
+        "dateOfArrival.all",
+        if (entryDate.isDefined) "invalid-value-before-entry-date" else "invalid-value-range",
+        arrivalDate => entryDate.getOrElse(arrivalDate.minusMonths(6)),
+        _.plusMonths(6)
+      )
+    )
 
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper

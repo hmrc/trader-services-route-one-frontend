@@ -28,18 +28,14 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
   override val root: State = State.Start
 
   sealed trait AmendCaseState extends State with CanEnterFileUpload {
-
     def model: AmendCaseModel
-
     override def hostData: FileUploadHostData = model
     override def fileUploadsOpt: Option[FileUploads] = model.fileUploads
   }
 
-  // FileUploadJourneyModel customization
+  final override val maxFileUploadsNumber: Int = 10
 
-  override val maxFileUploadsNumber: Int = 10
-
-  override def retreatFromFileUpload: String => Transition =
+  final override def retreatFromFileUpload: String => Transition =
     Transitions.backFromFileUpload
 
   /** Opaque data carried through the file upload process. */

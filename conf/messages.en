@@ -340,6 +340,7 @@ error.dateOfArrival.year.invalid-digits=Year of arrival must only contain number
 error.dateOfArrival.month.invalid-digits=Month of arrival must only contain numbers
 error.dateOfArrival.day.invalid-digits=Day of arrival must only contain numbers
 error.dateOfArrival.all.invalid-value-range=Date of arrival must be between {0} and {1}
+error.dateOfArrival.all.invalid-value-before-entry-date=Date of arrival must be between {0}, the date of entry, and {1}
 error.timeOfArrival.all.required=Enter the estimated time of arrival
 error.timeOfArrival.hour.required=Time of arrival must include an hour
 error.timeOfArrival.minutes.required=Time of arrival must include minutes
