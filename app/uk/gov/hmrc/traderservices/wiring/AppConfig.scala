@@ -79,6 +79,7 @@ trait AppConfig {
   val countdown: Int
 
   val uploadMultipleFilesFeature: Boolean
+  val requireEnrolmentFeature: Boolean
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -140,4 +141,5 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val traceFSM: Boolean = config.getBoolean("trace.fsm")
 
   override val uploadMultipleFilesFeature: Boolean = config.getBoolean("features.uploadMultipleFiles")
+  override val requireEnrolmentFeature: Boolean = config.getBoolean("features.requireEnrolment")
 }

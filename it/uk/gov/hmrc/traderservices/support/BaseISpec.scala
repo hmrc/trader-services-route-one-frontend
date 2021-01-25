@@ -20,6 +20,7 @@ abstract class BaseISpec
   override implicit val defaultTimeout: FiniteDuration = 5 seconds
 
   val uploadMultipleFilesFeature: Boolean = false
+  val requireEnrolmentFeature: Boolean = true
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -34,7 +35,7 @@ abstract class BaseISpec
       .overrides(
         bind[AppConfig]
           .toInstance(
-            TestAppConfig(wireMockBaseUrlAsString, wireMockPort, uploadMultipleFilesFeature)
+            TestAppConfig(wireMockBaseUrlAsString, wireMockPort, uploadMultipleFilesFeature, requireEnrolmentFeature)
           )
       )
 
