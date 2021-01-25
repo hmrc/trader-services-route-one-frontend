@@ -34,7 +34,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
   def toSubscriptionJourney(continueUrl: String): Result
 
   protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(
-    body: String => Future[Result]
+    body: Option[String] => Future[Result]
   )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(
       Enrolment(serviceName)
@@ -46,7 +46,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
           identifier <- enrolment.getIdentifier(identifierKey)
         } yield identifier.value
 
-        id.map(body)
+        id.map(x => body(Some(x)))
           .getOrElse(
             throw new IllegalStateException(s"Cannot find identifier key $identifierKey for service name $serviceName!")
           )

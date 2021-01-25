@@ -1759,7 +1759,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ExportQuestionsSummary(
             ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
           )
-        ) when initiateFileUpload(upscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateFileUpload(upscanRequest)(mockUpscanInitiate) should thenGo(
           UploadFile(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             "foo-bar-ref",
@@ -1793,7 +1793,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ImportQuestionsSummary(
             ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
           )
-        ) when initiateFileUpload(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateFileUpload(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref",
@@ -1821,7 +1821,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             nonEmptyFileUploads
           )
-        ) when toSummary(eoriNumber) should thenGo(
+        ) when toSummary should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1838,7 +1838,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads
           )
-        ) when toSummary(eoriNumber) should thenGo(
+        ) when toSummary should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -1854,7 +1854,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           FileUploads()
         )
-        given(state) when toSummary(eoriNumber) should thenGo(state)
+        given(state) when toSummary should thenGo(state)
       }
 
       "stay when export and empty file uploads, and transition toSummary" in {
@@ -1862,7 +1862,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
           FileUploads()
         )
-        given(state) when toSummary(eoriNumber) should thenGo(state)
+        given(state) when toSummary should thenGo(state)
       }
 
       "stay when export and toUploadMultipleFiles transition" in {
@@ -1870,7 +1870,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
           nonEmptyFileUploads
         )
-        given(state) when toUploadMultipleFiles(eoriNumber) should thenGo(state)
+        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "stay when import and toUploadMultipleFiles transition" in {
@@ -1878,7 +1878,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
           nonEmptyFileUploads
         )
-        given(state) when toUploadMultipleFiles(eoriNumber) should thenGo(state)
+        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
@@ -1888,7 +1888,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             FileUploads()
           )
-        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             FileUploads() +
@@ -1912,7 +1912,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             fileUploads
           )
-        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             fileUploads +
@@ -1934,7 +1934,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             nonEmptyFileUploads +
               FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
           )
-        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads +
@@ -1954,7 +1954,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             fileUploads
           )
-        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             fileUploads
@@ -2051,7 +2051,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when markUploadAsRejected(eoriNumber)(
+        ) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
         ) should thenGo(
           UploadMultipleFiles(
@@ -2078,7 +2078,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -2103,7 +2103,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -2119,7 +2119,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -2427,9 +2427,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        ) should thenGo(
+        ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             FileUploads(files =
@@ -2463,8 +2461,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(mockUpscanInitiate)(
-          eoriNumber
+        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
+          mockUpscanInitiate
         ) should thenGo(state)
       }
     }
@@ -2504,9 +2502,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           WaitingForFileVerification(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
@@ -2577,9 +2573,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           FileUploaded(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
@@ -2640,9 +2634,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
@@ -2880,7 +2872,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
 
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError(
             key = "foo-bar-ref-1",
             errorCode = "a",
@@ -2941,9 +2933,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(state)
+        given(state) when waitForFileVerification should thenGo(state)
       }
 
       "go to UploadFile when waitForFileVerification and reference unknown" in {
@@ -2966,9 +2956,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
@@ -3025,9 +3013,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           FileUploaded(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
@@ -3075,9 +3061,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
@@ -3286,7 +3270,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when backToFileUploaded(eoriNumber) should thenGo(
+        ) when backToFileUploaded should thenGo(
           FileUploaded(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             FileUploads(files =
@@ -3324,7 +3308,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUpload.Posted(1, "foo-bar-ref-1"),
             FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
           )
-        ) when backToFileUploaded(eoriNumber) should thenGo(
+        ) when backToFileUploaded should thenGo(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -3364,7 +3348,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
 
         given(state) when
-          waitForFileVerification(eoriNumber) should
+          waitForFileVerification should
           thenGo(state.copy(acknowledged = true))
       }
 
@@ -3399,7 +3383,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when (createCase(mockCreateCaseApi)(Some(eoriNumber))) should thenGo(
+        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
           CreateCaseConfirmation(
             importDeclarationDetails,
             completeImportQuestionsAnswers,
@@ -3449,7 +3433,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when (createCase(mockCreateCaseApi)(Some(eoriNumber))) should thenGo(
+        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
           CaseAlreadyExists("A1234567890")
         )
       }

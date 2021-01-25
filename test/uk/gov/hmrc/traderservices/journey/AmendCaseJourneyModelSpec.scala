@@ -347,7 +347,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             nonEmptyFileUploads
           )
-        ) when toAmendSummary(eoriNumber) should thenGo(
+        ) when toAmendSummary should thenGo(
           AmendCaseSummary(
             fullAmendCaseStateModel
               .copy(fileUploads = Some(nonEmptyFileUploads))
@@ -361,7 +361,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)),
           FileUploads()
         )
-        given(state) when toAmendSummary(eoriNumber) should thenGo(state)
+        given(state) when toAmendSummary should thenGo(state)
       }
 
       "stay when toUploadMultipleFiles transition" in {
@@ -369,7 +369,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           nonEmptyFileUploads
         )
-        given(state) when toUploadMultipleFiles(eoriNumber) should thenGo(state)
+        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
@@ -378,7 +378,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads()
           )
-        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads() +
@@ -402,7 +402,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             fileUploads
           )
-        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             fileUploads +
@@ -424,7 +424,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             nonEmptyFileUploads +
               FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
           )
-        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
@@ -444,7 +444,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             fileUploads
           )
-        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate)(eoriNumber) should thenGo(
+        ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             fileUploads
@@ -541,7 +541,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when markUploadAsRejected(eoriNumber)(
+        ) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
         ) should thenGo(
           UploadMultipleFiles(
@@ -568,7 +568,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -593,7 +593,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -609,7 +609,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -917,9 +917,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        ) should thenGo(
+        ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -953,8 +951,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(mockUpscanInitiate)(
-          eoriNumber
+        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
+          mockUpscanInitiate
         ) should thenGo(state)
       }
     }
@@ -994,9 +992,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-2",
@@ -1067,9 +1063,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1130,9 +1124,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-4",
@@ -1288,7 +1280,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
           )
 
-        given(state) when markUploadAsRejected(eoriNumber)(
+        given(state) when markUploadAsRejected(
           S3UploadError(
             key = "foo-bar-ref-1",
             errorCode = "a",
@@ -1349,9 +1341,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         )
-        given(state) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(state)
+        given(state) when waitForFileVerification should thenGo(state)
       }
 
       "go to UploadFile when waitForFileVerification and reference unknown" in {
@@ -1374,9 +1364,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-2",
@@ -1433,9 +1421,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1483,9 +1469,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when waitForFileVerification(
-          eoriNumber
-        ) should thenGo(
+        ) when waitForFileVerification should thenGo(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1694,7 +1678,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             )
           )
-        ) when backToFileUploaded(eoriNumber) should thenGo(
+        ) when backToFileUploaded should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1732,7 +1716,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUpload.Posted(1, "foo-bar-ref-1"),
             FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
           )
-        ) when backToFileUploaded(eoriNumber) should thenGo(
+        ) when backToFileUploaded should thenGo(
           EnterResponseText(
             fullAmendCaseStateModel.copy(fileUploads =
               Some(
@@ -1765,7 +1749,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
 
         given(state) when
-          waitForFileVerification(eoriNumber) should
+          waitForFileVerification should
           thenGo(state.copy(acknowledged = true))
       }
 
@@ -1776,11 +1760,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) when
-          toAmendSummary(eoriNumber) should
-          thenGo(
-            AmendCaseSummary(fullAmendCaseStateModel.copy(fileUploads = Some(someFileUploads)))
-          )
+        ) when toAmendSummary should thenGo(
+          AmendCaseSummary(fullAmendCaseStateModel.copy(fileUploads = Some(someFileUploads)))
+        )
       }
 
       "fail when amendCase and received error response" in {
@@ -1795,7 +1777,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
       }
 
       "fail when amendCase and received case reference doesn't match" in {
@@ -1813,7 +1795,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
       }
     }
 
@@ -1835,7 +1817,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
+        ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1851,7 +1833,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         }
         given(
           AmendCaseSummary(fullAmendCaseStateModel)
-        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
+        ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1874,7 +1856,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
         given(
           AmendCaseSummary(model)
-        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
+        ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1891,7 +1873,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
       }
       "fail when submitted response text in AmendCaseSummary mode and UpdateCase API returned success with different case reference number" in {
         val updateCaseApi: UpdateCaseApi = { request =>
@@ -1910,7 +1892,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
+        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
       }
     }
   }

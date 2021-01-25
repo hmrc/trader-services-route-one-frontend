@@ -98,7 +98,7 @@ trait AuthActionISpecSetup extends AppISpec {
 
     def withAuthorisedEnrolment[A](serviceName: String, identifierKey: String): Result =
       await(super.authorisedWithEnrolment(serviceName, identifierKey) { res =>
-        Future.successful(Ok(res))
+        Future.successful(Ok(res.getOrElse("undefined")))
       })
     override def toSubscriptionJourney(continueUrl: String): Result = Redirect("/subscription")
   }
