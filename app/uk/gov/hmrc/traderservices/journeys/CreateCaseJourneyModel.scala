@@ -29,17 +29,15 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   override val root: State = State.Start
 
-  // FileUploadJourneyModel customization
-
   /** Opaque data carried through the file upload process. */
   final case class FileUploadHostData(
     declarationDetails: DeclarationDetails,
     questionsAnswers: QuestionsAnswers
   )
 
-  override val maxFileUploadsNumber: Int = 10
+  final override val maxFileUploadsNumber: Int = 10
 
-  def retreatFromFileUpload: String => Transition =
+  final override def retreatFromFileUpload: String => Transition =
     Transitions.backFromFileUpload
 
   /** Model parametrization and rules. */
@@ -119,10 +117,6 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       def declarationDetails: DeclarationDetails
     }
 
-    sealed trait HasQuestionsAnswers {
-      def questionsAnswers: QuestionsAnswers
-    }
-
     sealed trait HasExportQuestionsStateModel {
       val model: ExportQuestionsStateModel
     }
@@ -133,18 +127,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     // SPECIALIZED STATE TRAITS
 
-    sealed trait ExportQuestionsState
-        extends State with HasDeclarationDetails with HasExportQuestionsStateModel with HasQuestionsAnswers {
+    sealed trait ExportQuestionsState extends State with HasDeclarationDetails with HasExportQuestionsStateModel {
       final def declarationDetails: DeclarationDetails = model.declarationDetails
-      final def exportQuestionsAnswers: ExportQuestions = model.exportQuestionsAnswers
-      final def questionsAnswers: QuestionsAnswers = exportQuestionsAnswers
     }
 
-    sealed trait ImportQuestionsState
-        extends State with HasDeclarationDetails with HasImportQuestionsStateModel with HasQuestionsAnswers {
+    sealed trait ImportQuestionsState extends State with HasDeclarationDetails with HasImportQuestionsStateModel {
       final def declarationDetails: DeclarationDetails = model.declarationDetails
-      final def importQuestionsAnswers: ImportQuestions = model.importQuestionsAnswers
-      final def questionsAnswers: QuestionsAnswers = importQuestionsAnswers
     }
 
     sealed trait SummaryState extends State
@@ -519,7 +507,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def backToAnswerExportQuestionsOptionalVesselInfo(user: String) =
       Transition {
-        case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.exportQuestionsAnswers) =>
+        case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.exportQuestionsAnswers) =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.vesselDetails.isDefined =>
           goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
