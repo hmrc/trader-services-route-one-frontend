@@ -22,6 +22,7 @@ import play.api.i18n.Messages
 import play.api.mvc.Call
 
 case class FileVerificationStatus(
+  reference: String,
   fileStatus: String,
   fileMimeType: Option[String] = None,
   fileName: Option[String] = None,
@@ -37,13 +38,14 @@ object FileVerificationStatus {
   ): FileVerificationStatus =
     fileUpload match {
       case f: FileUpload.Initiated =>
-        FileVerificationStatus("NOT_UPLOADED", uploadRequest = f.uploadRequest)
+        FileVerificationStatus(fileUpload.reference, "NOT_UPLOADED", uploadRequest = f.uploadRequest)
 
       case f: FileUpload.Posted =>
-        FileVerificationStatus("WAITING")
+        FileVerificationStatus(fileUpload.reference, "WAITING")
 
       case f: FileUpload.Accepted =>
         FileVerificationStatus(
+          fileUpload.reference,
           "ACCEPTED",
           fileMimeType = Some(f.fileMimeType),
           fileName = Some(f.fileName),
@@ -52,18 +54,21 @@ object FileVerificationStatus {
 
       case f: FileUpload.Failed =>
         FileVerificationStatus(
+          fileUpload.reference,
           "FAILED",
           errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details)))
         )
 
       case f: FileUpload.Rejected =>
         FileVerificationStatus(
+          fileUpload.reference,
           "REJECTED",
           errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details)))
         )
 
       case f: FileUpload.Duplicate =>
         FileVerificationStatus(
+          fileUpload.reference,
           "DUPLICATE",
           errorMessage = Some(messages(uploadFileViewContext.duplicateFileMessageKey))
         )
