@@ -200,7 +200,7 @@ form.declaration-details.continue=Continue
 error.epu.required=Enter an EPU number
 error.epu.invalid-length=EPU number must be 3 characters
 error.epu.invalid-only-digits=EPU number must only contain numbers
-error.epu.invalid-number=EPU number must be 700 or less
+error.epu.invalid-number=EPU number must be 669 or less
 error.entryNumber.required=Enter an entry number
 error.entryNumber.invalid-length=Entry number must be 7 characters
 error.entryNumber.invalid-only-digits-and-letters=Entry number must only contain numbers and letters
@@ -340,7 +340,7 @@ error.dateOfArrival.year.invalid-digits=Year of arrival must only contain number
 error.dateOfArrival.month.invalid-digits=Month of arrival must only contain numbers
 error.dateOfArrival.day.invalid-digits=Day of arrival must only contain numbers
 error.dateOfArrival.all.invalid-value-range=Date of arrival must be between {0} and {1}
-error.dateOfArrival.all.invalid-value-before-entry-date=Date of arrival must be between {0}, the date of entry, and {1}
+error.dateOfArrival.all.invalid-value-before-entry-date=Date of arrival must be between {0} (the date of entry) and {1}
 error.timeOfArrival.all.required=Enter the estimated time of arrival
 error.timeOfArrival.hour.required=Time of arrival must include an hour
 error.timeOfArrival.minutes.required=Time of arrival must include minutes
@@ -460,7 +460,7 @@ view.file-uploaded.plural.title=You’ve uploaded {0} documents
 view.file-uploaded.plural.heading=You’ve uploaded {0} documents
 view.file-uploaded.uploadAnotherFile.heading=Do you want to upload another document?
 view.file-uploaded.list.heading=Documents you’ve uploaded
-view.file-uploaded.maximum=You’ve uploaded the maximum number of files and cannot add any more.
+view.file-uploaded.maximum=You’ve uploaded the maximum of 10 files. To upload more, you have to submit these files first and then use the service again.
 
 form.upload-file.file=Upload a file
 form.upload-file.submit=Upload
@@ -494,10 +494,10 @@ view.create-case-confirmation.save.bullet3=you want to add more information or d
 view.create-case-confirmation.save.description2=Save your case reference number for your own records.
 view.create-case-confirmation.next.heading=Next steps
 view.create-case-confirmation.next.description=Once the document checks are complete, you’ll hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="/send-documents-for-customs-check/new-or-existing">send documents for another customs check</a>.
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
-view.create-case-confirmation.continue=Send documents for a customs check
-view.create-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603 forms</a>.
+view.create-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 
 view.case-already-exists.title=This case already exists
 view.case-already-exists.heading=This case already exists
@@ -542,8 +542,10 @@ view.amend-case-confirmation.save.description=You’ll need to use this case ref
 view.amend-case-confirmation.save.description2=It is the same case reference number that you were given when the case was first created.
 view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you’ll hear from us through CHIEF or your declaration software. We’ll let you know if we need any further information from you.
-view.amend-case-confirmation.continue=Send documents for a customs check
-view.amend-case-confirmation.footnote=View guidance on GOV.UK about <a class="govuk-link" href="#">Clearing goods entering, leaving or transiting the UK or EU</a> or <a class="govuk-link" href="#">C1601, C1602, C1603 forms</a>.
+view.amend-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="/send-documents-for-customs-check/new-or-existing">send documents for another customs check</a>.
+view.amend-case-confirmation.info.heading=If we need more information
+view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
+view.amend-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 
 
 view.amend-case.summary.title=Review your case details
