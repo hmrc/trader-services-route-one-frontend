@@ -46,7 +46,6 @@ trait AppConfig {
   val mongoSessionExpiryTime: Int
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
-  val authorisedStrideGroup: String
   val subscriptionJourneyUrl: String
 
   val languageMap: Map[String, Lang] = Map(
@@ -112,8 +111,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val authorisedServiceName: String = config.getString("authorisedServiceName")
   override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
-
-  override val authorisedStrideGroup: String = config.getString("authorisedStrideGroup")
 
   override val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
 

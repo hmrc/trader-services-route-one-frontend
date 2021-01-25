@@ -53,6 +53,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       }
       .recover(handleFailure)
 
+  protected def authorisedWithoutEnrolment[A](
+    body: Option[String] => Future[Result]
+  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
+    authorised(AuthProviders(GovernmentGateway))(body(None))
+      .recover(handleFailure)
+
   def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
 
     case InsufficientEnrolments(_) =>
@@ -62,25 +68,6 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
     case _: AuthorisationException ⇒
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
       toGGLogin(continueUrl)
-  }
-
-  protected def authorisedWithStrideGroup[A](authorisedStrideGroup: String)(
-    body: String => Future[Result]
-  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
-    val authPredicate =
-      if (authorisedStrideGroup == "ANY") AuthProviders(PrivilegedApplication)
-      else Enrolment(authorisedStrideGroup) and AuthProviders(PrivilegedApplication)
-    authorised(authPredicate)
-      .retrieve(credentials and allEnrolments) {
-        case Some(Credentials(authProviderId, _)) ~ enrollments =>
-          val userRoles = enrollments.enrolments.map(_.key).mkString("[", ",", "]")
-          Logger(getClass).info(s"User $authProviderId has been authorized with $userRoles")
-          body(authProviderId)
-
-        case None ~ enrollments =>
-          Future.successful(Forbidden)
-      }
-      .recover(handleStrideFailure)
   }
 
   def handleStrideFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {

@@ -67,9 +67,15 @@ class CreateCaseJourneyController @Inject() (
   import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel._
 
   /** AsUser authorisation request */
-  final val AsUser: WithAuthorised[Option[String]] = { implicit request =>
-    authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
-  }
+  final val AsUser: WithAuthorised[Option[String]] =
+    if (appConfig.requireEnrolmentFeature) { implicit request =>
+      authorisedWithEnrolment(
+        appConfig.authorisedServiceName,
+        appConfig.authorisedIdentifierKey
+      )
+    } else { implicit request =>
+      authorisedWithoutEnrolment
+    }
 
   /** Base authorized action builder */
   final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)

@@ -20,7 +20,6 @@ case class TestAppConfig(
   override val updateCaseApiPath: String = "/update-case"
 
   override val mongoSessionExpiryTime: Int = 3600
-  override val authorisedStrideGroup: String = "TBC"
 
   override val gtmContainerId: Option[String] = None
   override val contactHost: String = wireMockBaseUrl
