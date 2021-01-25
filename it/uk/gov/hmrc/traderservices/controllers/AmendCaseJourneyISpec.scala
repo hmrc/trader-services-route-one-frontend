@@ -613,25 +613,25 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               .get()
           )
         result1.status shouldBe 200
-        result1.body shouldBe """{"fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
+        result1.body shouldBe """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
         journey.getState shouldBe state
 
         val result2 =
           await(request("/add/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
         result2.status shouldBe 200
-        result2.body shouldBe """{"fileStatus":"WAITING"}"""
+        result2.body shouldBe """{"reference":"2b72fe99-8adf-4edb-865e-622ae710f77c","fileStatus":"WAITING"}"""
         journey.getState shouldBe state
 
         val result3 =
           await(request("/add/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}"""
+        result3.body shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}"""
         journey.getState shouldBe state
 
         val result4 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
-        result4.body shouldBe """{"fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
+        result4.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e2","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
         journey.getState shouldBe state
 
         val result5 =
@@ -642,13 +642,13 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         val result6 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e3/status").get())
         result6.status shouldBe 200
-        result6.body shouldBe """{"fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
+        result6.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e3","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
         journey.getState shouldBe state
 
         val result7 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e4/status").get())
         result7.status shouldBe 200
-        result7.body shouldBe """{"fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
+        result7.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e4","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
         journey.getState shouldBe state
       }
     }
