@@ -313,8 +313,8 @@ class AmendCaseJourneyController @Inject() (
   // POST /add/amend-case
   final def amendCase: Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        Transitions.amendCase(traderServicesApiConnector.updateCase(_))
+      .applyWithRequest { implicit request => user =>
+        Transitions.amendCase(traderServicesApiConnector.updateCase(_))(Some(user))
       }
 
   // GET /add/confirmation

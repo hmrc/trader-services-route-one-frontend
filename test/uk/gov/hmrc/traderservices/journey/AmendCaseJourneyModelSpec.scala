@@ -1795,7 +1795,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
       }
 
       "fail when amendCase and received case reference doesn't match" in {
@@ -1813,7 +1813,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
       }
     }
 
@@ -1835,7 +1835,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) when amendCase(updateCaseApi)(eoriNumber) should
+        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1851,7 +1851,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         }
         given(
           AmendCaseSummary(fullAmendCaseStateModel)
-        ) when amendCase(updateCaseApi)(eoriNumber) should
+        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1874,7 +1874,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
         given(
           AmendCaseSummary(model)
-        ) when amendCase(updateCaseApi)(eoriNumber) should
+        ) when amendCase(updateCaseApi)(Some(eoriNumber)) should
           thenGo(
             AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
           )
@@ -1891,7 +1891,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
       }
       "fail when submitted response text in AmendCaseSummary mode and UpdateCase API returned success with different case reference number" in {
         val updateCaseApi: UpdateCaseApi = { request =>
@@ -1910,7 +1910,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(eoriNumber)
+        ) shouldFailWhen amendCase(updateCaseApi)(Some(eoriNumber))
       }
     }
   }

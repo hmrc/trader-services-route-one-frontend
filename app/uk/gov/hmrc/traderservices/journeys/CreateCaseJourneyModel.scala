@@ -800,7 +800,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
-    final def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) = {
+    final def createCase(createCaseApi: CreateCaseApi)(eori: Option[String])(implicit ec: ExecutionContext) = {
 
       def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
         createCaseApi(request).flatMap { response =>

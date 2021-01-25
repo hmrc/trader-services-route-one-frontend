@@ -225,7 +225,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             goto(current)
       }
 
-    final def amendCase(updateCaseApi: UpdateCaseApi)(user: String)(implicit ec: ExecutionContext) = {
+    final def amendCase(updateCaseApi: UpdateCaseApi)(eori: Option[String])(implicit ec: ExecutionContext) = {
 
       def callUpdateCase(model: AmendCaseModel) = {
         val caseReferenceNumber = model.caseReferenceNumber.get
@@ -235,7 +235,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             model.typeOfAmendment.get,
             model.responseText,
             model.fileUploads.map(_.toUploadedFiles).getOrElse(Seq.empty),
-            eori = user
+            eori
           )
         updateCaseApi(request)
           .flatMap { response =>

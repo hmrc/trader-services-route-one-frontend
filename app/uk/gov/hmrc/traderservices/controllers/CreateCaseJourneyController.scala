@@ -525,8 +525,8 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/create-case
   final def createCase: Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        Transitions.createCase(traderServicesApiConnector.createCase(_))
+      .applyWithRequest { implicit request => user =>
+        Transitions.createCase(traderServicesApiConnector.createCase(_))(Some(user))
       }
 
   // GET /new/confirmation
