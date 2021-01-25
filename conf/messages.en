@@ -494,7 +494,7 @@ view.create-case-confirmation.save.bullet3=you want to add more information or d
 view.create-case-confirmation.save.description2=Save your case reference number for your own records.
 view.create-case-confirmation.next.heading=Next steps
 view.create-case-confirmation.next.description=Once the document checks are complete, you’ll hear from us through CHIEF or your declaration software.
-view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="/send-documents-for-customs-check/new-or-existing">send documents for another customs check</a>.
+view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.create-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
@@ -542,7 +542,7 @@ view.amend-case-confirmation.save.description=You’ll need to use this case ref
 view.amend-case-confirmation.save.description2=It is the same case reference number that you were given when the case was first created.
 view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you’ll hear from us through CHIEF or your declaration software. We’ll let you know if we need any further information from you.
-view.amend-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="/send-documents-for-customs-check/new-or-existing">send documents for another customs check</a>.
+view.amend-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.amend-case-confirmation.info.heading=If we need more information
 view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.amend-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
