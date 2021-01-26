@@ -62,17 +62,17 @@
       @messages("view.create-case-confirmation.next.description")
     }
 
+    @html.p {
+    @Html(messages("view.create-case-confirmation.next.description2", restartCall.url))
+    }
+
     @html.h2("view.create-case-confirmation.info.heading", classes = "govuk-heading-m")
 
     @html.p {
         @messages("view.create-case-confirmation.info.description")
     }
 
-    @html.a(restartCall.url, messages("view.create-case-confirmation.continue"), useButtonStyle = true)
-
     @html.p {
       @Html(messages("view.create-case-confirmation.footnote"))
     }
-
-
 }
