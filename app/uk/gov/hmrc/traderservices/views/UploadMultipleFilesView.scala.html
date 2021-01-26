@@ -29,7 +29,7 @@
         context: UploadFileViewContext
 )
 
-@(maxFileUploadsNumber: Int, initialFileUploads: Seq[FileUpload], initiateNextFileUpload: String => Call, checkFileVerificationStatus: String => Call, removeFile: String => Call, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(maxFileUploadsNumber: Int, initialFileUploads: Seq[FileUpload], initiateNextFileUpload: String => Call, checkFileVerificationStatus: String => Call, removeFile: String => Call, previewFile: String => Call, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.upload-multiple-files.title"),

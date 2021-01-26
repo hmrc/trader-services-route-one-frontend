@@ -888,6 +888,7 @@ class CreateCaseJourneyController @Inject() (
             initiateNextFileUpload = controller.initiateNextFileUpload,
             checkFileVerificationStatus = controller.checkFileVerificationStatus,
             removeFile = controller.removeFileUploadByReferenceAsync,
+            previewFile = controller.previewFileUploadByReference,
             continueAction = linkToSummary(model.questionsAnswers),
             backLink = backLinkFromFileUpload(model.questionsAnswers)
           )
