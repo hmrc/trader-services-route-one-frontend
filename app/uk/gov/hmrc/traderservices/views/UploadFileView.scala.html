@@ -37,6 +37,10 @@
   backLink = Some(backLink.url)
 ) {
 
+  @maybeUploadError.map { fileUploadError =>
+    @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
+  }
+
   @html.h1(messages(if(fileUploads.isEmpty) "view.upload-file.first.heading" else "view.upload-file.next.heading"), classes = "govuk-heading-l")
 
   <form action="@uploadRequest.href" method="POST" enctype="multipart/form-data" class="js-form file-upload" novalidate
@@ -44,10 +48,6 @@
   data-file-upload-redirect-failure-url="@failureAction.url"
   data-file-upload-check-status-url="@checkStatusAction.url"
   data-file-upload-aria-live-message="@messages("view.upload-file.waiting")">
-
-    @maybeUploadError.map { fileUploadError =>
-      @forms.errorSummary(Seq(context.toFormError(fileUploadError)))
-    }
 
     @uploadRequest.fields.map { case (key, value) =>
       @forms.inputHidden(key, value)
