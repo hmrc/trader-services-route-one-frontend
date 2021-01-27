@@ -468,10 +468,17 @@ class CreateCaseJourneyController @Inject() (
       .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
+  // OPTIONS
+  final def preflightUpload(journeyId: String): Action[AnyContent] =
+    Action {
+      Created.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+    }
+
   // GET /new/journey/:journeyId/file-posted
   final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
-    actions.showCurrentState
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+    Action {
+      Created.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+    }
 
   // POST /new/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =

@@ -55,7 +55,9 @@ PUT        /new/upload-files/initialise/:uploadId                   @uk.gov.hmrc
 GET        /new/file-upload                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showFileUpload
 GET        /new/file-rejected                                       @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.markFileUploadAsRejected
 GET        /new/journey/:journeyId/file-posted                      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncMarkFileUploadAsPosted(journeyId: String)
+OPTIONS    /new/journey/:journeyId/file-posted                      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.preflightUpload(journeyId: String)
 GET        /new/journey/:journeyId/file-rejected                    @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncMarkFileUploadAsRejected(journeyId: String)
+OPTIONS    /new/journey/:journeyId/file-rejected                    @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.preflightUpload(journeyId: String)
 GET        /new/file-verification                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showWaitingForFileVerification
 GET        /new/journey/:journeyId/file-verification                @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.asyncWaitingForFileVerification(journeyId: String)
 GET        /new/file-verification/:reference/status                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.checkFileVerificationStatus(reference: String)
@@ -87,7 +89,9 @@ PUT        /add/upload-files/initialise/:uploadId                   @uk.gov.hmrc
 GET        /add/file-upload                                         @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showFileUpload
 GET        /add/file-rejected                                       @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.markFileUploadAsRejected
 GET        /add/journey/:journeyId/file-posted                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.asyncMarkFileUploadAsPosted(journeyId: String)
+OPTIONS    /add/journey/:journeyId/file-posted                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.preflightUpload(journeyId: String)
 GET        /add/journey/:journeyId/file-rejected                    @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.asyncMarkFileUploadAsRejected(journeyId: String)
+OPTIONS    /add/journey/:journeyId/file-rejected                    @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.preflightUpload(journeyId: String)
 GET        /add/file-verification                                   @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showWaitingForFileVerification
 GET        /add/journey/:journeyId/file-verification                @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.asyncWaitingForFileVerification(journeyId: String)
 GET        /add/file-verification/:reference/status                 @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.checkFileVerificationStatus(reference: String)
