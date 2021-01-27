@@ -45,7 +45,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
   val maxFileUploadsNumber: Int
 
   /** Implement to enable backward transition. */
-  def retreatFromFileUpload: String => Transition
+  def retreatFromFileUpload: Transition
 
   /** Marker trait of permitted entry states. */
   trait CanEnterFileUpload extends State {
@@ -125,7 +125,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
         case other => other
       })
 
-    final def toUploadMultipleFiles(user: String) =
+    final val toUploadMultipleFiles =
       Transition {
         case current: UploadMultipleFiles =>
           goto(current)
@@ -145,7 +145,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     final def initiateNextFileUpload(uploadId: String)(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
       Transition {
         case state: UploadMultipleFiles =>
           if (
@@ -171,7 +171,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     final def initiateFileUpload(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
       Transition {
         case state: CanEnterFileUpload =>
           gotoFileUploadOrUploaded(
@@ -223,7 +223,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
       }
 
-    final def markUploadAsRejected(user: String)(error: S3UploadError) =
+    final def markUploadAsRejected(error: S3UploadError) =
       Transition {
         case current @ UploadFile(
               hostData,
@@ -329,7 +329,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     }
 
     /** Transition when file has been uploaded and should wait for verification. */
-    final def waitForFileVerification(user: String) =
+    final val waitForFileVerification =
       Transition {
         /** Change file status to posted and wait. */
         case current @ UploadFile(
@@ -464,7 +464,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       upscanRequest: UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(exitFileUpload: String => Transition)(user: String)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
+    )(exitFileUpload: Transition)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
       Transition {
         case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
           if (uploadAnotherFile && fileUploads.acceptedCount < maxFileUploadsNumber)
@@ -476,19 +476,19 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               showUploadSummaryIfAny = false
             )
           else
-            exitFileUpload(user).apply(current)
+            exitFileUpload.apply(current)
       }
 
     final def removeFileUploadByReference(reference: String)(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
       Transition {
         case current: FileUploaded =>
           val updatedFileUploads = current.fileUploads
             .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
           val updatedCurrentState = current.copy(fileUploads = updatedFileUploads)
           if (updatedFileUploads.isEmpty)
-            initiateFileUpload(upscanRequest)(upscanInitiate)(user)
+            initiateFileUpload(upscanRequest)(upscanInitiate)
               .apply(updatedCurrentState)
           else
             goto(updatedCurrentState)
@@ -500,19 +500,19 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           goto(updatedCurrentState)
       }
 
-    final def backToFileUploaded(user: String) =
+    final val backToFileUploaded =
       Transition {
         case s: FileUploadState =>
           if (s.fileUploads.nonEmpty)
             goto(FileUploaded(s.hostData, s.fileUploads, acknowledged = true))
           else
-            retreatFromFileUpload(user).apply(s)
+            retreatFromFileUpload.apply(s)
 
         case s: CanEnterFileUpload =>
           if (s.fileUploadsOpt.exists(_.nonEmpty))
             goto(FileUploaded(s.hostData, s.fileUploadsOpt.get, acknowledged = true))
           else
-            retreatFromFileUpload(user).apply(s)
+            retreatFromFileUpload.apply(s)
       }
   }
 

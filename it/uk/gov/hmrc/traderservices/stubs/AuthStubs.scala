@@ -65,7 +65,7 @@ trait AuthStubs {
     this
   }
 
-  def givenAuthorisedForStride(strideGroup: String, strideUserId: String): AuthStubs = {
+  def givenAuthorised[A]: AuthStubs = {
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(1)
@@ -74,18 +74,8 @@ trait AuthStubs {
             s"""
                |{
                |  "authorise": [
-               |    {
-               |      "identifiers": [],
-               |      "state": "Activated",
-               |      "enrolment": "$strideGroup"
-               |    },
-               |    {
-               |      "authProviders": [
-               |        "PrivilegedApplication"
-               |      ]
-               |    }
-               |  ],
-               |  "retrieve": ["optionalCredentials","allEnrolments"]
+               |    { "authProviders": ["GovernmentGateway"] }
+               |  ]
                |}
            """.stripMargin,
             true,
@@ -95,17 +85,7 @@ trait AuthStubs {
         .willReturn(
           aResponse()
             .withStatus(200)
-            .withBody(s"""
-                         |{
-                         |  "optionalCredentials":{
-                         |    "providerId": "$strideUserId",
-                         |    "providerType": "PrivilegedApplication"
-                         |  },
-                         |  "allEnrolments":[
-                         |    {"key":"$strideGroup"}
-                         |  ]
-                         |}
-       """.stripMargin)
+            .withBody(s"""{}""".stripMargin)
         )
     )
 

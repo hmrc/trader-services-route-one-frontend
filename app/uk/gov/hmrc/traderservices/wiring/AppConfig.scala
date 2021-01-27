@@ -46,7 +46,6 @@ trait AppConfig {
   val mongoSessionExpiryTime: Int
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
-  val authorisedStrideGroup: String
   val subscriptionJourneyUrl: String
 
   val languageMap: Map[String, Lang] = Map(
@@ -79,6 +78,7 @@ trait AppConfig {
   val countdown: Int
 
   val uploadMultipleFilesFeature: Boolean
+  val requireEnrolmentFeature: Boolean
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -112,8 +112,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val authorisedServiceName: String = config.getString("authorisedServiceName")
   override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
 
-  override val authorisedStrideGroup: String = config.getString("authorisedStrideGroup")
-
   override val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
 
   override val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
@@ -140,4 +138,5 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val traceFSM: Boolean = config.getBoolean("trace.fsm")
 
   override val uploadMultipleFilesFeature: Boolean = config.getBoolean("features.uploadMultipleFiles")
+  override val requireEnrolmentFeature: Boolean = config.getBoolean("features.requireEnrolment")
 }

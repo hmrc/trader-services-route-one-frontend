@@ -67,12 +67,19 @@ class CreateCaseJourneyController @Inject() (
   import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel._
 
   /** AsUser authorisation request */
-  final val AsUser: WithAuthorised[String] = { implicit request =>
-    authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)
-  }
+  final val AsUser: WithAuthorised[Option[String]] =
+    if (appConfig.requireEnrolmentFeature) { implicit request =>
+      authorisedWithEnrolment(
+        appConfig.authorisedServiceName,
+        appConfig.authorisedIdentifierKey
+      )
+    } else { implicit request =>
+      authorisedWithoutEnrolment
+    }
 
   /** Base authorized action builder */
   final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
+  final val whenAuthorisedAsUserWithEori = actions.whenAuthorisedWithRetrievals(AsUser)
 
   /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
@@ -437,7 +444,7 @@ class CreateCaseJourneyController @Inject() (
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.markUploadAsRejected(""))
+      .apply(FileUploadTransitions.markUploadAsRejected)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /new/file-verification
@@ -454,7 +461,7 @@ class CreateCaseJourneyController @Inject() (
         INITIAL_CALLBACK_WAIT_TIME_SECONDS,
         implicit request => acknowledgeFileUploadRedirect
       )
-      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification(""))
+      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /new/journey/:journeyId/file-posted
@@ -467,7 +474,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
-      .parseJson[UpscanNotification]
+      .parseJson[UpscanNotification]()
       .apply(FileUploadTransitions.upscanCallbackArrived)
       .transform { case _ => NoContent }
       .recover {
@@ -497,7 +504,7 @@ class CreateCaseJourneyController @Inject() (
       .applyWithRequest { implicit request =>
         FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
-        ) _
+        )
       }
 
   // PUT /new/file-uploaded/:reference/remove
@@ -506,7 +513,7 @@ class CreateCaseJourneyController @Inject() (
       .applyWithRequest { implicit request =>
         FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
-        ) _
+        )
       }
       .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
 
@@ -524,9 +531,9 @@ class CreateCaseJourneyController @Inject() (
 
   // POST /new/create-case
   final def createCase: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        Transitions.createCase(traderServicesApiConnector.createCase(_))
+    whenAuthorisedAsUserWithEori
+      .applyWithRequest { implicit request => eoriOpt =>
+        Transitions.createCase(traderServicesApiConnector.createCase(_))(eoriOpt)
       }
 
   // GET /new/confirmation

@@ -37,7 +37,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   final override val maxFileUploadsNumber: Int = 10
 
-  final override def retreatFromFileUpload: String => Transition =
+  final override def retreatFromFileUpload: Transition =
     Transitions.backFromFileUpload
 
   /** Model parametrization and rules. */
@@ -324,12 +324,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
   object Transitions {
     import State._
 
-    final def start(user: String) =
+    final val start =
       Transition {
         case _ => goto(Start)
       }
 
-    final def chooseNewOrExistingCase(user: String) =
+    final val chooseNewOrExistingCase =
       Transition {
         case EnterDeclarationDetails(a, b, c, d) =>
           goto(ChooseNewOrExistingCase(Some(NewOrExistingCase.New), a, b, c, d, continueAmendCaseJourney = false))
@@ -341,7 +341,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(ChooseNewOrExistingCase())
       }
 
-    final def submittedNewOrExistingCaseChoice(user: String)(newOrExisting: NewOrExistingCase) =
+    final def submittedNewOrExistingCaseChoice(newOrExisting: NewOrExistingCase) =
       Transition {
         case ChooseNewOrExistingCase(_, a, b, c, d, continue) =>
           newOrExisting match {
@@ -354,7 +354,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
       }
 
-    final def backToEnterDeclarationDetails(user: String) =
+    final val backToEnterDeclarationDetails =
       Transition {
         case s: ExportQuestionsState =>
           goto(
@@ -378,7 +378,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(EnterDeclarationDetails())
       }
 
-    final def submittedDeclarationDetails(user: String)(declarationDetails: DeclarationDetails) =
+    final def submittedDeclarationDetails(declarationDetails: DeclarationDetails) =
       Transition {
         case EnterDeclarationDetails(_, exportQuestionsOpt, importQuestionsOpt, fileUploadsOpt) =>
           if (declarationDetails.isExportDeclaration)
@@ -403,26 +403,26 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
       }
 
-    final def backToAnswerExportQuestionsRequestType(user: String) =
+    final val backToAnswerExportQuestionsRequestType =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.requestType.isDefined =>
           goto(AnswerExportQuestionsRequestType(s.model))
       }
 
-    final def submittedExportQuestionsAnswerRequestType(user: String)(exportRequestType: ExportRequestType) =
+    final def submittedExportQuestionsAnswerRequestType(exportRequestType: ExportRequestType) =
       Transition {
         case AnswerExportQuestionsRequestType(model) =>
           val updatedExportQuestions = model.exportQuestionsAnswers.copy(requestType = Some(exportRequestType))
           gotoSummaryIfCompleteOr(AnswerExportQuestionsRouteType(model.updated(updatedExportQuestions)))
       }
 
-    final def backToAnswerExportQuestionsRouteType(user: String) =
+    final val backToAnswerExportQuestionsRouteType =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.routeType.isDefined =>
           goto(AnswerExportQuestionsRouteType(s.model))
       }
 
-    final def submittedExportQuestionsAnswerRouteType(user: String)(exportRouteType: ExportRouteType) =
+    final def submittedExportQuestionsAnswerRouteType(exportRouteType: ExportRouteType) =
       Transition {
         case AnswerExportQuestionsRouteType(model) =>
           gotoSummaryIfCompleteOr(
@@ -432,13 +432,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerExportQuestionsHasPriorityGoods(user: String) =
+    final val backToAnswerExportQuestionsHasPriorityGoods =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.hasPriorityGoods.isDefined =>
           goto(AnswerExportQuestionsHasPriorityGoods(s.model))
       }
 
-    final def submittedExportQuestionsAnswerHasPriorityGoods(user: String)(exportHasPriorityGoods: Boolean) =
+    final def submittedExportQuestionsAnswerHasPriorityGoods(exportHasPriorityGoods: Boolean) =
       Transition {
         case AnswerExportQuestionsHasPriorityGoods(model) =>
           if (exportHasPriorityGoods)
@@ -457,13 +457,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
       }
 
-    final def backToAnswerExportQuestionsWhichPriorityGoods(user: String) =
+    final val backToAnswerExportQuestionsWhichPriorityGoods =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.priorityGoods.isDefined =>
           goto(AnswerExportQuestionsWhichPriorityGoods(s.model))
       }
 
-    final def submittedExportQuestionsAnswerWhichPriorityGoods(user: String)(exportPriorityGoods: ExportPriorityGoods) =
+    final def submittedExportQuestionsAnswerWhichPriorityGoods(exportPriorityGoods: ExportPriorityGoods) =
       Transition {
         case AnswerExportQuestionsWhichPriorityGoods(model) =>
           gotoSummaryIfCompleteOr(
@@ -473,13 +473,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerExportQuestionsFreightType(user: String) =
+    final val backToAnswerExportQuestionsFreightType =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.freightType.isDefined =>
           goto(AnswerExportQuestionsFreightType(s.model))
       }
 
-    final def submittedExportQuestionsAnswerFreightType(user: String)(exportFreightType: ExportFreightType) =
+    final def submittedExportQuestionsAnswerFreightType(exportFreightType: ExportFreightType) =
       Transition {
         case AnswerExportQuestionsFreightType(model) =>
           val updatedExportQuestions = model.exportQuestionsAnswers.copy(freightType = Some(exportFreightType))
@@ -489,13 +489,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             gotoSummaryIfCompleteOr(AnswerExportQuestionsOptionalVesselInfo(model.updated(updatedExportQuestions)))
       }
 
-    final def backToAnswerExportQuestionsMandatoryVesselInfo(user: String) =
+    final val backToAnswerExportQuestionsMandatoryVesselInfo =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.vesselDetails.isDefined =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
       }
 
-    final def submittedExportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
+    final def submittedExportQuestionsMandatoryVesselDetails(vesselDetails: VesselDetails) =
       Transition {
         case AnswerExportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           gotoSummaryIfCompleteOr(
@@ -505,7 +505,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerExportQuestionsOptionalVesselInfo(user: String) =
+    final val backToAnswerExportQuestionsOptionalVesselInfo =
       Transition {
         case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.exportQuestionsAnswers) =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
@@ -513,7 +513,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
       }
 
-    final def submittedExportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
+    final def submittedExportQuestionsOptionalVesselDetails(vesselDetails: VesselDetails) =
       Transition {
         case AnswerExportQuestionsOptionalVesselInfo(model) =>
           gotoSummaryIfCompleteOr(
@@ -525,7 +525,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerExportQuestionsContactInfo(user: String) =
+    final val backToAnswerExportQuestionsContactInfo =
       Transition {
         case s: ExportQuestionsState if s.model.exportQuestionsAnswers.contactInfo.isDefined =>
           goto(AnswerExportQuestionsContactInfo(s.model))
@@ -550,7 +550,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedExportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ExportContactInfo)(implicit ec: ExecutionContext) =
+    )(
+      upscanInitiate: UpscanInitiateApi
+    )(contactInfo: ExportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
         case AnswerExportQuestionsContactInfo(model) =>
           gotoSummaryIfCompleteOrApplyTransition(
@@ -559,15 +561,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           )(
             if (uploadMultipleFiles)
-              FileUploadTransitions
-                .toUploadMultipleFiles(user)
+              FileUploadTransitions.toUploadMultipleFiles
             else
-              FileUploadTransitions
-                .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
+              FileUploadTransitions.initiateFileUpload(upscanRequest)(upscanInitiate)
           )
       }
 
-    final def backFromFileUpload(user: String) =
+    final val backFromFileUpload =
       Transition {
         case s: FileUploadState =>
           s.hostData.questionsAnswers match {
@@ -587,26 +587,26 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
       }
 
-    final def backToAnswerImportQuestionsRequestType(user: String) =
+    final val backToAnswerImportQuestionsRequestType =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.requestType.isDefined =>
           goto(AnswerImportQuestionsRequestType(s.model))
       }
 
-    final def submittedImportQuestionsAnswersRequestType(user: String)(importRequestType: ImportRequestType) =
+    final def submittedImportQuestionsAnswersRequestType(importRequestType: ImportRequestType) =
       Transition {
         case AnswerImportQuestionsRequestType(model) =>
           val updatedImportQuestions = model.importQuestionsAnswers.copy(requestType = Some(importRequestType))
           gotoSummaryIfCompleteOr(AnswerImportQuestionsRouteType(model.updated(updatedImportQuestions)))
       }
 
-    final def backToAnswerImportQuestionsRouteType(user: String) =
+    final val backToAnswerImportQuestionsRouteType =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.routeType.isDefined =>
           goto(AnswerImportQuestionsRouteType(s.model))
       }
 
-    final def submittedImportQuestionsAnswerRouteType(user: String)(importRouteType: ImportRouteType) =
+    final def submittedImportQuestionsAnswerRouteType(importRouteType: ImportRouteType) =
       Transition {
         case AnswerImportQuestionsRouteType(model) =>
           gotoSummaryIfCompleteOr(
@@ -616,13 +616,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerImportQuestionsHasPriorityGoods(user: String) =
+    final val backToAnswerImportQuestionsHasPriorityGoods =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.hasPriorityGoods.isDefined =>
           goto(AnswerImportQuestionsHasPriorityGoods(s.model))
       }
 
-    final def submittedImportQuestionsAnswerHasPriorityGoods(user: String)(importHasPriorityGoods: Boolean) =
+    final def submittedImportQuestionsAnswerHasPriorityGoods(importHasPriorityGoods: Boolean) =
       Transition {
         case AnswerImportQuestionsHasPriorityGoods(model) =>
           if (importHasPriorityGoods)
@@ -639,13 +639,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
       }
 
-    final def backToAnswerImportQuestionsWhichPriorityGoods(user: String) =
+    final val backToAnswerImportQuestionsWhichPriorityGoods =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.priorityGoods.isDefined =>
           goto(AnswerImportQuestionsWhichPriorityGoods(s.model))
       }
 
-    final def submittedImportQuestionsAnswerWhichPriorityGoods(user: String)(importPriorityGoods: ImportPriorityGoods) =
+    final def submittedImportQuestionsAnswerWhichPriorityGoods(importPriorityGoods: ImportPriorityGoods) =
       Transition {
         case AnswerImportQuestionsWhichPriorityGoods(model) =>
           gotoSummaryIfCompleteOr(
@@ -655,13 +655,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerImportQuestionsALVS(user: String) =
+    final val backToAnswerImportQuestionsALVS =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.hasALVS.isDefined =>
           goto(AnswerImportQuestionsALVS(s.model))
       }
 
-    final def submittedImportQuestionsAnswerHasALVS(user: String)(importHasALVS: Boolean) =
+    final def submittedImportQuestionsAnswerHasALVS(importHasALVS: Boolean) =
       Transition {
         case AnswerImportQuestionsALVS(model) =>
           gotoSummaryIfCompleteOr(
@@ -671,13 +671,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerImportQuestionsFreightType(user: String) =
+    final val backToAnswerImportQuestionsFreightType =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.freightType.isDefined =>
           goto(AnswerImportQuestionsFreightType(s.model))
       }
 
-    final def submittedImportQuestionsAnswerFreightType(user: String)(importFreightType: ImportFreightType) =
+    final def submittedImportQuestionsAnswerFreightType(importFreightType: ImportFreightType) =
       Transition {
         case AnswerImportQuestionsFreightType(model) =>
           val updatedImportQuestions = model.importQuestionsAnswers.copy(freightType = Some(importFreightType))
@@ -687,13 +687,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             gotoSummaryIfCompleteOr(AnswerImportQuestionsOptionalVesselInfo(model.updated(updatedImportQuestions)))
       }
 
-    final def backToAnswerImportQuestionsMandatoryVesselInfo(user: String) =
+    final val backToAnswerImportQuestionsMandatoryVesselInfo =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.vesselDetails.isDefined =>
           goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
       }
 
-    final def submittedImportQuestionsMandatoryVesselDetails(user: String)(vesselDetails: VesselDetails) =
+    final def submittedImportQuestionsMandatoryVesselDetails(vesselDetails: VesselDetails) =
       Transition {
         case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           gotoSummaryIfCompleteOr(
@@ -707,7 +707,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerImportQuestionsOptionalVesselInfo(user: String) =
+    final val backToAnswerImportQuestionsOptionalVesselInfo =
       Transition {
         case s: ImportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.importQuestionsAnswers) =>
           goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
@@ -715,7 +715,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(AnswerImportQuestionsOptionalVesselInfo(s.model))
       }
 
-    final def submittedImportQuestionsOptionalVesselDetails(user: String)(vesselDetails: VesselDetails) =
+    final def submittedImportQuestionsOptionalVesselDetails(vesselDetails: VesselDetails) =
       Transition {
         case AnswerImportQuestionsOptionalVesselInfo(model) =>
           gotoSummaryIfCompleteOr(
@@ -727,7 +727,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           )
       }
 
-    final def backToAnswerImportQuestionsContactInfo(user: String) =
+    final val backToAnswerImportQuestionsContactInfo =
       Transition {
         case s: ImportQuestionsState if s.model.importQuestionsAnswers.contactInfo.isDefined =>
           goto(AnswerImportQuestionsContactInfo(s.model))
@@ -752,7 +752,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submittedImportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: String)(contactInfo: ImportContactInfo)(implicit ec: ExecutionContext) =
+    )(
+      upscanInitiate: UpscanInitiateApi
+    )(contactInfo: ImportContactInfo)(implicit ec: ExecutionContext) =
       Transition {
         case AnswerImportQuestionsContactInfo(model) =>
           gotoSummaryIfCompleteOrApplyTransition(
@@ -761,15 +763,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           )(
             if (uploadMultipleFiles)
-              FileUploadTransitions
-                .toUploadMultipleFiles(user)
+              FileUploadTransitions.toUploadMultipleFiles
             else
-              FileUploadTransitions
-                .initiateFileUpload(upscanRequest)(upscanInitiate)(user)
+              FileUploadTransitions.initiateFileUpload(upscanRequest)(upscanInitiate)
           )
       }
 
-    final def toSummary(eori: String) =
+    final val toSummary =
       Transition {
         case state: FileUploadState =>
           state.hostData.questionsAnswers match {
@@ -800,7 +800,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
-    final def createCase(createCaseApi: CreateCaseApi)(eori: String)(implicit ec: ExecutionContext) = {
+    final def createCase(createCaseApi: CreateCaseApi)(eori: Option[String])(implicit ec: ExecutionContext) = {
 
       def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
         createCaseApi(request).flatMap { response =>

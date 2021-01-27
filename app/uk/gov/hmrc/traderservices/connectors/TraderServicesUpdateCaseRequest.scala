@@ -25,7 +25,7 @@ case class TraderServicesUpdateCaseRequest(
   typeOfAmendment: TypeOfAmendment,
   responseText: Option[String] = None,
   uploadedFiles: Seq[UploadedFile],
-  eori: String
+  eori: Option[String]
 )
 
 object TraderServicesUpdateCaseRequest {

@@ -10,10 +10,10 @@ import java.time.LocalDateTime
 trait TraderServicesApiStubs {
   me: WireMockSupport =>
 
+  lazy val generatedAt = LocalDateTime.of(2020, 2, 29, 15, 29, 28)
+
   def validRequestOfCreateCaseApi(): String =
     requestBodyOfCreateCaseApi
-
-  lazy val generatedAt = LocalDateTime.of(2020, 2, 29, 15, 29, 28)
 
   val requestBodyOfCreateCaseApi: String =
     s"""{
@@ -21,6 +21,13 @@ trait TraderServicesApiStubs {
        |"questionsAnswers":{},
        |"uploadedFiles":[{}],
        |"eori":"GB123456789012345"
+       |}""".stripMargin
+
+  def validRequestOfCreateCaseApiWithoutEori(): String =
+    s"""{
+       |"declarationDetails":{},
+       |"questionsAnswers":{},
+       |"uploadedFiles":[{}]
        |}""".stripMargin
 
   def caseApiSuccessResponseBody(caseReferenceNumber: String = "A1234567890"): String =
@@ -43,6 +50,9 @@ trait TraderServicesApiStubs {
 
   def givenCreateCaseApiRequestSucceeds(): StubMapping =
     givenCreateCaseApiStub(200, validRequestOfCreateCaseApi(), caseApiSuccessResponseBody())
+
+  def givenCreateCaseApiRequestSucceedsWithoutEori(): StubMapping =
+    givenCreateCaseApiStub(200, validRequestOfCreateCaseApiWithoutEori(), caseApiSuccessResponseBody())
 
   def givenAnExternalServiceError(): StubMapping =
     givenCreateCaseApiErrorStub(500, validRequestOfCreateCaseApi())
