@@ -79,6 +79,7 @@ class CreateCaseJourneyController @Inject() (
 
   /** Base authorized action builder */
   final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
+  final val whenAuthorisedAsUserWithEori = actions.whenAuthorisedWithRetrievals(AsUser)
 
   /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
@@ -231,7 +232,7 @@ class CreateCaseJourneyController @Inject() (
   final val showExportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ExportQuestionsSummary]
-      .orApply(_ => Transitions.toSummary)
+      .orApply(Transitions.toSummary)
 
   // ----------------------- IMPORT QUESTIONS -----------------------
 
@@ -356,7 +357,7 @@ class CreateCaseJourneyController @Inject() (
   final val showImportQuestionsSummary: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ImportQuestionsSummary]
-      .orApply(_ => Transitions.toSummary)
+      .orApply(Transitions.toSummary)
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -410,13 +411,13 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/upload-files
   final val showUploadMultipleFiles: Action[AnyContent] =
     whenAuthorisedAsUser
-      .apply(_ => FileUploadTransitions.toUploadMultipleFiles)
+      .apply(FileUploadTransitions.toUploadMultipleFiles)
       .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
 
   // PUT /new/upload-files/initialise/:uploadId
   final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request => _ =>
+      .applyWithRequest { implicit request =>
         FileUploadTransitions
           .initiateNextFileUpload(uploadId)(upscanRequestWhenUploadingMultipleFiles)(
             upscanInitiateConnector.initiate(_)
@@ -427,7 +428,7 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/file-upload
   final val showFileUpload: Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request => _ =>
+      .applyWithRequest { implicit request =>
         FileUploadTransitions
           .initiateFileUpload(upscanRequest)(upscanInitiateConnector.initiate(_))
       }
@@ -437,7 +438,7 @@ class CreateCaseJourneyController @Inject() (
   final val markFileUploadAsRejected: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
-      .apply(_ => FileUploadTransitions.markUploadAsRejected)
+      .apply(FileUploadTransitions.markUploadAsRejected)
 
   // GET /new/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
@@ -450,7 +451,7 @@ class CreateCaseJourneyController @Inject() (
   final val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
       .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
-      .orApplyOnTimeout(_ => _ => FileUploadTransitions.waitForFileVerification)
+      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
       .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
   // GET /new/journey/:journeyId/file-verification
@@ -473,7 +474,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
-      .parseJson[UpscanNotification]
+      .parseJson[UpscanNotification]()
       .apply(FileUploadTransitions.upscanCallbackArrived)
       .transform { case _ => NoContent }
       .recover {
@@ -485,13 +486,13 @@ class CreateCaseJourneyController @Inject() (
   final val showFileUploaded: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[FileUploadState.FileUploaded]
-      .orApply(_ => FileUploadTransitions.backToFileUploaded)
+      .orApply(FileUploadTransitions.backToFileUploaded)
 
   // POST /new/file-uploaded
   final val submitUploadAnotherFileChoice: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm[Boolean](UploadAnotherFileChoiceForm)
-      .applyWithRequest { implicit request => _ =>
+      .applyWithRequest { implicit request =>
         FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
           Transitions.toSummary
         ) _
@@ -500,7 +501,7 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/file-uploaded/:reference/remove
   final def removeFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request => _ =>
+      .applyWithRequest { implicit request =>
         FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
         )
@@ -509,7 +510,7 @@ class CreateCaseJourneyController @Inject() (
   // PUT /new/file-uploaded/:reference/remove
   final def removeFileUploadByReferenceAsync(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
-      .applyWithRequest { implicit request => _ =>
+      .applyWithRequest { implicit request =>
         FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
           upscanInitiateConnector.initiate(_)
         )
@@ -530,7 +531,7 @@ class CreateCaseJourneyController @Inject() (
 
   // POST /new/create-case
   final def createCase: Action[AnyContent] =
-    whenAuthorisedAsUser
+    whenAuthorisedAsUserWithEori
       .applyWithRequest { implicit request => eoriOpt =>
         Transitions.createCase(traderServicesApiConnector.createCase(_))(eoriOpt)
       }

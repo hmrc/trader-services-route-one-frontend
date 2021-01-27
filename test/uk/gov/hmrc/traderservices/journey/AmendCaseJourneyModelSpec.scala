@@ -44,17 +44,17 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
   "AmendCaseJourneyModel" when {
     "at state Start" should {
       "go to Start when start" in {
-        given(Start) when start(eoriNumber) should thenGo(Start)
+        given(Start) when start should thenGo(Start)
       }
 
       "go to EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
-        given(Start) when enterCaseReferenceNumber(eoriNumber) should thenGo(EnterCaseReferenceNumber())
+        given(Start) when enterCaseReferenceNumber should thenGo(EnterCaseReferenceNumber())
       }
     }
 
     "at state EnterCaseReferenceNumber" should {
       "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
-        given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber(eoriNumber) should thenGo(
+        given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber()
         )
       }
@@ -63,15 +63,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         val model = AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         given(
           EnterCaseReferenceNumber(model)
-        ) when enterCaseReferenceNumber(
-          eoriNumber
-        ) should thenGo(
+        ) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber(model)
         )
       }
 
       "go to SelectTypeOfAmendment when submited case reference number" in {
-        given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(eoriNumber)(
+        given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(
           "PC12010081330XGBNZJO04"
         ) should thenGo(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
@@ -83,7 +81,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to EnterResponseText when submited type of amendment WriteResponse" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.WriteResponse
         ) should thenGo(
           EnterResponseText(
@@ -98,7 +96,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to EnterResponseText when submited type of amendment WriteResponseAndUploadDocuments" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
         ) should thenGo(
           EnterResponseText(
@@ -113,7 +111,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to UploadMultipleFiles when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched on" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.UploadDocuments
         ) should thenGo(
           UploadMultipleFiles(
@@ -129,7 +127,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "go to UploadFile when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched off" in {
         given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
-        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.UploadDocuments
         ) should thenGo(
           UploadFile(
@@ -158,7 +156,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         val model = AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         given(
           SelectTypeOfAmendment(model)
-        ) when enterCaseReferenceNumber(eoriNumber) should thenGo(
+        ) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber(model)
         )
       }
@@ -174,7 +172,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           EnterResponseText(model)
-        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
         ) should thenGo(AmendCaseSummary(model.copy(responseText = Some(responseText))))
       }
@@ -188,7 +186,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
-        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
         ) should thenGo(
           EnterCaseReferenceNumber(
@@ -210,7 +208,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = None
             )
           )
-        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
         ) should thenGo(
           SelectTypeOfAmendment(
@@ -232,7 +230,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
             )
           )
-        ) when submitedResponseText(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
         ) should thenGo(
           UploadMultipleFiles(
@@ -255,7 +253,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
             )
           )
-        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(eoriNumber)(
+        ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
         ) should thenGo(
           UploadFile(
@@ -291,8 +289,6 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
         ) shouldFailWhen submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           responseText
         )
       }
@@ -304,7 +300,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           EnterResponseText(model)
-        ) when backToSelectTypeOfAmendment(eoriNumber) should thenGo(
+        ) when backToSelectTypeOfAmendment should thenGo(
           SelectTypeOfAmendment(model)
         )
       }
@@ -316,7 +312,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           SelectTypeOfAmendment(model)
-        ) shouldFailWhen backToSelectTypeOfAmendment(eoriNumber)
+        ) shouldFailWhen backToSelectTypeOfAmendment
       }
     }
 

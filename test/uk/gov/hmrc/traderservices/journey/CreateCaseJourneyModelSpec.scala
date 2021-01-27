@@ -44,19 +44,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
   "CreateCaseJourneyModel" when {
     "at state Start" should {
       "stay at Start when start" in {
-        given(Start) when start(eoriNumber) should thenGo(Start)
+        given(Start) when start should thenGo(Start)
       }
 
       "go to clean ChooseNewOrExistingCase" in {
-        given(Start) when chooseNewOrExistingCase(eoriNumber) should thenGo(ChooseNewOrExistingCase())
+        given(Start) when chooseNewOrExistingCase should thenGo(ChooseNewOrExistingCase())
       }
 
       "fail when enterDeclarationDetails" in {
-        given(Start) shouldFailWhen backToEnterDeclarationDetails(eoriNumber)
+        given(Start) shouldFailWhen backToEnterDeclarationDetails
       }
 
       "fail if any other transition requested" in {
-        given(Start) shouldFailWhen submittedDeclarationDetails(eoriNumber)(
+        given(Start) shouldFailWhen submittedDeclarationDetails(
           exportDeclarationDetails
         )
       }
@@ -64,7 +64,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
     "at state ChooseNewOrExistingCase" should {
       "go to clean EnterDeclarationDetails when selected New and no former answers" in {
-        given(ChooseNewOrExistingCase()) when submittedNewOrExistingCaseChoice(eoriNumber)(
+        given(ChooseNewOrExistingCase()) when submittedNewOrExistingCaseChoice(
           NewOrExistingCase.New
         ) should thenGo(EnterDeclarationDetails())
       }
@@ -76,7 +76,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when submittedNewOrExistingCaseChoice(eoriNumber)(
+        ) when submittedNewOrExistingCaseChoice(
           NewOrExistingCase.New
         ) should thenGo(
           EnterDeclarationDetails(
@@ -89,16 +89,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "go to TurnToAmendCaseJourney when selected Existing and shouldn't continue" in {
         given(ChooseNewOrExistingCase(continueAmendCaseJourney = false)) when submittedNewOrExistingCaseChoice(
-          eoriNumber
-        )(
           NewOrExistingCase.Existing
         ) should thenGo(TurnToAmendCaseJourney(continueAmendCaseJourney = false))
       }
 
       "go to TurnToAmendCaseJourney when selected Existing and must continue" in {
         given(ChooseNewOrExistingCase(continueAmendCaseJourney = true)) when submittedNewOrExistingCaseChoice(
-          eoriNumber
-        )(
           NewOrExistingCase.Existing
         ) should thenGo(TurnToAmendCaseJourney(continueAmendCaseJourney = true))
       }
@@ -109,23 +105,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             declarationDetailsOpt = Some(importDeclarationDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers)
           )
-        ) when start(eoriNumber) should thenGo(Start)
+        ) when start should thenGo(Start)
       }
     }
 
     "at state TurnToAmendCaseJourney" should {
       "go back to ChooseNewOrExistingCase and reset continue flag" in {
-        given(TurnToAmendCaseJourney(continueAmendCaseJourney = false)) when chooseNewOrExistingCase(
-          eoriNumber
-        ) should thenGo(
+        given(TurnToAmendCaseJourney(continueAmendCaseJourney = false)) when chooseNewOrExistingCase should thenGo(
           ChooseNewOrExistingCase(Some(NewOrExistingCase.Existing))
         )
       }
 
       "go back to ChooseNewOrExistingCase" in {
-        given(TurnToAmendCaseJourney(continueAmendCaseJourney = true)) when chooseNewOrExistingCase(
-          eoriNumber
-        ) should thenGo(
+        given(TurnToAmendCaseJourney(continueAmendCaseJourney = true)) when chooseNewOrExistingCase should thenGo(
           ChooseNewOrExistingCase(Some(NewOrExistingCase.Existing))
         )
       }
@@ -133,7 +125,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
     "at state EnterDeclarationDetails" should {
       "go to AnswerExportQuestionsRequestType when submitted declaration details for export" in {
-        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
+        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(
           exportDeclarationDetails
         ) should thenGo(
           AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
@@ -147,7 +139,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when submittedDeclarationDetails(eoriNumber)(
+        ) when submittedDeclarationDetails(
           exportDeclarationDetails
         ) should thenGo(
           ExportQuestionsSummary(
@@ -161,7 +153,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "go to AnswerImportQuestionsRequestType when submitted declaration details for import" in {
-        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(eoriNumber)(
+        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(
           importDeclarationDetails
         ) should thenGo(
           AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
@@ -175,7 +167,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when submittedDeclarationDetails(eoriNumber)(
+        ) when submittedDeclarationDetails(
           importDeclarationDetails
         ) should thenGo(
           ImportQuestionsSummary(
@@ -195,7 +187,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when chooseNewOrExistingCase(eoriNumber) should thenGo(
+        ) when chooseNewOrExistingCase should thenGo(
           ChooseNewOrExistingCase(
             newOrExistingCaseOpt = Some(NewOrExistingCase.New),
             declarationDetailsOpt = Some(importDeclarationDetails),
@@ -212,7 +204,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         s"go to AnswerExportQuestionsRouteType when submitted request type ${ExportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
-          ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerRequestType(
             requestType
           ) should thenGo(
             AnswerExportQuestionsRouteType(
@@ -230,7 +222,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerRequestType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerRequestType(
             requestType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -256,7 +248,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(requestType = Some(ExportRequestType.New))
               )
             )
-          ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerRouteType(
             routeType
           ) should thenGo(
             AnswerExportQuestionsHasPriorityGoods(
@@ -277,7 +269,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerRouteType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerRouteType(
             routeType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -302,7 +294,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
             )
           )
-        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -323,7 +315,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
             )
           )
-        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(false) should thenGo(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -344,7 +336,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(exportDeclarationDetails, answers)
           )
-        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -361,7 +353,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(exportDeclarationDetails, answers)
           )
-        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -378,7 +370,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(exportDeclarationDetails, answers, Some(nonEmptyFileUploads))
           )
-        ) when submittedExportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -401,7 +393,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
               )
             )
-          ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+          ) when submittedExportQuestionsAnswerWhichPriorityGoods(
             priorityGood
           ) should thenGo(
             AnswerExportQuestionsFreightType(
@@ -426,7 +418,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+          ) when submittedExportQuestionsAnswerWhichPriorityGoods(
             priorityGood
           ) should thenGo(
             ExportQuestionsSummary(
@@ -460,7 +452,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             AnswerExportQuestionsOptionalVesselInfo(
@@ -488,7 +480,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -520,7 +512,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
@@ -548,7 +540,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -580,7 +572,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
@@ -611,7 +603,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedExportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -645,7 +637,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
+        ) when submittedExportQuestionsMandatoryVesselDetails(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
@@ -675,7 +667,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+        ) when submittedExportQuestionsMandatoryVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -700,7 +692,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsMandatoryVesselDetails(eoriNumber)(
+          ) when submittedExportQuestionsMandatoryVesselDetails(
             VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), None)
           )
         }
@@ -721,7 +713,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedExportQuestionsOptionalVesselDetails(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
@@ -751,7 +743,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+        given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo should thenGo(
           answerMandatoryVesselInfo
         )
       }
@@ -767,7 +759,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+        ) when submittedExportQuestionsOptionalVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -791,7 +783,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedExportQuestionsOptionalVesselDetails(
           VesselDetails()
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
@@ -819,7 +811,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedExportQuestionsOptionalVesselDetails(eoriNumber)(vesselDetails) should thenGo(
+        ) when submittedExportQuestionsOptionalVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportDeclarationDetails,
@@ -863,8 +855,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedExportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadFile(
@@ -920,8 +910,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedExportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           FileUploaded(
@@ -974,8 +962,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedExportQuestionsContactInfo(uploadMultipleFiles = true)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ExportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadMultipleFiles(
@@ -1002,7 +988,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         s"go to AnswerImportQuestionsRequestType when submitted request type ${ImportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
-          ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+          ) when submittedImportQuestionsAnswersRequestType(
             requestType
           ) should thenGo(
             AnswerImportQuestionsRouteType(
@@ -1020,7 +1006,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswersRequestType(eoriNumber)(
+          ) when submittedImportQuestionsAnswersRequestType(
             requestType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1047,7 +1033,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ImportQuestions(requestType = Some(ImportRequestType.New))
               )
             )
-          ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerRouteType(
             routeType
           ) should thenGo(
             AnswerImportQuestionsHasPriorityGoods(
@@ -1068,7 +1054,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerRouteType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerRouteType(
             routeType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1093,7 +1079,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
-        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1114,7 +1100,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
-        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(false) should thenGo(
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(false) should thenGo(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1134,7 +1120,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(importDeclarationDetails, answers)
           )
-        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1151,7 +1137,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(importDeclarationDetails, answers)
           )
-        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1168,7 +1154,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(importDeclarationDetails, answers, Some(nonEmptyFileUploads))
           )
-        ) when submittedImportQuestionsAnswerHasPriorityGoods(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1190,7 +1176,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
               )
             )
-          ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+          ) when submittedImportQuestionsAnswerWhichPriorityGoods(
             priorityGoods
           ) should thenGo(
             AnswerImportQuestionsALVS(
@@ -1214,7 +1200,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerWhichPriorityGoods(eoriNumber)(
+          ) when submittedImportQuestionsAnswerWhichPriorityGoods(
             priorityGoods
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1238,7 +1224,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
-        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasALVS(true) should thenGo(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1261,7 +1247,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(true) should thenGo(
+        ) when submittedImportQuestionsAnswerHasALVS(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1280,7 +1266,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
-        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
+        ) when submittedImportQuestionsAnswerHasALVS(false) should thenGo(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1303,7 +1289,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedImportQuestionsAnswerHasALVS(eoriNumber)(false) should thenGo(
+        ) when submittedImportQuestionsAnswerHasALVS(false) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importDeclarationDetails,
@@ -1327,7 +1313,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo(eoriNumber) should thenGo(
+        given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo should thenGo(
           answerMandatoryVesselInfo
         )
       }
@@ -1352,7 +1338,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             AnswerImportQuestionsOptionalVesselInfo(
@@ -1380,7 +1366,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1413,7 +1399,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             AnswerImportQuestionsMandatoryVesselInfo(
@@ -1441,7 +1427,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(eoriNumber)(
+          ) when submittedImportQuestionsAnswerFreightType(
             freightType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1475,7 +1461,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedImportQuestionsOptionalVesselDetails(
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
@@ -1505,7 +1491,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedImportQuestionsOptionalVesselDetails(
           vesselDetails
         ) should thenGo(
           ImportQuestionsSummary(
@@ -1531,7 +1517,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedImportQuestionsOptionalVesselDetails(
           VesselDetails()
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
@@ -1559,7 +1545,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               Some(nonEmptyFileUploads)
             )
           )
-        ) when submittedImportQuestionsOptionalVesselDetails(eoriNumber)(
+        ) when submittedImportQuestionsOptionalVesselDetails(
           vesselDetails
         ) should thenGo(
           ImportQuestionsSummary(
@@ -1605,8 +1591,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedImportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadFile(
@@ -1662,8 +1646,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedImportQuestionsContactInfo(uploadMultipleFiles = false)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           FileUploaded(
@@ -1715,8 +1697,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when submittedImportQuestionsContactInfo(uploadMultipleFiles = true)(upscanRequest)(mockUpscanInitiate)(
-          eoriNumber
-        )(
           ImportContactInfo(contactEmail = "name@somewhere.com")
         ) should thenGo(
           UploadMultipleFiles(
@@ -3457,7 +3437,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ),
             TraderServicesResult("A1234567890", generatedAt)
           )
-        ) when start(eoriNumber) should thenGo(Start)
+        ) when start should thenGo(Start)
       }
 
       "go to clean EnterDeclarationDetails when going back" in {
@@ -3477,7 +3457,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ),
             TraderServicesResult("A1234567890", generatedAt)
           )
-        ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
+        ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
       }
     }
 
@@ -3485,13 +3465,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to Start when start" in {
         given(
           CaseAlreadyExists("A1234567890")
-        ) when start(eoriNumber) should thenGo(Start)
+        ) when start should thenGo(Start)
       }
 
       "go to clean EnterDeclarationDetails when going back" in {
         given(
           CaseAlreadyExists("A1234567890")
-        ) when backToEnterDeclarationDetails(eoriNumber) should thenGo(EnterDeclarationDetails())
+        ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
       }
     }
   }

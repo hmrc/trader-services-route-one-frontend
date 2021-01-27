@@ -68,12 +68,12 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     import State._
 
-    final def start(user: Option[String]) =
+    final val start =
       Transition {
         case _ => goto(Start)
       }
 
-    final def enterCaseReferenceNumber(user: Option[String]) =
+    final val enterCaseReferenceNumber =
       Transition {
         case s: AmendCaseState =>
           goto(EnterCaseReferenceNumber(s.model))
@@ -82,13 +82,13 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(EnterCaseReferenceNumber())
       }
 
-    final def submitedCaseReferenceNumber(user: Option[String])(caseReferenceNumber: String) =
+    final def submitedCaseReferenceNumber(caseReferenceNumber: String) =
       Transition {
         case EnterCaseReferenceNumber(model) =>
           goto(SelectTypeOfAmendment(model.copy(caseReferenceNumber = Some(caseReferenceNumber))))
       }
 
-    final def backToSelectTypeOfAmendment(user: Option[String]) =
+    final val backToSelectTypeOfAmendment =
       Transition {
         case s: AmendCaseState if s.model.typeOfAmendment.isDefined =>
           goto(SelectTypeOfAmendment(s.model))
@@ -101,7 +101,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       upscanRequest: UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(user: Option[String])(typeOfAmendment: TypeOfAmendment)(implicit ec: ExecutionContext) =
+    )(typeOfAmendment: TypeOfAmendment)(implicit ec: ExecutionContext) =
       Transition {
         case current @ SelectTypeOfAmendment(model) =>
           val updatedModel = model.copy(typeOfAmendment = Some(typeOfAmendment))
@@ -127,7 +127,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
       }
 
-    final def backToEnterResponseText(user: Option[String]) =
+    final val backToEnterResponseText =
       Transition {
         case s: AmendCaseState if s.model.responseText.isDefined =>
           goto(EnterResponseText(s.model))
@@ -166,7 +166,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submitedResponseText(uploadMultipleFiles: Boolean)(
       upscanRequest: UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(user: Option[String])(responseText: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(responseText: String)(implicit ec: ExecutionContext) =
       Transition {
         case current @ EnterResponseText(model)
             if model.hasTypeOfAmendment(
@@ -176,7 +176,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           val updatedModel = model.copy(responseText = Some(responseText))
           if (model.typeOfAmendment.contains(TypeOfAmendment.WriteResponse))
             gotoSummaryIfCompleteOrApplyTransition(EnterResponseText(updatedModel))(
-              Transitions.enterCaseReferenceNumber(user)
+              Transitions.enterCaseReferenceNumber
             )
           else if (uploadMultipleFiles)
             FileUploadTransitions.toUploadMultipleFiles
@@ -194,7 +194,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           goto(SelectTypeOfAmendment(model.copy(responseText = Some(responseText))))
       }
 
-    final def backFromFileUpload =
+    final val backFromFileUpload =
       Transition {
         case s: FileUploadState =>
           val model = s.hostData.copy(fileUploads = Some(s.fileUploads))
