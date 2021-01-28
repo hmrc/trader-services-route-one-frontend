@@ -3,6 +3,7 @@ import {KeyValue} from '../interfaces/key-value.interface';
 import parseTemplate from '../utils/parse-template.util';
 import parseHtml from '../utils/parse-html.util';
 import toggleElement from '../utils/toggle-element.util';
+import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO provision upload when row is created, not when upload is initiated
@@ -10,6 +11,15 @@ TODO add "Removing..." state (replace Remove button? - to be discussed with desi
 TODO on page load, always show one extra empty row after the list of already uploaded files, unless no more files can be uploaded (to be discussed with design)
 TODO on page load, any already-uploaded files need a remove button, even if there's only one item
 TODO when removing a row, abort the XHR in progress, if there is one
+TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
+TODO hide previous error when new upload starts
+TODO prevent submitting the form when uploads are still in progress
+TODO show an error to upload at least one file when the user tries to submit without uploading anything
+TODO add error handling for all async calls
+TODO add no-JS fallback
+TODO notify screen reader users that file has been uploaded / removed
+TODO improve overall accessibility
+TODO clean up code
  */
 export class MultiFileUpload extends Component {
   private config;
@@ -19,6 +29,7 @@ export class MultiFileUpload extends Component {
   private itemTpl: string;
   private itemList: HTMLUListElement;
   private lastFileIndex = 0;
+  private readonly errorManager;
 
   constructor(form: HTMLFormElement) {
     super(form);
@@ -30,7 +41,8 @@ export class MultiFileUpload extends Component {
       retryDelayMs: parseInt(form.dataset.fileUploadRetryDelayMs, 10) || 1000,
       sendUrlTpl: decodeURIComponent(form.dataset.multiFileUploadSendUrlTpl),
       statusUrlTpl: decodeURIComponent(form.dataset.multiFileUploadStatusUrlTpl),
-      removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl)
+      removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl),
+      genericErrorMessage: 'The file could not be uploaded'
     };
 
     this.classes = {
@@ -47,6 +59,8 @@ export class MultiFileUpload extends Component {
       progressBar: 'multi-file-upload__progress-bar'
     };
 
+    this.errorManager = new ErrorManager();
+
     this.cacheElements();
     this.cacheTemplates();
     this.bindEvents();
@@ -62,12 +76,8 @@ export class MultiFileUpload extends Component {
   private cacheTemplates(): void {
     this.itemTpl = `      
       <li class="multi-file-upload__item">
-        <div class="multi-file-upload__item-inner">
+        <div class="govuk-form-group">
           <label class="govuk-label" for="file-{fileIndex}">Document <span class="multi-file-upload__number">{fileNumber}</span></label>
-          <span id="contactEmail-error" class="govuk-error-message">
-             <span class="govuk-visually-hidden">Error:</span>
-             <span class="multi-file-upload__error-message"></span>
-          </span>
           <div class="multi-file-upload__item-content">
             <div class="multi-file-upload__file-container">
               <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}">
@@ -246,7 +256,7 @@ export class MultiFileUpload extends Component {
     })
       .then(response => response.json())
       .then(this.handleRequestUploadStatusCompleted.bind(this, fileRef))
-      .catch(this.delayedRequestUploadStatus.bind(this, fileRef));
+      .catch((response) => { console.log('error', response); });
   }
 
   private delayedRequestUploadStatus(fileRef: string): void {
@@ -259,23 +269,28 @@ export class MultiFileUpload extends Component {
     console.log('handleRequestUploadStatusCompleted', fileRef, response);
     const file = this.getFileByReference(fileRef);
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
+    let error: string;
 
     switch (response['fileStatus']) {
       case 'ACCEPTED':
         this.setItemStateClass(item, this.classes.uploaded);
         this.updateUploadProgress(item, 100);
+        this.errorManager.removeError(file.id);
         break;
 
       case 'FAILED':
       case 'REJECTED':
       case 'DUPLICATE':
+      case 'NOT_UPLOADED':
         this.setItemStateClass(item, '');
-        console.log('Error', response);
-        // display error message
+        console.log('Error', response, file);
+        error = response['errorMessage'] || this.config.genericErrorMessage;
+        this.errorManager.addError(error, file.id);
         break;
 
       case 'WAITING':
       default:
+        this.errorManager.removeError(file.id);
         this.delayedRequestUploadStatus(fileRef);
         break;
     }
