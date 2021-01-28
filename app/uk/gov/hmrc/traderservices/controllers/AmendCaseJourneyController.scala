@@ -239,7 +239,7 @@ class AmendCaseJourneyController @Inject() (
   final val showWaitingForFileVerification: Action[AnyContent] =
     whenAuthorisedAsUser
       .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
-      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
+      .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
       .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
 
   // GET /add/journey/:journeyId/file-verification
@@ -249,7 +249,7 @@ class AmendCaseJourneyController @Inject() (
         INITIAL_CALLBACK_WAIT_TIME_SECONDS,
         implicit request => acknowledgeFileUploadRedirect
       )
-      .orApplyOnTimeout(_ => FileUploadTransitions.waitForFileVerification)
+      .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // GET /add/journey/:journeyId/file-posted
@@ -262,12 +262,11 @@ class AmendCaseJourneyController @Inject() (
   // POST /add/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
     actions
-      .parseJson[UpscanNotification]()
+      .parseJsonWithFallback[UpscanNotification](BadRequest)
       .apply(FileUploadTransitions.upscanCallbackArrived)
       .transform { case _ => NoContent }
       .recover {
-        case e: IllegalArgumentException => BadRequest
-        case e                           => InternalServerError
+        case e => InternalServerError
       }
 
   // GET /add/file-uploaded
