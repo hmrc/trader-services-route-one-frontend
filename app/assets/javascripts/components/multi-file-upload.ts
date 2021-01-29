@@ -12,6 +12,7 @@ TODO prevent upload when file field is empty (to reproduce: cause any error, the
 TODO hide previous error when new upload starts
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
+TODO i18n
 TODO add no-JS fallback
 TODO notify screen reader users that file has been uploaded / removed
 TODO make sure the form is fully responsive
@@ -34,6 +35,7 @@ export class MultiFileUpload extends Component {
     this.config = {
       minFiles: parseInt(form.dataset.multiFileUploadMinFiles) || 1,
       maxFiles: parseInt(form.dataset.multiFileUploadMaxFiles) || 10,
+      acceptedFileTypes: form.dataset.multiFileUploadAcceptedFileTypes,
       uploadedFiles: JSON.parse(form.dataset.multiFileUploadUploadedFiles) || [],
       retryDelayMs: parseInt(form.dataset.fileUploadRetryDelayMs, 10) || 1000,
       actionUrl: form.action,
@@ -80,7 +82,7 @@ export class MultiFileUpload extends Component {
           <label class="govuk-label" for="file-{fileIndex}">Document <span class="multi-file-upload__number">{fileNumber}</span></label>
           <div class="multi-file-upload__item-content">
             <div class="multi-file-upload__file-container">
-              <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}">
+              <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}" accept="${this.config.acceptedFileTypes}">
               <span class="multi-file-upload__file-name"></span>
             </div>
 
