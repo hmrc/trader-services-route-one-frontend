@@ -63,9 +63,9 @@ export default class ErrorManager {
     this.errorSummaryList = this.errorSummary.querySelector(`.${this.classes.errorSummaryList}`);
   }
 
-  public addError(message: string, inputId: string): void {
-    const errorMessage = this.addErrorToField(message, inputId);
-    const errorSummaryRow = this.addErrorToSummary(message, inputId);
+  public addError(inputId: string, message: string): void {
+    const errorMessage = this.addErrorToField(inputId, message);
+    const errorSummaryRow = this.addErrorToSummary(inputId, message);
 
     this.removeError(inputId);
 
@@ -96,7 +96,7 @@ export default class ErrorManager {
     this.updateErrorSummaryVisibility();
   }
 
-  private addErrorToField(message: string, inputId: string): HTMLElement {
+  private addErrorToField(inputId: string, message: string): HTMLElement {
     const input = document.getElementById(inputId);
     const inputContainer = this.getContainer(input);
     const label = this.getLabel(inputContainer);
@@ -112,7 +112,7 @@ export default class ErrorManager {
     return errorMessage;
   }
 
-  private addErrorToSummary(message: string, inputId: string): HTMLElement {
+  private addErrorToSummary(inputId: string, message: string): HTMLElement {
     const summaryRow = parseHtml(this.errorSummaryItemTpl, {
       inputId: inputId,
       errorMessage: message

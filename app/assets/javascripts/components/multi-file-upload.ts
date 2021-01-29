@@ -10,8 +10,7 @@ TODO provision upload when row is created, not when upload is initiated
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
 TODO hide previous error when new upload starts
-TODO prevent submitting the form when uploads are still in progress
-TODO show an error to upload at least one file when the user tries to submit without uploading anything
+TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
 TODO add no-JS fallback
 TODO notify screen reader users that file has been uploaded / removed
@@ -37,9 +36,11 @@ export class MultiFileUpload extends Component {
       maxFiles: parseInt(form.dataset.multiFileUploadMaxFiles) || 10,
       uploadedFiles: JSON.parse(form.dataset.multiFileUploadUploadedFiles) || [],
       retryDelayMs: parseInt(form.dataset.fileUploadRetryDelayMs, 10) || 1000,
+      actionUrl: form.action,
       sendUrlTpl: decodeURIComponent(form.dataset.multiFileUploadSendUrlTpl),
       statusUrlTpl: decodeURIComponent(form.dataset.multiFileUploadStatusUrlTpl),
       removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl),
+      noFilesUploadedErrorMessage: 'You need to upload at least one file',
       genericErrorMessage: 'The file could not be uploaded'
     };
 
@@ -106,6 +107,7 @@ export class MultiFileUpload extends Component {
     this.getItems().forEach(this.bindItemEvents.bind(this));
 
     this.addAnotherBtn.addEventListener('click', this.handleAddItem.bind(this));
+    this.container.addEventListener('submit', this.handleSubmit.bind(this));
   }
 
   private bindItemEvents(item: HTMLElement): void {
@@ -141,6 +143,18 @@ export class MultiFileUpload extends Component {
     }
     else if (rowCount < this.config.maxFiles) {
       this.addItem();
+    }
+  }
+
+  private handleSubmit(e: Event): void {
+    e.preventDefault();
+
+    if (this.container.querySelector(`.${this.classes.uploaded}`)) {
+      window.location.href = this.config.actionUrl;
+    }
+    else {
+      const firstFileInput = this.itemList.querySelector(`.${this.classes.file}`);
+      this.errorManager.addError(firstFileInput.id, this.config.noFilesUploadedErrorMessage);
     }
   }
 
@@ -294,7 +308,7 @@ export class MultiFileUpload extends Component {
         this.setItemStateClass(item, '');
         console.log('Error', response, file);
         error = response['errorMessage'] || this.config.genericErrorMessage;
-        this.errorManager.addError(error, file.id);
+        this.errorManager.addError(file.id, error);
         break;
 
       case 'WAITING':
@@ -331,8 +345,6 @@ export class MultiFileUpload extends Component {
   private toggleRemoveButtons(state: boolean): void {
     this.getItems().forEach(item => {
       const button = item.querySelector(`.${this.classes.remove}`) as HTMLElement;
-
-      console.log('toggleElement', button, state);
 
       if (this.isUploaded(item)) {
         state = true;
