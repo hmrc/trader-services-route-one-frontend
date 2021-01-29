@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO provision upload when row is created, not when upload is initiated
-TODO add "Removing..." state (replace Remove button? - to be discussed with design)
 TODO on page load, always show one extra empty row after the list of already uploaded files, unless no more files can be uploaded (to be discussed with design)
 TODO on page load, any already-uploaded files need a remove button, even if there's only one item
 TODO when removing a row, abort the XHR in progress, if there is one
@@ -18,6 +17,7 @@ TODO show an error to upload at least one file when the user tries to submit wit
 TODO add error handling for all async calls
 TODO add no-JS fallback
 TODO notify screen reader users that file has been uploaded / removed
+TODO make sure the form is fully responsive
 TODO improve overall accessibility
 TODO clean up code
  */
@@ -50,6 +50,7 @@ export class MultiFileUpload extends Component {
       item: 'multi-file-upload__item',
       uploading: 'multi-file-upload__item--uploading',
       uploaded: 'multi-file-upload__item--uploaded',
+      removing: 'multi-file-upload__item--removing',
       file: 'multi-file-upload__file',
       fileName: 'multi-file-upload__file-name',
       remove: 'multi-file-upload__remove-item',
@@ -96,6 +97,7 @@ export class MultiFileUpload extends Component {
                 Remove
                 <span class="govuk-visually-hidden">document <span class="multi-file-upload__number">{fileNumber}</span></span>
               </button>
+              <span class="multi-file-upload__removing">Removing...</span>
             </div>
           </div>
         </div>
@@ -146,33 +148,6 @@ export class MultiFileUpload extends Component {
     file.focus();
   }
 
-  private handleRemoveItem(e: Event): void {
-    const target = e.target as HTMLElement;
-    const item = target.closest(`.${this.classes.item}`) as HTMLLIElement;
-    const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
-
-    if (!this.isUploaded(item)) {
-      item.remove();
-
-      this.updateFileNumbers();
-      this.updateButtonVisibility();
-
-      return;
-    }
-
-    fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
-      method: 'PUT'
-    })
-      .then(response => {
-        console.log(response);
-
-        item.remove();
-
-        this.updateFileNumbers();
-        this.updateButtonVisibility();
-      });
-  }
-
   private addItem(): HTMLLIElement {
     const time = new Date().getTime();
     const item = parseHtml(this.itemTpl, {
@@ -186,6 +161,31 @@ export class MultiFileUpload extends Component {
     this.updateButtonVisibility();
 
     return item;
+  }
+
+  private handleRemoveItem(e: Event): void {
+    const target = e.target as HTMLElement;
+    const item = target.closest(`.${this.classes.item}`) as HTMLLIElement;
+    const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
+
+    if (!this.isUploaded(item)) {
+      this.removeItem(item);
+
+      return;
+    }
+
+    this.setItemStateClass(item, this.classes.removing);
+
+    fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
+      method: 'PUT'
+    })
+      .then(this.removeItem.bind(this, item));
+  }
+
+  private removeItem(item: HTMLElement): void {
+    item.remove();
+    this.updateFileNumbers();
+    this.updateButtonVisibility();
   }
 
   private handleFileChange(e: Event): void {
@@ -212,6 +212,7 @@ export class MultiFileUpload extends Component {
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
 
     this.setItemStateClass(item, this.classes.uploading);
+
     item.querySelector(`.${this.classes.fileName}`).textContent = file.value.split(/([\\/])/g).pop();
 
     console.log('uploadFile', fileRef, response);
@@ -359,7 +360,7 @@ export class MultiFileUpload extends Component {
   }
 
   private setItemStateClass(item: HTMLLIElement, className: string): void {
-    item.classList.remove(this.classes.uploading, this.classes.uploaded);
+    item.classList.remove(this.classes.uploading, this.classes.uploaded, this.classes.removing);
 
     if (className) {
       item.classList.add(className);

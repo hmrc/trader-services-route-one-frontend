@@ -72,6 +72,12 @@
   visibility: hidden;
 }
 
+.multi-file-upload__removing {
+  display: none;
+  font-size: 19px;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
 .multi-file-upload__item--uploading {
   .multi-file-upload__file {
     display: none;
@@ -99,12 +105,26 @@
     display: inline-block;
   }
 
-  .multi-file-upload__progress {
+  .multi-file-upload__tag {
+    visibility: visible;
+  }
+}
+
+.multi-file-upload__item--removing {
+  .multi-file-upload__file {
     display: none;
   }
 
-  .multi-file-upload__tag {
-    visibility: visible;
+  .multi-file-upload__file-name {
+    display: inline-block;
+  }
+
+  .multi-file-upload__remove-item {
+    display: none;
+  }
+
+  .multi-file-upload__removing {
+    display: inline-block;
   }
 }
 
