@@ -139,7 +139,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           )
 
         case state: FileUploadState =>
-          goto(UploadMultipleFiles(state.hostData, state.fileUploads))
+          goto(UploadMultipleFiles(state.hostData, state.fileUploads.filterOutInitiated))
 
       }
 
