@@ -53,8 +53,7 @@
 
   @html.h2(messages("view.import-questions.summary.files-uploaded.heading")) 
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,
-    CreateCaseJourneyController.showFileUploaded))  
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,backLink))  
 
   @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
     @html.button("form.import-questions.summary.continue")
