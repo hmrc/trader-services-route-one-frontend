@@ -29,7 +29,15 @@
         context: UploadFileViewContext
 )
 
-@(maxFileUploadsNumber: Int, initialFileUploads: Seq[FileUpload], initiateNextFileUpload: String => Call, checkFileVerificationStatus: String => Call, removeFile: String => Call, previewFile: String => Call, continueAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(maxFileUploadsNumber: Int, 
+  initialFileUploads: Seq[FileUpload], 
+  initiateNextFileUpload: String => Call, 
+  checkFileVerificationStatus: String => Call, 
+  removeFile: String => Call, 
+  previewFile: String => Call, 
+  markFileRejected: Call,
+  continueAction: Call, 
+  backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.upload-multiple-files.title"),
@@ -50,15 +58,19 @@
    * 
    * + checkFileVerificationStatus - a function accepting upscan reference and returning a call to frontend service,
    *                                 GET request to this call will return either 404 or 200 with JSON status, i.e. one of: 
-   *         - {"fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}
-   *         - {"fileStatus":"POSTED"}
-   *         - {"fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}
-   *         - {"fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}
-   *         - {"fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}
-   *         - {"fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}
+   *         - {"reference":"$reference$","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}
+   *         - {"reference":"$reference$","fileStatus":"POSTED"}
+   *         - {"reference":"$reference$","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}
+   *         - {"reference":"$reference$","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}
+   *         - {"reference":"$reference$","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}
+   *         - {"reference":"$reference$","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}
    *
    * + removeFile - a function accepting upscan reference and returning a call to frontend service,
    *                PUT request to this call will remove specified file upload and return 204
+   *
+   * + markFileRejected - a call to reject a file in a special case S3 upload fails without failure redirect, 
+   *                      expected payload:
+   *                      {"key":"$reference$","errorCode":"EntityTooLarge","errorMessage":""}
    * 
    * + continueAction - a call to proceed next (i.e. to the check-your-answers page)
    *@
@@ -81,12 +93,16 @@
     @html.p{ @messages("view.upload-file.help.line4") }
   }
 
-  <form action="@continueAction" class="multi-file-upload"
+  <form 
+    action="@continueAction" 
+    class="multi-file-upload"
     data-multi-file-upload-max-files="@maxFileUploadsNumber"
     data-multi-file-upload-send-url-tpl="@initiateNextFileUpload("{fileId}")"
     data-multi-file-upload-status-url-tpl="@checkFileVerificationStatus("{fileRef}")"
     data-multi-file-upload-remove-url-tpl="@removeFile("{fileRef}")"
-    data-multi-file-upload-uploaded-files="@context.initialScriptStateFrom(initialFileUploads, previewFile)">
+    data-multi-file-upload-uploaded-files="@context.initialScriptStateFrom(initialFileUploads, previewFile)"
+    data-multi-file-upload-mark-rejected-url-tpl="@markFileRejected"
+  >
     <ul class="multi-file-upload__item-list">
       <li class="multi-file-upload__item">
         <label class="govuk-label" for="file-1">Document <span class="multi-file-upload__number">1</span></label>

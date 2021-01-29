@@ -232,7 +232,14 @@ class AmendCaseJourneyController @Inject() (
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
 
-  // GET /add/journey/:journeyId/file-rejected-async
+  // PUT /new/file-rejected
+  final val markFileUploadAsRejectedAsync: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(UpscanUploadErrorForm)
+      .apply(FileUploadTransitions.markUploadAsRejected)
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+
+  // GET /add/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
@@ -429,6 +436,7 @@ class AmendCaseJourneyController @Inject() (
             checkFileVerificationStatus = controller.checkFileVerificationStatus,
             removeFile = controller.removeFileUploadByReferenceAsync,
             previewFile = controller.previewFileUploadByReference,
+            markFileRejected = controller.markFileUploadAsRejectedAsync,
             continueAction = controller.amendCase,
             backLink = backLinkFromFileUpload(model)
           )
