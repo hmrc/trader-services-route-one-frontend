@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO provision upload when row is created, not when upload is initiated
-TODO on page load, any already-uploaded files need a remove button, even if there's only one item
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
 TODO hide previous error when new upload starts
@@ -190,6 +189,10 @@ export class MultiFileUpload extends Component {
     item.remove();
     this.updateFileNumbers();
     this.updateButtonVisibility();
+
+    if (this.getItems().length === 0) {
+      this.addItem();
+    }
   }
 
   private handleFileChange(e: Event): void {
@@ -280,6 +283,7 @@ export class MultiFileUpload extends Component {
       case 'ACCEPTED':
         this.setItemStateClass(item, this.classes.uploaded);
         this.updateUploadProgress(item, 100);
+        this.updateButtonVisibility();
         this.errorManager.removeError(file.id);
         break;
 
@@ -316,8 +320,8 @@ export class MultiFileUpload extends Component {
   private updateButtonVisibility(): void {
     const itemCount = this.getItems().length;
 
-    this.toggleRemoveButtons(itemCount <= this.config.minFiles);
-    this.toggleAddButton(itemCount >= this.config.maxFiles);
+    this.toggleRemoveButtons(itemCount > this.config.minFiles);
+    this.toggleAddButton(itemCount < this.config.maxFiles);
   }
 
   private updateUploadProgress(item, value): void {
@@ -325,9 +329,16 @@ export class MultiFileUpload extends Component {
   }
 
   private toggleRemoveButtons(state: boolean): void {
-    Array.from(this.itemList.querySelectorAll(`.${this.classes.remove}`)).forEach(button => {
-      button.classList.toggle(this.classes.hidden, state);
-      toggleElement(button as HTMLElement, state);
+    this.getItems().forEach(item => {
+      const button = item.querySelector(`.${this.classes.remove}`) as HTMLElement;
+
+      console.log('toggleElement', button, state);
+
+      if (this.isUploaded(item)) {
+        state = true;
+      }
+
+      toggleElement(button, state);
     });
   }
 
