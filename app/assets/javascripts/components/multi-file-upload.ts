@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO provision upload when row is created, not when upload is initiated
-TODO on page load, always show one extra empty row after the list of already uploaded files, unless no more files can be uploaded (to be discussed with design)
 TODO on page load, any already-uploaded files need a remove button, even if there's only one item
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
@@ -136,7 +135,12 @@ export class MultiFileUpload extends Component {
       rowCount++;
     });
 
-    for (let a = rowCount; a < this.config.minFiles; a++) {
+    if (rowCount === 0) {
+      for (let a = rowCount; a < this.config.minFiles; a++) {
+        this.addItem();
+      }
+    }
+    else if (rowCount < this.config.maxFiles) {
       this.addItem();
     }
   }
