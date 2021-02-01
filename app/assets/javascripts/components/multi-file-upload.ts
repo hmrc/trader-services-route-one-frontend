@@ -9,7 +9,6 @@ import ErrorManager from '../tools/error-manager.tool';
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
-TODO provision new upload on error
 TODO i18n
 TODO make sure the form is fully responsive
 TODO notify screen reader users that file has been uploaded / removed
@@ -339,8 +338,9 @@ export class MultiFileUpload extends Component {
       case 'REJECTED':
       case 'DUPLICATE':
       case 'NOT_UPLOADED':
-        this.setItemStateClass(item, '');
         console.log('Error', response, file);
+        this.provisionUpload(file);
+        this.setItemStateClass(item, '');
         error = response['errorMessage'] || this.config.genericErrorMessage;
         this.errorManager.addError(file.id, error);
         break;
