@@ -9,7 +9,7 @@ import ErrorManager from '../tools/error-manager.tool';
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
-TODO add msg when user reaches max files
+TODO provision new upload on error
 TODO i18n
 TODO make sure the form is fully responsive
 TODO notify screen reader users that file has been uploaded / removed
@@ -22,6 +22,7 @@ export class MultiFileUpload extends Component {
   private classes: KeyValue;
   private submitBtn: HTMLInputElement;
   private addAnotherBtn: HTMLButtonElement;
+  private uploadMoreMessage: HTMLElement;
   private itemTpl: string;
   private itemList: HTMLUListElement;
   private lastFileIndex = 0;
@@ -56,7 +57,8 @@ export class MultiFileUpload extends Component {
       addAnother: 'multi-file-upload__add-another',
       submit: 'multi-file-upload__submit',
       fileNumber: 'multi-file-upload__number',
-      progressBar: 'multi-file-upload__progress-bar'
+      progressBar: 'multi-file-upload__progress-bar',
+      uploadMore: 'multi-file-upload__upload-more-message'
     };
 
     this.errorManager = new ErrorManager();
@@ -70,6 +72,7 @@ export class MultiFileUpload extends Component {
   private cacheElements(): void {
     this.itemList = this.container.querySelector(`.${this.classes.itemList}`);
     this.addAnotherBtn = this.container.querySelector(`.${this.classes.addAnother}`);
+    this.uploadMoreMessage = this.container.querySelector(`.${this.classes.uploadMore}`);
     this.submitBtn = this.container.querySelector(`.${this.classes.submitBtn}`);
   }
 
@@ -367,6 +370,7 @@ export class MultiFileUpload extends Component {
 
     this.toggleRemoveButtons(itemCount > this.config.minFiles);
     this.toggleAddButton(itemCount < this.config.maxFiles);
+    this.toggleUploadMoreMessage(itemCount === this.config.maxFiles);
   }
 
   private updateUploadProgress(item, value): void {
@@ -387,6 +391,10 @@ export class MultiFileUpload extends Component {
 
   private toggleAddButton(state: boolean): void {
     toggleElement(this.addAnotherBtn, state);
+  }
+
+  private toggleUploadMoreMessage(state: boolean): void {
+    toggleElement(this.uploadMoreMessage, state);
   }
 
   private getItems(): HTMLLIElement[] {

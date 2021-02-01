@@ -119,6 +119,11 @@
 
     <button type="button" class="multi-file-upload__add-another govuk-button govuk-button--secondary">Add another document</button>
 
+    @html.p(
+      content = Html(messages("view.upload-multiple-files.uploadMoreFilesThanLimit")),
+      classes="govuk-body multi-file-upload__upload-more-message hidden"
+    )
+
     <div>
       @html.button("form.upload-multiple-files.continue")
     </div>
