@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO when removing a row, abort the XHR in progress, if there is one
-TODO hide previous error when new upload starts
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
 TODO add msg when user reaches max files
@@ -267,6 +266,7 @@ export class MultiFileUpload extends Component {
     const data = this.uploadData[file.id];
 
     this.setItemStateClass(item, this.classes.uploading);
+    this.errorManager.removeError(file.id);
 
     item.querySelector(`.${this.classes.fileName}`).textContent = file.value.split(/([\\/])/g).pop();
 
