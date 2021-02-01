@@ -6,21 +6,21 @@ import toggleElement from '../utils/toggle-element.util';
 import ErrorManager from '../tools/error-manager.tool';
 
 /*
-TODO provision upload when row is created, not when upload is initiated
 TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
 TODO hide previous error when new upload starts
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
+TODO add msg when user reaches max files
 TODO i18n
-TODO add no-JS fallback
-TODO notify screen reader users that file has been uploaded / removed
 TODO make sure the form is fully responsive
+TODO notify screen reader users that file has been uploaded / removed
 TODO improve overall accessibility
 TODO clean up code
  */
 export class MultiFileUpload extends Component {
   private config;
+  private uploadData = {};
   private classes: KeyValue;
   private submitBtn: HTMLInputElement;
   private addAnotherBtn: HTMLButtonElement;
@@ -140,11 +140,11 @@ export class MultiFileUpload extends Component {
 
     if (rowCount === 0) {
       for (let a = rowCount; a < this.config.minFiles; a++) {
-        this.addItem();
+        this.addItemWithProvisioning();
       }
     }
     else if (rowCount < this.config.maxFiles) {
-      this.addItem();
+      this.addItemWithProvisioning();
     }
   }
 
@@ -161,7 +161,7 @@ export class MultiFileUpload extends Component {
   }
 
   private handleAddItem(): void {
-    const item = this.addItem();
+    const item = this.addItemWithProvisioning();
     const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
 
     file.focus();
@@ -178,6 +178,15 @@ export class MultiFileUpload extends Component {
     this.itemList.append(item);
 
     this.updateButtonVisibility();
+
+    return item;
+  }
+
+  private addItemWithProvisioning(): HTMLLIElement {
+    const item = this.addItem();
+    const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
+
+    this.provisionUpload(file);
 
     return item;
   }
@@ -211,38 +220,56 @@ export class MultiFileUpload extends Component {
     }
   }
 
-  private handleFileChange(e: Event): void {
-    this.provisionUpload(e.target as HTMLInputElement);
-  }
-
   private provisionUpload(file: HTMLInputElement): void {
-    fetch(this.getSendUrl(file.id), {
+    this.uploadData[file.id] = {};
+
+    this.uploadData[file.id].promise = fetch(this.getSendUrl(file.id), {
       method: 'PUT'
     })
       .then(response => response.json())
-      .then(this.uploadFile.bind(this, file))
+      .then(this.handleProvisionUploadCompleted.bind(this, file))
       .catch((e) => {
         // TODO implement error handling
         console.log(e);
       });
   }
 
-  private uploadFile(file: HTMLInputElement, response: unknown): void {
-    const formData = new FormData();
+  private handleProvisionUploadCompleted(file: HTMLInputElement, response: unknown): void {
+    console.log('handleProvisionUploadCompleted', response);
     const fields = response['uploadRequest']['fields'];
     const url = response['uploadRequest']['href'];
     const fileRef = response['upscanReference'];
+
+    file.dataset.multiFileUploadFileRef = fileRef;
+
+    this.uploadData[file.id].reference = fileRef;
+    this.uploadData[file.id].fields = fields;
+    this.uploadData[file.id].url = url;
+
+    console.log(this.uploadData);
+  }
+
+  private handleFileChange(e: Event): void {
+    const file = e.target as HTMLElement;
+
+    this.uploadData[file.id].promise.then(() => {
+      this.uploadFile(e.target as HTMLInputElement);
+    });
+  }
+
+  private uploadFile(file: HTMLInputElement): void {
+    const formData = new FormData();
+    const fileRef = file.dataset.multiFileUploadFileRef;
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
+    const data = this.uploadData[file.id];
 
     this.setItemStateClass(item, this.classes.uploading);
 
     item.querySelector(`.${this.classes.fileName}`).textContent = file.value.split(/([\\/])/g).pop();
 
-    console.log('uploadFile', fileRef, response);
+    console.log('uploadFile', file);
 
-    file.dataset.multiFileUploadFileRef = fileRef;
-
-    for (const [key, value] of Object.entries(fields)) {
+    for (const [key, value] of Object.entries(data.fields)) {
       formData.append(key, value as string);
     }
 
@@ -252,7 +279,7 @@ export class MultiFileUpload extends Component {
     xhr.upload.addEventListener('progress', this.handleUploadFileProgress.bind(this, item));
     xhr.addEventListener('loadend', this.handleUploadFileCompleted.bind(this, fileRef));
     xhr.addEventListener('error', this.handleUploadFileError.bind(this, fileRef));
-    xhr.open('POST', url);
+    xhr.open('POST', data.url);
     xhr.send(formData);
   }
 
@@ -269,7 +296,6 @@ export class MultiFileUpload extends Component {
 
   private handleUploadFileError(fileRef: string): void {
     console.log('handleUploadFileError', fileRef);
-    // window.location.href = this.config.failureUrl;
   }
 
   private requestUploadStatus(fileRef: string): void {
