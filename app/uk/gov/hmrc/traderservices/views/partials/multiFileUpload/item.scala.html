@@ -1,0 +1,43 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@(implicit messages: Messages)
+<li class="multi-file-upload__item">
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="file-{fileIndex}">@messages("view.upload-multiple-files.document") <span class="multi-file-upload__number">{fileNumber}</span></label>
+    <div class="multi-file-upload__item-content">
+      <div class="multi-file-upload__file-container">
+        <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}" accept="${this.config.acceptedFileTypes}">
+        <span class="multi-file-upload__file-name"></span>
+      </div>
+
+      <div class="multi-file-upload__meta-container">
+        <div class="multi-file-upload__status">
+          <span class="multi-file-upload__progress">
+            <span class="multi-file-upload__progress-bar"></span>
+          </span>
+          <span class="multi-file-upload__tag govuk-tag">@messages("view.upload-multiple-files.uploaded")</span>
+        </div>
+
+        <button type="button" class="multi-file-upload__remove-item govuk-link">
+          @messages("view.upload-multiple-files.remove")
+          <span class="govuk-visually-hidden">@messages("view.upload-multiple-files.document") <span class="multi-file-upload__number">{fileNumber}</span></span>
+        </button>
+        <span class="multi-file-upload__removing">@messages("view.upload-multiple-files.removing")</span>
+      </div>
+    </div>
+  </div>
+</li>

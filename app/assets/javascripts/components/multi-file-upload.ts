@@ -8,7 +8,6 @@ import ErrorManager from '../tools/error-manager.tool';
 /*
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
-TODO i18n
 TODO make sure the form is fully responsive
 TODO notify screen reader users that file has been uploaded / removed
 TODO improve overall accessibility
@@ -41,8 +40,8 @@ export class MultiFileUpload extends Component {
       sendUrlTpl: decodeURIComponent(form.dataset.multiFileUploadSendUrlTpl),
       statusUrlTpl: decodeURIComponent(form.dataset.multiFileUploadStatusUrlTpl),
       removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl),
-      noFilesUploadedErrorMessage: 'You need to upload at least one file',
-      genericErrorMessage: 'The file could not be uploaded'
+      noFilesUploadedErrorMessage: form.dataset.multiFileUploadErrorSelectFile,
+      genericErrorMessage: form.dataset.multiFileUploadErrorGeneric
     };
 
     this.classes = {
@@ -77,33 +76,7 @@ export class MultiFileUpload extends Component {
   }
 
   private cacheTemplates(): void {
-    this.itemTpl = `      
-      <li class="multi-file-upload__item">
-        <div class="govuk-form-group">
-          <label class="govuk-label" for="file-{fileIndex}">Document <span class="multi-file-upload__number">{fileNumber}</span></label>
-          <div class="multi-file-upload__item-content">
-            <div class="multi-file-upload__file-container">
-              <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}" accept="${this.config.acceptedFileTypes}">
-              <span class="multi-file-upload__file-name"></span>
-            </div>
-
-            <div class="multi-file-upload__meta-container">
-              <div class="multi-file-upload__status">
-                <span class="multi-file-upload__progress">
-                  <span class="multi-file-upload__progress-bar"></span>
-                </span>
-                <span class="multi-file-upload__tag govuk-tag">Uploaded</span>
-              </div>
-
-              <button type="button" class="multi-file-upload__remove-item govuk-link">
-                Remove
-                <span class="govuk-visually-hidden">document <span class="multi-file-upload__number">{fileNumber}</span></span>
-              </button>
-              <span class="multi-file-upload__removing">Removing...</span>
-            </div>
-          </div>
-        </div>
-      </li>`;
+    this.itemTpl = document.getElementById('multi-file-upload-item-tpl').textContent;
   }
 
   private bindEvents(): void {

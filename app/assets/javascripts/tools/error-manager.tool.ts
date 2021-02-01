@@ -2,9 +2,6 @@ import parseHtml from '../utils/parse-html.util';
 import {ErrorList} from '../interfaces/error-list.interface';
 import {KeyValue} from '../interfaces/key-value.interface';
 
-/*
-TODO use server-side-generated templates
-*/
 export default class ErrorManager {
   private classes: KeyValue;
   private errorSummaryTpl: string;
@@ -31,31 +28,9 @@ export default class ErrorManager {
   }
 
   private cacheTemplates(): void {
-    this.errorSummaryTpl = `
-    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
-      <h2 class="govuk-error-summary__title" id="error-summary-title">
-        There is a problem
-      </h2>
-      <div class="govuk-error-summary__body">
-        <ul class="govuk-list govuk-error-summary__list">
-
-        </ul>
-      </div>
-    </div>
-    `;
-
-    this.errorSummaryItemTpl = `
-      <li>
-        <a href="#{inputId}">{errorMessage}</a>
-      </li>
-    `;
-
-    this.errorMessageTpl = `
-      <span id="contactEmail-error" class="govuk-error-message">
-         <span class="govuk-visually-hidden">Error:</span>
-         <span class="multi-file-upload__error-message">{errorMessage}</span>
-      </span>
-    `;
+    this.errorSummaryTpl = document.getElementById('error-manager-summary-tpl').textContent;
+    this.errorSummaryItemTpl = document.getElementById('error-manager-summary-item-tpl').textContent;
+    this.errorMessageTpl = document.getElementById('error-manager-message-tpl').textContent;
   }
 
   private cacheElements(): void {

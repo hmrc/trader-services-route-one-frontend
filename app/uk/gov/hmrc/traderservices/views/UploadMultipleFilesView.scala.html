@@ -17,6 +17,8 @@
 @import uk.gov.hmrc.traderservices.models.{FileUploads,FileUpload,UploadRequest,FileUploadError}
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+@import uk.gov.hmrc.traderservices.views.html.partials.multiFileUpload
+@import uk.gov.hmrc.traderservices.views.html.partials.errorManager
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
@@ -93,8 +95,8 @@
     @html.p{ @messages("view.upload-file.help.line4") }
   }
 
-  <form 
-    action="@continueAction" 
+  <form
+    action="@continueAction"
     class="multi-file-upload"
     data-multi-file-upload-max-files="@maxFileUploadsNumber"
     data-multi-file-upload-send-url-tpl="@initiateNextFileUpload("{fileId}")"
@@ -103,19 +105,10 @@
     data-multi-file-upload-uploaded-files="@context.initialScriptStateFrom(initialFileUploads, previewFile)"
     data-multi-file-upload-mark-rejected-url-tpl="@markFileRejected"
     data-multi-file-upload-accepted-file-types="@appConfig.fileFormats.approvedFileExtensions"
+    data-multi-file-upload-error-generic="@messages("error.file-upload.unknown")"
+    data-multi-file-upload-error-select-file="@messages("error.file-upload.required")"
   >
-    <ul class="multi-file-upload__item-list">
-      <li class="multi-file-upload__item">
-        <label class="govuk-label" for="file-1">Document <span class="multi-file-upload__number">1</span></label>
-        <div class="multi-file-upload__item-content">
-          <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-1">
-          <button type="button" class="multi-file-upload__remove-item govuk-link">
-            Remove
-            <span class="govuk-visually-hidden">document <span class="multi-file-upload__number">1</span></span>
-          </button>
-        </div>
-      </li>
-    </ul>
+    <ul class="multi-file-upload__item-list"></ul>
 
     <button type="button" class="multi-file-upload__add-another govuk-button govuk-button--secondary">Add another document</button>
 
@@ -127,5 +120,10 @@
     <div>
       @html.button("form.upload-multiple-files.continue")
     </div>
+
+    <script type="text/x-template" id="multi-file-upload-item-tpl"> @multiFileUpload.item(messages) </script>
+    <script type="text/x-template" id="error-manager-summary-tpl"> @errorManager.summary(messages) </script>
+    <script type="text/x-template" id="error-manager-summary-item-tpl"> @errorManager.summaryItem(messages) </script>
+    <script type="text/x-template" id="error-manager-message-tpl"> @errorManager.message(messages) </script>
   </form>
 }
