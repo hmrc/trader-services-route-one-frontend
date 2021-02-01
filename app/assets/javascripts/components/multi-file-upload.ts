@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO when removing a row, abort the XHR in progress, if there is one
-TODO prevent upload when file field is empty (to reproduce: cause any error, then open file selector and click Cancel)
 TODO hide previous error when new upload starts
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
@@ -223,7 +222,7 @@ export class MultiFileUpload extends Component {
   private provisionUpload(file: HTMLInputElement): void {
     this.uploadData[file.id] = {};
 
-    this.uploadData[file.id].promise = fetch(this.getSendUrl(file.id), {
+    this.uploadData[file.id].provisionPromise = fetch(this.getSendUrl(file.id), {
       method: 'PUT'
     })
       .then(response => response.json())
@@ -250,10 +249,14 @@ export class MultiFileUpload extends Component {
   }
 
   private handleFileChange(e: Event): void {
-    const file = e.target as HTMLElement;
+    const file = e.target as HTMLInputElement;
 
-    this.uploadData[file.id].promise.then(() => {
-      this.uploadFile(e.target as HTMLInputElement);
+    if (!file.files.length) {
+      return;
+    }
+
+    this.uploadData[file.id].provisionPromise.then(() => {
+      this.uploadFile(file);
     });
   }
 
