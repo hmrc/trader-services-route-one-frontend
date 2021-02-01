@@ -26,6 +26,7 @@ case class TestAppConfig(
   override val contactFormServiceIdentifier: String = "dummy"
 
   override val exitSurveyUrl: String = wireMockBaseUrl + "/dummy-survey-url"
+  override val feedbackUrl: String = wireMockBaseUrl + "/dummy-feedback-url"
   override val signOutUrl: String = wireMockBaseUrl + "/dummy-sign-out-url"
   override val researchBannerUrl: String = wireMockBaseUrl + "dummy-research-banner-url"
   override val subscriptionJourneyUrl: String = wireMockBaseUrl + "/dummy-subscription-url"

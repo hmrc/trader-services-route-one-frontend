@@ -64,8 +64,7 @@ trait AppConfig {
   def requestUri(implicit request: RequestHeader): String =
     SafeRedirectUrl(baseExternalCallbackUrl + request.uri).encodedUrl
 
-  def feedbackUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
+  val feedbackUrl: String
 
   val signOutUrl: String
 
@@ -119,9 +118,12 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val contactHost: String = config.getString("contact-frontend.host")
   override val contactFormServiceIdentifier: String = config.getString("feedback-frontend.formIdentifier")
 
-  private val exitSurveyBaseUrl =
+  private val exitSurveyBaseUrl: String =
     config.getString("feedback-frontend.host") + config.getString("feedback-frontend.url")
   override val exitSurveyUrl = s"$exitSurveyBaseUrl/$contactFormServiceIdentifier"
+
+  override val feedbackUrl: String =
+    s"${config.getString("feedback-frontend.host") + config.getString("feedback-frontend.url")}/$contactFormServiceIdentifier"
 
   override val signOutUrl: String = config.getString("urls.signOut")
   override val researchBannerUrl: String = config.getString("urls.researchBanner")
