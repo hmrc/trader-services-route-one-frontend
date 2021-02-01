@@ -241,7 +241,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
         case current @ UploadMultipleFiles(hostData, fileUploads) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == error.key =>
+            case FileUpload(orderNumber, ref) if ref == error.key =>
               FileUpload.Rejected(orderNumber, ref, error)
             case u => u
           })
@@ -252,7 +252,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       Transition {
         case current @ UploadMultipleFiles(hostData, fileUploads) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(orderNumber, ref, _, _) if ref == receipt.key =>
+            case FileUpload(orderNumber, ref) if ref == receipt.key =>
               FileUpload.Posted(orderNumber, ref)
             case u => u
           })
@@ -380,11 +380,11 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     /** Transition when notification arrives from upscan. */
     final def upscanCallbackArrived(notification: UpscanNotification) = {
 
-      def updateFileUploads(fileUploads: FileUploads) =
+      def updateFileUploads(fileUploads: FileUploads, allowStatusOverwrite: Boolean) =
         fileUploads.copy(files = fileUploads.files.map {
           // update status of the file with matching upscan reference
           case fileUpload @ FileUpload(orderNumber, reference)
-              if !fileUpload.isReady && reference == notification.reference =>
+              if (allowStatusOverwrite || !fileUpload.isReady) && reference == notification.reference =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
                 //check for existing file uploads with duplicated checksum
@@ -431,7 +431,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               currentFileUpload,
               fileUploads
             ) =>
-          val updatedFileUploads = updateFileUploads(fileUploads)
+          val updatedFileUploads = updateFileUploads(fileUploads, allowStatusOverwrite = false)
           val currentUpload = updatedFileUploads.files.find(_.reference == reference)
           commonFileUploadStatusHandler(
             hostData,
@@ -443,7 +443,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             .apply(currentUpload)
 
         case current @ UploadFile(hostData, reference, uploadRequest, fileUploads, errorOpt) =>
-          val updatedFileUploads = updateFileUploads(fileUploads)
+          val updatedFileUploads = updateFileUploads(fileUploads, allowStatusOverwrite = false)
           val currentUpload = updatedFileUploads.files.find(_.reference == reference)
           commonFileUploadStatusHandler(
             hostData,
@@ -455,7 +455,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             .apply(currentUpload)
 
         case current @ UploadMultipleFiles(hostData, fileUploads) =>
-          val updatedFileUploads = updateFileUploads(fileUploads)
+          val updatedFileUploads = updateFileUploads(fileUploads, allowStatusOverwrite = true)
           goto(current.copy(fileUploads = updatedFileUploads))
       }
     }
