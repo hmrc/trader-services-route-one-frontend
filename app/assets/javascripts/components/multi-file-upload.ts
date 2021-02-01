@@ -6,18 +6,19 @@ import toggleElement from '../utils/toggle-element.util';
 import ErrorManager from '../tools/error-manager.tool';
 
 /*
-TODO when removing a row, abort the XHR in progress, if there is one
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
 TODO i18n
 TODO make sure the form is fully responsive
 TODO notify screen reader users that file has been uploaded / removed
 TODO improve overall accessibility
+TODO write specs
 TODO clean up code
  */
 export class MultiFileUpload extends Component {
   private config;
   private uploadData = {};
+  private uploadHandles = {};
   private classes: KeyValue;
   private submitBtn: HTMLInputElement;
   private addAnotherBtn: HTMLButtonElement;
@@ -196,13 +197,18 @@ export class MultiFileUpload extends Component {
     const item = target.closest(`.${this.classes.item}`) as HTMLLIElement;
     const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
 
-    if (!this.isUploaded(item)) {
+    if (!this.isUploading(item) && !this.isUploaded(item)) {
       this.removeItem(item);
 
       return;
     }
 
     this.setItemStateClass(item, this.classes.removing);
+
+    if (this.uploadHandles[file.id]) {
+      this.uploadHandles[file.id].abort();
+      delete this.uploadHandles[file.id];
+    }
 
     fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
       method: 'PUT'
@@ -281,8 +287,11 @@ export class MultiFileUpload extends Component {
     formData.append('file', file.files[0]);
 
     const xhr = new XMLHttpRequest();
+
+    this.uploadHandles[file.id] = xhr;
+
     xhr.upload.addEventListener('progress', this.handleUploadFileProgress.bind(this, item));
-    xhr.addEventListener('loadend', this.handleUploadFileCompleted.bind(this, fileRef));
+    xhr.addEventListener('load', this.handleUploadFileCompleted.bind(this, fileRef));
     xhr.addEventListener('error', this.handleUploadFileError.bind(this, fileRef));
     xhr.open('POST', data.url);
     xhr.send(formData);
@@ -381,7 +390,7 @@ export class MultiFileUpload extends Component {
     this.getItems().forEach(item => {
       const button = item.querySelector(`.${this.classes.remove}`) as HTMLElement;
 
-      if (this.isUploaded(item)) {
+      if (this.isUploading(item) || this.isUploaded(item)) {
         state = true;
       }
 
@@ -419,6 +428,10 @@ export class MultiFileUpload extends Component {
 
   private getFileByReference(fileRef: string): HTMLInputElement {
     return this.itemList.querySelector(`[data-multi-file-upload-file-ref="${fileRef}"]`);
+  }
+
+  private isUploading(item: HTMLLIElement): boolean {
+    return item.classList.contains(this.classes.uploading);
   }
 
   private isUploaded(item: HTMLLIElement): boolean {
