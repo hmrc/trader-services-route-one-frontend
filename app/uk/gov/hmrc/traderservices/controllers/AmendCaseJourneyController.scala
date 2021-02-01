@@ -560,7 +560,12 @@ class AmendCaseJourneyController @Inject() (
           case Some(file) =>
             Ok(
               Json.toJson(
-                FileVerificationStatus(file, uploadFileViewContext, controller.previewFileUploadByReference(_))
+                FileVerificationStatus(
+                  file,
+                  uploadFileViewContext,
+                  controller.previewFileUploadByReference(_),
+                  appConfig.fileFormats.maxFileSizeMb
+                )
               )
             )
           case None => NotFound

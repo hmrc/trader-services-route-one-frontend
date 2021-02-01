@@ -40,7 +40,9 @@ class UploadFileViewContext @Inject() (appConfig: AppConfig) {
   ): String =
     Json.stringify(
       Json.toJson(
-        initialFileUploads.map(file => FileVerificationStatus(file, this, previewFile))
+        initialFileUploads.map(file =>
+          FileVerificationStatus(file, this, previewFile, appConfig.fileFormats.maxFileSizeMb)
+        )
       )
     )
 
