@@ -443,6 +443,8 @@ view.upload-multiple-files.document=Document
 view.upload-multiple-files.remove=Remove
 view.upload-multiple-files.removing=Removing...
 view.upload-multiple-files.uploaded=Uploaded
+view.upload-multiple-files.documentUploaded=Document {0} has been uploaded
+view.upload-multiple-files.documentDeleted=Document {0} has been deleted
 
 view.upload-file.first.title=Upload your first document
 view.upload-file.first.heading=Upload your first document

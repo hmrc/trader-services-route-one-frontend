@@ -1,11 +1,11 @@
 import {KeyValue} from '../interfaces/key-value.interface';
 import parseTemplate from './parse-template.util';
 
-export default function parseHtml(html: string, model: KeyValue): HTMLElement {
-  html = parseTemplate(html, model);
+export default function parseHtml(string: string, model: KeyValue): HTMLElement {
+  string = parseTemplate(string, model);
 
   const dp = new DOMParser();
-  const doc = dp.parseFromString(html, 'text/html');
+  const doc = dp.parseFromString(string, 'text/html');
 
   return doc.body.firstChild as HTMLElement;
 }

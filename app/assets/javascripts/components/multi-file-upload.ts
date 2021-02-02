@@ -9,7 +9,6 @@ import ErrorManager from '../tools/error-manager.tool';
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
 TODO make sure the form is fully responsive
-TODO notify screen reader users that file has been uploaded / removed
 TODO improve overall accessibility
 TODO write specs
 TODO clean up code
@@ -18,10 +17,12 @@ export class MultiFileUpload extends Component {
   private config;
   private uploadData = {};
   private uploadHandles = {};
+  private messages: KeyValue;
   private classes: KeyValue;
   private submitBtn: HTMLInputElement;
   private addAnotherBtn: HTMLButtonElement;
   private uploadMoreMessage: HTMLElement;
+  private notifications: HTMLElement;
   private itemTpl: string;
   private itemList: HTMLUListElement;
   private lastFileIndex = 0;
@@ -39,9 +40,15 @@ export class MultiFileUpload extends Component {
       actionUrl: form.action,
       sendUrlTpl: decodeURIComponent(form.dataset.multiFileUploadSendUrlTpl),
       statusUrlTpl: decodeURIComponent(form.dataset.multiFileUploadStatusUrlTpl),
-      removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl),
-      noFilesUploadedErrorMessage: form.dataset.multiFileUploadErrorSelectFile,
-      genericErrorMessage: form.dataset.multiFileUploadErrorGeneric
+      removeUrlTpl: decodeURIComponent(form.dataset.multiFileUploadRemoveUrlTpl)
+
+    };
+
+    this.messages = {
+      noFilesUploadedError: form.dataset.multiFileUploadErrorSelectFile,
+      genericError: form.dataset.multiFileUploadErrorGeneric,
+      documentUploaded: form.dataset.multiFileUploadDocumentUploaded,
+      documentDeleted: form.dataset.multiFileUploadDocumentDeleted,
     };
 
     this.classes = {
@@ -57,7 +64,8 @@ export class MultiFileUpload extends Component {
       submit: 'multi-file-upload__submit',
       fileNumber: 'multi-file-upload__number',
       progressBar: 'multi-file-upload__progress-bar',
-      uploadMore: 'multi-file-upload__upload-more-message'
+      uploadMore: 'multi-file-upload__upload-more-message',
+      notifications: 'multi-file-upload__notifications'
     };
 
     this.errorManager = new ErrorManager();
@@ -73,6 +81,7 @@ export class MultiFileUpload extends Component {
     this.addAnotherBtn = this.container.querySelector(`.${this.classes.addAnother}`);
     this.uploadMoreMessage = this.container.querySelector(`.${this.classes.uploadMore}`);
     this.submitBtn = this.container.querySelector(`.${this.classes.submitBtn}`);
+    this.notifications = this.container.querySelector(`.${this.classes.notifications}`);
   }
 
   private cacheTemplates(): void {
@@ -130,7 +139,7 @@ export class MultiFileUpload extends Component {
     }
     else {
       const firstFileInput = this.itemList.querySelector(`.${this.classes.file}`);
-      this.errorManager.addError(firstFileInput.id, this.config.noFilesUploadedErrorMessage);
+      this.errorManager.addError(firstFileInput.id, this.messages.noFilesUploadedError);
     }
   }
 
@@ -186,6 +195,13 @@ export class MultiFileUpload extends Component {
     fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
       method: 'PUT'
     })
+      .then(() => {
+        const message = parseTemplate(this.messages.documentDeleted, {
+          fileName: this.getFileName(file)
+        });
+
+        this.addNotification(message);
+      })
       .then(this.removeItem.bind(this, item));
   }
 
@@ -249,7 +265,7 @@ export class MultiFileUpload extends Component {
     this.setItemStateClass(item, this.classes.uploading);
     this.errorManager.removeError(file.id);
 
-    item.querySelector(`.${this.classes.fileName}`).textContent = file.value.split(/([\\/])/g).pop();
+    item.querySelector(`.${this.classes.fileName}`).textContent = this.getFileName(file);
 
     console.log('uploadFile', file);
 
@@ -306,10 +322,17 @@ export class MultiFileUpload extends Component {
     console.log('handleRequestUploadStatusCompleted', fileRef, response);
     const file = this.getFileByReference(fileRef);
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
+    let message: string;
     let error: string;
 
     switch (response['fileStatus']) {
       case 'ACCEPTED':
+        message = parseTemplate(this.messages.documentUploaded, {
+          fileName: this.getFileName(file)
+        });
+
+        this.addNotification(message);
+
         this.setItemStateClass(item, this.classes.uploaded);
         this.updateUploadProgress(item, 100);
         this.updateButtonVisibility();
@@ -323,7 +346,7 @@ export class MultiFileUpload extends Component {
         console.log('Error', response, file);
         this.provisionUpload(file);
         this.setItemStateClass(item, '');
-        error = response['errorMessage'] || this.config.genericErrorMessage;
+        error = response['errorMessage'] || this.messages.genericError;
         this.errorManager.addError(file.id, error);
         break;
 
@@ -371,6 +394,13 @@ export class MultiFileUpload extends Component {
     });
   }
 
+  private addNotification(message: string): void {
+    const element = document.createElement('p');
+    element.textContent = message;
+
+    this.notifications.append(element);
+  }
+
   private toggleAddButton(state: boolean): void {
     toggleElement(this.addAnotherBtn, state);
   }
@@ -401,6 +431,21 @@ export class MultiFileUpload extends Component {
 
   private getFileByReference(fileRef: string): HTMLInputElement {
     return this.itemList.querySelector(`[data-multi-file-upload-file-ref="${fileRef}"]`);
+  }
+
+  private getFileName(file: HTMLInputElement): string {
+    const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
+    const fileName = item.querySelector(`.${this.classes.fileName}`).textContent.trim();
+
+    if (fileName.length) {
+      return fileName;
+    }
+
+    if (file.value.length) {
+      return file.value.split(/([\\/])/g).pop();
+    }
+
+    return null;
   }
 
   private isUploading(item: HTMLLIElement): boolean {
