@@ -13,38 +13,42 @@
 }
 
 .multi-file-upload__item-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @include govuk-media-query($from: tablet) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.multi-file-upload__file-container {
+  position: relative;
+  overflow: hidden;
 }
 
 .multi-file-upload__file {
   width: auto;
 }
 
-.multi-file-upload__remove-item {
-  margin-left: 10px;
-  color: 	#1d70b8;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  font-size: 19px;
-}
+.multi-file-upload__file-name {
+  display: none;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-family: "GDS Transport", arial, sans-serif;
 
-.multi-file-upload__remove-item:hover {
-  color: $govuk-link-hover-colour;
+  @include govuk-media-query($from: tablet) {
+    margin-bottom: 0;
+    font-size: 19px;
+  }
 }
 
 .multi-file-upload__meta-container {
   display: flex;
   justify-content: flex-end;
-}
+  flex-direction: row-reverse;
 
-.multi-file-upload__file-name {
-  font-size: 19px;
-  font-family: "GDS Transport", arial, sans-serif;
-  display: none;
+  @include govuk-media-query($from: tablet) {
+    flex-direction: row;
+  }
 }
 
 .multi-file-upload__status {
@@ -72,10 +76,35 @@
   visibility: hidden;
 }
 
+.multi-file-upload__remove-item {
+  margin-right: 15px;
+  padding: 0;
+  color: #1d70b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: underline;
+
+  @include govuk-media-query($from: tablet) {
+    margin-left: 15px;
+    margin-right: 0;
+    font-size: 19px;
+  }
+}
+
+.multi-file-upload__remove-item:hover {
+  color: $govuk-link-hover-colour;
+}
+
 .multi-file-upload__removing {
   display: none;
-  font-size: 19px;
+  font-size: 16px;
   font-family: "GDS Transport", arial, sans-serif;
+
+  @include govuk-media-query($from: tablet) {
+    font-size: 19px;
+  }
 }
 
 .multi-file-upload__item--uploading {
@@ -89,10 +118,6 @@
 
   .multi-file-upload__progress {
     display: inline-block;
-  }
-
-  .multi-file-upload__tag {
-    visibility: hidden;
   }
 }
 

@@ -8,7 +8,7 @@ import ErrorManager from '../tools/error-manager.tool';
 /*
 TODO prevent submitting the form when uploads / removals are still in progress
 TODO add error handling for all async calls
-TODO make sure the form is fully responsive
+TODO show uploading status as soon as file is selected
 TODO improve overall accessibility
 TODO write specs
 TODO clean up code
