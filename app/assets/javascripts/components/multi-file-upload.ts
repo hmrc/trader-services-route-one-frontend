@@ -34,7 +34,6 @@ export class MultiFileUpload extends Component {
     this.config = {
       minFiles: parseInt(form.dataset.multiFileUploadMinFiles) || 1,
       maxFiles: parseInt(form.dataset.multiFileUploadMaxFiles) || 10,
-      acceptedFileTypes: form.dataset.multiFileUploadAcceptedFileTypes,
       uploadedFiles: JSON.parse(form.dataset.multiFileUploadUploadedFiles) || [],
       retryDelayMs: parseInt(form.dataset.fileUploadRetryDelayMs, 10) || 1000,
       actionUrl: form.action,

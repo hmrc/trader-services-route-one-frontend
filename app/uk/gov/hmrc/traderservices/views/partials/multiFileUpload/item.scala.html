@@ -14,13 +14,13 @@
  * limitations under the License.
  *@
 
-@(implicit messages: Messages)
+@(acceptedFileExtensions: String)(implicit messages: Messages)
 <li class="multi-file-upload__item">
   <div class="govuk-form-group">
     <label class="govuk-label" for="file-{fileIndex}">@messages("view.upload-multiple-files.document") <span class="multi-file-upload__number">{fileNumber}</span></label>
     <div class="multi-file-upload__item-content">
       <div class="multi-file-upload__file-container">
-        <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}" accept="${this.config.acceptedFileTypes}">
+        <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}" accept="@acceptedFileExtensions">
         <span class="multi-file-upload__file-name"></span>
       </div>
 

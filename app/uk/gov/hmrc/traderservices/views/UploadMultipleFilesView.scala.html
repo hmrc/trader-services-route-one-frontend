@@ -104,7 +104,6 @@
     data-multi-file-upload-remove-url-tpl="@removeFile("{fileRef}")"
     data-multi-file-upload-uploaded-files="@context.initialScriptStateFrom(initialFileUploads, previewFile)"
     data-multi-file-upload-mark-rejected-url-tpl="@markFileRejected"
-    data-multi-file-upload-accepted-file-types="@appConfig.fileFormats.approvedFileExtensions"
     data-multi-file-upload-error-generic="@messages("error.file-upload.unknown")"
     data-multi-file-upload-error-select-file="@messages("error.file-upload.required")"
     data-multi-file-upload-document-uploaded="@messages("view.upload-multiple-files.documentUploaded", "{fileName}")"
@@ -125,7 +124,7 @@
 
     <div class="multi-file-upload__notifications govuk-visually-hidden" aria-live="polite"></div>
 
-    <script type="text/x-template" id="multi-file-upload-item-tpl"> @multiFileUpload.item(messages) </script>
+    <script type="text/x-template" id="multi-file-upload-item-tpl"> @multiFileUpload.item(appConfig.fileFormats.approvedFileExtensions) </script>
     <script type="text/x-template" id="error-manager-summary-tpl"> @errorManager.summary(messages) </script>
     <script type="text/x-template" id="error-manager-summary-item-tpl"> @errorManager.summaryItem(messages) </script>
     <script type="text/x-template" id="error-manager-message-tpl"> @errorManager.message(messages) </script>
