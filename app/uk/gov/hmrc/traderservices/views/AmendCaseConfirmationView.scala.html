@@ -70,4 +70,11 @@
     @html.p {
     @Html(messages("view.amend-case-confirmation.footnote"))
     }
+
+    @html.p {
+      @html.a(
+        link = appConfig.exitSurveyUrl,
+        messageKey = "view.amend-case-confirmation.feedback"
+      )
+    }
 }
