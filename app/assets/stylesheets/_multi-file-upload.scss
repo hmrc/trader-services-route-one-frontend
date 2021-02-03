@@ -22,11 +22,10 @@
 
 .multi-file-upload__file-container {
   position: relative;
-  overflow: hidden;
 }
 
 .multi-file-upload__file {
-  width: auto;
+  max-width: 100%;
 }
 
 .multi-file-upload__file-name {

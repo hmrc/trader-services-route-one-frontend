@@ -6,7 +6,6 @@ import toggleElement from '../utils/toggle-element.util';
 import ErrorManager from '../tools/error-manager.tool';
 
 /*
-TODO fix file input outline
 TODO improve overall accessibility
 TODO check IE11 compatibility
 TODO write specs
