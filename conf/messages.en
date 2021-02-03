@@ -488,6 +488,7 @@ error.file-upload.invalid-type=The selected file must be a JPG, PNG, PDF, TIFF, 
 error.file-upload.quarantine=The selected file contains a virus - upload a different one
 error.file-upload.unknown=The selected file could not be uploaded
 error.file-upload.try-again=The selected file could not be uploaded - try again
+error.file-upload.remove.try-again=The selected file could not be removed - try again
 error.uploadAnotherFile.required=Select yes if you want to upload another document
 error.file-upload.duplicate=The selected file has already been uploaded
 
