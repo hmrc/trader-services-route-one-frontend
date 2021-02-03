@@ -26,6 +26,13 @@
 
 @(form: Form[ExportRequestType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@cancellationConditional = {
+  @html.p(
+    content = Html(messages("form.export-questions.requestType.cancellationConditional")),
+    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
+  )
+}
+
 @govukLayout(pageTitle("view.export-questions.requestType.title",form), backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
@@ -36,7 +43,39 @@
       form = form,
       idPrefix = "requestType",
       name = "requestType",
-      items = context.exportRequestTypeItems(form),
+      items = Seq(
+        RadioItem(
+          value = Some("New"),
+          content = Text(messages("form.export-questions.requestType.New")),
+          checked = form("requestType").value.contains("New")
+        ),
+        RadioItem(
+          value = Some("Cancellation"),
+          content = Text(messages("form.export-questions.requestType.Cancellation")),
+          checked = form("requestType").value.contains("Cancellation"),
+          conditionalHtml = Some(cancellationConditional)
+        ),
+        RadioItem(
+          value = Some("WithdrawalOrReturn"),
+          content = Text(messages("form.export-questions.requestType.WithdrawalOrReturn")),
+          checked = form("requestType").value.contains("WithdrawalOrReturn")
+        ),
+        RadioItem(
+          value = Some("C1601"),
+          content = Text(messages("form.export-questions.requestType.C1601")),
+          checked = form("requestType").value.contains("C1601")
+        ),
+        RadioItem(
+          value = Some("C1602"),
+          content = Text(messages("form.export-questions.requestType.C1602")),
+          checked = form("requestType").value.contains("C1602")
+        ),
+        RadioItem(
+          value = Some("C1603"),
+          content = Text(messages("form.export-questions.requestType.C1603")),
+          checked = form("requestType").value.contains("C1603")
+        )
+      ),
       inline = false,
       legend = Some("view.export-questions.requestType.heading")
     )
