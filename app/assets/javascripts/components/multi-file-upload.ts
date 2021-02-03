@@ -7,7 +7,6 @@ import ErrorManager from '../tools/error-manager.tool';
 
 /*
 TODO prevent submitting the form when uploads / removals are still in progress
-TODO show uploading status as soon as file is selected
 TODO improve overall accessibility
 TODO write specs
 TODO clean up code
@@ -252,10 +251,13 @@ export class MultiFileUpload extends Component {
 
   private handleFileChange(e: Event): void {
     const file = e.target as HTMLInputElement;
+    const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
 
     if (!file.files.length) {
       return;
     }
+
+    this.setItemStateClass(item, this.classes.uploading);
 
     this.uploadData[file.id].provisionPromise.then(() => {
       this.uploadFile(file);
@@ -268,7 +270,6 @@ export class MultiFileUpload extends Component {
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
     const data = this.uploadData[file.id];
 
-    this.setItemStateClass(item, this.classes.uploading);
     this.updateButtonVisibility();
     this.errorManager.removeError(file.id);
 
