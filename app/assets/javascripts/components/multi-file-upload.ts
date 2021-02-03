@@ -6,8 +6,9 @@ import toggleElement from '../utils/toggle-element.util';
 import ErrorManager from '../tools/error-manager.tool';
 
 /*
-TODO prevent submitting the form when uploads / removals are still in progress
+TODO fix file input outline
 TODO improve overall accessibility
+TODO check IE11 compatibility
 TODO write specs
 TODO clean up code
  */
@@ -17,6 +18,7 @@ export class MultiFileUpload extends Component {
   private uploadHandles = {};
   private messages: KeyValue;
   private classes: KeyValue;
+  private formStatus: HTMLElement;
   private submitBtn: HTMLInputElement;
   private addAnotherBtn: HTMLButtonElement;
   private uploadMoreMessage: HTMLElement;
@@ -45,6 +47,7 @@ export class MultiFileUpload extends Component {
       noFilesUploadedError: form.dataset.multiFileUploadErrorSelectFile,
       genericError: form.dataset.multiFileUploadErrorGeneric,
       couldNotRemoveFile: form.dataset.multiFileUploadErrorRemoveFile,
+      stillTransferring: form.dataset.multiFileUploadStillTransferring,
       documentUploaded: form.dataset.multiFileUploadDocumentUploaded,
       documentDeleted: form.dataset.multiFileUploadDocumentDeleted,
     };
@@ -59,6 +62,7 @@ export class MultiFileUpload extends Component {
       fileName: 'multi-file-upload__file-name',
       remove: 'multi-file-upload__remove-item',
       addAnother: 'multi-file-upload__add-another',
+      formStatus: 'multi-file-upload__form-status',
       submit: 'multi-file-upload__submit',
       fileNumber: 'multi-file-upload__number',
       progressBar: 'multi-file-upload__progress-bar',
@@ -78,6 +82,7 @@ export class MultiFileUpload extends Component {
     this.itemList = this.container.querySelector(`.${this.classes.itemList}`);
     this.addAnotherBtn = this.container.querySelector(`.${this.classes.addAnother}`);
     this.uploadMoreMessage = this.container.querySelector(`.${this.classes.uploadMore}`);
+    this.formStatus = this.container.querySelector(`.${this.classes.formStatus}`);
     this.submitBtn = this.container.querySelector(`.${this.classes.submitBtn}`);
     this.notifications = this.container.querySelector(`.${this.classes.notifications}`);
   }
@@ -131,6 +136,18 @@ export class MultiFileUpload extends Component {
 
   private handleSubmit(e: Event): void {
     e.preventDefault();
+
+    const isBusy = this.updateFormStatusVisibility();
+
+    if (isBusy) {
+      this.addNotification(this.messages.stillTransferring);
+
+      return;
+    }
+
+    if (this.errorManager.hasErrors()) {
+      return;
+    }
 
     if (this.container.querySelector(`.${this.classes.uploaded}`)) {
       window.location.href = this.config.actionUrl;
@@ -213,6 +230,7 @@ export class MultiFileUpload extends Component {
     item.remove();
     this.updateFileNumbers();
     this.updateButtonVisibility();
+    this.updateFormStatusVisibility();
 
     if (this.getItems().length === 0) {
       this.addItemWithProvisioning();
@@ -345,10 +363,16 @@ export class MultiFileUpload extends Component {
 
         this.addNotification(message);
 
+        if (!this.isBusy()) {
+          toggleElement(this.formStatus, true);
+        }
+
         this.setItemStateClass(item, this.classes.uploaded);
         this.updateUploadProgress(item, 100);
         this.updateButtonVisibility();
+        this.updateFormStatusVisibility();
         this.errorManager.removeError(file.id);
+
         break;
 
       case 'FAILED':
@@ -356,9 +380,13 @@ export class MultiFileUpload extends Component {
       case 'DUPLICATE':
       case 'NOT_UPLOADED':
         console.log('Error', response, file);
+
         this.setItemStateClass(item, '');
+        this.updateFormStatusVisibility();
+
         error = response['errorMessage'] || this.messages.genericError;
         this.errorManager.addError(file.id, error);
+
         break;
 
       case 'WAITING':
@@ -387,6 +415,14 @@ export class MultiFileUpload extends Component {
     this.toggleRemoveButtons(itemCount > this.config.minFiles);
     this.toggleAddButton(itemCount < this.config.maxFiles);
     this.toggleUploadMoreMessage(itemCount === this.config.maxFiles);
+  }
+
+  private updateFormStatusVisibility(): boolean {
+    const isBusy = this.isBusy();
+
+    toggleElement(this.formStatus, isBusy);
+
+    return isBusy;
   }
 
   private updateUploadProgress(item, value): void {
@@ -457,6 +493,13 @@ export class MultiFileUpload extends Component {
     }
 
     return null;
+  }
+
+  private isBusy(): boolean {
+    const stillUploading = this.container.querySelector(`.${this.classes.uploading}`);
+    const stillRemoving = this.container.querySelector(`.${this.classes.removing}`);
+
+    return stillUploading !== null || stillRemoving !== null;
   }
 
   private isUploading(item: HTMLLIElement): boolean {

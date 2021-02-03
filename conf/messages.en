@@ -445,6 +445,7 @@ view.upload-multiple-files.removing=Removing...
 view.upload-multiple-files.uploaded=Uploaded
 view.upload-multiple-files.documentUploaded=Document {0} has been uploaded
 view.upload-multiple-files.documentDeleted=Document {0} has been deleted
+view.upload-multiple-files.stillTransferring=Files are still being transferred
 
 view.upload-file.first.title=Upload your first document
 view.upload-file.first.heading=Upload your first document

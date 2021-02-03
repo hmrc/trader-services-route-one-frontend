@@ -71,6 +71,10 @@ export default class ErrorManager {
     this.updateErrorSummaryVisibility();
   }
 
+  public hasErrors(): boolean {
+    return Object.entries(this.errors).length > 0;
+  }
+
   private addErrorToField(inputId: string, message: string): HTMLElement {
     const input = document.getElementById(inputId);
     const inputContainer = this.getContainer(input);
@@ -99,7 +103,7 @@ export default class ErrorManager {
   }
 
   private updateErrorSummaryVisibility(): void {
-    if (Object.entries(this.errors).length) {
+    if (this.hasErrors()) {
       ErrorManager.getH1().before(this.errorSummary);
     }
     else {

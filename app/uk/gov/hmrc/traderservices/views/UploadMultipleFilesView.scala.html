@@ -107,6 +107,7 @@
     data-multi-file-upload-error-generic="@messages("error.file-upload.unknown")"
     data-multi-file-upload-error-remove-file="@messages("error.file-upload.remove.try-again")"
     data-multi-file-upload-error-select-file="@messages("error.file-upload.required")"
+    data-multi-file-upload-still-transferring="@messages("view.upload-multiple-files.stillTransferring")"
     data-multi-file-upload-document-uploaded="@messages("view.upload-multiple-files.documentUploaded", "{fileName}")"
     data-multi-file-upload-document-deleted="@messages("view.upload-multiple-files.documentDeleted", "{fileName}")"
   >
@@ -118,6 +119,11 @@
       content = Html(messages("view.upload-multiple-files.uploadMoreFilesThanLimit")),
       classes="govuk-body multi-file-upload__upload-more-message hidden"
     )
+
+    <p class="govuk-body multi-file-upload__form-status hidden" aria-hidden="true">
+      @messages("view.upload-multiple-files.stillTransferring")...
+      <span class="file-upload__spinner ccms-loader"></span>
+    </p>
 
     <div>
       @html.button("form.upload-multiple-files.continue")
