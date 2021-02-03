@@ -33,6 +33,13 @@
   )
 }
 
+@withdrawalConditional = {
+  @html.p(
+    content = Html(messages("form.export-questions.requestType.withdrawalConditional")),
+    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
+  )
+}
+
 @govukLayout(pageTitle("view.export-questions.requestType.title",form), backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
@@ -58,7 +65,8 @@
         RadioItem(
           value = Some("WithdrawalOrReturn"),
           content = Text(messages("form.export-questions.requestType.WithdrawalOrReturn")),
-          checked = form("requestType").value.contains("WithdrawalOrReturn")
+          checked = form("requestType").value.contains("WithdrawalOrReturn"),
+          conditionalHtml = Some(withdrawalConditional)
         ),
         RadioItem(
           value = Some("C1601"),
