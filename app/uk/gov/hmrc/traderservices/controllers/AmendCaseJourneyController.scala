@@ -41,6 +41,7 @@ import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+import akka.actor.Scheduler
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -62,6 +63,8 @@ class AmendCaseJourneyController @Inject() (
 
   import AmendCaseJourneyController._
   import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel._
+
+  implicit val scheduler: Scheduler = actorSystem.scheduler
 
   /** AsUser authorisation request */
   final val AsUser: WithAuthorised[Option[String]] =
