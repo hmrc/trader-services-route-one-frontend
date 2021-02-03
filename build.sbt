@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "trader-services-route-one-frontend",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.12.12",
     PlayKeys.playDefaultPort := 9379,
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
