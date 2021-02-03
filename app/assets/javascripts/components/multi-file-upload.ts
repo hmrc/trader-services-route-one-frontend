@@ -6,8 +6,6 @@ import toggleElement from '../utils/toggle-element.util';
 import ErrorManager from '../tools/error-manager.tool';
 
 /*
-TODO improve overall accessibility
-TODO check IE11 compatibility
 TODO write specs
 TODO clean up code
  */
@@ -117,7 +115,7 @@ export class MultiFileUpload extends Component {
 
       this.setItemStateClass(item, this.classes.uploaded);
 
-      item.querySelector(`.${this.classes.fileName}`).textContent = file.fileName;
+      item.querySelector(`.${this.classes.fileName}`).textContent = this.extractFileName(file.fileName);
       fileInput.dataset.multiFileUploadFileRef = file.reference;
 
       rowCount++;
@@ -484,14 +482,18 @@ export class MultiFileUpload extends Component {
     const fileName = item.querySelector(`.${this.classes.fileName}`).textContent.trim();
 
     if (fileName.length) {
-      return fileName;
+      return this.extractFileName(fileName);
     }
 
     if (file.value.length) {
-      return file.value.split(/([\\/])/g).pop();
+      return this.extractFileName(file.value);
     }
 
     return null;
+  }
+
+  private extractFileName(fileName: string): string {
+    return fileName.split(/([\\/])/g).pop();
   }
 
   private isBusy(): boolean {

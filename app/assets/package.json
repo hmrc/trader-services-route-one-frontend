@@ -14,7 +14,11 @@
   "browserslist": [
     "defaults"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "isomorphic-fetch": "3.0.0",
+    "mdn-polyfills": "5.20.0",
+    "promise-polyfill": "8.2.0"
+  },
   "devDependencies": {
     "@babel/core": "7.12.9",
     "@babel/plugin-proposal-class-properties": "7.12.1",

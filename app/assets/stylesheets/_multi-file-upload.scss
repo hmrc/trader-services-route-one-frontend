@@ -22,6 +22,7 @@
 
 .multi-file-upload__file-container {
   position: relative;
+  flex-shrink: 100; /* IE11 fix to avoid input pushing the Remove button off screen on smaller screens */
 }
 
 .multi-file-upload__file {
