@@ -15,15 +15,18 @@
  *@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import uk.gov.hmrc.traderservices.models.CaseSLA
+@import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
+        context: CaseConfirmationViewContext,
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, generatedAt: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = pageTitle("view.create-case-confirmation.title"),
@@ -58,8 +61,18 @@
 
     @html.h2("view.create-case-confirmation.next.heading", classes = "govuk-heading-m")
 
-    @html.p {
-      @messages("view.create-case-confirmation.next.description")
+    @if(caseSLA.dateTime.isDefined){
+      @html.p {
+        @messages("view.create-case-confirmation.next.description.sla1")
+      }
+      @html.p {
+        @Html(messages("view.create-case-confirmation.next.description.sla2", context.getSlaTimeTextFor(caseSLA.dateTime.get)))
+      }
+    } 
+    @if(caseSLA.dateTime.isEmpty){
+      @html.p {
+        @messages("view.create-case-confirmation.next.description.nosla")
+      }
     }
 
     @html.p {

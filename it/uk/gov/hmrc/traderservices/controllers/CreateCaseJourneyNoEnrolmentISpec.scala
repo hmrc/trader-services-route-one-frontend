@@ -2078,7 +2078,8 @@ class CreateCaseJourneyNoEnrolmentISpec
               "application/pdf"
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt)
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
     }
@@ -2100,7 +2101,8 @@ class CreateCaseJourneyNoEnrolmentISpec
               "application/pdf"
             )
           ),
-          TraderServicesResult("TBC", generatedAt)
+          TraderServicesResult("TBC", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
         )
         journey.setState(state)
         givenAuthorised

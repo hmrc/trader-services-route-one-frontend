@@ -31,6 +31,8 @@ site.logOut = log out
 site.youCan = You can:
 site.file.remove = Remove
 site.switchLanguage=Newid yr iaith ir Gymraeg
+site.today = today
+site.tomorrow = tomorrow
 
 site.Jan = January
 site.Feb = February
@@ -495,7 +497,9 @@ view.create-case-confirmation.save.bullet2=we need further information from you
 view.create-case-confirmation.save.bullet3=you want to add more information or documents to this case
 view.create-case-confirmation.save.description2=Save your case reference number for your own records.
 view.create-case-confirmation.next.heading=Next steps
-view.create-case-confirmation.next.description=Once the document checks are complete, you’ll hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.description.sla1=Once the document checks are complete, you’ll hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.description.sla2=Your document check should be completed by {0}. If you have not heard from us by this time, you can <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">contact us about your case's progress</a>.
+view.create-case-confirmation.next.description.nosla=When your transportation arrives, we'll begin the document checks. Once our checks are complete, you'll hear from us through CHIEF or your declaration software.
 view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.create-case-confirmation.info.heading=If we need more information
 view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.

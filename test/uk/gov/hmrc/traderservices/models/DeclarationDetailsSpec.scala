@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.model
+package uk.gov.hmrc.traderservices.models
 
 import java.time.LocalDate
 
 import uk.gov.hmrc.traderservices.support.UnitSpec
-import uk.gov.hmrc.traderservices.models._
 
-class DeclarationDetailsSpec extends UnitSpec with TestData {
+class DeclarationDetailsSpec extends UnitSpec with DeclarationDetailsTestData {
 
   "DeclarationDetails" when {
     "isExportDeclaration is called" should {
@@ -54,7 +53,7 @@ class DeclarationDetailsSpec extends UnitSpec with TestData {
   }
 }
 
-trait TestData {
+trait DeclarationDetailsTestData {
 
   val eoriNumber = "foo"
   val correlationId = "123"

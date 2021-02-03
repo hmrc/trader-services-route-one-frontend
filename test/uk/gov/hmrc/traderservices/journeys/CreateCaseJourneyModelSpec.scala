@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.journey
+package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesResult, UpscanInitiateRequest, UpscanInitiateResponse}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
@@ -3377,7 +3377,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt)
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
           )
         )
       }
@@ -3435,7 +3436,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt)
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when start should thenGo(Start)
       }
@@ -3455,7 +3457,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "application/pdf"
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt)
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
       }

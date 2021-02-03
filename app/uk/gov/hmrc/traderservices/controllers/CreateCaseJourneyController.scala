@@ -935,11 +935,12 @@ class CreateCaseJourneyController @Inject() (
             )
         )
 
-      case CreateCaseConfirmation(_, _, _, TraderServicesResult(caseReferenceId, generatedAt)) =>
+      case CreateCaseConfirmation(_, _, _, TraderServicesResult(caseReferenceId, generatedAt), caseSLA) =>
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
             generatedAt.ddMMYYYYAtTimeFormat,
+            caseSLA,
             controller.showStart()
           )
         )

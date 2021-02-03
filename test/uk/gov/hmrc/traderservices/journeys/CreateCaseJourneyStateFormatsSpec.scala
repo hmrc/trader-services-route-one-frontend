@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.journey
+package uk.gov.hmrc.traderservices.journeys
 
 import java.time.LocalDate
 import play.api.libs.json.{Format, JsResultException, Json}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
@@ -624,7 +623,8 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
            |"uploadedFiles":[
            |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}
            |],
-           |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"}}}""".stripMargin,
+           |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"},
+           |"caseSLA":{"dateTime":"${generatedAt.plusHours(2)}"}}}""".stripMargin,
         State.CreateCaseConfirmation(
           DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           exportQuestions,
@@ -638,7 +638,8 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               "application/pdf"
             )
           ),
-          TraderServicesResult("7w7e7wq87ABDFD78wq7e87", generatedAt)
+          TraderServicesResult("7w7e7wq87ABDFD78wq7e87", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
         )
       )
       validateJsonFormat(
