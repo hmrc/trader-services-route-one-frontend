@@ -361,11 +361,17 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       }
 
       "stay when toUploadMultipleFiles transition" in {
-        val state = UploadMultipleFiles(
-          fullAmendCaseStateModel,
-          nonEmptyFileUploads
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+          )
+        ) when toUploadMultipleFiles should thenGo(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel,
+            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+          )
         )
-        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {

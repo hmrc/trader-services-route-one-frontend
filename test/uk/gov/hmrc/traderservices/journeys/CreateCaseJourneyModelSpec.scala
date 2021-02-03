@@ -1845,24 +1845,35 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(state) when toSummary should thenGo(state)
       }
 
-      "stay when export and toUploadMultipleFiles transition" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          nonEmptyFileUploads
+      "stay and filter out initiated uploads when export and toUploadMultipleFiles transition" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+          )
+        ) when toUploadMultipleFiles should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+          )
         )
-        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
-      "stay when import and toUploadMultipleFiles transition" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-          nonEmptyFileUploads
+      "stay and filter out initiated uploads when import and toUploadMultipleFiles transition" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+          )
+        ) when toUploadMultipleFiles should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+          )
         )
-        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
-
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
@@ -1907,7 +1918,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "do nothing when initiateNextFileUpload with existing uploadId" in {
-
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
@@ -1924,7 +1934,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
-
         val fileUploads = FileUploads(files =
           (0 until maxFileUploadsNumber)
             .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))

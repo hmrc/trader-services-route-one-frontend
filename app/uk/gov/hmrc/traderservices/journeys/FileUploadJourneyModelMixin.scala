@@ -128,13 +128,13 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     final val toUploadMultipleFiles =
       Transition {
         case current: UploadMultipleFiles =>
-          goto(current)
+          goto(current.copy(fileUploads = current.fileUploads.filterOutInitiated))
 
         case state: CanEnterFileUpload =>
           goto(
             UploadMultipleFiles(
               hostData = state.hostData,
-              fileUploads = state.fileUploadsOpt.getOrElse(FileUploads())
+              fileUploads = state.fileUploadsOpt.map(_.filterOutInitiated).getOrElse(FileUploads())
             )
           )
 
