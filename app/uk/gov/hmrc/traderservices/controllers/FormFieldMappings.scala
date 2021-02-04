@@ -96,7 +96,7 @@ object FormFieldMappings {
         nonEmpty("epu"),
         constraint[String]("epu", "invalid-only-digits", _.forall(_.isDigit)),
         haveLength("epu", 3),
-        constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, _ <= 669))
+        constraint[String]("epu", "invalid-number", s => Try(s.toInt).fold(_ => true, epu => epu > 0 && epu <= 669))
       )
     )
     .transform(s => EPU(s.toInt), _.value.format3d)

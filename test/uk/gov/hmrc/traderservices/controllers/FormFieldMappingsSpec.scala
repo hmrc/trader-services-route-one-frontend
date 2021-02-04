@@ -27,9 +27,24 @@ import java.time.LocalTime
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
   "FormFieldMappings" should {
-
     "validate EPU" in {
+      epuMapping.bind(Map("" -> "0")) should haveOnlyError[EPU]("error.epu.invalid-length")
+      epuMapping.bind(Map("" -> "00")) should haveOnlyError[EPU]("error.epu.invalid-length")
+      epuMapping.bind(Map("" -> "000")) should haveOnlyError[EPU]("error.epu.invalid-number")
+      epuMapping.bind(Map("" -> "1")) should haveOnlyError[EPU]("error.epu.invalid-length")
+      epuMapping.bind(Map("" -> "01")) should haveOnlyError[EPU]("error.epu.invalid-length")
+      epuMapping.bind(Map("" -> "001")) shouldBe Right(EPU(1))
+      epuMapping.bind(Map("" -> "009")) shouldBe Right(EPU(9))
+      epuMapping.bind(Map("" -> "010")) shouldBe Right(EPU(10))
+      epuMapping.bind(Map("" -> "012")) shouldBe Right(EPU(12))
+      epuMapping.bind(Map("" -> "099")) shouldBe Right(EPU(99))
       epuMapping.bind(Map("" -> "123")) shouldBe Right(EPU(123))
+      epuMapping.bind(Map("" -> "456")) shouldBe Right(EPU(456))
+      epuMapping.bind(Map("" -> "669")) shouldBe Right(EPU(669))
+      epuMapping.bind(Map("" -> "670")) should haveOnlyError[EPU]("error.epu.invalid-number")
+      epuMapping.bind(Map("" -> "700")) should haveOnlyError[EPU]("error.epu.invalid-number")
+      epuMapping.bind(Map("" -> "701")) should haveOnlyError[EPU]("error.epu.invalid-number")
+      epuMapping.bind(Map("" -> "999")) should haveOnlyError[EPU]("error.epu.invalid-number")
       epuMapping.bind(Map("" -> "")) should haveOnlyError[EPU]("error.epu.required")
       epuMapping.bind(Map("" -> "1")) should haveOnlyError[EPU]("error.epu.invalid-length")
       epuMapping.bind(Map("" -> "12")) should haveOnlyError[EPU]("error.epu.invalid-length")
@@ -38,8 +53,6 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       epuMapping.bind(Map("" -> "AAA")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
       epuMapping.bind(Map("" -> "A12")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
       epuMapping.bind(Map("" -> "1A2")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
-      epuMapping.bind(Map("" -> "701")) should haveOnlyError[EPU]("error.epu.invalid-number")
-      epuMapping.bind(Map("" -> "999")) should haveOnlyError[EPU]("error.epu.invalid-number")
     }
 
     "validate EntryNumber" in {
