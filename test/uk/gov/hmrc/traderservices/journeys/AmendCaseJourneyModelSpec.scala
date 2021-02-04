@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.journey
+package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._

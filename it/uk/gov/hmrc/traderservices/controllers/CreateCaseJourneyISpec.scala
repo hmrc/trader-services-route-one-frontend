@@ -2076,7 +2076,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt)
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
     }
@@ -2098,7 +2099,8 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "application/pdf"
             )
           ),
-          TraderServicesResult("TBC", generatedAt)
+          TraderServicesResult("TBC", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))

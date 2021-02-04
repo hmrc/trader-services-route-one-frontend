@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.journey
+package uk.gov.hmrc.traderservices.journeys
 
 import uk.gov.hmrc.traderservices.models._
 import java.time._

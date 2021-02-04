@@ -22,6 +22,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import java.time.ZonedDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -275,7 +278,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       declarationDetails: DeclarationDetails,
       questionsAnswers: QuestionsAnswers,
       uploadedFiles: Seq[UploadedFile],
-      result: TraderServicesResult
+      result: TraderServicesResult,
+      caseSLA: CaseSLA
     ) extends EndState
 
     final case class CaseAlreadyExists(
@@ -804,16 +808,24 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
       def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
         createCaseApi(request).flatMap { response =>
-          if (response.result.isDefined)
+          if (response.result.isDefined) {
+            val createCaseResult = response.result.get
             goto(
               CreateCaseConfirmation(
                 request.declarationDetails,
                 request.questionsAnswers,
                 request.uploadedFiles,
-                response.result.get
+                createCaseResult,
+                CaseSLA.calculateFrom(
+                  createCaseResult.generatedAt
+                    .atOffset(ZoneOffset.UTC)
+                    .atZoneSameInstant(ZoneId.of("Europe/London"))
+                    .toLocalDateTime(),
+                  request.questionsAnswers
+                )
               )
             )
-          else
+          } else
             response.error match {
               case Some(ApiError("409", Some(caseReferenceId))) =>
                 goto(CaseAlreadyExists(caseReferenceId))
