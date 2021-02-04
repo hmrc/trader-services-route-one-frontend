@@ -44,6 +44,7 @@ import uk.gov.hmrc.traderservices.models.FileUploads
 import uk.gov.hmrc.traderservices.models.UploadRequest
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import java.time.LocalDate
+import akka.actor.Scheduler
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -65,6 +66,8 @@ class CreateCaseJourneyController @Inject() (
 
   import CreateCaseJourneyController._
   import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel._
+
+  implicit val scheduler: Scheduler = actorSystem.scheduler
 
   /** AsUser authorisation request */
   final val AsUser: WithAuthorised[Option[String]] =
