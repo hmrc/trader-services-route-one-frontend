@@ -13,6 +13,8 @@ function loadComponent(component: new(container: HTMLElement) => Component, sele
   const containers: HTMLElement[] = Array.from(document.querySelectorAll(selector));
 
   containers.forEach(container => {
-    new component(container);
+    const instance = new component(container);
+
+    instance.init();
   });
 }

@@ -1,6 +1,7 @@
 import {Component} from './component';
 import getCookie from '../utils/get-cookie.util';
 import setCookie from '../utils/set-cookie.util';
+import toggleElement from '../utils/toggle-element.util';
 
 export class ResearchBanner extends Component {
   private config;
@@ -17,22 +18,21 @@ export class ResearchBanner extends Component {
 
     this.cacheElements();
     this.bindEvents();
-    this.init();
   }
 
-  init(): void {
+  public init(): void {
     this.toggle(getCookie(this.config.cookieName) == null);
   }
 
-  cacheElements(): void {
+  private cacheElements(): void {
     this.link = this.container.querySelector(this.config.linkSelector);
   }
 
-  bindEvents(): void {
+  private bindEvents(): void {
     this.link.addEventListener('click', this.handleLinkClick.bind(this));
   }
 
-  handleLinkClick(): void {
+  private handleLinkClick(): void {
     this.toggle(false);
 
     if (getCookie(this.config.cookieName) == null) {
@@ -40,7 +40,7 @@ export class ResearchBanner extends Component {
     }
   }
 
-  toggle(state: boolean): void {
-    this.container.classList.toggle('hidden', !state);
+  private toggle(state: boolean): void {
+    toggleElement(this.container, state);
   }
 }

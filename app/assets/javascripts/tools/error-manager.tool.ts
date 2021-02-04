@@ -39,10 +39,10 @@ export default class ErrorManager {
   }
 
   public addError(inputId: string, message: string): void {
+    this.removeError(inputId);
+
     const errorMessage = this.addErrorToField(inputId, message);
     const errorSummaryRow = this.addErrorToSummary(inputId, message);
-
-    this.removeError(inputId);
 
     this.errors[inputId] = {
       errorMessage: errorMessage,
