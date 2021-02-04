@@ -47,7 +47,7 @@ object CaseSLA {
             answers.freightType.map {
               case ExportFreightType.Air      => sumbissionDateTime.plusHours(2)
               case ExportFreightType.RORO     => sumbissionDateTime.plusHours(2)
-              case ExportFreightType.Maritime => sumbissionDateTime.plusHours(3)
+              case ExportFreightType.Maritime => sumbissionDateTime.plusHours(2)
             }
         }
       case answers: ImportQuestions =>

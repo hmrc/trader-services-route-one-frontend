@@ -128,14 +128,14 @@ class CaseSLASpec extends UnitSpec {
           }
 
         for (routeType <- ExportRouteType.values.filterNot(_ == ExportRouteType.Hold))
-          s"calculate three hours SLA for export case if route type is $routeType, and freightType is Maritime" in {
+          s"calculate two hours SLA for export case if route type is $routeType, and freightType is Maritime" in {
             CaseSLA.calculateFrom(
               sumbissionDateTime,
               ExportQuestions(
                 routeType = Some(routeType),
                 freightType = Some(ExportFreightType.Maritime)
               )
-            ) shouldBe CaseSLA(Some(sumbissionDateTime.plusHours(3)))
+            ) shouldBe CaseSLA(Some(sumbissionDateTime.plusHours(2)))
           }
       }
     }
