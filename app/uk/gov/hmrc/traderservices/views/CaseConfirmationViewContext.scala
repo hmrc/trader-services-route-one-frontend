@@ -26,7 +26,7 @@ import java.time.ZoneId
 @Singleton
 class CaseConfirmationViewContext {
 
-  final val timeFormat = DateTimeFormatter.ofPattern("H:mm")
+  final val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
   def getSlaTimeTextFor(dateTime: LocalDateTime)(implicit messages: Messages): String = {
     val time = timeFormat.format(dateTime.toLocalTime())
