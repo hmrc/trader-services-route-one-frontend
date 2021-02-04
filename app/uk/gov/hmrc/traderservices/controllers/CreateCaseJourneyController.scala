@@ -54,10 +54,11 @@ class CreateCaseJourneyController @Inject() (
   upscanInitiateConnector: UpscanInitiateConnector,
   val authConnector: FrontendAuthConnector,
   val env: Environment,
-  override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
-  uploadFileViewContext: UploadFileViewContext
+  uploadFileViewContext: UploadFileViewContext,
+  override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
+  override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {

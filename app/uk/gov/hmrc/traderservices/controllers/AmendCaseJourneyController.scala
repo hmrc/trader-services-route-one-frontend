@@ -51,10 +51,11 @@ class AmendCaseJourneyController @Inject() (
   upscanInitiateConnector: UpscanInitiateConnector,
   val authConnector: FrontendAuthConnector,
   val env: Environment,
-  override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
-  uploadFileViewContext: UploadFileViewContext
+  uploadFileViewContext: UploadFileViewContext,
+  override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
+  override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
     extends FrontendController(controllerComponents) with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
