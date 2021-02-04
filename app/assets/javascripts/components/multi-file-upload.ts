@@ -113,7 +113,7 @@ export class MultiFileUpload extends Component {
       const item = this.addItem();
       const fileInput = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
 
-      this.setItemStateClass(item, this.classes.uploaded);
+      this.setItemState(item, this.classes.uploaded);
 
       item.querySelector(`.${this.classes.fileName}`).textContent = this.extractFileName(file.fileName);
       fileInput.dataset.multiFileUploadFileRef = file.reference;
@@ -192,7 +192,7 @@ export class MultiFileUpload extends Component {
     const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
 
     if (this.isUploaded(item)) {
-      this.setItemStateClass(item, this.classes.removing);
+      this.setItemState(item, this.classes.removing);
 
       fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
         method: 'PUT'
@@ -206,7 +206,7 @@ export class MultiFileUpload extends Component {
         })
         .then(this.removeItem.bind(this, item))
         .catch(() => {
-          this.setItemStateClass(item, this.classes.uploaded);
+          this.setItemState(item, this.classes.uploaded);
           this.errorManager.addError(file.id, this.messages.couldNotRemoveFile);
         });
     }
@@ -272,7 +272,7 @@ export class MultiFileUpload extends Component {
       return;
     }
 
-    this.setItemStateClass(item, this.classes.uploading);
+    this.setItemState(item, this.classes.uploading);
 
     this.uploadData[file.id].provisionPromise.then(() => {
       this.uploadFile(file);
@@ -324,7 +324,7 @@ export class MultiFileUpload extends Component {
     const file = this.getFileByReference(fileRef);
     const item = file.closest(`.${this.classes.item}`) as HTMLLIElement;
 
-    this.setItemStateClass(item, '');
+    this.setItemState(item, '');
     this.errorManager.addError(file.id, this.messages.genericError);
   }
 
@@ -364,7 +364,7 @@ export class MultiFileUpload extends Component {
           toggleElement(this.formStatus, true);
         }
 
-        this.setItemStateClass(item, this.classes.uploaded);
+        this.setItemState(item, this.classes.uploaded);
         this.updateUploadProgress(item, 100);
         this.updateButtonVisibility();
         this.updateFormStatusVisibility();
@@ -378,7 +378,7 @@ export class MultiFileUpload extends Component {
       case 'NOT_UPLOADED':
         console.log('Error', response, file);
 
-        this.setItemStateClass(item, '');
+        this.setItemState(item, '');
         this.updateFormStatusVisibility();
 
         error = response['errorMessage'] || this.messages.genericError;
@@ -511,11 +511,16 @@ export class MultiFileUpload extends Component {
     return item.classList.contains(this.classes.uploaded);
   }
 
-  private setItemStateClass(item: HTMLLIElement, className: string): void {
+  private setItemState(item: HTMLLIElement, className: string): void {
+    const file = item.querySelector(`.${this.classes.file}`) as HTMLInputElement;
     item.classList.remove(this.classes.uploading, this.classes.uploaded, this.classes.removing);
 
     if (className) {
+      file.disabled = true;
       item.classList.add(className);
+    }
+    else {
+      file.disabled = false;
     }
   }
 }
