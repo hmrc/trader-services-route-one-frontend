@@ -31,7 +31,8 @@ class CaseSLASpec extends UnitSpec {
                               LocalDateTime.of(2022, 12, 31, 23, 59, 59)
                             )
     ) {
-      val cutoutDateTime = sumbissionDateTime.withHour(15).withMinute(0).withSecond(0)
+      val afternoonCutoutDateTime = sumbissionDateTime.withHour(15).withMinute(0).withSecond(0)
+      val morningCutoutDateTime = sumbissionDateTime.withHour(5).withMinute(0).withSecond(0)
       s"submission date is $sumbissionDateTime" should {
         for (freightType <- ExportFreightType.values)
           s"calculate no SLA for export case if route type is HOLD, and freightType is $freightType" in {
@@ -101,30 +102,47 @@ class CaseSLASpec extends UnitSpec {
 
         for (routeType <- ImportRouteType.values.filterNot(_ == ImportRouteType.Hold))
           s"calculate three hours SLA for import case if route type is $routeType, and freightType is Maritime" in {
-            val morningDateTime =
-              if (sumbissionDateTime.isBefore(cutoutDateTime)) sumbissionDateTime
-              else sumbissionDateTime.withHour(14).withMinute(59).withSecond(59)
+            val dateTime =
+              if (
+                sumbissionDateTime
+                  .isBefore(afternoonCutoutDateTime) && sumbissionDateTime.isAfter(morningCutoutDateTime)
+              ) sumbissionDateTime
+              else sumbissionDateTime.withHour(11).withMinute(12).withSecond(13)
             CaseSLA.calculateFrom(
-              morningDateTime,
+              dateTime,
               ImportQuestions(
                 routeType = Some(routeType),
                 freightType = Some(ImportFreightType.Maritime)
               )
-            ) shouldBe CaseSLA(Some(morningDateTime.plusHours(3)))
+            ) shouldBe CaseSLA(Some(dateTime.plusHours(3)))
           }
 
         for (routeType <- ImportRouteType.values.filterNot(_ == ImportRouteType.Hold))
-          s"calculate SLA next morning at 08:00 for import case if route type is $routeType, and freightType is Maritime" in {
-            val afternoonDateTime =
-              if (sumbissionDateTime.isAfter(cutoutDateTime)) sumbissionDateTime
+          s"calculate SLA tomorrow at 08:00 for import case sumbited after 15:00 if route type is $routeType, and freightType is Maritime" in {
+            val dateTime =
+              if (sumbissionDateTime.isAfter(afternoonCutoutDateTime)) sumbissionDateTime
               else sumbissionDateTime.withHour(15).withMinute(0).withSecond(1)
             CaseSLA.calculateFrom(
-              afternoonDateTime,
+              dateTime,
               ImportQuestions(
                 routeType = Some(routeType),
                 freightType = Some(ImportFreightType.Maritime)
               )
-            ) shouldBe CaseSLA(Some(afternoonDateTime.plusDays(1).withHour(8).withMinute(0).withSecond(0)))
+            ) shouldBe CaseSLA(Some(dateTime.plusDays(1).withHour(8).withMinute(0).withSecond(0)))
+          }
+
+        for (routeType <- ImportRouteType.values.filterNot(_ == ImportRouteType.Hold))
+          s"calculate SLA today at 08:00 for import case sumbited before 05:00 if route type is $routeType, and freightType is Maritime" in {
+            val dateTime =
+              if (sumbissionDateTime.isBefore(morningCutoutDateTime)) sumbissionDateTime
+              else sumbissionDateTime.withHour(4).withMinute(59).withSecond(59)
+            CaseSLA.calculateFrom(
+              dateTime,
+              ImportQuestions(
+                routeType = Some(routeType),
+                freightType = Some(ImportFreightType.Maritime)
+              )
+            ) shouldBe CaseSLA(Some(dateTime.withHour(8).withMinute(0).withSecond(0)))
           }
 
         for (routeType <- ExportRouteType.values.filterNot(_ == ExportRouteType.Hold))

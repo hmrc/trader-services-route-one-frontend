@@ -58,8 +58,10 @@ object CaseSLA {
               case ImportFreightType.Air  => sumbissionDateTime.plusHours(2)
               case ImportFreightType.RORO => sumbissionDateTime.plusHours(2)
               case ImportFreightType.Maritime =>
-                if (sumbissionDateTime.isAfter(sumbissionDateTime.withHour(15).withMinute(0).withSecond(0).withNano(0)))
-                  sumbissionDateTime.plusDays(1).withHour(8).withMinute(0).withSecond(0).withNano(0)
+                if (sumbissionDateTime.isAfter(withHour(15, sumbissionDateTime)))
+                  withHour(8, sumbissionDateTime).plusDays(1)
+                else if (sumbissionDateTime.isBefore(withHour(5, sumbissionDateTime)))
+                  withHour(8, sumbissionDateTime)
                 else
                   sumbissionDateTime.plusHours(3)
             }
@@ -67,6 +69,13 @@ object CaseSLA {
     }
     CaseSLA(slaDateTime)
   }
+
+  private def withHour(hour: Int, datetime: LocalDateTime): LocalDateTime =
+    datetime
+      .withHour(hour)
+      .withMinute(0)
+      .withSecond(0)
+      .withNano(0)
 
   implicit val formats: Format[CaseSLA] = Json.format[CaseSLA]
 }
