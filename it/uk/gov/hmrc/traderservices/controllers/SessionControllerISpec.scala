@@ -2,9 +2,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, matching, stubFor}
 import play.api.Application
-import play.api.libs.ws.WSClient
 import uk.gov.hmrc.traderservices.support.ServerISpec
-import uk.gov.hmrc.traderservices.wiring.AppConfig
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 class SessionControllerISpec extends SessionControllerISpecSetup() {
