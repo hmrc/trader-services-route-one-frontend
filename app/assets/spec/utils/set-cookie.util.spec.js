@@ -6,7 +6,7 @@ describe('setCookie utility', () => {
   });
 
   describe('When setCookie is called with name=test-cookie', () => {
-    it('Should create a cookie called test-cookie ', () => {
+    it('Then should create a cookie called test-cookie ', () => {
       setCookie('test-cookie', '');
 
       expect(document.cookie).toEqual('test-cookie=');
@@ -14,7 +14,7 @@ describe('setCookie utility', () => {
   });
 
   describe('When setCookie is called with name=test-cookie and value=value', () => {
-    it('Should create a cookie called test-cookie with value=value', () => {
+    it('Then should create a cookie called test-cookie with value=value', () => {
       setCookie('test-cookie', 'value');
 
       expect(document.cookie).toEqual('test-cookie=value');
