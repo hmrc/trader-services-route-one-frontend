@@ -26,9 +26,25 @@ import uk.gov.hmrc.traderservices.models.UpscanNotification
 import com.google.inject.Inject
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.models.DuplicateFileUpload
+import uk.gov.hmrc.traderservices.models.FileVerificationStatus
+import uk.gov.hmrc.traderservices.models.FileUpload
+import play.api.mvc.Call
+import play.api.libs.json.Json
+import play.api.i18n.Messages
 
 @Singleton
 class UploadFileViewContext @Inject() (appConfig: AppConfig) {
+
+  def initialScriptStateFrom(initialFileUploads: Seq[FileUpload], previewFile: String => Call)(implicit
+    messages: Messages
+  ): String =
+    Json.stringify(
+      Json.toJson(
+        initialFileUploads.map(file =>
+          FileVerificationStatus(file, this, previewFile, appConfig.fileFormats.maxFileSizeMb)
+        )
+      )
+    )
 
   def toFormError(error: FileUploadError): FormError =
     error match {

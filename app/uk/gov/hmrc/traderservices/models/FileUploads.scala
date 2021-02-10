@@ -63,6 +63,12 @@ case class FileUploads(
         (reference, uploadRequest)
     }
 
+  def filterOutInitiated: FileUploads =
+    copy(files = files.filter {
+      case _: FileUpload.Initiated => false
+      case _                       => true
+    })
+
 }
 
 object FileUploads {

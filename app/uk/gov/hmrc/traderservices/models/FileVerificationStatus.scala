@@ -33,8 +33,13 @@ case class FileVerificationStatus(
 
 object FileVerificationStatus {
 
-  def apply(fileUpload: FileUpload, uploadFileViewContext: UploadFileViewContext, filePreviewUrl: String => Call)(
-    implicit messages: Messages
+  def apply(
+    fileUpload: FileUpload,
+    uploadFileViewContext: UploadFileViewContext,
+    filePreviewUrl: String => Call,
+    maxFileSizeMb: Int
+  )(implicit
+    messages: Messages
   ): FileVerificationStatus =
     fileUpload match {
       case f: FileUpload.Initiated =>
@@ -63,7 +68,7 @@ object FileVerificationStatus {
         FileVerificationStatus(
           fileUpload.reference,
           "REJECTED",
-          errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details)))
+          errorMessage = Some(messages(uploadFileViewContext.toMessageKey(f.details), maxFileSizeMb))
         )
 
       case f: FileUpload.Duplicate =>

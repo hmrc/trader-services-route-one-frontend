@@ -1,8 +1,8 @@
 import {ResearchBanner} from '../../javascripts/components/research-banner';
 
-describe('Research banner component', () => {
-  let componentInstance;
-  let componentContainer;
+describe('Research Banner component', () => {
+  let instance;
+  let container;
 
   describe('Given the research-banner component is present in DOM', () => {
     beforeEach(() => {
@@ -12,35 +12,36 @@ describe('Research banner component', () => {
         </div>
       `);
 
-      componentContainer = document.querySelector('.ssp-research-banner');
+      container = document.querySelector('.ssp-research-banner');
     });
 
     afterEach(() => {
       document.cookie = 'research-banner=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 
-      componentContainer.remove();
+      container.remove();
     });
 
     describe('And research-banner cookie is not set', () => {
       describe('When the component is initialised', () => {
         beforeEach(() => {
-          componentInstance = new ResearchBanner(componentContainer);
+          instance = new ResearchBanner(container);
+          instance.init();
         });
 
-        it('Should not hide the component', () => {
-          expect(componentContainer.classList.contains('hidden')).toEqual(false);
+        it('Then should not hide the component', () => {
+          expect(container.classList.contains('hidden')).toEqual(false);
         });
 
         describe('And close button is clicked', () => {
           beforeEach(() => {
-            componentContainer.querySelector('.ssp-research-banner__button').click();
+            container.querySelector('.ssp-research-banner__button').click();
           });
 
-          it('Should hide the component', () => {
-            expect(componentContainer.classList.contains('hidden')).toEqual(true);
+          it('Then should hide the component', () => {
+            expect(container.classList.contains('hidden')).toEqual(true);
           });
 
-          it('Should set the research-banner cookie', () => {
+          it('Then should set the research-banner cookie', () => {
             expect(document.cookie).toEqual('research-banner=dismissed');
           });
         });
@@ -54,11 +55,12 @@ describe('Research banner component', () => {
 
       describe('When the component is initialised', () => {
         beforeEach(() => {
-          componentInstance = new ResearchBanner(componentContainer);
+          instance = new ResearchBanner(container);
+          instance.init();
         });
 
-        it('Should hide the component', () => {
-          expect(componentContainer.classList.contains('hidden')).toEqual(true);
+        it('Then should hide the component', () => {
+          expect(container.classList.contains('hidden')).toEqual(true);
         });
       });
     });

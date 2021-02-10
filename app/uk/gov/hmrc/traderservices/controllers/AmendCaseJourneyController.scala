@@ -232,7 +232,14 @@ class AmendCaseJourneyController @Inject() (
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
 
-  // GET /add/journey/:journeyId/file-rejected-async
+  // PUT /new/file-rejected
+  final val markFileUploadAsRejectedAsync: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(UpscanUploadErrorForm)
+      .apply(FileUploadTransitions.markUploadAsRejected)
+      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+
+  // GET /add/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
@@ -256,12 +263,17 @@ class AmendCaseJourneyController @Inject() (
       .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
-  // GET /add/journey/:journeyId/file-posted
+  // OPTIONS
+  final def preflightUpload(journeyId: String): Action[AnyContent] =
+    Action {
+      Created.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+    }
+
+  // GET /new/journey/:journeyId/file-posted
   final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
-    actions
-      .bindForm(UpscanUploadSuccessForm)
-      .apply(FileUploadTransitions.markUploadAsPosted)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+    Action {
+      Created.withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+    }
 
   // POST /add/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
@@ -423,7 +435,9 @@ class AmendCaseJourneyController @Inject() (
             initiateNextFileUpload = controller.initiateNextFileUpload,
             checkFileVerificationStatus = controller.checkFileVerificationStatus,
             removeFile = controller.removeFileUploadByReferenceAsync,
-            continueAction = controller.amendCase,
+            previewFile = controller.previewFileUploadByReference,
+            markFileRejected = controller.markFileUploadAsRejectedAsync,
+            continueAction = controller.showAmendCaseSummary,
             backLink = backLinkFromFileUpload(model)
           )
         )
@@ -546,7 +560,12 @@ class AmendCaseJourneyController @Inject() (
           case Some(file) =>
             Ok(
               Json.toJson(
-                FileVerificationStatus(file, uploadFileViewContext, controller.previewFileUploadByReference(_))
+                FileVerificationStatus(
+                  file,
+                  uploadFileViewContext,
+                  controller.previewFileUploadByReference(_),
+                  appConfig.fileFormats.maxFileSizeMb
+                )
               )
             )
           case None => NotFound

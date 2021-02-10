@@ -2381,6 +2381,98 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
+    "GET /new/file-rejected" should {
+      "show upload document again" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          UploadFile(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            "2b72fe99-8adf-4edb-865e-622ae710f77c",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request(
+            "/new/file-rejected?key=2b72fe99-8adf-4edb-865e-622ae710f77c&errorCode=EntityTooLarge&errorMessage=Entity+Too+Large"
+          ).get()
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          "2b72fe99-8adf-4edb-865e-622ae710f77c",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+            )
+          ),
+          Some(
+            FileTransmissionFailed(
+              S3UploadError("2b72fe99-8adf-4edb-865e-622ae710f77c", "EntityTooLarge", "Entity Too Large")
+            )
+          )
+        )
+      }
+    }
+
+    "PUT /new/file-rejected" should {
+      "mark file upload as rejected" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-rejected").put(
+            Json.obj(
+              "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
+              "errorCode"    -> "EntityTooLarge",
+              "errorMessage" -> "Entity Too Large"
+            )
+          )
+        )
+
+        result.status shouldBe 201
+
+        journey.getState shouldBe UploadMultipleFiles(
+          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Rejected(
+                2,
+                "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                S3UploadError("2b72fe99-8adf-4edb-865e-622ae710f77c", "EntityTooLarge", "Entity Too Large")
+              )
+            )
+          )
+        )
+      }
+    }
+
     "GET /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
         implicit val journeyId: JourneyId = JourneyId()

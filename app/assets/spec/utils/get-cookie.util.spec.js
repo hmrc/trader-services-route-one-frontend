@@ -14,7 +14,7 @@ describe('getCookie utility', () => {
     });
 
     describe('When getCookie is called with name="test-cookie"', () => {
-      it('Should return value=value', () => {
+      it('Then should return value=value', () => {
         expect(getCookie('test-cookie')).toEqual('value');
       });
     });
@@ -26,7 +26,7 @@ describe('getCookie utility', () => {
     });
 
     describe('When getCookie is called with name="test-cookie"', () => {
-      it('Should return "with=equals=sign"', () => {
+      it('Then should return "with=equals=sign"', () => {
         expect(getCookie('test-cookie')).toEqual('with=equals=sign');
       });
     });
@@ -40,7 +40,7 @@ describe('getCookie utility', () => {
     });
 
     describe('When getCookie is called to retrieve the second cookie', () => {
-      it('Should return "2"', () => {
+      it('Then should return "2"', () => {
         expect(getCookie('cookie2')).toEqual('2');
       });
     });

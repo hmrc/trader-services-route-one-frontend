@@ -1845,24 +1845,35 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(state) when toSummary should thenGo(state)
       }
 
-      "stay when export and toUploadMultipleFiles transition" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          nonEmptyFileUploads
+      "stay and filter out initiated uploads when export and toUploadMultipleFiles transition" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+          )
+        ) when toUploadMultipleFiles should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+          )
         )
-        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
-      "stay when import and toUploadMultipleFiles transition" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-          nonEmptyFileUploads
+      "stay and filter out initiated uploads when import and toUploadMultipleFiles transition" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+          )
+        ) when toUploadMultipleFiles should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+          )
         )
-        given(state) when toUploadMultipleFiles should thenGo(state)
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
-
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
@@ -1907,7 +1918,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "do nothing when initiateNextFileUpload with existing uploadId" in {
-
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
@@ -1924,7 +1934,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
-
         val fileUploads = FileUploads(files =
           (0 until maxFileUploadsNumber)
             .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
@@ -1982,27 +1991,40 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(state)
       }
 
-      "do nothing when markUploadAsPosted transition and already in ACCEPTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-              FileUpload.Accepted(
-                4,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf"
+      "overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Accepted(
+                  4,
+                  "foo-bar-ref-4",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Posted(4, "foo-bar-ref-4")
               )
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(state)
       }
 
       "do nothing when markUploadAsPosted transition and none matching upload exist" in {
@@ -2047,45 +2069,70 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
-      "do nothing when markUploadAsRejected transition and already in REJECTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite upload status when markUploadAsRejected transition and already in REJECTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when markUploadAsRejected(
+        ) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
-        ) should thenGo(state)
-      }
-
-      "do nothing when markUploadAsRejected transition and already in ACCEPTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-              FileUpload.Accepted(
-                4,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf"
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2"))
               )
             )
           )
         )
-        given(state) when markUploadAsRejected(
+      }
+
+      "overwrite upload status when markUploadAsRejected transition and already in ACCEPTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Accepted(
+                  4,
+                  "foo-bar-ref-4",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                )
+              )
+            )
+          )
+        ) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2"))
+              )
+            )
+          )
+        )
       }
 
       "do nothing when markUploadAsRejected transition and none matching file upload found" in {
@@ -2174,26 +2221,27 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(state)
       }
 
-      "do nothing when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Accepted(
-                1,
-                "foo-bar-ref-1",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
-                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
-                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
-                "test.png",
-                "image/png"
-              ),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                  ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                  "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                  "test.png",
+                  "image/png"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -2204,21 +2252,41 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               fileMimeType = "application/pdf"
             )
           )
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
       }
 
-      "do nothing when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Rejected(1, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite upload status when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Rejected(1, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -2229,28 +2297,48 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               fileMimeType = "application/pdf"
             )
           )
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
       }
 
-      "do nothing when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Failed(
-                1,
-                "foo-bar-ref-1",
-                UpscanNotification.FailureDetails(
-                  failureReason = UpscanNotification.QUARANTINE,
-                  message = "e.g. This file has a virus"
-                )
-              ),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite upload status when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(
+                    failureReason = UpscanNotification.QUARANTINE,
+                    message = "e.g. This file has a virus"
+                  )
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -2261,7 +2349,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               fileMimeType = "application/pdf"
             )
           )
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
       }
 
       "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
@@ -2327,25 +2434,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(state)
       }
 
-      "do nothing when negative upscanCallbackArrived transition and upload already in FAILED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Failed(
-                1,
-                "foo-bar-ref-1",
-                UpscanNotification.FailureDetails(
-                  failureReason = UpscanNotification.REJECTED,
-                  message = "e.g. This file has wrong type"
-                )
-              ),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite upload status when negative upscanCallbackArrived transition and upload already in FAILED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(
+                    failureReason = UpscanNotification.REJECTED,
+                    message = "e.g. This file has wrong type"
+                  )
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -2353,29 +2461,48 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               message = "e.g. This file has a virus"
             )
           )
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(
+                    failureReason = UpscanNotification.QUARANTINE,
+                    message = "e.g. This file has a virus"
+                  )
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
       }
 
-      "do nothing when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-          FileUploads(files =
-            Seq(
-              FileUpload.Accepted(
-                1,
-                "foo-bar-ref-1",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
-                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
-                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
-                "test.png",
-                "image/png"
-              ),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+      "overwrite upload status when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  1,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                  ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                  "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                  "test.png",
+                  "image/png"
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
             )
           )
-        )
-        given(state) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -2383,7 +2510,25 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               message = "e.g. This file has a virus"
             )
           )
-        ) should thenGo(state)
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Failed(
+                  1,
+                  "foo-bar-ref-1",
+                  UpscanNotification.FailureDetails(
+                    failureReason = UpscanNotification.QUARANTINE,
+                    message = "e.g. This file has a virus"
+                  )
+                ),
+                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
       }
 
       "remove file upload when removeFileUploadByReference transition and reference exists" in {

@@ -728,6 +728,108 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
+    "GET /add/file-rejected" should {
+      "show upload document again" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          UploadFile(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+            ),
+            "2b72fe99-8adf-4edb-865e-622ae710f77c",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request(
+            "/add/file-rejected?key=2b72fe99-8adf-4edb-865e-622ae710f77c&errorCode=EntityTooLarge&errorMessage=Entity+Too+Large"
+          ).get()
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        journey.getState shouldBe UploadFile(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          ),
+          "2b72fe99-8adf-4edb-865e-622ae710f77c",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+            )
+          ),
+          Some(
+            FileTransmissionFailed(
+              S3UploadError("2b72fe99-8adf-4edb-865e-622ae710f77c", "EntityTooLarge", "Entity Too Large")
+            )
+          )
+        )
+      }
+    }
+
+    "PUT /add/file-rejected" should {
+      "mark file upload as rejected" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        journey.setState(
+          UploadMultipleFiles(
+            AmendCaseModel(
+              caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+              typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+            ),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/add/file-rejected").put(
+            Json.obj(
+              "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
+              "errorCode"    -> "EntityTooLarge",
+              "errorMessage" -> "Entity Too Large"
+            )
+          )
+        )
+
+        result.status shouldBe 201
+
+        journey.getState shouldBe UploadMultipleFiles(
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Rejected(
+                2,
+                "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                S3UploadError("2b72fe99-8adf-4edb-865e-622ae710f77c", "EntityTooLarge", "Entity Too Large")
+              )
+            )
+          )
+        )
+      }
+    }
+
     "GET /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
         implicit val journeyId: JourneyId = JourneyId()

@@ -4,4 +4,6 @@ export abstract class Component {
   protected constructor(container: HTMLElement) {
     this.container = container;
   }
+
+  public abstract init(): void;
 }

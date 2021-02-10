@@ -18,6 +18,8 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 @import "upload-loading";
 @import "overrides";
 
+@import "multi-file-upload";
+
 .app-\!-previous-claims-status-width {
   width: 30.5% !important;
 }

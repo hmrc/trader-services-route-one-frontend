@@ -438,6 +438,17 @@ summary.file-names=File names
 # ----------------------------------------------------------
 view.upload-multiple-files.heading=Upload your documents
 view.upload-multiple-files.title=Upload your documents
+view.upload-multiple-files.uploadMoreFilesThanLimit=You can upload up to 10 files. To upload more, you have to submit these files first and then use the service again
+view.upload-multiple-files.document=Document
+view.upload-multiple-files.remove=Remove
+view.upload-multiple-files.removing=Removing...
+view.upload-multiple-files.uploaded=Ready to submit
+view.upload-multiple-files.documentUploaded=Document {0} has been uploaded
+view.upload-multiple-files.documentDeleted=Document {0} has been deleted
+view.upload-multiple-files.stillTransferring=Files are still being transferred
+view.upload-multiple-files.uploadOnSelect=Choose your files to start uploading them
+view.upload-multiple-files.line1=You can upload up to 10 documents.
+view.upload-multiple-files.line2=Each document must be smaller than 6MB.
 
 view.upload-file.first.title=Upload your first document
 view.upload-file.first.heading=Upload your first document
@@ -481,6 +492,7 @@ error.file-upload.invalid-type=The selected file must be a JPG, PNG, PDF, TIFF, 
 error.file-upload.quarantine=The selected file contains a virus - upload a different one
 error.file-upload.unknown=The selected file could not be uploaded
 error.file-upload.try-again=The selected file could not be uploaded - try again
+error.file-upload.remove.try-again=The selected file could not be removed - try again
 error.uploadAnotherFile.required=Select yes if you want to upload another document
 error.file-upload.duplicate=The selected file has already been uploaded
 
