@@ -1,6 +1,6 @@
-import {Component} from './component';
-import {KeyValue} from '../interfaces/key-value.interface';
-import {UploadState} from '../enums/upload-state.enum';
+import { Component } from './component';
+import { KeyValue } from '../interfaces/key-value.interface';
+import { UploadState } from '../enums/upload-state.enum';
 import parseTemplate from '../utils/parse-template.util';
 import parseHtml from '../utils/parse-html.util';
 import toggleElement from '../utils/toggle-element.util';
@@ -370,10 +370,10 @@ export class MultiFileUpload extends Component {
       case 'FAILED':
       case 'REJECTED':
       case 'DUPLICATE':
-      case 'NOT_UPLOADED':
         this.handleFileStatusFailed(file, error);
         break;
 
+      case 'NOT_UPLOADED':
       case 'WAITING':
       default:
         this.delayedRequestUploadStatus(fileRef);
@@ -465,15 +465,15 @@ export class MultiFileUpload extends Component {
   }
 
   private getSendUrl(fileId: string): string {
-    return parseTemplate(this.config.sendUrlTpl, {fileId: fileId});
+    return parseTemplate(this.config.sendUrlTpl, { fileId: fileId });
   }
 
   private getStatusUrl(fileRef: string): string {
-    return parseTemplate(this.config.statusUrlTpl, {fileRef: fileRef});
+    return parseTemplate(this.config.statusUrlTpl, { fileRef: fileRef });
   }
 
   private getRemoveUrl(fileRef: string): string {
-    return parseTemplate(this.config.removeUrlTpl, {fileRef: fileRef});
+    return parseTemplate(this.config.removeUrlTpl, { fileRef: fileRef });
   }
 
   private getFileByReference(fileRef: string): HTMLInputElement {
