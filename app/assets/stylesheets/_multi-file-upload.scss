@@ -31,7 +31,9 @@
 
 .multi-file-upload__file-name {
   display: none;
+  word-break: break-all;
   margin-bottom: 10px;
+  margin-right: 10px;
   font-size: 16px;
   font-family: "GDS Transport", arial, sans-serif;
 
@@ -53,6 +55,7 @@
 
 .multi-file-upload__status {
   position: relative;
+  flex-shrink: 0;
 }
 
 .multi-file-upload__progress {
