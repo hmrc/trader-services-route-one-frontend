@@ -231,6 +231,9 @@ export class MultiFileUpload extends Component {
   }
 
   private removeItem(item: HTMLElement): void {
+    const file = this.getFileFromItem(item);
+
+    this.errorManager.removeError(file.id);
     item.remove();
     this.updateFileNumbers();
     this.updateButtonVisibility();
