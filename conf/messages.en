@@ -442,10 +442,13 @@ view.upload-multiple-files.uploadMoreFilesThanLimit=You can upload up to 10 file
 view.upload-multiple-files.document=Document
 view.upload-multiple-files.remove=Remove
 view.upload-multiple-files.removing=Removing...
-view.upload-multiple-files.uploaded=Uploaded
+view.upload-multiple-files.uploaded=Ready to submit
 view.upload-multiple-files.documentUploaded=Document {0} has been uploaded
 view.upload-multiple-files.documentDeleted=Document {0} has been deleted
 view.upload-multiple-files.stillTransferring=Files are still being transferred
+view.upload-multiple-files.uploadOnSelect=Choose your files to start uploading them
+view.upload-multiple-files.line1=You can upload up to 10 documents.
+view.upload-multiple-files.line2=Each document must be smaller than 6MB.
 
 view.upload-file.first.title=Upload your first document
 view.upload-file.first.heading=Upload your first document

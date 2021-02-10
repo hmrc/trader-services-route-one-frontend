@@ -97,9 +97,18 @@ export default class ErrorManager {
       errorMessage: message
     });
 
+    this.bindErrorEvents(summaryRow, inputId);
     this.errorSummaryList.append(summaryRow);
 
     return summaryRow;
+  }
+
+  private bindErrorEvents(errorItem: HTMLElement, inputId: string): void {
+    errorItem.querySelector('a').addEventListener('click', (e) => {
+      e.preventDefault();
+
+      document.getElementById(inputId).focus();
+    });
   }
 
   private updateErrorSummaryVisibility(): void {

@@ -79,8 +79,13 @@
 
   @html.h1(messages("view.upload-multiple-files.heading"), classes = "govuk-heading-l")
 
-  @html.p{ @messages("view.upload-file.line1") }
-  @html.p{ @messages("view.upload-file.line2") }
+  @html.p{ @messages("view.upload-multiple-files.line1") }
+  @html.p{ @messages("view.upload-multiple-files.line2") }
+
+  @html.p(
+    content = Html(messages("view.upload-multiple-files.uploadOnSelect")),
+    classes = "govuk-body govuk-visually-hidden"
+  )
 
   @details(messages("view.upload-file.help.linkText")) {
     @html.p{ @messages("view.upload-file.help.line1") }
