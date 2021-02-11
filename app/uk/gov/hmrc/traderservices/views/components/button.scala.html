@@ -16,9 +16,12 @@
 
 @this(govukButton: GovukButton)
 
-@(msg: String)(implicit messages: Messages)
+@(msg: String, id: Option[String] = None)(implicit messages: Messages)
 
-@govukButton(Button(
-content = Text(messages(msg)),
-preventDoubleClick = true
-))
+@govukButton(
+    Button(
+        content = Text(messages(msg)),
+        preventDoubleClick = true,
+        attributes = Map("id" -> id.getOrElse("send-documents-for-customs-check-submit"))
+    )
+)

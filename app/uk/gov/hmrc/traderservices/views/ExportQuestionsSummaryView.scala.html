@@ -55,7 +55,7 @@
 
   @html.summaryList(context.summaryListOfFileUploads(fileUploads,backLink))
 
-  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction) {
     @html.button("form.export-questions.summary.continue")
   }
 }

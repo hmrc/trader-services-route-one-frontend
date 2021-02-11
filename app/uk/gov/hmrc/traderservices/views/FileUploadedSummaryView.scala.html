@@ -39,7 +39,7 @@
 
   @html.summaryList(context.summaryListOfFileUploads(fileUploads,previewFileCall,removeFileCall))
   
-  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction) {
 
     @html.p {
       @messages("view.file-uploaded.maximum")

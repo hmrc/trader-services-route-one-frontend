@@ -17,10 +17,13 @@
 package uk.gov.hmrc.traderservices.views.components
 
 import javax.inject.{Inject, Singleton}
+import play.api.mvc.Request
+import play.api.i18n.Messages
+import play.twirl.api.Html
 
 @Singleton
 class forms @Inject() (
-  val formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+  _formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
   val fieldset: uk.gov.hmrc.traderservices.views.html.components.fieldset,
   val errorSummary: uk.gov.hmrc.traderservices.views.html.components.errorSummary,
   val inputText: uk.gov.hmrc.traderservices.views.html.components.inputText,
@@ -31,4 +34,17 @@ class forms @Inject() (
   val inputRadio: uk.gov.hmrc.traderservices.views.html.components.inputRadio,
   val inputTime: uk.gov.hmrc.traderservices.views.html.components.inputTime,
   val textarea: uk.gov.hmrc.traderservices.views.html.components.textarea
-)
+) {
+
+  def formWithCSRF(action: play.api.mvc.Call, args: (Symbol, String)*)(body: => Html)(implicit
+    request: Request[_],
+    messages: Messages
+  ) =
+    _formWithCSRF.apply(
+      action,
+      (Seq(
+        'id         -> "send-documents-for-customs-check-form",
+        'novalidate -> "novalidate"
+      ) ++ args): _*
+    )(body)
+}
