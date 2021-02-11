@@ -50,6 +50,10 @@ date.day=Diwrnod
 date.month=Mis
 date.year=Blwyddyn
 
+researchBanner.heading = Helpwch i wella gwasanaethau CThEM
+researchBanner.inviteLink = Helpwch i wella gwasanaethau digidol drwy ymuno â phanel defnyddwyr CThEM (yn agor ffenestr newydd)
+researchBanner.closeLink = Dim diolch
+
 global.error.404.title=Heb ddod o hyd i’r dudalen
 global.error.404.heading=Heb ddod o hyd i’r dudalen
 global.error.404.line1=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
