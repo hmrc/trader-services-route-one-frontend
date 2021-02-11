@@ -279,6 +279,8 @@ export class MultiFileUpload extends Component {
     const item = this.getItemFromFile(file);
 
     if (!file.files.length) {
+      this.errorManager.removeError(file.id);
+
       return;
     }
 
