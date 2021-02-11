@@ -20,7 +20,9 @@ export class FileUpload extends Component {
       ariaLiveMessage: form.dataset.fileUploadAriaLiveMessage,
       fileInputName: 'file'
     };
+  }
 
+  public init(): void {
     this.cacheTemplates();
     this.cacheElements();
     this.bindEvents();

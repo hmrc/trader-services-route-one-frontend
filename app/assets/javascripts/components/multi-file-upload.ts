@@ -29,7 +29,8 @@ export class MultiFileUpload extends Component {
       minFiles: parseInt(form.dataset.multiFileUploadMinFiles) || 1,
       maxFiles: parseInt(form.dataset.multiFileUploadMaxFiles) || 10,
       uploadedFiles: form.dataset.multiFileUploadUploadedFiles ? JSON.parse(form.dataset.multiFileUploadUploadedFiles) : [],
-      retryDelayMs: parseInt(form.dataset.fileUploadRetryDelayMs, 10) || 1000,
+      retryDelayMs: parseInt(form.dataset.multiFileUploadRetryDelayMs, 10) || 1000,
+      maxRetries: parseInt(form.dataset.multiFileUploadMaxRetries) || 30,
       actionUrl: form.action,
       sendUrlTpl: decodeURIComponent(form.dataset.multiFileUploadSendUrlTpl),
       statusUrlTpl: decodeURIComponent(form.dataset.multiFileUploadStatusUrlTpl),
@@ -270,6 +271,7 @@ export class MultiFileUpload extends Component {
     this.uploadData[file.id].reference = fileRef;
     this.uploadData[file.id].fields = response['uploadRequest']['fields'];
     this.uploadData[file.id].url = response['uploadRequest']['href'];
+    this.uploadData[file.id].retries = 0;
   }
 
   private handleFileChange(e: Event): void {
@@ -360,6 +362,7 @@ export class MultiFileUpload extends Component {
 
   private handleRequestUploadStatusCompleted(fileRef: string, response: unknown): void {
     const file = this.getFileByReference(fileRef);
+    const data = this.uploadData[file.id];
     const error = response['errorMessage'] || this.messages.genericError;
 
     switch (response['fileStatus']) {
@@ -376,7 +379,17 @@ export class MultiFileUpload extends Component {
       case 'NOT_UPLOADED':
       case 'WAITING':
       default:
-        this.delayedRequestUploadStatus(fileRef);
+        data.retries++;
+
+        if (data.retries > this.config.maxRetries) {
+          this.uploadData[file.id].retries = 0;
+
+          this.handleFileStatusFailed(file, this.messages.genericError);
+        }
+        else {
+          this.delayedRequestUploadStatus(fileRef);
+        }
+
         break;
     }
   }
