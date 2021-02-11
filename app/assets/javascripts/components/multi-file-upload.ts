@@ -279,6 +279,8 @@ export class MultiFileUpload extends Component {
     const item = this.getItemFromFile(file);
 
     if (!file.files.length) {
+      this.errorManager.removeError(file.id);
+
       return;
     }
 
@@ -336,7 +338,7 @@ export class MultiFileUpload extends Component {
   }
 
   private handleUploadFileCompleted(fileRef: string): void {
-    this.requestUploadStatus(fileRef);
+    this.delayedRequestUploadStatus(fileRef);
   }
 
   private handleUploadFileError(fileRef: string): void {
