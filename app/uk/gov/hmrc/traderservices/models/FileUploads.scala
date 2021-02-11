@@ -46,7 +46,7 @@ case class FileUploads(
   def toUploadedFiles: Seq[UploadedFile] =
     files.collect {
       case f: FileUpload.Accepted =>
-        UploadedFile(f.reference, f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType)
+        UploadedFile(f.reference, f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType, f.fileSize)
     }
 
   def +(file: FileUpload): FileUploads = copy(files = files :+ file)
@@ -77,7 +77,7 @@ object FileUploads {
 
 /** File upload status */
 sealed trait FileUpload {
-  def orderNumber: Int
+  def nonce: Nonce
   def reference: String
   def isReady: Boolean
   def checksumOpt: Option[String] = None
@@ -86,14 +86,14 @@ sealed trait FileUpload {
 object FileUpload extends SealedTraitFormats[FileUpload] {
 
   def unapply(fileUpload: FileUpload): Option[(Int, String)] =
-    Some((fileUpload.orderNumber, fileUpload.reference))
+    Some((fileUpload.nonce.value, fileUpload.reference))
 
   /**
     * Status when file upload attributes has been requested from upscan-initiate
     * but the file itself has not been yet transmitted to S3 bucket.
     */
   case class Initiated(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String,
     uploadRequest: Option[UploadRequest] = None,
     uploadId: Option[String] = None
@@ -103,7 +103,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   /** Status when the file has successfully arrived to AWS S3 for verification. */
   case class Posted(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String
   ) extends FileUpload {
     override def isReady: Boolean = false
@@ -111,7 +111,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   /** Status when file transmission has been rejected by AWS S3. */
   case class Rejected(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String,
     details: S3UploadError
   ) extends FileUpload {
@@ -120,13 +120,14 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   /** Status when the file has been positively verified and is ready for further actions. */
   case class Accepted(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String,
     url: String,
     uploadTimestamp: ZonedDateTime,
     checksum: String,
     fileName: String,
-    fileMimeType: String
+    fileMimeType: String,
+    fileSize: Int
   ) extends FileUpload {
 
     override def isReady: Boolean = true
@@ -135,7 +136,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   /** Status when the file has failed verification and may not be used. */
   case class Failed(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String,
     details: UpscanNotification.FailureDetails
   ) extends FileUpload {
@@ -144,7 +145,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   /** Status when the file is a duplicate of an existing upload. */
   case class Duplicate(
-    orderNumber: Int,
+    nonce: Nonce,
     reference: String,
     checksum: String,
     existingFileName: String,

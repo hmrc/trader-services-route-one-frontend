@@ -22,6 +22,7 @@ import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
 import scala.concurrent.ExecutionContext
+import scala.util.Random
 
 /**
   * Generic file upload journey model mixin.
@@ -111,7 +112,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
         hostData,
         upscanResponse.reference,
         upscanResponse.uploadRequest,
-        fileUploads + FileUpload.Initiated(fileUploads.files.size + 1, upscanResponse.reference, None, None)
+        fileUploads + FileUpload.Initiated(Random.nextInt, upscanResponse.reference, None, None)
       )
   }
 
@@ -121,7 +122,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     private def resetFileUploadStatusToInitiated(reference: String, fileUploads: FileUploads): FileUploads =
       fileUploads.copy(files = fileUploads.files.map {
         case f if f.reference == reference =>
-          FileUpload.Initiated(f.orderNumber, f.reference, None, None)
+          FileUpload.Initiated(f.nonce, f.reference, None, None)
         case other => other
       })
 
@@ -158,7 +159,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                   state.copy(fileUploads =
                     state.fileUploads + FileUpload
                       .Initiated(
-                        state.fileUploads.files.size + 1,
+                        Random.nextInt,
                         upscanResponse.reference,
                         Some(upscanResponse.uploadRequest),
                         Some(uploadId)
@@ -408,7 +409,8 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                       uploadDetails.uploadTimestamp,
                       uploadDetails.checksum,
                       uploadDetails.fileName,
-                      uploadDetails.fileMimeType
+                      uploadDetails.fileMimeType,
+                      uploadDetails.size
                     )
                 }
                 modifiedFileUpload

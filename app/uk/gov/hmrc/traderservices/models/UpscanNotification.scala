@@ -41,7 +41,8 @@ sealed trait UpscanNotification {
   *        "uploadTimestamp": "2018-04-24T09:30:00Z",
   *        "checksum": "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
   *        "fileName": "test.pdf",
-  *        "fileMimeType": "application/pdf"
+  *        "fileMimeType": "application/pdf",
+  *        "size": "80090"
   *    }
   * }
   */
@@ -94,7 +95,8 @@ object UpscanNotification {
     uploadTimestamp: ZonedDateTime,
     checksum: String,
     fileName: String,
-    fileMimeType: String
+    fileMimeType: String,
+    size: Int
   )
 
   case class FailureDetails(
@@ -123,11 +125,13 @@ object UpscanNotification {
       ((__ \ "uploadTimestamp").read[ZonedDateTime] and
         (__ \ "checksum").read[String] and
         (__ \ "fileName").read[String].map(decodeMimeEncodedWord) and
-        (__ \ "fileMimeType").read[String])(UploadDetails.apply _),
+        (__ \ "fileMimeType").read[String] and
+        (__ \ "size").read[Int])(UploadDetails.apply _),
       ((__ \ "uploadTimestamp").write[ZonedDateTime] and
         (__ \ "checksum").write[String] and
         (__ \ "fileName").write[String] and
-        (__ \ "fileMimeType").write[String])(unlift(UploadDetails.unapply))
+        (__ \ "fileMimeType").write[String] and
+        (__ \ "size").write[Int])(unlift(UploadDetails.unapply))
     )
 
     def decodeMimeEncodedWord(word: String): String =

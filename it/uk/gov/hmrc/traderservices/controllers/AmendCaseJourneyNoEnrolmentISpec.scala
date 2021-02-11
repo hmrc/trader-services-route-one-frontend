@@ -299,7 +299,7 @@ class AmendCaseJourneyNoEnrolmentISpec
             fileUploads = FileUploads(files =
               Seq(
                 FileUpload.Initiated(
-                  1,
+                  Nonce.MatchAny,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   uploadId = Some("001"),
                   uploadRequest = Some(
@@ -332,10 +332,11 @@ class AmendCaseJourneyNoEnrolmentISpec
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
-            fileUploads = Some(FileUploads(Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+            fileUploads =
+              Some(FileUploads(Seq(FileUpload.Posted(Nonce.MatchAny, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
           ),
           fileUploads = FileUploads(
-            Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))
+            Seq(FileUpload.Posted(Nonce.MatchAny, "23370e18-6e24-453e-b45a-76d3e32ea389"))
           )
         )
         journey.setState(state)
@@ -372,13 +373,14 @@ class AmendCaseJourneyNoEnrolmentISpec
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
-              fileUploads = Some(FileUploads(Seq(FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+              fileUploads =
+                Some(FileUploads(Seq(FileUpload.Posted(Nonce.MatchAny, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
             ),
             fileUploads = FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "23370e18-6e24-453e-b45a-76d3e32ea389"),
+                FileUpload.Posted(Nonce.MatchAny, "23370e18-6e24-453e-b45a-76d3e32ea389"),
                 FileUpload.Initiated(
-                  2,
+                  Nonce.MatchAny,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   uploadId = Some("002"),
                   uploadRequest = Some(
@@ -433,7 +435,8 @@ class AmendCaseJourneyNoEnrolmentISpec
               "error_action_redirect"   -> "https://myservice.com/errorPage"
             )
           ),
-          fileUploads = FileUploads(files = Seq(FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+          fileUploads =
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
         )
         journey.setState(state)
         givenAuthorised
@@ -463,8 +466,8 @@ class AmendCaseJourneyNoEnrolmentISpec
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -491,7 +494,7 @@ class AmendCaseJourneyNoEnrolmentISpec
             FileUploads(files =
               Seq(
                 FileUpload.Rejected(
-                  1,
+                  Nonce.MatchAny,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   S3UploadError(
                     key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -499,7 +502,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                     errorMessage = "ABC 123"
                   )
                 ),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             ),
             Some(
@@ -525,8 +528,8 @@ class AmendCaseJourneyNoEnrolmentISpec
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -546,11 +549,11 @@ class AmendCaseJourneyNoEnrolmentISpec
             ),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUpload.Posted(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Posted(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -569,36 +572,37 @@ class AmendCaseJourneyNoEnrolmentISpec
           FileUploads(files =
             Seq(
               FileUpload.Initiated(
-                1,
+                Nonce.MatchAny,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 uploadRequest =
                   Some(UploadRequest(href = "https://s3.amazonaws.com/bucket/123abc", fields = Map("foo1" -> "bar1")))
               ),
-              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
-                4,
+                Nonce.MatchAny,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                4567890
               ),
               FileUpload.Failed(
-                3,
+                Nonce.MatchAny,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               ),
               FileUpload.Rejected(
-                5,
+                Nonce.MatchAny,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e3",
                 details = S3UploadError("key", "errorCode", "Invalid file type.")
               ),
               FileUpload.Duplicate(
-                6,
+                Nonce.MatchAny,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e4",
                 checksum = "0" * 64,
-                existingFileName = "test1.pdf",
+                existingFileName = "test.pdf",
                 duplicateFileName = "test1.png"
               )
             )
@@ -665,13 +669,14 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                1,
+                Nonce.MatchAny,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                4567890
               )
             )
           )
@@ -697,22 +702,24 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                1,
+                Nonce.MatchAny,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
-                "application/pdf"
+                "application/pdf",
+                5234567
               ),
               FileUpload.Accepted(
-                2,
+                Nonce.MatchAny,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               )
             )
           )
@@ -740,22 +747,24 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                1,
+                Nonce.MatchAny,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
-                "application/pdf"
+                "application/pdf",
+                5234567
               ),
               FileUpload.Accepted(
-                2,
+                Nonce.MatchAny,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               )
             )
           )
@@ -776,13 +785,14 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                2,
+                Nonce.MatchAny,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               )
             )
           )
@@ -801,22 +811,24 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                1,
+                Nonce.MatchAny,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
-                "application/pdf"
+                "application/pdf",
+                5234567
               ),
               FileUpload.Accepted(
-                2,
+                Nonce.MatchAny,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               )
             )
           )
@@ -836,13 +848,14 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                2,
+                Nonce.MatchAny,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               )
             )
           )
@@ -882,19 +895,20 @@ class AmendCaseJourneyNoEnrolmentISpec
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
-                4,
+                Nonce.MatchAny,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 upscanUrl,
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
-                "image/png"
+                "image/png",
+                4567890
               ),
               FileUpload.Failed(
-                3,
+                Nonce.MatchAny,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               )
@@ -928,19 +942,20 @@ class AmendCaseJourneyNoEnrolmentISpec
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-              FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
-                4,
+                Nonce.MatchAny,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 upscanUrl,
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                4567890
               ),
               FileUpload.Failed(
-                3,
+                Nonce.MatchAny,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               )
@@ -974,16 +989,17 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = Some(
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
                 FileUpload.Accepted(
-                  4,
+                  Nonce.MatchAny,
                   "f029444f-415c-4dec-9cf2-36774ec63ab8",
                   upscanUrl,
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  4567890
                 )
               )
             )
@@ -1035,16 +1051,17 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = Some(
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(1, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(2, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Initiated(Nonce.MatchAny, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.MatchAny, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
                 FileUpload.Accepted(
-                  4,
+                  Nonce.MatchAny,
                   "f029444f-415c-4dec-9cf2-36774ec63ab8",
                   upscanUrl,
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  4567890
                 )
               )
             )
