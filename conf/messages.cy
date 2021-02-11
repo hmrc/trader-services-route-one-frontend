@@ -21,6 +21,7 @@ site.change=Newid
 site.youCan=Gallwch wneud y canlynol:
 site.file.remove=Tynnu
 site.switchLanguage=Change the language to English
+
 site.Jan=Ionawr
 site.Feb=Chwefror
 site.March=Mawrth
@@ -33,28 +34,43 @@ site.Sept=Medi
 site.Oct=Hydref
 site.Nov=Tachwedd
 site.Dec=Rhagfyr
+
+button.continue=Yn eich blaen
+
 feedback.before =Gwasanaeth newydd yn hwn – bydd eich
 feedback.link =adborth
 feedback.after = yn ein helpu i’w wella.
-button.continue=Yn eich blaen
+
+error.browser.title.prefix= Gwall:
+error.summary.title=Mae problem wedi codi
+time.hour=Awr
+time.minutes=Munudau
+date.day=Diwrnod
+date.month=Mis
+date.year=Blwyddyn
+
 global.error.404.title=Heb ddod o hyd i’r dudalen
 global.error.404.heading=Heb ddod o hyd i’r dudalen
 global.error.404.line1=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
 global.error.404.line2=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
 global.error.404.line3=<a class="govuk-link" href="{0}">Anfon eich dogfennau i’w gwirio gan y tollau</a>
+
 footer.cookies=Cwcis
 footer.privacy=Polisi preifatrwydd
 footer.termsConditions=Telerau ac amodau
 footer.govukHelp=Help wrth ddefnyddio GOV.UK
 footer.accessibilityStatement=Datganiad hygyrchedd
+
 view.new-or-existing-case.title=Beth hoffech ei wneud?
 view.new-or-existing-case.heading=Beth hoffech ei wneud?
 view.new-or-existing-case.option.new=Anfon dogfennau i’w gwirio o’r newydd gan y tollau
 view.new-or-existing-case.option.new.hint=Mae hyn yn cynnwys anfon ffurflenni C1601, C1602 a C1603, neu ganslo achos.
 view.new-or-existing-case.option.existing=Ychwanegu gwybodaeth ychwanegol at wiriad tollau sy’n bodoli eisoes
 view.new-or-existing-case.option.existing.hint=Os oes gennych gyfeirnod achos yn barod, gallwch ychwanegu rhagor o wybodaeth at yr achos.
+
 error.newOrExistingCase.required=Dewiswch yr hyn yr hoffech ei wneud
 error.newOrExistingCase.invalid-option=Dewiswch yr hyn yr hoffech ei wneud
+
 view.new-or-existing-case.continue=Yn eich blaen
 view.declaration-details.title=Beth yw manylion eich datganiad?
 view.declaration-details.heading=Beth yw manylion eich datganiad?
@@ -63,6 +79,7 @@ form.declaration-details.entryNumber=Rhif y cofnod
 form.declaration-details.entryDate=Dyddiad y cofnod
 form.declaration-details.entryDate.hint=Er enghraifft, {0}
 form.declaration-details.continue=Yn eich blaen
+
 error.epu.required=Nodwch rif EPU
 error.epu.invalid-length=Mae’n rhaid i’r rhif EPU fod yn 3 o gymeriadau
 error.epu.invalid-only-digits=Mae’n rhaid i’r rhif EPU gynnwys rhifau yn unig
@@ -84,6 +101,7 @@ error.entryDate.month.invalid-digits=Mae’n rhaid i fis y cofnod gynnwys rhifau
 error.entryDate.day.invalid-digits=Mae’n rhaid i ddiwrnod y cofnod gynnwys rhifau yn unig
 error.entryDate.all.invalid-value-future=Mae’n rhaid i ddyddiad y cofnod fod heddiw neu yn y gorffennol
 error.entryDate.all.invalid-value-past=Mae’n rhaid i ddyddiad y cofnod fod o fewn y 6 mis diwethaf
+
 view.export-questions.requestType.title=Pa fath o gais allforio yw hwn?
 view.export-questions.requestType.heading=Pa fath o gais allforio yw hwn?
 view.export-questions.routeType.title=Ar gyfer pa lwybr y mae’r datganiad hwn?
@@ -109,6 +127,7 @@ view.export-questions.summary.declaration-details.heading=Gwybodaeth am y datgan
 view.export-questions.summary.pre-clearance.heading=Gwybodaeth am y tollau
 view.export-questions.summary.vessel-details.heading=Gwybodaeth am drafnidiaeth
 view.export-questions.summary.contact-details.heading=Manylion cyswllt
+
 view.import-questions.requestType.title=Pa fath o gais mewnforio yw hwn?
 view.import-questions.requestType.heading=Pa fath o gais mewnforio yw hwn?
 view.import-questions.routeType.title=Ar gyfer pa lwybr y mae’r datganiad hwn?
@@ -137,6 +156,7 @@ view.import-questions.summary.declaration-details.heading=Gwybodaeth am y datgan
 view.import-questions.summary.pre-clearance.heading=Gwybodaeth am y tollau
 view.import-questions.summary.vessel-details.heading=Gwybodaeth am drafnidiaeth
 view.import-questions.summary.contact-details.heading=Manylion cyswllt
+
 form.export-questions.requestType.New=Cais newydd
 form.export-questions.requestType.Cancellation=Cais i ganslo
 form.export-questions.requestType.WithdrawalOrReturn=Cais i dynnu’n ôl
@@ -170,6 +190,7 @@ form.export-questions.contactNumber=Rhif ffôn yn y DU (dewisol)
 form.export-questions.contactNumber.hint=Er enghraifft, 01632 960 001 neu 07700 900 982
 form.export-questions.continue=Yn eich blaen
 form.export-questions.summary.continue=Yn eich blaen i uwchlwytho ffeil
+
 error.exportRequestType.required=Dewiswch y math o gais allforio
 error.exportRouteType.required=Dewiswch y llwybr
 error.exportHasPriorityGoods.required=Dewiswch ‘Iawn’ os ydych yn allforio nwyddau sydd â blaenoriaeth
@@ -196,6 +217,7 @@ error.timeOfArrival.hour.invalid-digits=Mae’n rhaid i’r awr cyrraedd gynnwys
 error.timeOfArrival.minutes.invalid-digits=Mae’n rhaid i’r munudau cyrraedd gynnwys rhifau yn unig
 error.timeOfArrival.hour.invalid-value=Mae’n rhaid i’r oriau fod rhwng 0 a 23
 error.timeOfArrival.minutes.invalid-value=Mae’n rhaid i’r munudau fod rhwng 00 a 59
+
 form.import-questions.requestType.New=Cais newydd
 form.import-questions.requestType.Cancellation=Cais i ganslo
 form.import-questions.requestType.ALVS=System Gwirio Trwyddedau Awtomatig (ALVS)
@@ -230,6 +252,7 @@ form.import-questions.contactNumber=Rhif ffôn yn y DU (dewisol)
 form.import-questions.contactNumber.hint=Er enghraifft, 01632 960 001 neu 07700 900 982
 form.import-questions.continue=Yn eich blaen
 form.import-questions.summary.continue=Yn eich blaen i uwchlwytho ffeil
+
 error.importRequestType.required=Dewiswch y math o gais mewnforio
 error.importRouteType.required=Dewiswch y llwybr
 error.importHasPriorityGoods.required=Dewiswch ‘Iawn’ os ydych yn mewnforio nwyddau sydd â blaenoriaeth
@@ -243,6 +266,7 @@ error.contactNumber.invalid-length=Nodwch rif ffôn 11 digid, megis 01632 960 00
 error.contactEmail=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 error.contactEmail.required=Nodwch gyfeiriad e-bost
 error.contactName.required=Nodwch eich enw llawn
+
 summary.declaration-details.epu=Rhif EPU
 summary.declaration-details.entryNumber=Rhif y cofnod
 summary.declaration-details.entryDate=Dyddiad y cofnod
@@ -264,6 +288,7 @@ summary.contact-details=Manylion cyswllt
 summary.contact-details.contactName=Enw llawn
 summary.contact-details.contactEmail=Cyfeiriad e-bost
 summary.contact-details.contactNumber=Rhif ffôn
+
 view.upload-file.first.title=Uwchlwythwch eich dogfen gyntaf
 view.upload-file.first.heading=Uwchlwythwch eich dogfen gyntaf
 view.upload-file.first.fileLabel=Dewiswch y ffeil gyntaf i’w huwchlwytho
@@ -280,6 +305,7 @@ view.upload-file.help.fileFormat4=TIFF
 view.upload-file.help.fileFormat5=Microsoft Excel, Word a PowerPoint
 view.upload-file.help.fileFormat6=Open Document Format (ODF)
 view.upload-file.help.line4=Ni allwch uwchlwytho ffeiliau zip na dogfennau sydd wedi’u diogelu gan gyfrinair.
+
 view.file-uploaded.singular.title=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.singular.heading=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.plural.title=Rydych wedi uwchlwytho {0} o ddogfennau
@@ -287,11 +313,13 @@ view.file-uploaded.plural.heading=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.uploadAnotherFile.heading=A hoffech uwchlwytho dogfen arall?
 view.file-uploaded.list.heading=Dogfennau rydych wedi’u huwchlwytho
 view.file-uploaded.maximum=Rydych wedi uwchlwytho’r nifer uchaf o ffeiliau sy’n bosibl ac ni allwch ychwanegu rhagor.
+
 form.upload-file.submit=Uwchlwytho
 form.file-uploaded.uploadAnotherFile.yes=Iawn
 form.file-uploaded.uploadAnotherFile.no=Na
 form.file-uploaded.uploadAnotherFile.noConditional=Drwy barhau, byddwch nawr yn cyflwyno’r holl ddogfennau rydych wedi’u huwchlwytho
 form.file-uploaded.continue=Yn eich blaen
+
 error.file-upload.required=Dewiswch ffeil
 error.file-upload.invalid-size-small=Mae’r ffeil dan sylw yn wag
 error.file-upload.invalid-size-large=Mae’n rhaid i’r ffeil dan sylw fod yn llai na {0}MB
@@ -299,6 +327,7 @@ error.file-upload.invalid-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf J
 error.file-upload.quarantine=Mae feirws yn y ffeil dan sylw – uwchlwythwch un wahanol
 error.file-upload.unknown=Nid oedd modd uwchlwytho’r ffeil dan sylw
 error.uploadAnotherFile.required=Dewiswch ‘Iawn’ os hoffech uwchlwytho dogfen arall
+
 view.create-case-confirmation.title=Rydych wedi cyflwyno’ch dogfennau
 view.create-case-confirmation.heading=Rydych wedi cyflwyno’ch dogfennau
 view.create-case-confirmation.reference=Cyfeirnod eich achos:
@@ -325,22 +354,28 @@ view.case-reference-number.continue=Yn eich blaen
 view.case-reference-number.linkText=Help gyda chyfeirnod yr achos
 view.case-reference-number.help.line1=Byddech wedi cael cyfeirnod eich achos wrth gyflwyno’ch set gyntaf o ddogfennau.
 view.case-reference-number.help.line2=Cysylltwch â’r <a class="govuk-link" href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">Ganolfan Glirio Genedlaethol</a> os nad ydych yn siŵr beth yw’ch rhif.
+
 error.caseReferenceNumber.invalid-value=Mae’n rhaid i gyfeirnod yr achos fod yn 22 o gymeriadau
+
 view.type-of-amendment.title=Sut yr hoffech anfon rhagor o wybodaeth atom?
 view.type-of-amendment.heading=Sut yr hoffech anfon rhagor o wybodaeth atom?
 view.type-of-amendment.continue=Yn eich blaen
 form.typeOfAmendment.WriteResponse=Ysgrifennu ymateb i gwestiwn y mae CThEM wedi’i ofyn
 form.typeOfAmendment.UploadDocuments=Uwchlwytho rhagor o ddogfennau
 form.typeOfAmendment.WriteResponseAndUploadDocuments=Ysgrifennu ymateb ac uwchlwytho rhagor o ddogfennau
+
 error.typeOfAmendment.required=Dewiswch sut yr hoffech anfon rhagor o wybodaeth atom
 error.typeOfAmendment.invalid-option=Dewiswch sut yr hoffech anfon rhagor o wybodaeth atom
+
 view.write-response-text.title=Ysgrifennu ymateb i ymholiad gan CThEM
 view.write-response-text.heading=Ysgrifennu ymateb i ymholiad gan CThEM
 view.write-response-text.hint=Peidiwch â chynnwys gwybodaeth bersonol nac ariannol, megis cardiau credyd neu fanylion cyfrif busnes.
 view.write-response-text.countMessage=Mae gennych [1000] o gymeriadau yn weddill.
 view.write-response-text.continue=Yn eich blaen
+
 error.responseText.required=Nodwch ymateb i ymholiad gan CThEM
 error.responseText.invalid-length=Mae’n rhaid i’r ymateb fod yn 1000 o gymeriadau neu lai
+
 view.amend-case-confirmation.title=Rydych wedi cyflwyno’ch gwybodaeth ychwanegol
 view.amend-case-confirmation.heading=Rydych wedi cyflwyno’ch gwybodaeth ychwanegol
 view.amend-case-confirmation.reference=Cyfeirnod eich achos:
@@ -351,10 +386,10 @@ view.amend-case-confirmation.next.heading=Y camau nesaf
 view.amend-case-confirmation.next.description=Unwaith y bydd y gwaith o wirio’r wybodaeth wedi’i gwblhau, byddwch yn clywed gennym drwy CHIEF neu drwy’ch meddalwedd datgan. Byddwn yn rhoi gwybod i chi os bydd arnom angen rhagor o wybodaeth gennych chi.
 view.amend-case-confirmation.continue=Anfon dogfennau i’w gwirio gan y tollau
 view.amend-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
+
 view.timedout.title=Er eich diogelwch, gwnaethom eich allgofnodi
 view.timedout.heading=Er eich diogelwch, gwnaethom eich allgofnodi
 view.timedout.description=Ni wnaethom gadw’ch atebion.
 view.timedout.signIn=Mewngofnodi
-date.day=Diwrnod
-date.month=Mis
-date.year=Blwyddyn
+
+
