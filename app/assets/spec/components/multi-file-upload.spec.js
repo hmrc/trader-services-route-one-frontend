@@ -242,6 +242,9 @@ describe('Multi File Upload component', () => {
         spyOn(instance, 'requestUploadStatus').and.callFake((fileRef) => {
           instance.handleRequestUploadStatusCompleted(fileRef, getStatusResponse());
         });
+        spyOn(instance, 'delayedRequestUploadStatus').and.callFake((fileRef) => {
+          instance.requestUploadStatus(fileRef);
+        });
 
         instance.init();
 
