@@ -336,7 +336,7 @@ export class MultiFileUpload extends Component {
   }
 
   private handleUploadFileCompleted(fileRef: string): void {
-    this.requestUploadStatus(fileRef);
+    this.delayedRequestUploadStatus(fileRef);
   }
 
   private handleUploadFileError(fileRef: string): void {
