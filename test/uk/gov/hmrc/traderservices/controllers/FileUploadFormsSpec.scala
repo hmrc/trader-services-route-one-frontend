@@ -58,14 +58,14 @@ class FileUploadFormsSpec extends UnitSpec with FormValidator {
           "key"            -> "ABC-123",
           "errorCode"      -> "code-001",
           "errorMessage"   -> "Strange file, is it?",
-          "errorRequestId" -> "0Some(123456789)",
+          "errorRequestId" -> "0123456789",
           "errorResource"  -> "/foo"
         ),
         S3UploadError(
           key = "ABC-123",
           errorCode = "code-001",
           errorMessage = "Strange file, is it?",
-          errorRequestId = Some("0Some(123456789)"),
+          errorRequestId = Some("0123456789"),
           errorResource = Some("/foo")
         )
       )

@@ -45,7 +45,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"ChooseNewOrExistingCase","properties":{"newOrExistingCaseOpt":"New","declarationDetailsOpt":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswersOpt":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}},"continueAmendCaseJourney":true}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}},"continueAmendCaseJourney":true}}""".stripMargin,
         State.ChooseNewOrExistingCase(
           Some(NewOrExistingCase.New),
           Some(DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05"))),
@@ -68,7 +68,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ImportContactInfo(
                   contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -175,7 +175,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       validateJsonFormat(
         """{"state":"AnswerExportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
           |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO",
-          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
@@ -188,7 +188,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ExportContactInfo(
                   contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -200,7 +200,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
           |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route2","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.ExportQuestionsSummary(
           ExportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
@@ -221,7 +221,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ExportContactInfo(
                   contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -335,7 +335,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       validateJsonFormat(
         """{"state":"AnswerImportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
-          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
@@ -349,7 +349,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ImportContactInfo(
                   contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -360,7 +360,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"ImportQuestionsSummary","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}}}""".stripMargin,
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.ImportQuestionsSummary(
           ImportQuestionsStateModel(
             DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
@@ -382,7 +382,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ImportContactInfo(
                   contactName = Some("Full Name"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -393,7 +393,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"import":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref",
           |"uploadRequest":{"href":"https://foo.bar","fields":{}},
           |"fileUploads":{"files":[
@@ -424,7 +424,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
                 ImportContactInfo(
                   contactName = Some("Bob"),
                   contactEmail = "name@somewhere.com",
-                  contactNumber = Some("0Some(123456789)10")
+                  contactNumber = Some("012345678910")
                 )
               )
             )
@@ -462,7 +462,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
@@ -509,7 +509,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"WaitingForFileVerification","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"currentFileUpload":{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}},
@@ -559,7 +559,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"FileUploaded","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"fileUploads":{"files":[
           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -604,7 +604,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         """{"state":"UploadMultipleFiles","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}}},
+          |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"fileUploads":{"files":[
           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"001"}},
           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -655,7 +655,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         s"""{"state":"CreateCaseConfirmation","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
            |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
            |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
-           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"0Some(123456789)10"}}},
+           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
            |"uploadedFiles":[
            |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}
            |],
@@ -710,7 +710,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       ExportContactInfo(
         contactName = Some("Bob"),
         contactEmail = "name@somewhere.com",
-        contactNumber = Some("0Some(123456789)10")
+        contactNumber = Some("012345678910")
       )
     )
   )
