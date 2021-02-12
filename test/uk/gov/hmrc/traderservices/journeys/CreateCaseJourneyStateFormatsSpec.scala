@@ -397,11 +397,11 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"reference":"foo-bar-ref",
           |"uploadRequest":{"href":"https://foo.bar","fields":{}},
           |"fileUploads":{"files":[
-          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"Posted":{"orderNumber":3,"reference":"foo3"}},
-          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
+          |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+          |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}},
+          |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
+          |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
           |]},"maybeUploadError":{"FileVerificationFailed":{"details":{"failureReason":"QUARANTINE","message":"some reason"}}}}}""".stripMargin,
         FileUploadState.UploadFile(
           FileUploadHostData(
@@ -433,19 +433,26 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map.empty),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "foo1"),
-              FileUpload.Posted(3, "foo3"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3"),
               FileUpload.Accepted(
-                4,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
               FileUpload
-                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
+                .Failed(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "foo2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                )
             )
           ),
           Some(FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")))
@@ -459,11 +466,11 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
           |"fileUploads":{"files":[
-          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+          |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
+          |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
           |]}}}""".stripMargin,
         FileUploadState.UploadFile(
           FileUploadHostData(
@@ -474,19 +481,26 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
-                4,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
               FileUpload
-                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
-              FileUpload.Posted(3, "foo3")
+                .Failed(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "foo2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                ),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -498,13 +512,13 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"reference":"foo-bar-ref-2",
           |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
-          |"currentFileUpload":{"Posted":{"orderNumber":3,"reference":"foo3"}},
+          |"currentFileUpload":{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}},
           |"fileUploads":{"files":[
-          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+          |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
+          |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
           |]}}}""".stripMargin,
         FileUploadState.WaitingForFileVerification(
           FileUploadHostData(
@@ -513,22 +527,29 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           ),
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
-          FileUpload.Posted(3, "foo3"),
+          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3"),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
-                4,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
               FileUpload
-                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
-              FileUpload.Posted(3, "foo3")
+                .Failed(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "foo2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                ),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -540,11 +561,11 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"fileUploads":{"files":[
-          |{"Initiated":{"orderNumber":1,"reference":"foo1"}},
-          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+          |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
+          |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
           |]},
           |"acknowledged":false}}""".stripMargin,
         FileUploadState.FileUploaded(
@@ -554,19 +575,26 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(1, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
-                4,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
               FileUpload
-                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
-              FileUpload.Posted(3, "foo3")
+                .Failed(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "foo2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                ),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -578,11 +606,11 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
           |"fileUploads":{"files":[
-          |{"Initiated":{"orderNumber":1,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"001"}},
-          |{"Accepted":{"orderNumber":4,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}},
-          |{"Failed":{"orderNumber":2,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-          |{"Posted":{"orderNumber":3,"reference":"foo3"}}
+          |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"001"}},
+          |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
+          |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+          |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
           |]}}}""".stripMargin,
         FileUploadState.UploadMultipleFiles(
           FileUploadHostData(
@@ -593,23 +621,31 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
             Seq(
               FileUpload
                 .Initiated(
-                  orderNumber = 1,
+                  Nonce.Any,
+                  Timestamp.Any,
                   reference = "foo1",
                   uploadRequest = Some(UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123"))),
                   uploadId = Some("001")
                 ),
               FileUpload.Accepted(
-                4,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
               FileUpload
-                .Failed(2, "foo2", UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")),
-              FileUpload.Posted(3, "foo3")
+                .Failed(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "foo2",
+                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+                ),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -621,7 +657,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
            |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
            |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
            |"uploadedFiles":[
-           |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf"}
+           |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}
            |],
            |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"},
            |"caseSLA":{"dateTime":"${generatedAt.plusHours(2)}"}}}""".stripMargin,
@@ -635,7 +671,8 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
               ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
-              "application/pdf"
+              "application/pdf",
+              Some(4567890)
             )
           ),
           TraderServicesResult("7w7e7wq87ABDFD78wq7e87", generatedAt),

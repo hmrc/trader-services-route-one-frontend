@@ -180,9 +180,9 @@ class AmendCaseJourneyController @Inject() (
       case None    => controller.markFileUploadAsRejected()
     })
 
-  final def upscanRequest(implicit rh: RequestHeader) =
+  final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
       successRedirect = Some(successRedirect),
       errorRedirect = Some(errorRedirect),
       minimumFileSize = Some(1),
@@ -190,9 +190,9 @@ class AmendCaseJourneyController @Inject() (
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
     )
 
-  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
+  final def upscanRequestWhenUploadingMultipleFiles(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
       successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
       errorRedirect = Some(errorRedirect),
       minimumFileSize = Some(1),
@@ -277,10 +277,10 @@ class AmendCaseJourneyController @Inject() (
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // POST /add/journey/:journeyId/callback-from-upscan
-  final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
+  final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
     actions
       .parseJsonWithFallback[UpscanNotification](BadRequest)
-      .apply(FileUploadTransitions.upscanCallbackArrived)
+      .apply(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce)))
       .transform { case _ => NoContent }
       .recover {
         case e => InternalServerError

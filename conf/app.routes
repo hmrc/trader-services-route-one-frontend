@@ -70,7 +70,7 @@ GET        /new/file-uploaded/:reference/remove                     @uk.gov.hmrc
 PUT        /new/file-uploaded/:reference/remove                     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.removeFileUploadByReferenceAsync(reference: String)
 GET        /new/file-uploaded/:reference                            @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.previewFileUploadByReference(reference: String)
 + nocsrf
-POST       /new/journey/:journeyId/callback-from-upscan             @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String)
+POST       /new/journey/:journeyId/callback-from-upscan/:nonce      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String, nonce: String)
 
 POST       /new/create-case                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /new/confirmation                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
@@ -106,8 +106,8 @@ GET        /add/file-uploaded/:reference/remove                     @uk.gov.hmrc
 PUT        /add/file-uploaded/:reference/remove                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.removeFileUploadByReferenceAsync(reference: String)
 GET        /add/file-uploaded/:reference                            @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.previewFileUploadByReference(reference: String)
 + nocsrf
-POST       /add/journey/:journeyId/callback-from-upscan             @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String)
-GET        /add/check-your-answers                                      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
+POST       /add/journey/:journeyId/callback-from-upscan/:nonce      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String, nonce: String)
+GET        /add/check-your-answers                                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
 GET        /add/confirmation                                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
 

@@ -62,7 +62,7 @@
    *                                 GET request to this call will return either 404 or 200 with JSON status, i.e. one of: 
    *         - {"reference":"$reference$","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}
    *         - {"reference":"$reference$","fileStatus":"POSTED"}
-   *         - {"reference":"$reference$","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}
+   *         - {"reference":"$reference$","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}
    *         - {"reference":"$reference$","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}
    *         - {"reference":"$reference$","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}
    *         - {"reference":"$reference$","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}

@@ -31,7 +31,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.reflect.ClassTag
 import scala.util.{Random, Try}
-import uk.gov.hmrc.traderservices.models.TypeOfAmendment.UploadDocuments
 class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
   import scala.concurrent.duration._
@@ -147,7 +146,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
           )
         )
       }
@@ -274,7 +273,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
           )
         )
       }
@@ -325,13 +324,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
     val someFileUploads = FileUploads(files =
       Seq(
         FileUpload.Accepted(
-          1,
+          Nonce(1),
+          Timestamp.Any,
           "foo-bar-ref-1",
           "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           ZonedDateTime.parse("2018-04-24T09:30:00Z"),
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
           "test.pdf",
-          "application/pdf"
+          "application/pdf",
+          Some(4567890)
         )
       )
     )
@@ -364,12 +365,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
-            nonEmptyFileUploads + FileUpload.Initiated(2, "foo-2") + FileUpload.Posted(3, "foo-3")
+            nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
+              .Posted(Nonce.Any, Timestamp.Any, "foo-3")
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
-            nonEmptyFileUploads + FileUpload.Posted(3, "foo-3")
+            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo-3")
           )
         )
       }
@@ -385,10 +387,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads() +
               FileUpload.Initiated(
-                1,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
-                uploadRequest = Some(someUploadRequest(testUpscanRequest))
+                uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
               )
           )
         )
@@ -397,8 +400,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
       "initiate new file upload when initiateNextFileUpload transition and some uploads exist already" in {
         val fileUploads = FileUploads(files =
           (0 until (maxFileUploadsNumber - 1))
-            .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
-        ) + FileUpload.Rejected(9, "foo-bar-ref-9", S3UploadError("a", "b", "c"))
+            .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+        ) + FileUpload.Rejected(Nonce(9), Timestamp(9), "foo-bar-ref-9", S3UploadError("a", "b", "c"))
         given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
@@ -409,10 +412,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             fileUploads +
               FileUpload.Initiated(
-                fileUploads.files.size + 1,
+                Nonce.Any,
+                Timestamp.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
-                uploadRequest = Some(someUploadRequest(testUpscanRequest))
+                uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
               )
           )
         )
@@ -424,13 +428,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
-              FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
-              FileUpload.Initiated(2, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         )
       }
@@ -439,7 +443,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
 
         val fileUploads = FileUploads(files =
           (0 until maxFileUploadsNumber)
-            .map(i => FileUpload.Initiated(i, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+            .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
         )
         given(
           UploadMultipleFiles(
@@ -460,9 +464,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -471,9 +475,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Posted(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -485,9 +489,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
         )
@@ -500,17 +504,19 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
                 FileUpload.Accepted(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -520,10 +526,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                FileUpload.Posted(4, "foo-bar-ref-4")
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+                FileUpload.Posted(Nonce(4), Timestamp.Any, "foo-bar-ref-4")
               )
             )
           )
@@ -535,9 +541,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
         )
@@ -550,9 +556,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -563,9 +569,14 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Rejected(2, "foo-bar-ref-2", S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Rejected(
+                  Nonce(2),
+                  Timestamp.Any,
+                  "foo-bar-ref-2",
+                  S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
+                ),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -578,9 +589,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -591,9 +602,14 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(
+                  Nonce(3),
+                  Timestamp.Any,
+                  "foo-bar-ref-3",
+                  S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
+                )
               )
             )
           )
@@ -605,10 +621,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Rejected(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
+              )
             )
           )
         )
@@ -622,9 +643,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
         )
@@ -639,13 +660,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -653,7 +674,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -662,16 +684,18 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -683,13 +707,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
         )
-        given(state) when upscanCallbackArrived(
+        given(state) when upscanCallbackArrived(Nonce(4))(
           UpscanFileReady(
             reference = "foo-bar-ref-4",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -697,7 +721,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(state)
@@ -710,20 +735,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
                   ZonedDateTime.parse("2018-04-24T09:28:00Z"),
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
-                  "image/png"
+                  "image/png",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -731,7 +758,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -740,16 +768,18 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -762,13 +792,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Rejected(1, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Rejected(Nonce(1), Timestamp.Any, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -776,7 +806,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -785,16 +816,18 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -808,19 +841,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(
                     failureReason = UpscanNotification.QUARANTINE,
                     message = "e.g. This file has a virus"
                   )
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -828,7 +862,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -837,16 +872,18 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -859,13 +896,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -879,15 +916,16 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(
                     failureReason = UpscanNotification.QUARANTINE,
                     message = "e.g. This file has a virus"
                   )
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -899,13 +937,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
-              FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
         )
-        given(state) when upscanCallbackArrived(
+        given(state) when upscanCallbackArrived(Nonce(4))(
           UpscanFileFailed(
             reference = "foo-bar-ref-4",
             failureDetails = UpscanNotification.FailureDetails(
@@ -923,19 +961,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(
                     failureReason = UpscanNotification.REJECTED,
                     message = "e.g. This file has wrong type"
                   )
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -949,15 +988,16 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(
                     failureReason = UpscanNotification.QUARANTINE,
                     message = "e.g. This file has a virus"
                   )
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -971,20 +1011,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
                   ZonedDateTime.parse("2018-04-24T09:28:00Z"),
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
-                  "image/png"
+                  "image/png",
+                  Some(4567890)
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -998,15 +1040,16 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(
                     failureReason = UpscanNotification.QUARANTINE,
                     message = "e.g. This file has a virus"
                   )
                 ),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(3, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -1019,18 +1062,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
-                FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+                FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -1039,9 +1084,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
-                FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
               )
             )
           )
@@ -1053,18 +1098,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           fullAmendCaseStateModel,
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1"),
-              FileUpload.Initiated(2, "foo-bar-ref-2"),
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
               FileUpload.Accepted(
-                3,
+                Nonce(3),
+                Timestamp.Any,
                 "foo-bar-ref-3",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               ),
-              FileUpload.Rejected(4, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+              FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
             )
           )
         )
@@ -1090,19 +1137,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1121,22 +1171,25 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(2, "foo-bar-ref-2"),
+            FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Posted(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1161,19 +1214,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1185,19 +1241,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1222,19 +1281,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1255,19 +1317,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
-                FileUpload.Initiated(2, "foo-bar-ref-2"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Accepted(
-                  3,
+                  Nonce(3),
+                  Timestamp.Any,
                   "foo-bar-ref-3",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
-                  4,
+                  Nonce(4),
+                  Timestamp.Any,
                   "foo-bar-ref-4",
                   UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
                 )
@@ -1295,9 +1360,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -1305,7 +1370,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -1314,13 +1380,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -1341,9 +1409,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -1366,7 +1434,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
                 )
@@ -1394,7 +1463,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(1, "foo-bar-ref-1")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
 
         given(state) when markUploadAsRejected(
@@ -1410,7 +1479,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fileUploads = FileUploads(files =
               Seq(
                 FileUpload.Rejected(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   S3UploadError(
                     key = "foo-bar-ref-1",
@@ -1451,10 +1521,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               "errorRedirect"   -> "https://foo.bar/failure"
             )
           ),
-          FileUpload.Posted(1, "foo-bar-ref-1"),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
           FileUploads(files =
             Seq(
-              FileUpload.Posted(1, "foo-bar-ref-1")
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
             )
           )
         )
@@ -1474,10 +1544,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1")
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
               )
             )
           )
@@ -1495,7 +1565,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1")
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
               )
             )
           )
@@ -1516,24 +1586,28 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             ),
             FileUpload.Accepted(
-              1,
+              Nonce(1),
+              Timestamp.Any,
               "foo-bar-ref-1",
               "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
               ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
-              "application/pdf"
+              "application/pdf",
+              Some(4567890)
             ),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -1544,13 +1618,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -1572,14 +1648,16 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               )
             ),
             FileUpload.Failed(
-              1,
+              Nonce(1),
+              Timestamp.Any,
               "foo-bar-ref-1",
               UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
             ),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
@@ -1601,7 +1679,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
@@ -1627,10 +1706,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileReady(
             reference = "foo-bar-ref-1",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -1638,7 +1717,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
-              fileMimeType = "application/pdf"
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -1647,13 +1727,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -1674,10 +1756,10 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1")))
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(1))(
           UpscanFileFailed(
             reference = "foo-bar-ref-1",
             failureDetails = UpscanNotification.FailureDetails(
@@ -1700,7 +1782,8 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
-                  1,
+                  Nonce(1),
+                  Timestamp.Any,
                   "foo-bar-ref-1",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
                 )
@@ -1728,10 +1811,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
+              )
+            )
           )
-        ) when upscanCallbackArrived(
+        ) when upscanCallbackArrived(Nonce(2))(
           UpscanFileFailed(
             reference = "foo-bar-ref-2",
             failureDetails = UpscanNotification.FailureDetails(
@@ -1751,12 +1839,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
                 FileUpload.Failed(
-                  2,
+                  Nonce(2),
+                  Timestamp.Any,
                   "foo-bar-ref-2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
                 )
@@ -1779,18 +1868,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
                 FileUpload.Accepted(
-                  2,
+                  Nonce(2),
+                  Timestamp.Any,
                   "foo-bar-ref-2",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             )
@@ -1800,15 +1891,17 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Posted(1, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
                 FileUpload.Accepted(
-                  2,
+                  Nonce(2),
+                  Timestamp.Any,
                   "foo-bar-ref-2",
                   "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
-                  "application/pdf"
+                  "application/pdf",
+                  Some(4567890)
                 )
               )
             ),
@@ -1830,14 +1923,24 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "errorRedirect"   -> "https://foo.bar/failure"
               )
             ),
-            FileUpload.Posted(1, "foo-bar-ref-1"),
-            FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
+              )
+            )
           )
         ) when backToFileUploaded should thenGo(
           EnterResponseText(
             fullAmendCaseStateModel.copy(fileUploads =
               Some(
-                FileUploads(files = Seq(FileUpload.Posted(1, "foo-bar-ref-1"), FileUpload.Posted(2, "foo-bar-ref-2")))
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                    FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
+                  )
+                )
               )
             )
           )
@@ -1852,13 +1955,15 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
-                1,
+                Nonce(1),
+                Timestamp.Any,
                 "foo-bar-ref-1",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
-                "application/pdf"
+                "application/pdf",
+                Some(4567890)
               )
             )
           ),

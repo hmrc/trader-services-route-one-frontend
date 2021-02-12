@@ -28,20 +28,13 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, FileVerificationStatus, ImportContactInfo, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType, NewOrExistingCase, S3UploadError, S3UploadSuccess, UpscanNotification, VesselDetails}
+import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
-
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
 import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.traderservices.models.ExportQuestions
-import uk.gov.hmrc.traderservices.models.QuestionsAnswers
-import uk.gov.hmrc.traderservices.models.ImportQuestions
-import uk.gov.hmrc.traderservices.models.FileUpload
 import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.models.FileUploads
-import uk.gov.hmrc.traderservices.models.UploadRequest
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import java.time.LocalDate
 import akka.actor.Scheduler
@@ -392,25 +385,27 @@ class CreateCaseJourneyController @Inject() (
       case None    => controller.markFileUploadAsRejected()
     })
 
-  final def upscanRequest(implicit rh: RequestHeader) =
-    UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
-      successRedirect = Some(successRedirect),
-      errorRedirect = Some(errorRedirect),
-      minimumFileSize = Some(1),
-      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
-      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
-    )
+  final def upscanRequest(implicit rh: RequestHeader): String => UpscanInitiateRequest =
+    nonce =>
+      UpscanInitiateRequest(
+        callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+        successRedirect = Some(successRedirect),
+        errorRedirect = Some(errorRedirect),
+        minimumFileSize = Some(1),
+        maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+        expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+      )
 
-  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
-    UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId).url,
-      successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
-      errorRedirect = Some(errorRedirect),
-      minimumFileSize = Some(1),
-      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
-      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
-    )
+  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader): String => UpscanInitiateRequest =
+    nonce =>
+      UpscanInitiateRequest(
+        callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+        successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
+        errorRedirect = Some(errorRedirect),
+        minimumFileSize = Some(1),
+        maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+        expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+      )
 
   // GET /new/upload-files
   final val showUploadMultipleFiles: Action[AnyContent] =
@@ -489,10 +484,10 @@ class CreateCaseJourneyController @Inject() (
       .displayUsing(implicit request => acknowledgeFileUploadRedirect)
 
   // POST /new/journey/:journeyId/callback-from-upscan
-  final def callbackFromUpscan(journeyId: String): Action[AnyContent] =
+  final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
     actions
       .parseJsonWithFallback[UpscanNotification](BadRequest)
-      .apply(FileUploadTransitions.upscanCallbackArrived)
+      .apply(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce)))
       .transform { case _ => NoContent }
       .recover {
         case e => InternalServerError

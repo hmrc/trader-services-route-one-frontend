@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import java.time.ZonedDateTime
-import play.api.libs.json.Format
-import play.api.libs.json.Json
+import play.api.libs.json.{Format, JsError, JsSuccess, Reads, Writes}
+import play.api.libs.json.JsNumber
 
-case class UploadedFile(
-  upscanReference: String,
-  downloadUrl: String,
-  uploadTimestamp: ZonedDateTime,
-  checksum: String,
-  fileName: String,
-  fileMimeType: String,
-  fileSize: Option[Int]
-)
+object SimpleDecimalFormat {
 
-object UploadedFile {
-  implicit val formats: Format[UploadedFile] = Json.format[UploadedFile]
+  def apply[A](from: BigDecimal => A, to: A => BigDecimal): Format[A] =
+    Format(
+      Reads {
+        case JsNumber(value) => JsSuccess(from(value))
+        case json            => JsError(s"Expected json number but got ${json.getClass.getSimpleName}")
+      },
+      Writes.apply(entity => JsNumber(to(entity)))
+    )
+
 }
