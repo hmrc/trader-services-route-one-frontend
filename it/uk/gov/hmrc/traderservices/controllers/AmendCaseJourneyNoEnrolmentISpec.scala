@@ -594,7 +594,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -688,7 +688,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -722,7 +722,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -733,7 +733,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -769,7 +769,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -780,7 +780,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -809,7 +809,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -836,7 +836,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -847,7 +847,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -875,7 +875,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -926,7 +926,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -975,7 +975,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -1024,7 +1024,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1087,7 +1087,7 @@ class AmendCaseJourneyNoEnrolmentISpec
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )

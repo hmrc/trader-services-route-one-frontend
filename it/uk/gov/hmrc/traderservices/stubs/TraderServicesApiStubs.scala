@@ -20,7 +20,7 @@ trait TraderServicesApiStubs {
        |"declarationDetails":{},
        |"questionsAnswers":{},
        |"uploadedFiles":[{}],
-       |"eori":"GB123456789012345"
+       |"eori":"GB123Some(4567890)12345"
        |}""".stripMargin
 
   def validRequestOfCreateCaseApiWithoutEori(): String =
@@ -30,7 +30,7 @@ trait TraderServicesApiStubs {
        |"uploadedFiles":[{}]
        |}""".stripMargin
 
-  def caseApiSuccessResponseBody(caseReferenceNumber: String = "A1234567890"): String =
+  def caseApiSuccessResponseBody(caseReferenceNumber: String = "A123Some(4567890)"): String =
     s"""{
        |  "correlationId": "",
        |  "result": {
@@ -82,7 +82,7 @@ trait TraderServicesApiStubs {
     )
 
   def validRequestOfUpdateCaseApi(
-    caseReferenceNumber: String = "A1234567890",
+    caseReferenceNumber: String = "A123Some(4567890)",
     typeOfAmendment: String = "WriteResponseAndUploadDocuments",
     description: String = "An example description."
   ): String =
@@ -94,7 +94,7 @@ trait TraderServicesApiStubs {
        |}""".stripMargin
 
   def givenUpdateCaseApiRequestSucceeds(
-    caseReferenceNumber: String = "A1234567890",
+    caseReferenceNumber: String = "A123Some(4567890)",
     typeOfAmendment: String = "WriteResponseAndUploadDocuments",
     description: String = "An example description."
   ): StubMapping =

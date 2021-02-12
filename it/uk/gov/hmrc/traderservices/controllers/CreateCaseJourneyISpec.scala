@@ -2059,7 +2059,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                       "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                       "test.pdf",
                       "application/pdf",
-                      4567890
+                      Some(4567890)
                     )
                   )
                 )
@@ -2067,7 +2067,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123Some(4567890)12345"))
         givenCreateCaseApiRequestSucceeds()
 
         val result = await(request("/new/create-case").post(""))
@@ -2086,10 +2086,10 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt),
+          TraderServicesResult("A123Some(4567890)", generatedAt),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
@@ -2110,7 +2110,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             )
           ),
           TraderServicesResult("TBC", generatedAt),
@@ -2256,7 +2256,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -2348,7 +2348,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2380,7 +2380,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2391,7 +2391,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2518,7 +2518,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2529,7 +2529,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2555,7 +2555,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2580,7 +2580,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2591,7 +2591,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2616,7 +2616,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2646,7 +2646,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -2693,7 +2693,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,

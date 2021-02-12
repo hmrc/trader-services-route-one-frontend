@@ -2061,7 +2061,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                       "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                       "test.pdf",
                       "application/pdf",
-                      4567890
+                      Some(4567890)
                     )
                   )
                 )
@@ -2088,10 +2088,10 @@ class CreateCaseJourneyNoEnrolmentISpec
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt),
+          TraderServicesResult("A123Some(4567890)", generatedAt),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
@@ -2112,7 +2112,7 @@ class CreateCaseJourneyNoEnrolmentISpec
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             )
           ),
           TraderServicesResult("TBC", generatedAt),
@@ -2258,7 +2258,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -2350,7 +2350,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2382,7 +2382,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2393,7 +2393,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2427,7 +2427,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2438,7 +2438,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2464,7 +2464,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2489,7 +2489,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test2.pdf",
                 "application/pdf",
-                5234567
+                Some(5234567)
               ),
               FileUpload.Accepted(
                 Nonce.Any,
@@ -2500,7 +2500,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2525,7 +2525,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test1.png",
                 "image/png",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2555,7 +2555,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,
@@ -2602,7 +2602,7 @@ class CreateCaseJourneyNoEnrolmentISpec
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Failed(
                 Nonce.Any,

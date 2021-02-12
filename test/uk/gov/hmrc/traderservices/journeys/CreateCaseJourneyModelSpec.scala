@@ -2013,7 +2013,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -2050,7 +2050,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           )
@@ -2156,7 +2156,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -2220,7 +2220,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -2237,7 +2237,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2267,7 +2267,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(state)
@@ -2288,7 +2288,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
                   "image/png",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2304,7 +2304,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -2321,7 +2321,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2346,7 +2346,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                 "test.png",
                 "image/png",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
               FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2362,7 +2362,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(state)
@@ -2389,7 +2389,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -2406,7 +2406,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2445,7 +2445,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -2462,7 +2462,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2601,7 +2601,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
                   "image/png",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -2655,7 +2655,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
               )
@@ -2691,7 +2691,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
             )
@@ -2730,7 +2730,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2767,7 +2767,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2807,7 +2807,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2834,7 +2834,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2874,7 +2874,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2910,7 +2910,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -2953,7 +2953,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -2970,7 +2970,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3003,7 +3003,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3017,7 +3017,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test2.png",
               fileMimeType = "image/png",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -3051,7 +3051,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             ),
@@ -3264,7 +3264,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             ),
             FileUploads(files =
               Seq(
@@ -3277,7 +3277,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3296,7 +3296,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3388,7 +3388,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -3405,7 +3405,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3551,7 +3551,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -3571,7 +3571,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             ),
@@ -3635,7 +3635,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           ),
@@ -3652,7 +3652,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
-              result = Some(TraderServicesResult("A1234567890", generatedAt))
+              result = Some(TraderServicesResult("A123Some(4567890)", generatedAt))
             )
           )
         }
@@ -3673,7 +3673,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                       "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                       "test.pdf",
                       "application/pdf",
-                      4567890
+                      Some(4567890)
                     )
                   )
                 )
@@ -3692,10 +3692,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt),
+            TraderServicesResult("A123Some(4567890)", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         )
@@ -3706,7 +3706,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
-              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
+              error = Some(ApiError(errorCode = "409", errorMessage = Some("A123Some(4567890)")))
             )
           )
         }
@@ -3727,7 +3727,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                       "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                       "test.pdf",
                       "application/pdf",
-                      4567890
+                      Some(4567890)
                     )
                   )
                 )
@@ -3735,7 +3735,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
-          CaseAlreadyExists("A1234567890")
+          CaseAlreadyExists("A123Some(4567890)")
         )
       }
     }
@@ -3754,10 +3754,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt),
+            TraderServicesResult("A123Some(4567890)", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when start should thenGo(Start)
@@ -3776,10 +3776,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             ),
-            TraderServicesResult("A1234567890", generatedAt),
+            TraderServicesResult("A123Some(4567890)", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
@@ -3789,13 +3789,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     "at state CaseAlreadyExists" should {
       "go to Start when start" in {
         given(
-          CaseAlreadyExists("A1234567890")
+          CaseAlreadyExists("A123Some(4567890)")
         ) when start should thenGo(Start)
       }
 
       "go to clean EnterDeclarationDetails when going back" in {
         given(
-          CaseAlreadyExists("A1234567890")
+          CaseAlreadyExists("A123Some(4567890)")
         ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
       }
     }

@@ -332,7 +332,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
           "test.pdf",
           "application/pdf",
-          4567890
+          Some(4567890)
         )
       )
     )
@@ -516,7 +516,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -675,7 +675,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -692,7 +692,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -722,7 +722,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(state)
@@ -743,7 +743,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
                   "image/png",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -759,7 +759,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -776,7 +776,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -807,7 +807,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -824,7 +824,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -863,7 +863,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -880,7 +880,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -1019,7 +1019,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
                   "test.png",
                   "image/png",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
@@ -1073,7 +1073,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
               )
@@ -1109,7 +1109,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               ),
               FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
             )
@@ -1148,7 +1148,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1185,7 +1185,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1225,7 +1225,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1252,7 +1252,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1292,7 +1292,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1328,7 +1328,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 ),
                 FileUpload.Failed(
                   Nonce(4),
@@ -1371,7 +1371,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -1388,7 +1388,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1594,7 +1594,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               "test.pdf",
               "application/pdf",
-              4567890
+              Some(4567890)
             ),
             FileUploads(files =
               Seq(
@@ -1607,7 +1607,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1626,7 +1626,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1718,7 +1718,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
               fileName = "test.pdf",
               fileMimeType = "application/pdf",
-              size = 4567890
+              size = Some(4567890)
             )
           )
         ) should thenGo(
@@ -1735,7 +1735,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1881,7 +1881,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             )
@@ -1901,7 +1901,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                   "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                   "test.pdf",
                   "application/pdf",
-                  4567890
+                  Some(4567890)
                 )
               )
             ),
@@ -1963,7 +1963,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                 "test.pdf",
                 "application/pdf",
-                4567890
+                Some(4567890)
               )
             )
           ),

@@ -27,7 +27,7 @@ case class UploadedFile(
   checksum: String,
   fileName: String,
   fileMimeType: String,
-  fileSize: Int
+  fileSize: Option[Int]
 )
 
 object UploadedFile {

@@ -89,14 +89,15 @@ object UpscanNotification {
     * @param checksum  The SHA256 hash of the uploaded file
     * @param fileName File name as it was provided by the user
     * @param fileMimeType Detected MIME type of the file. Please note that this refers to actual contents
-    * of the file, not to the name (if user uploads PDF document named data.png, it will be detected as a application/pdf)
+    *        of the file, not to the name (if user uploads PDF document named data.png, it will be detected as a application/pdf)
+    * @param size file size
     */
   case class UploadDetails(
     uploadTimestamp: ZonedDateTime,
     checksum: String,
     fileName: String,
     fileMimeType: String,
-    size: Int
+    size: Option[Int]
   )
 
   case class FailureDetails(
@@ -126,12 +127,12 @@ object UpscanNotification {
         (__ \ "checksum").read[String] and
         (__ \ "fileName").read[String].map(decodeMimeEncodedWord) and
         (__ \ "fileMimeType").read[String] and
-        (__ \ "size").read[Int])(UploadDetails.apply _),
+        (__ \ "size").readNullable[Int])(UploadDetails.apply _),
       ((__ \ "uploadTimestamp").write[ZonedDateTime] and
         (__ \ "checksum").write[String] and
         (__ \ "fileName").write[String] and
         (__ \ "fileMimeType").write[String] and
-        (__ \ "size").write[Int])(unlift(UploadDetails.unapply))
+        (__ \ "size").writeNullable[Int])(unlift(UploadDetails.unapply))
     )
 
     def decodeMimeEncodedWord(word: String): String =

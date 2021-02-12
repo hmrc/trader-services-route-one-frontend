@@ -134,7 +134,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     checksum: String,
     fileName: String,
     fileMimeType: String,
-    fileSize: Int
+    fileSize: Option[Int]
   ) extends FileUpload {
 
     override def isReady: Boolean = true

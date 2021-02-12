@@ -24,7 +24,7 @@ class UpscanNotificationFormatSpec extends UnitSpec {
 
   "UpscanNotificationFormats" should {
 
-    "serialize and deserialize UpscanFileReady" in new JsonFormatTest[UpscanNotification](info) {
+    "serialize and deserialize UpscanFileReady with size" in new JsonFormatTest[UpscanNotification](info) {
       validateJsonFormat(
         """{
           |"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -46,7 +46,34 @@ class UpscanNotificationFormatSpec extends UnitSpec {
             checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
             fileName = "test.pdf",
             fileMimeType = "application/pdf",
-            size = 123456789
+            size = Some(123456789)
+          )
+        )
+      )
+    }
+
+    "serialize and deserialize UpscanFileReady without size" in new JsonFormatTest[UpscanNotification](info) {
+      validateJsonFormat(
+        """{
+          |"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d",
+          |"fileStatus":"READY",
+          |"downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          |"uploadDetails":{
+          |"uploadTimestamp":"2018-04-24T09:30:00Z",
+          |"checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+          |"fileName":"test.pdf",
+          |"fileMimeType":"application/pdf"
+          |}
+          |}""".stripMargin,
+        UpscanFileReady(
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = None
           )
         )
       )
@@ -74,7 +101,7 @@ class UpscanNotificationFormatSpec extends UnitSpec {
             checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
             fileName = "sample_640×426.tiff",
             fileMimeType = "application/pdf",
-            size = 5432190
+            size = Some(5432190)
           )
         )
       )
