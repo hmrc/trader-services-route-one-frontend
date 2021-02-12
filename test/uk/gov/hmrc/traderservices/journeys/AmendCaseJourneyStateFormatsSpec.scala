@@ -69,11 +69,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
            |"reference":"foo-bar-ref",
            |"uploadRequest":{"href":"https://foo.bar","fields":{}},
            |"fileUploads":{"files":[
-           |{"Initiated":{"nonce":0,"reference":"foo1"}},
-           |{"Posted":{"nonce":0,"reference":"foo3"}},
-           |{"Accepted":{"nonce":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+           |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}},
+           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
-           |{"Failed":{"nonce":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
+           |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}}
            |]},"maybeUploadError":{"FileVerificationFailed":{"details":{"failureReason":"QUARANTINE","message":"some reason"}}}}}""".stripMargin,
         FileUploadState.UploadFile(
           fileUploadHostData,
@@ -81,10 +81,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map.empty),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "foo1"),
-              FileUpload.Posted(Nonce.Any, "foo3"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -96,6 +97,7 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               FileUpload
                 .Failed(
                   Nonce.Any,
+                  Timestamp.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
@@ -110,11 +112,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
            |"reference":"foo-bar-ref-2",
            |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
            |"fileUploads":{"files":[
-           |{"Initiated":{"nonce":0,"reference":"foo1"}},
-           |{"Accepted":{"nonce":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
-           |{"Failed":{"nonce":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-           |{"Posted":{"nonce":0,"reference":"foo3"}}
+           |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+           |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
            |]}}}""".stripMargin,
         FileUploadState.UploadFile(
           fileUploadHostData,
@@ -122,9 +124,10 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -136,10 +139,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               FileUpload
                 .Failed(
                   Nonce.Any,
+                  Timestamp.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.Any, "foo3")
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -149,24 +153,25 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
            |"hostData":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"},
            |"reference":"foo-bar-ref-2",
            |"uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},
-           |"currentFileUpload":{"Posted":{"nonce":0,"reference":"foo3"}},
+           |"currentFileUpload":{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}},
            |"fileUploads":{"files":[
-           |{"Initiated":{"nonce":0,"reference":"foo1"}},
-           |{"Accepted":{"nonce":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
-           |{"Failed":{"nonce":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-           |{"Posted":{"nonce":0,"reference":"foo3"}}
+           |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+           |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
            |]}}}""".stripMargin,
         FileUploadState.WaitingForFileVerification(
           fileUploadHostData,
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
-          FileUpload.Posted(Nonce.Any, "foo3"),
+          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3"),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -178,10 +183,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               FileUpload
                 .Failed(
                   Nonce.Any,
+                  Timestamp.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.Any, "foo3")
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -191,20 +197,21 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
         s"""{"state":"FileUploaded","properties":{
            |"hostData":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"},
            |"fileUploads":{"files":[
-           |{"Initiated":{"nonce":0,"reference":"foo1"}},
-           |{"Accepted":{"nonce":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1"}},
+           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
-           |{"Failed":{"nonce":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-           |{"Posted":{"nonce":0,"reference":"foo3"}}
+           |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+           |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
            |]},
            |"acknowledged":false}}""".stripMargin,
         FileUploadState.FileUploaded(
           fileUploadHostData,
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "foo1"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -216,10 +223,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               FileUpload
                 .Failed(
                   Nonce.Any,
+                  Timestamp.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.Any, "foo3")
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )
@@ -228,11 +236,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
       validateJsonFormat(
         s"""{"state":"UploadMultipleFiles","properties":{"hostData":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse","responseText":"$text"},
            |"fileUploads":{"files":[
-           |{"Initiated":{"nonce":0,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"aBc"}},
-           |{"Accepted":{"nonce":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+           |{"Initiated":{"nonce":0,"timestamp":0,"reference":"foo1","uploadRequest":{"href":"https://foo.bar","fields":{"amz":"123"}},"uploadId":"aBc"}},
+           |{"Accepted":{"nonce":0,"timestamp":0,"reference":"foo4","url":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
            |"uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}},
-           |{"Failed":{"nonce":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
-           |{"Posted":{"nonce":0,"reference":"foo3"}}
+           |{"Failed":{"nonce":0,"timestamp":0,"reference":"foo2","details":{"failureReason":"QUARANTINE","message":"some reason"}}},
+           |{"Posted":{"nonce":0,"timestamp":0,"reference":"foo3"}}
            |]}}}""".stripMargin,
         FileUploadState.UploadMultipleFiles(
           fileUploadHostData,
@@ -240,12 +248,14 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
             Seq(
               FileUpload.Initiated(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo1",
                 uploadRequest = Some(UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123"))),
                 uploadId = Some("aBc")
               ),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -257,10 +267,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               FileUpload
                 .Failed(
                   Nonce.Any,
+                  Timestamp.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.Any, "foo3")
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
             )
           )
         )

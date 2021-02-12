@@ -37,7 +37,7 @@ sealed trait Nonce {
 
 object Nonce {
 
-  final def apply(): Nonce =
+  final def random: Nonce =
     toNonce(Random.nextInt())
 
   final def apply(value: Int): Nonce =
@@ -46,7 +46,7 @@ object Nonce {
   /** Decodes nonce from an url-safe base64 string */
   final def apply(string: String): Nonce =
     Try[Nonce](Nonce.byteArrayToInt(Base64.getUrlDecoder.decode(string.getBytes(StandardCharsets.UTF_8))))
-      .getOrElse(Nonce())
+      .getOrElse(Nonce.random)
 
   object Any extends Nonce {
     final val value: Int = 0
@@ -55,7 +55,7 @@ object Nonce {
   }
 
   final class Strict(val value: Int) extends Nonce {
-    override def equals(obj: scala.Any): Boolean =
+    final override def equals(obj: scala.Any): Boolean =
       if (obj.isInstanceOf[Any.type]) true
       else if (obj.isInstanceOf[Nonce])
         obj.asInstanceOf[Nonce].value == value

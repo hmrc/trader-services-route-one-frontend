@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.models
 import play.api.libs.json.{Format, Json}
 import java.time.ZonedDateTime
 
+/** Container for file upload status tracking. */
 case class FileUploads(
   files: Seq[FileUpload] = Seq.empty
 ) {
@@ -53,13 +54,13 @@ case class FileUploads(
 
   def hasUploadId(uploadId: String): Boolean =
     files.exists {
-      case FileUpload.Initiated(_, _, _, Some(`uploadId`)) => true
-      case _                                               => false
+      case FileUpload.Initiated(_, _, _, _, Some(`uploadId`)) => true
+      case _                                                  => false
     }
 
   def findReferenceAndUploadRequestForUploadId(uploadId: String): Option[(String, UploadRequest)] =
     files.collectFirst {
-      case FileUpload.Initiated(_, reference, Some(uploadRequest), Some(`uploadId`)) =>
+      case FileUpload.Initiated(_, _, reference, Some(uploadRequest), Some(`uploadId`)) =>
         (reference, uploadRequest)
     }
 
@@ -78,15 +79,17 @@ object FileUploads {
 /** File upload status */
 sealed trait FileUpload {
   def nonce: Nonce
+  def timestamp: Timestamp
   def reference: String
   def isReady: Boolean
+  final def isNotReady: Boolean = !isReady
   def checksumOpt: Option[String] = None
 }
 
 object FileUpload extends SealedTraitFormats[FileUpload] {
 
-  def unapply(fileUpload: FileUpload): Option[(Nonce, String)] =
-    Some((fileUpload.nonce.value, fileUpload.reference))
+  final def unapply(fileUpload: FileUpload): Option[(Nonce, String, Timestamp)] =
+    Some((fileUpload.nonce.value, fileUpload.reference, fileUpload.timestamp))
 
   /**
     * Status when file upload attributes has been requested from upscan-initiate
@@ -94,6 +97,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
     */
   case class Initiated(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String,
     uploadRequest: Option[UploadRequest] = None,
     uploadId: Option[String] = None
@@ -104,6 +108,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
   /** Status when the file has successfully arrived to AWS S3 for verification. */
   case class Posted(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String
   ) extends FileUpload {
     override def isReady: Boolean = false
@@ -112,6 +117,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
   /** Status when file transmission has been rejected by AWS S3. */
   case class Rejected(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String,
     details: S3UploadError
   ) extends FileUpload {
@@ -121,6 +127,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
   /** Status when the file has been positively verified and is ready for further actions. */
   case class Accepted(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String,
     url: String,
     uploadTimestamp: ZonedDateTime,
@@ -137,6 +144,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
   /** Status when the file has failed verification and may not be used. */
   case class Failed(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String,
     details: UpscanNotification.FailureDetails
   ) extends FileUpload {
@@ -146,6 +154,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
   /** Status when the file is a duplicate of an existing upload. */
   case class Duplicate(
     nonce: Nonce,
+    timestamp: Timestamp,
     reference: String,
     checksum: String,
     existingFileName: String,

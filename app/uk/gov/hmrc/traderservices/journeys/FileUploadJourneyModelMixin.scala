@@ -44,6 +44,9 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
   /** Maximum number of files to upload. */
   val maxFileUploadsNumber: Int
 
+  /** Minimum time gap to allow overwriting upload status. */
+  final val minStatusOverwriteGapInMilliseconds: Long = 1000
+
   /** Implement to enable backward transition. */
   def retreatFromFileUpload: Transition
 
@@ -105,14 +108,14 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
         FileUploadState.FileUploaded(hostData, fileUploads)
       )
     else {
-      val nonce = Nonce()
+      val nonce = Nonce.random
       for {
         upscanResponse <- upscanInitiate(upscanRequest(nonce.toString()))
       } yield FileUploadState.UploadFile(
         hostData,
         upscanResponse.reference,
         upscanResponse.uploadRequest,
-        fileUploads + FileUpload.Initiated(nonce, upscanResponse.reference, None, None)
+        fileUploads + FileUpload.Initiated(nonce, Timestamp.now, upscanResponse.reference, None, None)
       )
     }
   }
@@ -123,7 +126,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     private def resetFileUploadStatusToInitiated(reference: String, fileUploads: FileUploads): FileUploads =
       fileUploads.copy(files = fileUploads.files.map {
         case f if f.reference == reference =>
-          FileUpload.Initiated(f.nonce, f.reference, None, None)
+          FileUpload.Initiated(f.nonce, Timestamp.now, f.reference, None, None)
         case other => other
       })
 
@@ -154,7 +157,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
             !state.fileUploads.hasUploadId(uploadId) &&
             state.fileUploads.initiatedOrAcceptedCount < maxFileUploadsNumber
           ) {
-            val nonce = Nonce()
+            val nonce = Nonce.random
             upscanInitiate(upscanRequest(nonce.toString()))
               .flatMap { upscanResponse =>
                 goto(
@@ -162,6 +165,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                     state.fileUploads + FileUpload
                       .Initiated(
                         nonce,
+                        Timestamp.now,
                         upscanResponse.reference,
                         Some(upscanResponse.uploadRequest),
                         Some(uploadId)
@@ -235,17 +239,19 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               fileUploads,
               maybeUploadError
             ) =>
+          val now = Timestamp.now
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(nonce, ref, _, _) if ref == error.key =>
-              FileUpload.Rejected(nonce, ref, error)
+            case fu @ FileUpload.Initiated(nonce, _, ref, _, _)
+                if ref == error.key && canOverwriteFileUploadStatus(fu, true, now) =>
+              FileUpload.Rejected(nonce, Timestamp.now, ref, error)
             case u => u
           })
           goto(current.copy(fileUploads = updatedFileUploads, maybeUploadError = Some(FileTransmissionFailed(error))))
 
         case current @ UploadMultipleFiles(hostData, fileUploads) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload(nonce, ref) if ref == error.key =>
-              FileUpload.Rejected(nonce, ref, error)
+            case FileUpload(nonce, ref, _) if ref == error.key =>
+              FileUpload.Rejected(nonce, Timestamp.now, ref, error)
             case u => u
           })
           goto(current.copy(fileUploads = updatedFileUploads))
@@ -254,11 +260,14 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     final def markUploadAsPosted(receipt: S3UploadSuccess) =
       Transition {
         case current @ UploadMultipleFiles(hostData, fileUploads) =>
-          val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload(nonce, ref) if ref == receipt.key =>
-              FileUpload.Posted(nonce, ref)
-            case u => u
-          })
+          val now = Timestamp.now
+          val updatedFileUploads =
+            fileUploads.copy(files = fileUploads.files.map {
+              case fu @ FileUpload(nonce, ref, _)
+                  if ref == receipt.key && canOverwriteFileUploadStatus(fu, true, now) =>
+                FileUpload.Posted(nonce, Timestamp.now, ref)
+              case u => u
+            })
           goto(current.copy(fileUploads = updatedFileUploads))
       }
 
@@ -343,8 +352,8 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               errorOpt
             ) =>
           val updatedFileUploads = fileUploads.copy(files = fileUploads.files.map {
-            case FileUpload.Initiated(nonce, ref, _, _) if ref == reference =>
-              FileUpload.Posted(nonce, reference)
+            case FileUpload.Initiated(nonce, _, ref, _, _) if ref == reference =>
+              FileUpload.Posted(nonce, Timestamp.now, reference)
             case other => other
           })
           val currentUpload = updatedFileUploads.files.find(_.reference == reference)
@@ -380,14 +389,27 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           goto(state.copy(acknowledged = true))
       }
 
+    final def canOverwriteFileUploadStatus(
+      fileUpload: FileUpload,
+      allowStatusOverwrite: Boolean,
+      now: Timestamp
+    ): Boolean =
+      fileUpload.isNotReady ||
+        (allowStatusOverwrite && now.isAfter(fileUpload.timestamp, minStatusOverwriteGapInMilliseconds))
+
     /** Transition when notification arrives from upscan. */
     final def upscanCallbackArrived(requestNonce: Nonce)(notification: UpscanNotification) = {
+      val now = Timestamp.now
 
       def updateFileUploads(fileUploads: FileUploads, allowStatusOverwrite: Boolean) =
         fileUploads.copy(files = fileUploads.files.map {
           // update status of the file with matching nonce
-          case fileUpload @ FileUpload(nonce, reference)
-              if (allowStatusOverwrite || !fileUpload.isReady) && nonce.value == requestNonce.value =>
+          case fileUpload @ FileUpload(nonce, reference, _)
+              if nonce.value == requestNonce.value && canOverwriteFileUploadStatus(
+                fileUpload,
+                allowStatusOverwrite,
+                now
+              ) =>
             notification match {
               case UpscanFileReady(_, url, uploadDetails) =>
                 //check for existing file uploads with duplicated checksum
@@ -398,6 +420,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                   case Some(existingFileUpload: FileUpload.Accepted) =>
                     FileUpload.Duplicate(
                       nonce,
+                      Timestamp.now,
                       reference,
                       uploadDetails.checksum,
                       existingFileName = existingFileUpload.fileName,
@@ -406,6 +429,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                   case _ =>
                     FileUpload.Accepted(
                       nonce,
+                      Timestamp.now,
                       reference,
                       url,
                       uploadDetails.uploadTimestamp,
@@ -420,6 +444,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
               case UpscanFileFailed(_, failureDetails) =>
                 FileUpload.Failed(
                   nonce,
+                  Timestamp.now,
                   reference,
                   failureDetails
                 )

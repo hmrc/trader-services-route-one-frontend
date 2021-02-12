@@ -299,6 +299,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               Seq(
                 FileUpload.Initiated(
                   Nonce.Any,
+                  Timestamp.Any,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   uploadId = Some("001"),
                   uploadRequest = Some(
@@ -331,10 +332,12 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
-            fileUploads = Some(FileUploads(Seq(FileUpload.Posted(Nonce.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+            fileUploads = Some(
+              FileUploads(Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389")))
+            )
           ),
           fileUploads = FileUploads(
-            Seq(FileUpload.Posted(Nonce.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"))
+            Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"))
           )
         )
         journey.setState(state)
@@ -371,13 +374,16 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
-              fileUploads = Some(FileUploads(Seq(FileUpload.Posted(Nonce.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"))))
+              fileUploads = Some(
+                FileUploads(Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389")))
+              )
             ),
             fileUploads = FileUploads(files =
               Seq(
-                FileUpload.Posted(Nonce.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"),
                 FileUpload.Initiated(
                   Nonce.Any,
+                  Timestamp.Any,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   uploadId = Some("002"),
                   uploadRequest = Some(
@@ -432,8 +438,9 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               "error_action_redirect"   -> "https://myservice.com/errorPage"
             )
           ),
-          fileUploads =
-            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d")))
+          fileUploads = FileUploads(files =
+            Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"))
+          )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -463,8 +470,8 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -492,6 +499,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               Seq(
                 FileUpload.Rejected(
                   Nonce.Any,
+                  Timestamp.Any,
                   "11370e18-6e24-453e-b45a-76d3e32ea33d",
                   S3UploadError(
                     key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -499,7 +507,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
                     errorMessage = "ABC 123"
                   )
                 ),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             ),
             Some(
@@ -525,8 +533,8 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -546,11 +554,11 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             ),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUpload.Posted(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+            FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
             FileUploads(files =
               Seq(
-                FileUpload.Posted(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -570,13 +578,15 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Initiated(
                 Nonce.Any,
+                Timestamp.Any,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 uploadRequest =
                   Some(UploadRequest(href = "https://s3.amazonaws.com/bucket/123abc", fields = Map("foo1" -> "bar1")))
               ),
-              FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -587,16 +597,19 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Failed(
                 Nonce.Any,
+                Timestamp.Any,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               ),
               FileUpload.Rejected(
                 Nonce.Any,
+                Timestamp.Any,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e3",
                 details = S3UploadError("key", "errorCode", "Invalid file type.")
               ),
               FileUpload.Duplicate(
                 Nonce.Any,
+                Timestamp.Any,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e4",
                 checksum = "0" * 64,
                 existingFileName = "test.pdf",
@@ -667,6 +680,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -700,6 +714,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -710,6 +725,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -746,8 +762,8 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Initiated(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -772,8 +788,8 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-              FileUpload.Initiated(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
             )
           ),
           Some(
@@ -796,8 +812,8 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             ),
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Initiated(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
               )
             )
           )
@@ -823,9 +839,10 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
               FileUpload.Rejected(
                 Nonce.Any,
+                Timestamp.Any,
                 "2b72fe99-8adf-4edb-865e-622ae710f77c",
                 S3UploadError("2b72fe99-8adf-4edb-865e-622ae710f77c", "EntityTooLarge", "Entity Too Large")
               )
@@ -847,6 +864,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -857,6 +875,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -885,6 +904,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -911,6 +931,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "11370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -921,6 +942,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -948,6 +970,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
             Seq(
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "22370e18-6e24-453e-b45a-76d3e32ea33d",
                 "https://s3.amazonaws.com/bucket/123",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -994,10 +1017,11 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-              FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 upscanUrl,
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -1008,6 +1032,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Failed(
                 Nonce.Any,
+                Timestamp.Any,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               )
@@ -1041,10 +1066,11 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           ),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-              FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
               FileUpload.Accepted(
                 Nonce.Any,
+                Timestamp.Any,
                 "f029444f-415c-4dec-9cf2-36774ec63ab8",
                 upscanUrl,
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -1055,6 +1081,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
               ),
               FileUpload.Failed(
                 Nonce.Any,
+                Timestamp.Any,
                 "4b1e15a4-4152-4328-9448-4924d9aee6e2",
                 UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
               )
@@ -1088,10 +1115,11 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           fileUploads = Some(
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
                 FileUpload.Accepted(
                   Nonce.Any,
+                  Timestamp.Any,
                   "f029444f-415c-4dec-9cf2-36774ec63ab8",
                   upscanUrl,
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -1150,10 +1178,11 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           fileUploads = Some(
             FileUploads(files =
               Seq(
-                FileUpload.Initiated(Nonce.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
                 FileUpload.Accepted(
                   Nonce.Any,
+                  Timestamp.Any,
                   "f029444f-415c-4dec-9cf2-36774ec63ab8",
                   upscanUrl,
                   ZonedDateTime.parse("2018-04-24T09:30:00Z"),
