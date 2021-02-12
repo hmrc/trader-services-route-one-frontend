@@ -98,7 +98,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
 
     final def submitedTypeOfAmendment(uploadMultipleFiles: Boolean)(
-      upscanRequest: UpscanInitiateRequest
+      upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
     )(typeOfAmendment: TypeOfAmendment)(implicit ec: ExecutionContext) =
@@ -165,7 +165,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
         transition.apply(state)
 
     final def submitedResponseText(uploadMultipleFiles: Boolean)(
-      upscanRequest: UpscanInitiateRequest
+      upscanRequest: String => UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(responseText: String)(implicit ec: ExecutionContext) =
       Transition {
         case current @ EnterResponseText(model)

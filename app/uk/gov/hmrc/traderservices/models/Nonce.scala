@@ -20,6 +20,7 @@ import play.api.libs.json.Format
 import java.util.Base64
 import java.nio.charset.StandardCharsets
 import scala.util.Random
+import scala.util.Try
 
 /** Random integer value container. */
 sealed trait Nonce {
@@ -44,7 +45,8 @@ object Nonce {
 
   /** Decodes nonce from an url-safe base64 string */
   def apply(string: String): Nonce =
-    Nonce.byteArrayToInt(Base64.getUrlDecoder.decode(string.getBytes(StandardCharsets.UTF_8)))
+    Try[Nonce](Nonce.byteArrayToInt(Base64.getUrlDecoder.decode(string.getBytes(StandardCharsets.UTF_8))))
+      .getOrElse(Nonce())
 
   object MatchAny extends Nonce {
     final val value: Int = 0

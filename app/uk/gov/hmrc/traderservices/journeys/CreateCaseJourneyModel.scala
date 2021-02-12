@@ -552,7 +552,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
 
     final def submittedExportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
-      upscanRequest: UpscanInitiateRequest
+      upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
     )(contactInfo: ExportContactInfo)(implicit ec: ExecutionContext) =
@@ -754,7 +754,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
 
     final def submittedImportQuestionsContactInfo(uploadMultipleFiles: Boolean)(
-      upscanRequest: UpscanInitiateRequest
+      upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
     )(contactInfo: ImportContactInfo)(implicit ec: ExecutionContext) =

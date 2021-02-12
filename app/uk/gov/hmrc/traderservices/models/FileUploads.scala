@@ -85,7 +85,7 @@ sealed trait FileUpload {
 
 object FileUpload extends SealedTraitFormats[FileUpload] {
 
-  def unapply(fileUpload: FileUpload): Option[(Int, String)] =
+  def unapply(fileUpload: FileUpload): Option[(Nonce, String)] =
     Some((fileUpload.nonce.value, fileUpload.reference))
 
   /**

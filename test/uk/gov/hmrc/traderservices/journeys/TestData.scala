@@ -58,7 +58,7 @@ trait TestData {
   val nonEmptyFileUploads = FileUploads(files =
     Seq(
       FileUpload.Accepted(
-        Nonce.MatchAny,
+        Nonce(1),
         "foo-bar-ref-1",
         "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
         ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -78,15 +78,16 @@ trait TestData {
       )
     )
 
-  val testUpscanRequest =
-    UpscanInitiateRequest(
-      callbackUrl = "https://foo.bar/callback",
-      successRedirect = Some("https://foo.bar/success"),
-      errorRedirect = Some("https://foo.bar/failure"),
-      minimumFileSize = Some(0),
-      maximumFileSize = Some(10 * 1024 * 1024),
-      expectedContentType = Some("image/jpeg,image/png")
-    )
+  val testUpscanRequest: String => UpscanInitiateRequest =
+    nonce =>
+      UpscanInitiateRequest(
+        callbackUrl = "https://foo.bar/callback",
+        successRedirect = Some("https://foo.bar/success"),
+        errorRedirect = Some("https://foo.bar/failure"),
+        minimumFileSize = Some(0),
+        maximumFileSize = Some(10 * 1024 * 1024),
+        expectedContentType = Some("image/jpeg,image/png")
+      )
 
   def someUploadRequest(request: UpscanInitiateRequest) =
     UploadRequest(

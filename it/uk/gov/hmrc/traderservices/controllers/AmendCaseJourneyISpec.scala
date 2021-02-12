@@ -262,7 +262,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
+          s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/001").put(""))
@@ -341,7 +341,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
+          s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/002").put(""))
@@ -411,7 +411,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       "show the upload first document page" in {
         implicit val journeyId: JourneyId = JourneyId()
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan"
+          s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),

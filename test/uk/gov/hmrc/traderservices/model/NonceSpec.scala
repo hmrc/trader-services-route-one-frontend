@@ -58,5 +58,10 @@ class NonceSpec extends UnitSpec {
         Nonce(i) should not be (Nonce(i - 1))
       }
     }
+
+    "create random if invalid string" in {
+      Nonce("")
+      Nonce("...")
+    }
   }
 }

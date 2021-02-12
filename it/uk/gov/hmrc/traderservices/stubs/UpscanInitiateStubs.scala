@@ -33,13 +33,7 @@ trait UpscanInitiateStubs {
         .withHeader("User-Agent", containing("trader-services-route-one-frontend"))
         .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
         .withRequestBody(
-          equalToJson(
-            s"""{
-               |    "callbackUrl": "$callbackUrl"
-               |}""".stripMargin,
-            true,
-            true
-          )
+          matchingJsonPath("callbackUrl", containing(callbackUrl))
         )
         .willReturn(
           aResponse()

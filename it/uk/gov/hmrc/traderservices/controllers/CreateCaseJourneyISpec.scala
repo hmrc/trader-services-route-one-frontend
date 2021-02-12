@@ -2045,7 +2045,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
                 FileUploads(files =
                   Seq(
                     FileUpload.Accepted(
-                      Nonce.MatchAny,
+                      Nonce(1),
                       "foo-bar-ref-1",
                       "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                       ZonedDateTime.parse("2018-04-24T09:30:00Z"),
