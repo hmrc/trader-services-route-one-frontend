@@ -34,7 +34,7 @@
 
     @forms.errorSummary(form.errors)
 
-    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.formWithCSRF(action = postAction) {
 
         @forms.fieldset(
             legend = messages("view.export-questions.contactInfo.heading")

@@ -31,7 +31,7 @@
 
   @forms.errorSummary(form.errors)
 
-  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction) {
 
     @forms.inputText(
       form = form,

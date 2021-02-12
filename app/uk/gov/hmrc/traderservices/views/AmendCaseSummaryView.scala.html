@@ -44,7 +44,7 @@
         @html.h2(messages("view.amend-case.summary.documents.heading"))
         @html.summaryList(helper.summaryListOfFileUploads(model.fileUploads.get, backLink))
     }
-    @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+    @forms.formWithCSRF(action = postAction) {
         @html.button("form.amend-case.summary.continue")
     }
 }

@@ -42,7 +42,7 @@
 
   @forms.errorSummary(form.errors)
 
-  @forms.formWithCSRF(action = postAction, args = 'novalidate -> "novalidate") {
+  @forms.formWithCSRF(action = postAction) {
 
     @html.h1(
       messages(if(fileUploads.isSingle) "view.file-uploaded.singular.heading" else "view.file-uploaded.plural.heading", fileUploads.acceptedCount),
