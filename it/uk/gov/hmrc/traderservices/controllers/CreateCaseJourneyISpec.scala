@@ -2067,7 +2067,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
             )
           )
         )
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123Some(4567890)12345"))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))
         givenCreateCaseApiRequestSucceeds()
 
         val result = await(request("/new/create-case").post(""))
@@ -2089,7 +2089,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
               Some(4567890)
             )
           ),
-          TraderServicesResult("A123Some(4567890)", generatedAt),
+          TraderServicesResult("A1234567890", generatedAt),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }

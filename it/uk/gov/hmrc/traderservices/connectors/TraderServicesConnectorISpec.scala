@@ -24,7 +24,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.createCase(createCaseRequest))
 
-        result.result shouldBe Some(TraderServicesResult("A123Some(4567890)", generatedAt))
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
         result.error shouldBe None
       }
 
@@ -54,7 +54,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.updateCase(updateCaseRequest))
 
-        result.result shouldBe Some(TraderServicesResult("A123Some(4567890)", generatedAt))
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
         result.error shouldBe None
       }
 
@@ -96,7 +96,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
       questionsAnswers = TestData.fullExportQuestions(dateTimeOfArrival),
       uploadedFiles = Seq(
         UploadedFile(
-          "foo-123Some(4567890)",
+          "foo-1234567890",
           "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
@@ -105,19 +105,19 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           Some(4567890)
         )
       ),
-      eori = Some("GB123Some(4567890)12345")
+      eori = Some("GB123456789012345")
     )
   }
 
   def updateCaseRequest = {
     val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
     TraderServicesUpdateCaseRequest(
-      caseReferenceNumber = "A123Some(4567890)",
+      caseReferenceNumber = "A1234567890",
       typeOfAmendment = TypeOfAmendment.WriteResponseAndUploadDocuments,
       responseText = Some("An example description."),
       uploadedFiles = Seq(
         UploadedFile(
-          "foo-0Some(123456789)",
+          "foo-0123456789",
           "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
           ZonedDateTime.ofLocal(dateTimeOfArrival, ZoneId.of("GMT"), ZoneOffset.ofHours(0)),
           "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
@@ -126,7 +126,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
           Some(4567890)
         )
       ),
-      eori = Some("GB123Some(4567890)12345")
+      eori = Some("GB123456789012345")
     )
   }
 }

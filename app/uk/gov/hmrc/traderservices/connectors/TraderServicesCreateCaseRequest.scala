@@ -56,7 +56,7 @@ import uk.gov.hmrc.traderservices.models.{DeclarationDetails, QuestionsAnswers, 
   *    "fileName" : "test.pdf",
   *    "fileMimeType" : "application/pdf"
   *  } ],
-  *  "eori" : "GB123Some(4567890)12345"
+  *  "eori" : "GB123456789012345"
   * }
   */
 case class TraderServicesCreateCaseRequest(

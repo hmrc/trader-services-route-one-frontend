@@ -3652,7 +3652,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
-              result = Some(TraderServicesResult("A123Some(4567890)", generatedAt))
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
             )
           )
         }
@@ -3695,7 +3695,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(4567890)
               )
             ),
-            TraderServicesResult("A123Some(4567890)", generatedAt),
+            TraderServicesResult("A1234567890", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         )
@@ -3706,7 +3706,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
-              error = Some(ApiError(errorCode = "409", errorMessage = Some("A123Some(4567890)")))
+              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
             )
           )
         }
@@ -3735,7 +3735,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
-          CaseAlreadyExists("A123Some(4567890)")
+          CaseAlreadyExists("A1234567890")
         )
       }
     }
@@ -3757,7 +3757,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(4567890)
               )
             ),
-            TraderServicesResult("A123Some(4567890)", generatedAt),
+            TraderServicesResult("A1234567890", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when start should thenGo(Start)
@@ -3779,7 +3779,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(4567890)
               )
             ),
-            TraderServicesResult("A123Some(4567890)", generatedAt),
+            TraderServicesResult("A1234567890", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
         ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
@@ -3789,13 +3789,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     "at state CaseAlreadyExists" should {
       "go to Start when start" in {
         given(
-          CaseAlreadyExists("A123Some(4567890)")
+          CaseAlreadyExists("A1234567890")
         ) when start should thenGo(Start)
       }
 
       "go to clean EnterDeclarationDetails when going back" in {
         given(
-          CaseAlreadyExists("A123Some(4567890)")
+          CaseAlreadyExists("A1234567890")
         ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
       }
     }

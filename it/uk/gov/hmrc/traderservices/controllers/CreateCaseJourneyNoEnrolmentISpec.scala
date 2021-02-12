@@ -2091,7 +2091,7 @@ class CreateCaseJourneyNoEnrolmentISpec
               Some(4567890)
             )
           ),
-          TraderServicesResult("A123Some(4567890)", generatedAt),
+          TraderServicesResult("A1234567890", generatedAt),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
