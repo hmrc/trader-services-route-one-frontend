@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import java.lang.Character.getType
 import java.time.{LocalDate, LocalTime}
+
 import play.api.data.Forms.{of, optional, text}
 import play.api.data.Mapping
 import play.api.data.format.Formats._
@@ -304,6 +306,8 @@ object FormFieldMappings {
   val typeOfAmendmentMapping: Mapping[TypeOfAmendment] = enumMapping[TypeOfAmendment]("typeOfAmendment")
 
   val allowedResponseSpecialCharacters = " ()/+-*=^.;_&#@!?\"'{}[]\\~|%£$€"
+  val nonAllowedCharTypes =
+    List(Character.CONTROL, Character.SURROGATE, Character.FORMAT, Character.PRIVATE_USE)
 
   def isAllowedResponseCharacter(c: Char): Boolean =
     Character.isLetterOrDigit(c) || allowedResponseSpecialCharacters.contains(c)
@@ -315,5 +319,5 @@ object FormFieldMappings {
         constraint[String]("responseText", "invalid-length", _.length <= 1000)
       )
     )
-    .transform(_.filter(isAllowedResponseCharacter), identity)
+    .transform(_.filterNot(c => nonAllowedCharTypes.contains(getType(c))), identity)
 }
