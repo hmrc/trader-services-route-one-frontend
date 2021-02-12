@@ -26,6 +26,7 @@ case class FileVerificationStatus(
   fileStatus: String,
   fileMimeType: Option[String] = None,
   fileName: Option[String] = None,
+  fileSize: Option[Int] = None,
   previewUrl: Option[String] = None,
   errorMessage: Option[String] = None,
   uploadRequest: Option[UploadRequest] = None
@@ -54,6 +55,7 @@ object FileVerificationStatus {
           "ACCEPTED",
           fileMimeType = Some(f.fileMimeType),
           fileName = Some(f.fileName),
+          fileSize = Some(f.fileSize),
           previewUrl = Some(s"${filePreviewUrl(f.reference).url}")
         )
 
