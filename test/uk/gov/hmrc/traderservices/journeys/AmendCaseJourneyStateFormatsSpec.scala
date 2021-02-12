@@ -81,10 +81,10 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map.empty),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.MatchAny, "foo1"),
-              FileUpload.Posted(Nonce.MatchAny, "foo3"),
+              FileUpload.Initiated(Nonce.Any, "foo1"),
+              FileUpload.Posted(Nonce.Any, "foo3"),
               FileUpload.Accepted(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -95,7 +95,7 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               FileUpload
                 .Failed(
-                  Nonce.MatchAny,
+                  Nonce.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 )
@@ -122,9 +122,9 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.MatchAny, "foo1"),
+              FileUpload.Initiated(Nonce.Any, "foo1"),
               FileUpload.Accepted(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -135,11 +135,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               FileUpload
                 .Failed(
-                  Nonce.MatchAny,
+                  Nonce.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.MatchAny, "foo3")
+              FileUpload.Posted(Nonce.Any, "foo3")
             )
           )
         )
@@ -161,12 +161,12 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           fileUploadHostData,
           "foo-bar-ref-2",
           UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123")),
-          FileUpload.Posted(Nonce.MatchAny, "foo3"),
+          FileUpload.Posted(Nonce.Any, "foo3"),
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.MatchAny, "foo1"),
+              FileUpload.Initiated(Nonce.Any, "foo1"),
               FileUpload.Accepted(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -177,11 +177,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               FileUpload
                 .Failed(
-                  Nonce.MatchAny,
+                  Nonce.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.MatchAny, "foo3")
+              FileUpload.Posted(Nonce.Any, "foo3")
             )
           )
         )
@@ -202,9 +202,9 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           fileUploadHostData,
           FileUploads(files =
             Seq(
-              FileUpload.Initiated(Nonce.MatchAny, "foo1"),
+              FileUpload.Initiated(Nonce.Any, "foo1"),
               FileUpload.Accepted(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -215,11 +215,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               FileUpload
                 .Failed(
-                  Nonce.MatchAny,
+                  Nonce.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.MatchAny, "foo3")
+              FileUpload.Posted(Nonce.Any, "foo3")
             )
           )
         )
@@ -239,13 +239,13 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           FileUploads(files =
             Seq(
               FileUpload.Initiated(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo1",
                 uploadRequest = Some(UploadRequest(href = "https://foo.bar", fields = Map("amz" -> "123"))),
                 uploadId = Some("aBc")
               ),
               FileUpload.Accepted(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo4",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
@@ -256,11 +256,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
               ),
               FileUpload
                 .Failed(
-                  Nonce.MatchAny,
+                  Nonce.Any,
                   "foo2",
                   UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
                 ),
-              FileUpload.Posted(Nonce.MatchAny, "foo3")
+              FileUpload.Posted(Nonce.Any, "foo3")
             )
           )
         )

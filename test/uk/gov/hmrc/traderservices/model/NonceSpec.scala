@@ -47,8 +47,8 @@ class NonceSpec extends UnitSpec {
 
     "compare always to AnyNonce" in {
       for (i <- Stream.continually(Random.nextInt).take(1000)) {
-        Nonce(i) shouldBe Nonce.MatchAny
-        Nonce.MatchAny shouldBe Nonce(i)
+        Nonce(i) shouldBe Nonce.Any
+        Nonce.Any shouldBe Nonce(i)
       }
     }
 

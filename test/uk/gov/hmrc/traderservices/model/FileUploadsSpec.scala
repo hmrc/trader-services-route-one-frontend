@@ -24,46 +24,46 @@ class FileUploadsSpec extends UnitSpec {
   "FileUploads" should {
     "filter out initiated uploads" in {
       FileUploads(
-        files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo"))
+        files = Seq(FileUpload.Initiated(Nonce.Any, "foo"))
       ).filterOutInitiated shouldBe FileUploads()
 
       FileUploads(
         files = Seq(
-          FileUpload.Initiated(Nonce.MatchAny, "foo1"),
-          FileUpload.Initiated(Nonce.MatchAny, "foo2"),
-          FileUpload.Initiated(Nonce.MatchAny, "foo3")
+          FileUpload.Initiated(Nonce.Any, "foo1"),
+          FileUpload.Initiated(Nonce.Any, "foo2"),
+          FileUpload.Initiated(Nonce.Any, "foo3")
         )
       ).filterOutInitiated shouldBe FileUploads()
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.MatchAny, "foo1"),
-          FileUpload.Initiated(Nonce.MatchAny, "foo2"),
-          FileUpload.Initiated(Nonce.MatchAny, "foo3")
+          FileUpload.Posted(Nonce.Any, "foo1"),
+          FileUpload.Initiated(Nonce.Any, "foo2"),
+          FileUpload.Initiated(Nonce.Any, "foo3")
         )
-      ).filterOutInitiated shouldBe FileUploads(files = Seq(FileUpload.Posted(Nonce.MatchAny, "foo1")))
+      ).filterOutInitiated shouldBe FileUploads(files = Seq(FileUpload.Posted(Nonce.Any, "foo1")))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.MatchAny, "foo1"),
-          FileUpload.Initiated(Nonce.MatchAny, "foo2"),
-          FileUpload.Posted(Nonce.MatchAny, "foo3")
+          FileUpload.Posted(Nonce.Any, "foo1"),
+          FileUpload.Initiated(Nonce.Any, "foo2"),
+          FileUpload.Posted(Nonce.Any, "foo3")
         )
       ).filterOutInitiated shouldBe FileUploads(files =
-        Seq(FileUpload.Posted(Nonce.MatchAny, "foo1"), FileUpload.Posted(Nonce.MatchAny, "foo3"))
+        Seq(FileUpload.Posted(Nonce.Any, "foo1"), FileUpload.Posted(Nonce.Any, "foo3"))
       )
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.MatchAny, "foo1"),
-          FileUpload.Posted(Nonce.MatchAny, "foo2"),
-          FileUpload.Posted(Nonce.MatchAny, "foo3")
+          FileUpload.Posted(Nonce.Any, "foo1"),
+          FileUpload.Posted(Nonce.Any, "foo2"),
+          FileUpload.Posted(Nonce.Any, "foo3")
         )
       ).filterOutInitiated shouldBe FileUploads(files =
         Seq(
-          FileUpload.Posted(Nonce.MatchAny, "foo1"),
-          FileUpload.Posted(Nonce.MatchAny, "foo2"),
-          FileUpload.Posted(Nonce.MatchAny, "foo3")
+          FileUpload.Posted(Nonce.Any, "foo1"),
+          FileUpload.Posted(Nonce.Any, "foo2"),
+          FileUpload.Posted(Nonce.Any, "foo3")
         )
       )
 

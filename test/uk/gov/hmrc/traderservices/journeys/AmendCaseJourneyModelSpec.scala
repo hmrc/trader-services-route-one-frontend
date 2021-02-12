@@ -146,7 +146,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -273,7 +273,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
                 "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -364,13 +364,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
-            nonEmptyFileUploads + FileUpload.Initiated(Nonce.MatchAny, "foo-2") + FileUpload
-              .Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, "foo-2") + FileUpload
+              .Posted(Nonce.Any, "foo-3")
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
-            nonEmptyFileUploads + FileUpload.Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, "foo-3")
           )
         )
       }
@@ -386,7 +386,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             FileUploads() +
               FileUpload.Initiated(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
                 uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
@@ -410,7 +410,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             fullAmendCaseStateModel,
             fileUploads +
               FileUpload.Initiated(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
                 uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
@@ -425,13 +425,13 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
-              FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
-              FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         )
       }

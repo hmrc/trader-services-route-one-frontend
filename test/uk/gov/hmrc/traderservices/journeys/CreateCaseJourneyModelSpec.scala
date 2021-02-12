@@ -873,7 +873,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             reference = "foo-bar-ref",
             uploadRequest =
               UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -1609,7 +1609,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             reference = "foo-bar-ref",
             uploadRequest =
               UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            fileUploads = FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -1744,7 +1744,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -1788,7 +1788,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 "expectedContentType" -> "image/jpeg,image/png"
               )
             ),
-            FileUploads(files = Seq(FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref")))
+            FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, "foo-bar-ref")))
           )
         )
       }
@@ -1849,13 +1849,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Initiated(Nonce.MatchAny, "foo-2") + FileUpload
-              .Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, "foo-2") + FileUpload
+              .Posted(Nonce.Any, "foo-3")
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, "foo-3")
           )
         )
       }
@@ -1864,13 +1864,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           UploadMultipleFiles(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Initiated(Nonce.MatchAny, "foo-2") + FileUpload
-              .Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, "foo-2") + FileUpload
+              .Posted(Nonce.Any, "foo-3")
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Posted(Nonce.MatchAny, "foo-3")
+            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, "foo-3")
           )
         )
       }
@@ -1886,7 +1886,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             FileUploads() +
               FileUpload.Initiated(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
                 uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
@@ -1910,7 +1910,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             fileUploads +
               FileUpload.Initiated(
-                Nonce.MatchAny,
+                Nonce.Any,
                 "foo-bar-ref",
                 uploadId = Some("001"),
                 uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
@@ -1924,13 +1924,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads +
-              FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads +
-              FileUpload.Initiated(Nonce.MatchAny, "foo-bar-ref", uploadId = Some("101"))
+              FileUpload.Initiated(Nonce.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         )
       }

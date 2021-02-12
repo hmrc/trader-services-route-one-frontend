@@ -31,42 +31,42 @@ sealed trait Nonce {
     value
 
   /** Encodes nonce as an url-safe base64 string */
-  override def toString: String =
+  final override def toString: String =
     new String(Base64.getUrlEncoder().encode(Nonce.intToByteArray(value)), StandardCharsets.UTF_8)
 }
 
 object Nonce {
 
-  def apply(): Nonce =
+  final def apply(): Nonce =
     toNonce(Random.nextInt())
 
-  def apply(value: Int): Nonce =
+  final def apply(value: Int): Nonce =
     toNonce(value)
 
   /** Decodes nonce from an url-safe base64 string */
-  def apply(string: String): Nonce =
+  final def apply(string: String): Nonce =
     Try[Nonce](Nonce.byteArrayToInt(Base64.getUrlDecoder.decode(string.getBytes(StandardCharsets.UTF_8))))
       .getOrElse(Nonce())
 
-  object MatchAny extends Nonce {
+  object Any extends Nonce {
     final val value: Int = 0
-    final override def equals(obj: Any): Boolean =
+    final override def equals(obj: scala.Any): Boolean =
       obj.isInstanceOf[Nonce]
   }
 
-  final class StrictNonce(val value: Int) extends Nonce {
-    override def equals(obj: Any): Boolean =
-      if (obj.isInstanceOf[MatchAny.type]) true
+  final class Strict(val value: Int) extends Nonce {
+    override def equals(obj: scala.Any): Boolean =
+      if (obj.isInstanceOf[Any.type]) true
       else if (obj.isInstanceOf[Nonce])
         obj.asInstanceOf[Nonce].value == value
       else false
   }
 
   implicit final val formats: Format[Nonce] =
-    SimpleDecimalFormat[Nonce](s => Nonce(s.toInt), n => BigDecimal(n.value))
+    SimpleDecimalFormat[Nonce](s => Nonce(s.toIntExact), n => BigDecimal(n.value))
 
   implicit final def toNonce(value: Int): Nonce =
-    new StrictNonce(value)
+    new Strict(value)
 
   final def intToByteArray(value: Int): Array[Byte] =
     Array[Byte](
