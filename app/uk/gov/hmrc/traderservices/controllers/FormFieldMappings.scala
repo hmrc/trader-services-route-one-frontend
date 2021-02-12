@@ -33,6 +33,8 @@ object FormFieldMappings {
   val normalizedText: Mapping[String] = of[String].transform(_.replaceAll("\\s", ""), identity)
   val uppercaseNormalizedText: Mapping[String] = normalizedText.transform(_.toUpperCase, identity)
   val validDomain: String = """.*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,4})+)"""
+  val nonAllowedCharTypes =
+    List(Character.CONTROL, Character.SURROGATE, Character.FORMAT, Character.PRIVATE_USE)
 
   def nonEmpty(fieldName: String): Constraint[String] =
     Constraint[String]("constraint.required") { s =>
@@ -224,7 +226,10 @@ object FormFieldMappings {
 
   val importContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
-      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
+      .transform(
+        _.trim.replaceAll("\\s{2,128}".filterNot(c => nonAllowedCharTypes.contains(getType(c))), " "),
+        identity[String]
+      )
       .verifying(
         first(
           constraint[String](
@@ -260,7 +265,10 @@ object FormFieldMappings {
 
   val exportContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
-      .transform(_.trim.replaceAll("\\s{2,128}", " "), identity[String])
+      .transform(
+        _.trim.replaceAll("\\s{2,128}".filterNot(c => nonAllowedCharTypes.contains(getType(c))), " "),
+        identity[String]
+      )
       .verifying(
         first(
           constraint[String](
@@ -306,8 +314,6 @@ object FormFieldMappings {
   val typeOfAmendmentMapping: Mapping[TypeOfAmendment] = enumMapping[TypeOfAmendment]("typeOfAmendment")
 
   val allowedResponseSpecialCharacters = " ()/+-*=^.;_&#@!?\"'{}[]\\~|%£$€"
-  val nonAllowedCharTypes =
-    List(Character.CONTROL, Character.SURROGATE, Character.FORMAT, Character.PRIVATE_USE)
 
   def isAllowedResponseCharacter(c: Char): Boolean =
     Character.isLetterOrDigit(c) || allowedResponseSpecialCharacters.contains(c)
