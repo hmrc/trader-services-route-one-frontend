@@ -22,9 +22,10 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZonedDateTime
 import java.time.ZoneId
+import uk.gov.hmrc.traderservices.models.DeclarationDetails
 
 @Singleton
-class CaseConfirmationViewContext {
+class CaseConfirmationViewContext extends DeclarationDetailsHelper {
 
   final val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -35,4 +36,8 @@ class CaseConfirmationViewContext {
       messages(if (dateTime.toLocalDate.isAfter(today)) "site.tomorrow" else "site.today")
     s"""<span id="sla-time">$time</span> <span id="sla-suffix">$suffix</span>"""
   }
+
+  def entryDateForDisplay(declarationDetails: DeclarationDetails): String =
+    formatDateForDisplay(declarationDetails.entryDate)
+
 }
