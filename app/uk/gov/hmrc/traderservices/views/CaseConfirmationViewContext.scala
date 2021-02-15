@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.time.ZonedDateTime
 import java.time.ZoneId
 import uk.gov.hmrc.traderservices.models.DeclarationDetails
+import uk.gov.hmrc.traderservices.models.UploadedFile
 
 @Singleton
 class CaseConfirmationViewContext extends DeclarationDetailsHelper {
@@ -39,5 +40,8 @@ class CaseConfirmationViewContext extends DeclarationDetailsHelper {
 
   def entryDateForDisplay(declarationDetails: DeclarationDetails): String =
     formatDateForDisplay(declarationDetails.entryDate)
+
+  def fileNamesForDisplay(uploadedFiles: Seq[UploadedFile]): Seq[String] =
+    uploadedFiles.map(_.fileName)
 
 }
