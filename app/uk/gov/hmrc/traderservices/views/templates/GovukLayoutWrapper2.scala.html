@@ -19,53 +19,61 @@
 @import uk.gov.hmrc.traderservices.controllers.routes
 
 @this(
-govukLayout2: GovukLayout2,
-govukPhaseBanner: GovukPhaseBanner,
-govukBackLink: GovukBackLink,
-siteHeader: components.siteHeader,
-phaseBanner: components.phaseBanner,
-languageSelection: components.languageSelection,
-link: components.link,
-gtmHeadSnippet: GtmHeadSnippet,
-gtmBodySnippet: GtmBodySnippet,
-researchBanner: components.researchBanner,
-appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
+        govukLayout2: GovukLayout2,
+        govukPhaseBanner: GovukPhaseBanner,
+        govukBackLink: GovukBackLink,
+        siteHeader: components.siteHeader,
+        phaseBanner: components.phaseBanner,
+        languageSelection: components.languageSelection,
+        link: components.link,
+        gtmHeadSnippet: GtmHeadSnippet,
+        gtmBodySnippet: GtmBodySnippet,
+        researchBanner: components.researchBanner,
+        appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 )
 
 @(
-  pageTitle: Option[String] = None, 
-  timeout: Boolean = true, 
-  js: Option[Html] = None, 
-  backLink: Option[String] = None, 
-  refresh: Int = 0,
-  mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
-  mainContentClasses: String = "govuk-grid-column-two-thirds"
+        pageTitle: Option[String] = None,
+        timeout: Boolean = true,
+        js: Option[Html] = None,
+        backLink: Option[String] = None,
+        refresh: Int = 0,
+        mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
+        mainContentClasses: String = "govuk-grid-column-two-thirds",
+        hasPrintReceipt: Boolean = false
 )(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @head = {
-@gtmHeadSnippet()
-<meta name="format-detection" content="telephone=no">
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!-->
-<link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet"
-    type="text/css" />
-<!--<![endif]-->
-<link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css"
-    media="print" />
-@if(refresh>0){
-<noscript>
- <meta http-equiv="refresh" content="@refresh"/>
-</noscript>
-}
+  @gtmHeadSnippet()
+  <meta name="format-detection" content="telephone=no">
+    <!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
+    <!--[if gt IE 8]><!-->
+  <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet"
+  type="text/css" />
+    <!--<![endif]-->
 
-@if(timeout) {
-  <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
-  data-language="en"
-  data-timeout="@appConfig.timeout"
-  data-countdown="@appConfig.countdown"
-  data-keep-alive-url="@routes.SessionController.keepAlive"
-  data-sign-out-url="@{appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url}"/>
-}
+  @if(hasPrintReceipt) {
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print-receipt.css")' type="text/css" media="print" />
+  } else {
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css" media="print" />
+  }
+
+  @if(refresh > 0) {
+    <noscript>
+      <meta http-equiv="refresh" content="@refresh"/>
+    </noscript>
+  }
+
+  @if(timeout) {
+    <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
+    data-language="en"
+    data-timeout="@appConfig.timeout"
+    data-countdown="@appConfig.countdown"
+    data-keep-alive-url="@routes.SessionController.keepAlive"
+    data-sign-out-url="@{
+      appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url
+    }"/>
+  }
 }
 
 @scripts = {
@@ -89,19 +97,18 @@ appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
 }
 
 @content = {
-<div class="govuk-!-margin-bottom-6">
-    @contentBlock
-</div>
-
+  <div class="govuk-!-margin-bottom-6">
+  @contentBlock
+  </div>
 }
 
 @govukLayout2(
-    pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}" ),headBlock = Some(head),
-beforeContentBlock = Some(beforeContentBlock),
-bodyEndBlock = None,
-scriptsBlock = Some(scripts),
-headerBlock = Some(siteHeader(timeout)),
-footerItems = FooterLinks.items,
-mainClasses = mainClasses,
-mainContentClasses = mainContentClasses
+  pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}"), headBlock = Some(head),
+  beforeContentBlock = Some(beforeContentBlock),
+  bodyEndBlock = None,
+  scriptsBlock = Some(scripts),
+  headerBlock = Some(siteHeader(timeout)),
+  footerItems = FooterLinks.items,
+  mainClasses = mainClasses,
+  mainContentClasses = mainContentClasses
 )(content)

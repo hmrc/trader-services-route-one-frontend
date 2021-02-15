@@ -19,9 +19,10 @@
 @import uk.gov.hmrc.traderservices.models.DeclarationDetails
 @import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
+@import uk.gov.hmrc.traderservices.views.html.partials
 
 @this(
-        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
         context: CaseConfirmationViewContext,
@@ -30,65 +31,40 @@
 
 @(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(
+@govukLayout2(
   pageTitle = pageTitle("view.create-case-confirmation.title"),
-  backLink = None) {
+  backLink = None,
+  mainContentClasses = "",
+  hasPrintReceipt = true) {
 
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">
-            @messages("view.create-case-confirmation.heading")
-        </h1>
-        <div class="govuk-panel__body">
-            @messages("view.create-case-confirmation.reference")<br>
-            <strong class="app-reference-number">@caseReferenceId</strong><br>
-            <p class="govuk-!-font-size-19">@messages("view.create-case-confirmation.date") @generatedAt</p>
-        </div>
+      <h1 class="govuk-panel__title">
+      @messages("view.create-case-confirmation.heading")
+      </h1>
+      <div class="govuk-panel__body">
+        @messages("view.create-case-confirmation.reference") <br>
+        <strong class="app-reference-number">@caseReferenceId</strong>
+        <br>
+        <p class="govuk-!-font-size-19">@messages("view.create-case-confirmation.date") @generatedAt</p>
+      </div>
     </div>
 
-    @html.h2("view.create-case-confirmation.save.heading", classes = "govuk-heading-m")
+    @html.h2("view.create-case-confirmation.next.heading")
 
-    @html.p {
-      @messages("view.create-case-confirmation.save.description")
-    }
-
-    @html.ul(
-      messages("view.create-case-confirmation.save.bullet1"),
-      messages("view.create-case-confirmation.save.bullet2"),
-      messages("view.create-case-confirmation.save.bullet3")
-    )
-
-    @html.p {
-      @messages("view.create-case-confirmation.save.description2")
-    }
-
-    @html.h2("view.create-case-confirmation.next.heading", classes = "govuk-heading-m")
-
-    @if(caseSLA.dateTime.isDefined){
+    @if(caseSLA.dateTime.isDefined) {
       @html.p {
-        @messages("view.create-case-confirmation.next.description.sla1")
+        @Html(messages("view.create-case-confirmation.next.description.sla1", context.getSlaTimeTextFor(caseSLA.dateTime.get)))
       }
       @html.p {
-        @Html(messages("view.create-case-confirmation.next.description.sla2", context.getSlaTimeTextFor(caseSLA.dateTime.get)))
+        @Html(messages("view.create-case-confirmation.next.description.sla2"))
       }
-    } 
-    @if(caseSLA.dateTime.isEmpty){
+    }
+
+    @if(caseSLA.dateTime.isEmpty) {
       @html.p {
         @messages("view.create-case-confirmation.next.description.nosla")
       }
-    }
-
-    @html.p {
-    @Html(messages("view.create-case-confirmation.next.description2", restartCall.url))
-    }
-
-    @html.h2("view.create-case-confirmation.info.heading", classes = "govuk-heading-m")
-
-    @html.p {
-        @messages("view.create-case-confirmation.info.description")
-    }
-
-    @html.p {
-      @Html(messages("view.create-case-confirmation.footnote"))
     }
 
     @html.p {
@@ -97,4 +73,33 @@
         messageKey = "view.create-case-confirmation.feedback"
       )
     }
+
+    @html.h2("view.create-case-confirmation.print-receipts.heading")
+
+    @html.p {
+      @messages("view.create-case-confirmation.print-receipts.description")
+    }
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    <ul class="action-buttons">
+      <li>
+        <button class="print-page action-buttons__button action-buttons__button--print">Print your receipt</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="govuk-grid-column-two-thirds">
+    @partials.receipt(caseReferenceId, context, declarationDetails, uploadedFiles, generatedAt)(messages)
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    @html.p {
+      @Html(messages("view.create-case-confirmation.next.description2", restartCall.url))
+    }
+
+    @html.p {
+      @Html(messages("view.create-case-confirmation.footnote"))
+    }
+  </div>
 }

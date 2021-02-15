@@ -1,0 +1,27 @@
+$govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
+$hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
+@import "lib/govuk-frontend/govuk/all";
+@import "lib/hmrc-frontend/hmrc/all";
+
+@import "receipt";
+
+.govuk-header,
+.ssp-research-banner,
+.govuk-phase-banner,
+.hmrc-language-select,
+.govuk-footer,
+.print-receipt-hide {
+  display: none;
+}
+
+.receipt {
+  margin: 2cm;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+}
+
+@page {
+  size: auto;
+  margin: 0;
+}

@@ -1,0 +1,37 @@
+.action-buttons {
+  margin-bottom: 40px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.action-buttons__button {
+  padding: 0;
+  color: #1d70b8;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  text-decoration: underline;
+
+  &:hover {
+    color: $govuk-link-hover-colour;
+  }
+
+  &:focus {
+    outline: 3px solid transparent;
+    color: #0b0c0c;
+    background-color: #fd0;
+    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+    text-decoration: none;
+  }
+
+  &::before {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 5px;
+    background-image: url('../images/print-icon.svg');
+    vertical-align: top;
+    content: '';
+  }
+}
