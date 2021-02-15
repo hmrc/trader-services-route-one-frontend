@@ -944,10 +944,18 @@ class CreateCaseJourneyController @Inject() (
             )
         )
 
-      case CreateCaseConfirmation(_, _, _, TraderServicesResult(caseReferenceId, generatedAt), caseSLA) =>
+      case CreateCaseConfirmation(
+            declarationDetails,
+            _,
+            uploadedFiles,
+            TraderServicesResult(caseReferenceId, generatedAt),
+            caseSLA
+          ) =>
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
+            declarationDetails,
+            uploadedFiles,
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.showStart()

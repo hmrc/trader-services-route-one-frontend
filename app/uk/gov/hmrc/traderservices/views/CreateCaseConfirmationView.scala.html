@@ -16,6 +16,8 @@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.models.CaseSLA
+@import uk.gov.hmrc.traderservices.models.DeclarationDetails
+@import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 
 @this(
@@ -26,7 +28,7 @@
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = pageTitle("view.create-case-confirmation.title"),
