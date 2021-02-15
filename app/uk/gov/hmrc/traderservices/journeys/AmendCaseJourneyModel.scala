@@ -114,8 +114,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
             case TypeOfAmendment.UploadDocuments =>
               if (uploadMultipleFiles)
-                FileUploadTransitions.toUploadMultipleFiles
-                  .apply(current.copy(model = updatedModel))
+                FileUploadTransitions.toUploadMultipleFiles.apply(
+                  current.copy(model = updatedModel.copy(responseText = None))
+                )
               else
                 gotoFileUploadOrUploaded(
                   updatedModel.copy(responseText = None),
