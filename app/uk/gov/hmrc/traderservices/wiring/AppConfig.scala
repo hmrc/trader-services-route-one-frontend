@@ -112,7 +112,7 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val authorisedServiceName: String = config.getString("authorisedServiceName")
   override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
 
-  override val subscriptionJourneyUrl: String = config.getString("subscriptionJourneyUrl")
+  override val subscriptionJourneyUrl: String = config.getString("urls.subscriptionJourney")
 
   override val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
 

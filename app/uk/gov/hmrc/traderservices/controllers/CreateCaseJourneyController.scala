@@ -82,12 +82,7 @@ class CreateCaseJourneyController @Inject() (
   private val actionNotYetImplemented = Action(NotImplemented)
 
   final def toSubscriptionJourney(continueUrl: String): Result =
-    Redirect(
-      appConfig.subscriptionJourneyUrl,
-      Map(
-        "continue" -> Seq(continueUrl)
-      )
-    )
+    Redirect(appConfig.subscriptionJourneyUrl)
 
   // Dummy URL to use when developing the journey
   final val workInProgresDeadEndCall = Call("GET", "/send-documents-for-customs-check/work-in-progress")
