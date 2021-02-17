@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import java.lang.Character.getType
 import java.time.{LocalDate, LocalTime}
 
 import play.api.data.Forms.{of, optional, text}
@@ -227,18 +226,11 @@ object FormFieldMappings {
   val importContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
       .transform(
-        _.trim.replaceAll("\\s{2,128}".filterNot(c => nonAllowedCharTypes.contains(getType(c))), " "),
+        _.trim.replaceAll("\\s{2,128}".filterNot(c => isControlFiltered(c)), " "),
         identity[String]
       )
       .verifying(
         first(
-          constraint[String](
-            "contactName",
-            "invalid-characters",
-            name =>
-              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
-                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
-          ),
           constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
           constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
@@ -266,18 +258,11 @@ object FormFieldMappings {
   val exportContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
       .transform(
-        _.trim.replaceAll("\\s{2,128}".filterNot(c => nonAllowedCharTypes.contains(getType(c))), " "),
+        _.trim.replaceAll("\\s{2,128}".filterNot(c => isControlFiltered(c)), " "),
         identity[String]
       )
       .verifying(
         first(
-          constraint[String](
-            "contactName",
-            "invalid-characters",
-            name =>
-              name.isEmpty || (name.exists(Character.isLetterOrDigit) &&
-                name.forall(c => Character.isLetterOrDigit(c) || allowedSpecialNameCharacterSet.contains(c)))
-          ),
           constraint[String]("contactName", "invalid-length-short", name => name.length >= 2),
           constraint[String]("contactName", "invalid-length-long", name => name.length <= 128)
         )
@@ -318,6 +303,11 @@ object FormFieldMappings {
   def isAllowedResponseCharacter(c: Char): Boolean =
     Character.isLetterOrDigit(c) || allowedResponseSpecialCharacters.contains(c)
 
+  def isControlFiltered(c: Char): Boolean =
+    (c != 0x09 && c != 0x0a) && //09 = tab, 0a = newline
+      ((c >= 0x00 && c <= 0x1f) || //control chars
+        (c >= 0x7f && c <= 0x9f))
+
   val responseTextMapping: Mapping[String] = text
     .verifying(
       first(
@@ -325,5 +315,6 @@ object FormFieldMappings {
         constraint[String]("responseText", "invalid-length", _.length <= 1000)
       )
     )
-    .transform(_.filterNot(c => nonAllowedCharTypes.contains(getType(c))), identity)
+    .transform(_.filterNot(c => isControlFiltered(c)), identity)
+
 }
