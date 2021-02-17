@@ -509,12 +509,12 @@ view.create-case-confirmation.save.bullet2=we need further information from you
 view.create-case-confirmation.save.bullet3=you want to add more information or documents to this case
 view.create-case-confirmation.save.description2=Save your case reference number for your own records.
 view.create-case-confirmation.next.heading=Next steps
-view.create-case-confirmation.next.description.sla1=Once the document checks are complete, you’ll hear from us through CHIEF or your declaration software.
-view.create-case-confirmation.next.description.sla2=Your document checks should be completed by {0}. If you have not heard from us by this time, you can <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">contact us about your case’s progress</a>.
+view.create-case-confirmation.next.description.sla1=Your document checks should be completed by {0}. You’ll hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.description.sla2=If you have not heard from us by this time, you can <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">contact us about your case’s progress</a>.
 view.create-case-confirmation.next.description.nosla=When your transportation arrives, we’ll begin the document checks. Once our checks are complete, you’ll hear from us through CHIEF or your declaration software.
 view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
-view.create-case-confirmation.info.heading=If we need more information
-view.create-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
+view.create-case-confirmation.print-receipts.heading=Print or save your receipt for your records
+view.create-case-confirmation.print-receipts.description=You’ll need your case reference if you need to provide more information.
 view.create-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 view.create-case-confirmation.feedback=Give feedback on this service
 
@@ -576,6 +576,18 @@ view.amend-case.summary.additionalInfo.message=Message
 view.amend-case.summary.documents.heading=Documents you are submitting
 view.amend-case.summary.filenames=File names
 form.amend-case.summary.continue=Submit
+
+receipt.heading=Your customs check document receipt
+receipt.caseReferenceNumber=Case reference number
+receipt.submissionDateAndTime=Submission date and time
+receipt.documentsReceivedOn=Documents received on {0}
+receipt.declarationInformation=Declaration information
+receipt.epuNumber=EPU number
+receipt.entryNumber=Entry number
+receipt.entryDate=Entry date
+receipt.documents=Documents you have submitted
+receipt.fileNames=File names
+
 # Common form messages
 # ----------------------------------------------------------
 error.browser.title.prefix = Error:

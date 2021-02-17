@@ -1,6 +1,6 @@
 $govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
-@import "lib/govuk-frontend/govuk/all";
 $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
+@import "lib/govuk-frontend/govuk/all";
 @import "lib/hmrc-frontend/hmrc/all";
 
 @import "js-hidden";
@@ -18,7 +18,10 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 @import "upload-loading";
 @import "overrides";
 
+// Components
+@import "action-buttons";
 @import "multi-file-upload";
+@import "receipt";
 
 .app-\!-previous-claims-status-width {
   width: 30.5% !important;
