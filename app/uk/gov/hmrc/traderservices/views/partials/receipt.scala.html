@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.traderservices.models.DeclarationDetails
 @import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
+@import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 
 @(caseReferenceId: String, context: CaseConfirmationViewContext, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String)(implicit messages: Messages)
 <div class="receipt">
@@ -37,7 +38,7 @@
   <h4 class="govuk-heading-m">@messages("receipt.declarationInformation")</h4>
   <dl>
     <dt>@messages("receipt.epuNumber")</dt>
-    <dd>@declarationDetails.epu.value</dd>
+    <dd>@declarationDetails.epu.value.format3d</dd>
 
     <dt>@messages("receipt.entryNumber")</dt>
     <dd>@declarationDetails.entryNumber.value</dd>
