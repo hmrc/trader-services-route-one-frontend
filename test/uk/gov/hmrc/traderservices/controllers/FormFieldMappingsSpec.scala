@@ -607,7 +607,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
     "validate response text mapping" in {
       responseTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      responseTextMapping.bind(Map("" -> "abc\u0000")) shouldBe Right("abc")
+      responseTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
       responseTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
       responseTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
     }
