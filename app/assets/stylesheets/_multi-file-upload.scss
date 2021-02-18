@@ -111,7 +111,8 @@
   }
 }
 
-.multi-file-upload__item--uploading {
+.multi-file-upload__item--uploading,
+.multi-file-upload__item--verifying {
   .multi-file-upload__file {
     display: none;
   }

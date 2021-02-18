@@ -9,7 +9,6 @@ import ErrorManager from '../tools/error-manager.tool';
 export class MultiFileUpload extends Component {
   private config;
   private uploadData = {};
-  private uploadHandles = {};
   private messages: KeyValue;
   private classes: KeyValue;
   private formStatus: HTMLElement;
@@ -50,6 +49,7 @@ export class MultiFileUpload extends Component {
       itemList: 'multi-file-upload__item-list',
       item: 'multi-file-upload__item',
       uploading: 'multi-file-upload__item--uploading',
+      verifying: 'multi-file-upload__item--verifying',
       uploaded: 'multi-file-upload__item--uploaded',
       removing: 'multi-file-upload__item--removing',
       file: 'multi-file-upload__file',
@@ -196,14 +196,13 @@ export class MultiFileUpload extends Component {
     const item = target.closest(`.${this.classes.item}`) as HTMLElement;
     const file = this.getFileFromItem(item);
 
-    if (this.isUploaded(item)) {
+    if (this.isUploaded(item) || this.isVerifying(item)) {
       this.setItemState(item, UploadState.Removing);
       this.requestRemoveFile(file);
     }
     else if (this.isUploading(item)) {
-      if (this.uploadHandles[file.id]) {
-        this.uploadHandles[file.id].abort();
-        delete this.uploadHandles[file.id];
+      if (this.uploadData[file.id].uploadHandle) {
+        this.uploadData[file.id].uploadHandle.abort();
       }
 
       this.removeItem(item);
@@ -249,6 +248,8 @@ export class MultiFileUpload extends Component {
     if (this.getItems().length === 0) {
       this.addItemWithProvisioning();
     }
+
+    delete this.uploadData[file.id];
   }
 
   private provisionUpload(file: HTMLInputElement): void {
@@ -308,7 +309,7 @@ export class MultiFileUpload extends Component {
     this.getFileNameElement(item).textContent = fileName;
     this.getFilePreviewElement(item).textContent = fileName;
 
-    this.uploadHandles[file.id] = this.uploadFile(file);
+    this.uploadData[file.id].uploadHandle = this.uploadFile(file);
   }
 
   private prepareFormData(file: HTMLInputElement, data): FormData {
@@ -346,6 +347,10 @@ export class MultiFileUpload extends Component {
   }
 
   private handleUploadFileCompleted(fileRef: string): void {
+    const file = this.getFileByReference(fileRef);
+    const item = this.getItemFromFile(file);
+
+    this.setItemState(item, UploadState.Verifying);
     this.delayedRequestUploadStatus(fileRef);
   }
 
@@ -358,6 +363,12 @@ export class MultiFileUpload extends Component {
   }
 
   private requestUploadStatus(fileRef: string): void {
+    const file = this.getFileByReference(fileRef);
+
+    if (!Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
+      return;
+    }
+
     fetch(this.getStatusUrl(fileRef), {
       method: 'GET'
     })
@@ -457,7 +468,7 @@ export class MultiFileUpload extends Component {
     this.getItems().forEach(item => {
       const button = this.getRemoveButtonFromItem(item);
 
-      if (this.isUploading(item) || this.isUploaded(item)) {
+      if (this.isUploading(item) || this.isVerifying(item) || this.isUploaded(item)) {
         state = true;
       }
 
@@ -554,19 +565,26 @@ export class MultiFileUpload extends Component {
     return item.classList.contains(this.classes.uploading);
   }
 
+  private isVerifying(item: HTMLElement): boolean {
+    return item.classList.contains(this.classes.verifying);
+  }
+
   private isUploaded(item: HTMLElement): boolean {
     return item.classList.contains(this.classes.uploaded);
   }
 
   private setItemState(item: HTMLElement, uploadState: UploadState): void {
     const file = this.getFileFromItem(item);
-    item.classList.remove(this.classes.uploading, this.classes.uploaded, this.classes.removing);
+    item.classList.remove(this.classes.uploading, this.classes.verifying, this.classes.uploaded, this.classes.removing);
 
     file.disabled = uploadState !== UploadState.Default;
 
     switch (uploadState) {
       case UploadState.Uploading:
         item.classList.add(this.classes.uploading);
+        break;
+      case UploadState.Verifying:
+        item.classList.add(this.classes.verifying);
         break;
       case UploadState.Uploaded:
         item.classList.add(this.classes.uploaded);
