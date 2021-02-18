@@ -54,6 +54,7 @@ export class MultiFileUpload extends Component {
       removing: 'multi-file-upload__item--removing',
       file: 'multi-file-upload__file',
       fileName: 'multi-file-upload__file-name',
+      filePreview: 'multi-file-upload__file-preview',
       remove: 'multi-file-upload__remove-item',
       addAnother: 'multi-file-upload__add-another',
       formStatus: 'multi-file-upload__form-status',
@@ -119,14 +120,19 @@ export class MultiFileUpload extends Component {
     }
   }
 
-  private createUploadedItem(fileData): HTMLElement {
+  private createUploadedItem(fileData: unknown): HTMLElement {
     const item = this.addItem();
     const file = this.getFileFromItem(item);
+    const fileName = this.extractFileName(fileData['fileName']);
+    const filePreview = this.getFilePreviewElement(item);
 
     this.setItemState(item, UploadState.Uploaded);
+    this.getFileNameElement(item).textContent = fileName;
 
-    this.getFileNameElement(item).textContent = this.extractFileName(fileData.fileName);
-    file.dataset.multiFileUploadFileRef = fileData.reference;
+    filePreview.textContent = fileName;
+    filePreview.href = fileData['previewUrl'];
+
+    file.dataset.multiFileUploadFileRef = fileData['reference'];
 
     return item;
   }
@@ -294,11 +300,13 @@ export class MultiFileUpload extends Component {
 
   private prepareFileUpload(file: HTMLInputElement): void {
     const item = this.getItemFromFile(file);
+    const fileName = this.getFileName(file);
 
     this.updateButtonVisibility();
     this.errorManager.removeError(file.id);
 
-    this.getFileNameElement(item).textContent = this.getFileName(file);
+    this.getFileNameElement(item).textContent = fileName;
+    this.getFilePreviewElement(item).textContent = fileName;
 
     this.uploadHandles[file.id] = this.uploadFile(file);
   }
@@ -369,7 +377,7 @@ export class MultiFileUpload extends Component {
 
     switch (response['fileStatus']) {
       case 'ACCEPTED':
-        this.handleFileStatusSuccessful(file);
+        this.handleFileStatusSuccessful(file, response['previewUrl']);
         break;
 
       case 'FAILED':
@@ -396,13 +404,14 @@ export class MultiFileUpload extends Component {
     }
   }
 
-  private handleFileStatusSuccessful(file: HTMLInputElement) {
+  private handleFileStatusSuccessful(file: HTMLInputElement, previewUrl: string) {
     const item = this.getItemFromFile(file);
 
     this.addNotification(parseTemplate(this.messages.documentUploaded, {
       fileName: this.getFileName(file)
     }));
 
+    this.getFilePreviewElement(item).href = previewUrl;
     this.setItemState(item, UploadState.Uploaded);
     this.updateButtonVisibility();
     this.updateFormStatusVisibility();
@@ -524,6 +533,10 @@ export class MultiFileUpload extends Component {
 
   private getFileNameElement(item: HTMLElement): HTMLElement {
     return item.querySelector(`.${this.classes.fileName}`);
+  }
+
+  private getFilePreviewElement(item: HTMLElement): HTMLLinkElement {
+    return item.querySelector(`.${this.classes.filePreview}`);
   }
 
   private extractFileName(fileName: string): string {

@@ -29,7 +29,8 @@
   max-width: 100%;
 }
 
-.multi-file-upload__file-name {
+.multi-file-upload__file-name,
+.multi-file-upload__file-preview {
   display: none;
   word-break: break-all;
   margin-bottom: 10px;
@@ -129,7 +130,7 @@
     display: none;
   }
 
-  .multi-file-upload__file-name {
+  .multi-file-upload__file-preview {
     display: inline-block;
   }
 
