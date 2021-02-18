@@ -465,12 +465,16 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
+      importContactNameMapping.bind(Map("" -> "Test\u2061")) shouldBe Right(Some("Test"))
+      importContactNameMapping.bind(Map("" -> "Test\u0009Test")) shouldBe Right(Some("Test\u0009Test"))
     }
 
     "validate export contactNameMapping" in {
       exportContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
       exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
+      exportContactNameMapping.bind(Map("" -> "Test\u2061")) shouldBe Right(Some("Test"))
+      exportContactNameMapping.bind(Map("" -> "Test\u0009Test")) shouldBe Right(Some("Test\u0009Test"))
     }
 
     "validate import contactEmailMapping" in {
@@ -603,6 +607,15 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000Z0")) should haveOnlyError(
         "error.caseReferenceNumber.invalid-value"
       )
+    }
+
+    "validate response text mapping" in {
+      responseTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
+      responseTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
+      responseTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
+      responseTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
+      responseTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
+      responseTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
     }
   }
 
