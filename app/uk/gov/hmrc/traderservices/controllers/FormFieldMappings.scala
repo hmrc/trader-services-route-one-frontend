@@ -227,10 +227,12 @@ object FormFieldMappings {
   val importContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
       .transform(
-        _.trim.replaceAll(
-          "\\s{2,128}".filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
-          " "
-        ),
+        _.trim
+          .replaceAll(
+            "\\s{2,128}",
+            " "
+          )
+          .filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
         identity[String]
       )
       .verifying(
@@ -262,10 +264,12 @@ object FormFieldMappings {
   val exportContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
       .transform(
-        _.trim.replaceAll(
-          "\\s{2,128}".filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
-          " "
-        ),
+        _.trim
+          .replaceAll(
+            "\\s{2,128}",
+            " "
+          )
+          .filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
         identity[String]
       )
       .verifying(
