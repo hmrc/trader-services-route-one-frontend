@@ -25,6 +25,7 @@ export class MultiFileUpload extends Component {
     super(form);
 
     this.config = {
+      startRows: parseInt(form.dataset.multiFileUploadStartRows) || 1,
       minFiles: parseInt(form.dataset.multiFileUploadMinFiles) || 1,
       maxFiles: parseInt(form.dataset.multiFileUploadMaxFiles) || 10,
       uploadedFiles: form.dataset.multiFileUploadUploadedFiles ? JSON.parse(form.dataset.multiFileUploadUploadedFiles) : [],
@@ -110,8 +111,8 @@ export class MultiFileUpload extends Component {
       rowCount++;
     });
 
-    if (rowCount === 0) {
-      for (let a = rowCount; a < this.config.minFiles; a++) {
+    if (rowCount < this.config.startRows) {
+      for (let a = rowCount; a < this.config.startRows; a++) {
         this.addItemWithProvisioning();
       }
     }
