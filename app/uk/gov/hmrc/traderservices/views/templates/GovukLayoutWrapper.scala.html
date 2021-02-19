@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.traderservices.views.components.FooterLinks
 @import uk.gov.hmrc.traderservices.controllers.routes
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
 
 @this(
 govukLayout: GovukLayout,
@@ -29,7 +30,8 @@ link: components.link,
 gtmHeadSnippet: GtmHeadSnippet,
 gtmBodySnippet: GtmBodySnippet,
 researchBanner: components.researchBanner,
-appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig
+appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig,
+hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
@@ -85,6 +87,8 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 <div class="govuk-!-margin-bottom-6">
     @contentBlock
 </div>
+
+@hmrcReportTechnicalIssueHelper()
 
 }
 
