@@ -434,7 +434,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
                       url,
                       uploadDetails.uploadTimestamp,
                       uploadDetails.checksum,
-                      uploadDetails.fileName,
+                      FileUpload.sanitizeFileName(uploadDetails.fileName),
                       uploadDetails.fileMimeType,
                       uploadDetails.size
                     )
