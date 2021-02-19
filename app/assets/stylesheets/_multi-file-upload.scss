@@ -8,10 +8,6 @@
   border-bottom: 1px solid $govuk-border-colour;
 }
 
-.multi-file-upload__item:last-of-type {
-  border-bottom: none;
-}
-
 .multi-file-upload__item-content {
   @include govuk-media-query($from: tablet) {
     display: flex;
