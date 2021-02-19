@@ -2247,6 +2247,54 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
+      "update file upload status to ACCEPTED with sanitized name of the file" in {
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        ) when upscanCallbackArrived(Nonce(1))(
+          UpscanFileReady(
+            reference = "foo-bar-ref-1",
+            downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            uploadDetails = UpscanNotification.UploadDetails(
+              uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              fileName = """F:\My Documents\my invoices\invoice00001_1234.pdf""",
+              fileMimeType = "application/pdf",
+              size = Some(4567890)
+            )
+          )
+        ) should thenGo(
+          UploadMultipleFiles(
+            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  Nonce(1),
+                  Timestamp.Any,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "invoice00001_1234.pdf",
+                  "application/pdf",
+                  Some(4567890)
+                ),
+                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+              )
+            )
+          )
+        )
+      }
+
       "do nothing when positive upscanCallbackArrived transition and none matching file upload found" in {
         val state = UploadMultipleFiles(
           FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),

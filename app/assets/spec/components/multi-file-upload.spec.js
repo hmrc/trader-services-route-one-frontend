@@ -61,6 +61,7 @@ describe('Multi File Upload component', () => {
                   <div class="multi-file-upload__file-container">
                     <input class="multi-file-upload__file govuk-file-upload" type="file" id="file-{fileIndex}">
                     <span class="multi-file-upload__file-name"></span>
+                    <a class="multi-file-upload__file-preview"></a>
                   </div>
             
                   <div class="multi-file-upload__meta-container">

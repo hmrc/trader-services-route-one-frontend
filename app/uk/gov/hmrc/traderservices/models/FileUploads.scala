@@ -18,6 +18,7 @@ package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
 import java.time.ZonedDateTime
+import scala.util.matching.Regex
 
 /** Container for file upload status tracking. */
 case class FileUploads(
@@ -90,6 +91,14 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
 
   final def unapply(fileUpload: FileUpload): Option[(Nonce, String, Timestamp)] =
     Some((fileUpload.nonce.value, fileUpload.reference, fileUpload.timestamp))
+
+  final val isWindowPathHaving: Regex = "[a-zA-Z]\\:.*\\\\(.+)".r("name")
+
+  final def sanitizeFileName(fileName: String): String =
+    fileName match {
+      case isWindowPathHaving(name) => name
+      case name                     => name
+    }
 
   /**
     * Status when file upload attributes has been requested from upscan-initiate
