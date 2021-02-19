@@ -305,12 +305,11 @@ view.upload-file.next.heading=Uwchlwytho dogfen arall
 view.upload-file.waiting=Mae’ch dogfen wrthi’n cael ei huwchlwytho. Cewch eich ailgyfeirio ar ôl i’r ffeil gael ei phrosesu.
 view.upload-file.line2=Mae’n rhaid i bob dogfen fod yn llai na 6MB.
 view.upload-file.help.line1=Caniateir y mathau hyn o ffeiliau:
-view.upload-file.help.fileFormat1=JPG
-view.upload-file.help.fileFormat2=PNG
-view.upload-file.help.fileFormat3=PDF
-view.upload-file.help.fileFormat4=TIFF
-view.upload-file.help.fileFormat5=Microsoft Excel, Word a PowerPoint
-view.upload-file.help.fileFormat6=Open Document Format (ODF)
+view.upload-file.help.fileFormat1=image (.jpg, .jpeg, .png or .tiff)
+view.upload-file.help.fileFormat2=PDF (.pdf)
+view.upload-file.help.fileFormat3=Microsoft (Word, Excel or PowerPoint)
+view.upload-file.help.fileFormat4=Open Document Format (ODF)
+view.upload-file.help.fileFormat5=email (.txt, .oft or .msg)
 view.upload-file.help.line4=Ni allwch uwchlwytho ffeiliau zip na dogfennau sydd wedi’u diogelu gan gyfrinair.
 
 view.file-uploaded.singular.title=Rydych wedi uwchlwytho {0} o ddogfennau
