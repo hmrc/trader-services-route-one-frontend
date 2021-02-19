@@ -550,6 +550,11 @@ class CreateCaseJourneyController @Inject() (
       .orRollback
       .andCleanBreadcrumbs() // forget journey history
 
+  // GET /new/confirmation/receipt
+  final def downloadCreateCaseConfirmationReceipt: Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayUsing(implicit request => renderConfirmationReceiptHtml)
+
   // GET /new/case-already-exists
   final def showCaseAlreadyExists: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -1069,6 +1074,33 @@ class CreateCaseJourneyController @Inject() (
       case _: FileUploadState.WaitingForFileVerification => Accepted
       case _                                             => NoContent
     }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+
+  private def renderConfirmationReceiptHtml(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
+    implicit request: Request[_]
+  ): Result =
+    state match {
+      case CreateCaseConfirmation(
+            declarationDetails,
+            _,
+            uploadedFiles,
+            TraderServicesResult(caseReferenceId, generatedAt),
+            caseSLA
+          ) =>
+        Ok(
+          views.createCaseConfirmationReceiptView(
+            caseReferenceId,
+            declarationDetails,
+            uploadedFiles,
+            generatedAt.ddMMYYYYAtTimeFormat,
+            caseSLA,
+            controller.showStart()
+          )
+        ).withHeaders(
+          HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="case-$caseReferenceId.html""""
+        )
+
+      case _ => BadRequest
+    }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 

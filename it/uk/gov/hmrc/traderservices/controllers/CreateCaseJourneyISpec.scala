@@ -2132,6 +2132,45 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
       }
     }
 
+    "GET /new/confirmation/receipt" should {
+      "download the confirmation receipt" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = CreateCaseConfirmation(
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          Seq(
+            UploadedFile(
+              "foo-123",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("ABC01234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/confirmation/receipt").get)
+
+        result.status shouldBe 200
+        result.header("Content-Disposition") shouldBe Some("""attachment; filename="case-ABC01234567890.html"""")
+
+        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body should include(
+          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
+        )
+
+        journey.getState shouldBe state
+      }
+    }
+
     "GET /new/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
         implicit val journeyId: JourneyId = JourneyId()

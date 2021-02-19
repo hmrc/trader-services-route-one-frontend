@@ -1,0 +1,105 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import uk.gov.hmrc.traderservices.models.CaseSLA
+@import uk.gov.hmrc.traderservices.models.DeclarationDetails
+@import uk.gov.hmrc.traderservices.models.UploadedFile
+@import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
+@import uk.gov.hmrc.traderservices.views.html.partials
+
+@this(
+        govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        context: CaseConfirmationViewContext,
+        appConfig: AppConfig
+)
+
+@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
+
+@govukLayout2(
+  pageTitle = pageTitle("view.create-case-confirmation.title"),
+  backLink = None,
+  mainContentClasses = "",
+  hasPrintReceipt = true) {
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    <div class="govuk-panel govuk-panel--confirmation">
+      <h1 class="govuk-panel__title">
+      @messages("view.create-case-confirmation.heading")
+      </h1>
+      <div class="govuk-panel__body">
+        @messages("view.create-case-confirmation.reference") <br>
+        <strong class="app-reference-number">@caseReferenceId</strong>
+        <br>
+        <p class="govuk-!-font-size-19">@messages("view.create-case-confirmation.date") @generatedAt</p>
+      </div>
+    </div>
+
+    @html.h2("view.create-case-confirmation.next.heading")
+
+    @if(caseSLA.dateTime.isDefined) {
+      @html.p {
+        @Html(messages("view.create-case-confirmation.next.description.sla1", context.getSlaTimeTextFor(caseSLA.dateTime.get)))
+      }
+      @html.p {
+        @Html(messages("view.create-case-confirmation.next.description.sla2"))
+      }
+    }
+
+    @if(caseSLA.dateTime.isEmpty) {
+      @html.p {
+        @messages("view.create-case-confirmation.next.description.nosla")
+      }
+    }
+
+    @html.p {
+      @html.a(
+        link = appConfig.exitSurveyUrl,
+        messageKey = "view.create-case-confirmation.feedback"
+      )
+    }
+
+    @html.h2("view.create-case-confirmation.print-receipts.heading")
+
+    @html.p {
+      @messages("view.create-case-confirmation.print-receipts.description")
+    }
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    <ul class="action-buttons">
+      <li>
+        <button class="print-page action-buttons__button action-buttons__button--print">Print your receipt</button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="govuk-grid-column-two-thirds">
+    @partials.receipt(caseReferenceId, context, declarationDetails, uploadedFiles, generatedAt)(messages)
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    @html.p {
+      @Html(messages("view.create-case-confirmation.next.description2", restartCall.url))
+    }
+
+    @html.p {
+      @Html(messages("view.create-case-confirmation.footnote"))
+    }
+  </div>
+}
