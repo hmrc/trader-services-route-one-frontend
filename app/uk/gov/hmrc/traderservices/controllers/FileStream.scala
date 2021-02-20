@@ -31,6 +31,7 @@ import scala.util.Success
 import akka.stream.scaladsl.Source
 import play.mvc.Http.HeaderNames
 import scala.concurrent.Future
+import play.api.Logger
 
 trait FileStream {
 
@@ -54,10 +55,13 @@ trait FileStream {
                 contentType = Some(fileMimeType)
               )
               .withHeaders(contentDispositionForMimeType(fileMimeType, fileName))
-          else
+          else {
+            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing uploaded file.")
             Results.InternalServerError
+          }
 
         case (_, (Failure(error), fileRequest)) =>
+          Logger(getClass).error(s"Error when accessing uploaded file: ${error.getMessage()}.")
           Results.InternalServerError
       }
   }

@@ -36,7 +36,7 @@
   initiateNextFileUpload: String => Call, 
   checkFileVerificationStatus: String => Call, 
   removeFile: String => Call, 
-  previewFile: String => Call, 
+  previewFile: (String,String) => Call, 
   markFileRejected: Call,
   continueAction: Call, 
   backLink: Call)(implicit request: Request[_], messages: Messages)
@@ -69,6 +69,8 @@
    *
    * + removeFile - a function accepting upscan reference and returning a call to frontend service,
    *                PUT request to this call will remove specified file upload and return 204
+   *
+   * + previewFile - a function accepting upscan reference and file name, and returning a call to preview uploaded file
    *
    * + markFileRejected - a call to reject a file in a special case S3 upload fails without failure redirect, 
    *                      expected payload:

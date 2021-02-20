@@ -524,8 +524,8 @@ class CreateCaseJourneyController @Inject() (
       }
       .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
 
-  // GET /new/file-uploaded/:reference
-  final def previewFileUploadByReference(reference: String): Action[AnyContent] =
+  // GET /new/file-uploaded/:reference/:fileName
+  final def previewFileUploadByReference(reference: String, fileName: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
       .displayAsyncUsing(implicit request => streamFileFromUspcan(reference))
 
@@ -1024,7 +1024,7 @@ class CreateCaseJourneyController @Inject() (
                 FileVerificationStatus(
                   file,
                   uploadFileViewContext,
-                  controller.previewFileUploadByReference(_),
+                  controller.previewFileUploadByReference(_, _),
                   appConfig.fileFormats.maxFileSizeMb
                 )
               )
