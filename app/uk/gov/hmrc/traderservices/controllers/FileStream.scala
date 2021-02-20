@@ -30,8 +30,7 @@ import scala.util.Failure
 import scala.util.Success
 import akka.stream.scaladsl.Source
 import play.mvc.Http.HeaderNames
-import scala.concurrent.Await
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.Future
 
 trait FileStream {
 
@@ -40,30 +39,27 @@ trait FileStream {
   private val connectionPool: Flow[(HttpRequest, String), (Try[HttpResponse], String), NotUsed] =
     Http().superPool[String]()
 
-  final def fileStream(url: String, fileName: String, fileMimeType: String): Result = {
+  final def fileStream(url: String, fileName: String, fileMimeType: String): Future[Result] = {
     val httpRequest = HttpRequest(method = HttpMethods.GET, uri = url)
-    Await.result(
-      Source
-        .single((httpRequest, url))
-        .via(connectionPool)
-        .runFold[Result](Results.Ok) {
-          case (_, (Success(httpResponse), fileRequest)) =>
-            if (httpResponse.status.isSuccess())
-              Results.Ok
-                .streamed(
-                  content = httpResponse.entity.dataBytes,
-                  contentLength = httpResponse.entity.contentLengthOption,
-                  contentType = Some(fileMimeType)
-                )
-                .withHeaders(contentDispositionForMimeType(fileMimeType, fileName))
-            else
-              Results.InternalServerError
-
-          case (_, (Failure(error), fileRequest)) =>
+    Source
+      .single((httpRequest, url))
+      .via(connectionPool)
+      .runFold[Result](Results.Ok) {
+        case (_, (Success(httpResponse), fileRequest)) =>
+          if (httpResponse.status.isSuccess())
+            Results.Ok
+              .streamed(
+                content = httpResponse.entity.dataBytes,
+                contentLength = httpResponse.entity.contentLengthOption,
+                contentType = Some(fileMimeType)
+              )
+              .withHeaders(contentDispositionForMimeType(fileMimeType, fileName))
+          else
             Results.InternalServerError
-        },
-      FiniteDuration(15, "s")
-    )
+
+        case (_, (Failure(error), fileRequest)) =>
+          Results.InternalServerError
+      }
   }
 
   final def contentDispositionForMimeType(mimeType: String, fileName: String): (String, String) =

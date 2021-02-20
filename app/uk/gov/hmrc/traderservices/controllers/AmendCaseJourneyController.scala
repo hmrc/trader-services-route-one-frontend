@@ -42,6 +42,7 @@ import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import akka.actor.Scheduler
+import scala.concurrent.Future
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -319,7 +320,7 @@ class AmendCaseJourneyController @Inject() (
   // GET /add/file-uploaded/:reference
   final def previewFileUploadByReference(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayUsing(implicit request => streamFileFromUspcan(reference))
+      .displayAsyncUsing(implicit request => streamFileFromUspcan(reference))
 
   // GET /add/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
@@ -583,16 +584,16 @@ class AmendCaseJourneyController @Inject() (
     reference: String
   )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
-  ): Result =
+  ): Future[Result] =
     state match {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
             fileStream(file.url, file.fileName, file.fileMimeType)
 
-          case _ => NotFound
+          case _ => Future.successful(NotFound)
         }
-      case _ => NotFound
+      case _ => Future.successful(NotFound)
     }
 
   private def acknowledgeFileUploadRedirect(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
