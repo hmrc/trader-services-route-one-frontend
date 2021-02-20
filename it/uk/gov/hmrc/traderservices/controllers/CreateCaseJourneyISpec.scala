@@ -2161,7 +2161,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         result.status shouldBe 200
         result.header("Content-Disposition") shouldBe Some("""attachment; filename="case-ABC01234567890.html"""")
 
-        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         result.body should include(
           s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"

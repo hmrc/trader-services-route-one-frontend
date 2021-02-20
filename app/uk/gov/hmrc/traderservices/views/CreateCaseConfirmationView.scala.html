@@ -29,7 +29,7 @@
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
   pageTitle = pageTitle("view.create-case-confirmation.title"),

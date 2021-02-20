@@ -22,20 +22,21 @@
 @import uk.gov.hmrc.traderservices.views.html.partials
 
 @this(
-        govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
+        govukTemplate: GovukTemplate,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
         context: CaseConfirmationViewContext,
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, stylesheet: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout2(
-  pageTitle = pageTitle("view.create-case-confirmation.title"),
-  backLink = None,
-  mainContentClasses = "",
-  hasPrintReceipt = true) {
+@govukTemplate(
+  htmlLang = Some(messages.lang.code),
+  pageTitle = pageTitle("view.create-case-confirmation.title")
+  ) {
+
+  @Html(stylesheet)
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <div class="govuk-panel govuk-panel--confirmation">
