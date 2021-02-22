@@ -27,13 +27,12 @@ import play.api.mvc.RequestHeader
 class PrintStylesheet @Inject() (wsClient: WSClient) {
 
   private val location: Call = controllers.routes.Assets
-    .versioned("stylesheets/print-receipt.css")
+    .versioned("stylesheets/download-receipt.css")
 
   final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] =
     wsClient
       .url(location.absoluteURL)
       .get()
       .map(_.body)
-      .map(s => s"<style>$s</style>")
 
 }

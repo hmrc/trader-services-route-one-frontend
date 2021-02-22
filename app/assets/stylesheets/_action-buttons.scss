@@ -4,6 +4,17 @@
   list-style: none;
 }
 
+.action-buttons__item {
+  @include govuk-media-query($from: desktop) {
+    display: inline-block;
+    margin-right: 20px;
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+}
+
 .action-buttons__button {
   padding: 0;
   color: #1d70b8;
@@ -11,6 +22,7 @@
   border: none;
   cursor: pointer;
   font-size: 16px;
+  font-family: "GDS Transport", arial, sans-serif;
   text-decoration: underline;
 
   &:hover {
@@ -30,8 +42,20 @@
     width: 18px;
     height: 18px;
     margin-right: 5px;
-    background-image: url('../images/print-icon.svg');
     vertical-align: top;
     content: '';
+    background-size: 18px 18px;
+  }
+}
+
+.action-buttons__button--download {
+  &::before {
+    background-image: url('../images/save-icon.svg');
+  }
+}
+
+.action-buttons__button--print {
+  &::before {
+    background-image: url('../images/print-icon.svg');
   }
 }

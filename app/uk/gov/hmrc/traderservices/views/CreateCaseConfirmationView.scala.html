@@ -83,8 +83,11 @@
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
-      <li>
+      <li class="action-buttons__item">
         <button class="print-page action-buttons__button action-buttons__button--print">Print your receipt</button>
+      </li>
+      <li class="action-buttons__item">
+        <a class="govuk-link action-buttons__button action-buttons__button--download" href="@{downloadHtmlCall}" role="button" data-module="govuk-button">Save your receipt (HTML)</a>
       </li>
     </ul>
   </div>
