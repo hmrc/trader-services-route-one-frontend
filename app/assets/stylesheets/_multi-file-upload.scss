@@ -72,8 +72,13 @@
   padding: 4px 0 3px;
 }
 
-.multi-file-upload__tag {
+.multi-file-upload__uploaded-tag {
+  // using visibility to ensure this element determines the width of the progress bar
   visibility: hidden;
+}
+
+.multi-file-upload__waiting-tag {
+  display: none;
 }
 
 .multi-file-upload__remove-item {
@@ -107,6 +112,20 @@
   }
 }
 
+.multi-file-upload__item--waiting {
+  .multi-file-upload__file {
+    display: none;
+  }
+
+  .multi-file-upload__file-name {
+    display: inline-block;
+  }
+
+  .multi-file-upload__waiting-tag {
+    display: inline-block;
+  }
+}
+
 .multi-file-upload__item--uploading,
 .multi-file-upload__item--verifying {
   .multi-file-upload__file {
@@ -131,7 +150,7 @@
     display: inline-block;
   }
 
-  .multi-file-upload__tag {
+  .multi-file-upload__uploaded-tag {
     visibility: visible;
   }
 }
