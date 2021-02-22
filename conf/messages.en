@@ -442,6 +442,7 @@ view.upload-multiple-files.uploadMoreFilesThanLimit=You can upload up to 10 file
 view.upload-multiple-files.document=Document
 view.upload-multiple-files.remove=Remove
 view.upload-multiple-files.removing=Removing...
+view.upload-multiple-files.pending=Pending
 view.upload-multiple-files.uploaded=Ready to submit
 view.upload-multiple-files.documentUploaded=Document {0} has been uploaded
 view.upload-multiple-files.documentDeleted=Document {0} has been deleted
