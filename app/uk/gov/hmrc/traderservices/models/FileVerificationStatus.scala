@@ -20,6 +20,8 @@ import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import play.api.i18n.Messages
 import play.api.mvc.Call
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 case class FileVerificationStatus(
   reference: String,
@@ -37,7 +39,7 @@ object FileVerificationStatus {
   def apply(
     fileUpload: FileUpload,
     uploadFileViewContext: UploadFileViewContext,
-    filePreviewUrl: String => Call,
+    filePreviewUrl: (String, String) => Call,
     maxFileSizeMb: Int
   )(implicit
     messages: Messages
@@ -56,7 +58,7 @@ object FileVerificationStatus {
           fileMimeType = Some(f.fileMimeType),
           fileName = Some(f.fileName),
           fileSize = f.fileSize,
-          previewUrl = Some(s"${filePreviewUrl(f.reference).url}")
+          previewUrl = Some(s"${filePreviewUrl(f.reference, f.fileName).url}")
         )
 
       case f: FileUpload.Failed =>

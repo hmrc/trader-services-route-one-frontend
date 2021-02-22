@@ -35,7 +35,7 @@ import play.api.i18n.Messages
 @Singleton
 class UploadFileViewContext @Inject() (appConfig: AppConfig) {
 
-  def initialScriptStateFrom(initialFileUploads: Seq[FileUpload], previewFile: String => Call)(implicit
+  def initialScriptStateFrom(initialFileUploads: Seq[FileUpload], previewFile: (String, String) => Call)(implicit
     messages: Messages
   ): String =
     Json.stringify(

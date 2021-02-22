@@ -641,7 +641,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         val result3 =
           await(request("/add/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8"}"""
+        result3.body shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf"}"""
         journey.getState shouldBe state
 
         val result4 =
@@ -902,7 +902,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
     }
 
-    "GET /add/file-uploaded/:reference" should {
+    "GET /add/file-uploaded/:reference/:fileName" should {
       "stream the uploaded file content back if exists" in {
         implicit val journeyId: JourneyId = JourneyId()
         val bytes = Array.ofDim[Byte](1024 * 1024)
@@ -943,7 +943,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
         val result =
           await(
-            request("/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8")
+            request("/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test1.png")
               .get()
           )
         result.status shouldBe 200
@@ -992,7 +992,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
         val result =
           await(
-            request("/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8")
+            request("/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf")
               .get()
           )
         result.status shouldBe 500

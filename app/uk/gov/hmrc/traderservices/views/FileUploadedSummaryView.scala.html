@@ -27,7 +27,7 @@
         context: FileUploadedViewContext
 )
 
-@(fileUploads: FileUploads, postAction: Call, previewFileCall: String => Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(fileUploads: FileUploads, postAction: Call, previewFileCall: (String,String) => Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle = Some(messages("view.file-uploaded.plural.title", fileUploads.acceptedCount)),
