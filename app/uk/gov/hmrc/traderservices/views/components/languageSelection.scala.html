@@ -23,7 +23,7 @@
     @langMap.map { case (key: String, value: Lang) =>
       @if(messages.lang.code != value.code) {
         <li class="hmrc-language-select__list-item">
-          <a href="@langToCall(key)" hreflang="@value.code" lang="@value.code" rel="alternate" class="govuk-link" data-journey-click="link - click:lang-select:@key.capitalize">
+          <a href="@langToCall(key)" id="switch-to-@{value.code}" hreflang="@value.code" lang="@value.code" rel="alternate" class="govuk-link" data-journey-click="link - click:lang-select:@key.capitalize">
             <span class="govuk-visually-hidden">@messages("site.switchLanguage")</span>
             <span aria-hidden="true">@key.capitalize</span>
           </a>
