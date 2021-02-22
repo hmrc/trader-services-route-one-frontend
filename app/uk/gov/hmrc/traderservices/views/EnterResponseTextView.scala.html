@@ -27,35 +27,36 @@
 @govukLayout2(
   pageTitle("view.write-response-text.title",form),
   backLink = Some(backLink.url),
-  mainContentClasses = "govuk-grid-column-two-thirds") {
+  mainContentClasses = "") {
 
-  @forms.errorSummary(form.errors)
+  <div class="govuk-grid-column-two-thirds">
 
-  @forms.formWithCSRF(action = postAction) {
+    @forms.errorSummary(form.errors)
 
-    <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="1000">
+    @forms.formWithCSRF(action = postAction) {
 
-    @forms.textarea(
-      form = form,
-      id = "responseText",
-      name = "responseText",
-      label = "view.write-response-text.heading",
-      isPageHeading = true,
-      isInFieldset = false,
-      classes = Some("govuk-js-character-count"),
-      hint = Some(Html(messages("view.write-response-text.hint"))),
-      rows = 4,
-      countMessageClasses = "",
-      spellcheck = None,
-      describedBy = Some("response-text-info")
-    )
+      <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="1000">
 
-    <div id="responseText-info" class="govuk-hint govuk-character-count__message" aria-live="polite">
-      
-    </div>
+      @forms.textarea(
+        form = form,
+        id = "responseText",
+        name = "responseText",
+        label = "view.write-response-text.heading",
+        isPageHeading = true,
+        isInFieldset = false,
+        classes = Some("govuk-js-character-count"),
+        hint = Some(Html(messages("view.write-response-text.hint"))),
+        rows = 4,
+        countMessageClasses = "",
+        spellcheck = None,
+        describedBy = Some("response-text-info")
+      )
 
-    </div>
+      <div id="responseText-info" class="govuk-hint govuk-character-count__message" aria-live="polite"></div>
 
-    @html.button("view.write-response-text.continue")
-  }
+      </div>
+
+      @html.button("view.write-response-text.continue")
+    }
+  </div>
 }
