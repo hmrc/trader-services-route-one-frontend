@@ -1845,32 +1845,72 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(state) when toSummary should thenGo(state)
       }
 
-      "stay and filter out initiated uploads when export and toUploadMultipleFiles transition" in {
+      "stay and filter accepted uploads when export and toUploadMultipleFiles transition" in {
         given(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
-              .Posted(Nonce.Any, Timestamp.Any, "foo-3")
+              .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
+              Nonce(4),
+              Timestamp.Any,
+              "foo-bar-ref-4",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo-3")
+            nonEmptyFileUploads + FileUpload.Accepted(
+              Nonce(4),
+              Timestamp.Any,
+              "foo-bar-ref-4",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
           )
         )
       }
 
-      "stay and filter out initiated uploads when import and toUploadMultipleFiles transition" in {
+      "stay and filter accepted uploads when import and toUploadMultipleFiles transition" in {
         given(
           UploadMultipleFiles(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
-              .Posted(Nonce.Any, Timestamp.Any, "foo-3")
+              .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
+              Nonce(4),
+              Timestamp.Any,
+              "foo-bar-ref-4",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
             FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
-            nonEmptyFileUploads + FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo-3")
+            nonEmptyFileUploads + FileUpload.Accepted(
+              Nonce(4),
+              Timestamp.Any,
+              "foo-bar-ref-4",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
           )
         )
       }
