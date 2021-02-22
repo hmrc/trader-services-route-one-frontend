@@ -556,10 +556,11 @@ export class MultiFileUpload extends Component {
   }
 
   private isBusy(): boolean {
-    const stillUploading = this.container.querySelector(`.${this.classes.uploading}`);
-    const stillRemoving = this.container.querySelector(`.${this.classes.removing}`);
+    const stillUploading = this.container.querySelector(`.${this.classes.uploading}`) !== null;
+    const stillVerifying = this.container.querySelector(`.${this.classes.verifying}`) !== null;
+    const stillRemoving = this.container.querySelector(`.${this.classes.removing}`) !== null;
 
-    return stillUploading !== null || stillRemoving !== null;
+    return stillUploading || stillVerifying || stillRemoving;
   }
 
   private isUploading(item: HTMLElement): boolean {
