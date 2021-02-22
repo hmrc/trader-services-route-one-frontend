@@ -99,11 +99,15 @@
 }
 
 @content = {
-  <div class="govuk-!-margin-bottom-6">
+  <div class="govuk-!-margin-bottom-6 govuk-grid-row">
   @contentBlock
   </div>
 
-  @hmrcReportTechnicalIssueHelper()
+  <div class="govuk-grid-row report-a-problem">
+    <div class="govuk-grid-column-full">
+      @hmrcReportTechnicalIssueHelper()
+    </div>
+  </div>
 }
 
 @govukLayout2(
