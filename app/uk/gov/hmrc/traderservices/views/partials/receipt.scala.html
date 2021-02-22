@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 
-@(caseReferenceId: String, context: CaseConfirmationViewContext, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String)(implicit messages: Messages)
+@(caseReferenceId: String, context: CaseConfirmationViewContext, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, isStandalone: Boolean = false)(implicit messages: Messages)
 <div class="receipt">
   <svg class="receipt__crown-logo" width="335px" height="201px" viewBox="0 0 335 201" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
@@ -36,7 +36,11 @@
     </g>
   </svg>
 
-  <h3 class="govuk-heading-l">@messages("receipt.heading")</h3>
+  @if(isStandalone) {
+    <h1 class="govuk-heading-l">@messages("receipt.heading")</h1>
+  } else {
+    <h3 class="govuk-heading-l">@messages("receipt.heading")</h3>
+  }
 
   <div class="receipt__info-box">
     <dl>
@@ -48,7 +52,11 @@
     </dl>
   </div>
 
-  <h4 class="govuk-heading-m">@messages("receipt.declarationInformation")</h4>
+  @if(isStandalone) {
+    <h2 class="govuk-heading-m">@messages("receipt.declarationInformation")</h2>
+  } else {
+    <h4 class="govuk-heading-m">@messages("receipt.declarationInformation")</h4>
+  }
   <dl>
     <dt>@messages("receipt.epuNumber")</dt>
     <dd>@declarationDetails.epu.value.format3d</dd>
@@ -60,7 +68,11 @@
     <dd>@context.entryDateForDisplay(declarationDetails)</dd>
   </dl>
 
-  <h4 class="govuk-heading-m">@messages("receipt.documents")</h4>
+  @if(isStandalone) {
+    <h2 class="govuk-heading-m">@messages("receipt.documents")</h2>
+  } else {
+    <h4 class="govuk-heading-m">@messages("receipt.documents")</h4>
+  }
   <dl>
     <dt>@messages("receipt.fileNames")</dt>
     <dd>
