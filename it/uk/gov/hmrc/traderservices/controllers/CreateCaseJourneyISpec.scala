@@ -2163,7 +2163,7 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
 
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         result.body should include(
-          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
+          s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
 
         journey.getState shouldBe state
