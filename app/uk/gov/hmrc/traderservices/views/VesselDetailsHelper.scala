@@ -23,7 +23,33 @@ import play.api.mvc.Call
 
 trait VesselDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper {
 
-  def summaryListOfVesselDetails(vesselDetails: VesselDetails, changeCall: Call)(implicit
+  def summaryListOfExportVesselDetails(vesselDetails: VesselDetails, changeCall: Call)(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        summaryListRow(
+          label = "summary.vessel-details.vesselName",
+          value = vesselDetails.vesselName.getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.vesselName"),
+          action = (changeCall, "site.change")
+        ),
+        summaryListRow(
+          label = "summary.vessel-details.dateOfDeparture",
+          value = vesselDetails.dateOfArrival.map(formatDateForDisplay).getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.dateOfDeparture"),
+          action = (changeCall, "site.change")
+        ),
+        summaryListRow(
+          label = "summary.vessel-details.timeOfDeparture",
+          value = vesselDetails.timeOfArrival.map(formatTimeForDisplay).getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.timeOfDeparture"),
+          action = (changeCall, "site.change")
+        )
+      )
+    )
+
+  def summaryListOfImportVesselDetails(vesselDetails: VesselDetails, changeCall: Call)(implicit
     messages: Messages
   ): SummaryList =
     SummaryList(
