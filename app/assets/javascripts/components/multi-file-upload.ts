@@ -206,7 +206,7 @@ export class MultiFileUpload extends Component {
   }
 
   private requestRemoveFile(file: HTMLInputElement) {
-    const item = file.closest(`.${this.classes.item}`) as HTMLElement;
+    const item = this.getItemFromFile(file);
 
     fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
       method: 'PUT'
@@ -243,11 +243,23 @@ export class MultiFileUpload extends Component {
     }
 
     delete this.uploadData[file.id];
+
+    this.uploadNext();
   }
 
   private provisionUpload(file: HTMLInputElement): void {
+    if (Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
+      this.prepareFileUpload(file);
+
+      return;
+    }
+
     this.uploadData[file.id] = {};
     this.uploadData[file.id].provisionPromise = this.requestProvisionUpload(file);
+
+    this.uploadData[file.id].provisionPromise.then(() => {
+      this.prepareFileUpload(file);
+    });
   }
 
   private requestProvisionUpload(file: HTMLInputElement) {
@@ -278,34 +290,28 @@ export class MultiFileUpload extends Component {
     const file = e.target as HTMLInputElement;
     const item = this.getItemFromFile(file);
 
-    if (!file.files.length) {
-      this.errorManager.removeError(file.id);
+    this.errorManager.removeError(file.id);
 
+    if (!file.files.length) {
       return;
     }
 
-    this.getFileNameElement(item).textContent = '';
+    this.getFileNameElement(item).textContent = this.extractFileName(file.value);
     this.setItemState(item, UploadState.Waiting);
-    this.provisionUpload(file);
-
-    this.uploadData[file.id].provisionPromise.then(() => {
-      if (!this.isBusy()) {
-        this.uploadNext();
-      }
-    });
+    this.uploadNext();
   }
 
   private uploadNext(): void {
-    const item = this.itemList.querySelector(`.${this.classes.waiting}`) as HTMLElement;
+    const nextItem = this.itemList.querySelector(`.${this.classes.waiting}`) as HTMLElement;
 
-    if (!item) {
+    if (!nextItem || this.isBusy()) {
       return;
     }
 
-    const file = this.getFileFromItem(item);
+    const file = this.getFileFromItem(nextItem);
 
-    this.setItemState(item, UploadState.Uploading);
-    this.prepareFileUpload(file);
+    this.setItemState(nextItem, UploadState.Uploading);
+    this.provisionUpload(file);
   }
 
   private prepareFileUpload(file: HTMLInputElement): void {
