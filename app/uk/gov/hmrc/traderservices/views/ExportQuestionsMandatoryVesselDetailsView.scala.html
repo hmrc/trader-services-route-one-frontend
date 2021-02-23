@@ -50,10 +50,10 @@
       @forms.inputDate(
         form = form,
         id = "dateOfArrival",
-        legendContent = "form.export-questions.vessel-details.dateOfArrival",
+        legendContent = "form.export-questions.vessel-details.dateOfDeparture",
         legendClasses = "",
         legendAsPageHeading = false,
-        hintText = Some(messages("form.export-questions.vessel-details.dateOfArrival.hint", DateFieldHelper.getValidDateHint(LocalDate.now))),
+        hintText = Some(messages("form.export-questions.vessel-details.dateOfDeparture.hint", DateFieldHelper.getValidDateHint(LocalDate.now))),
         attributesDay = Map("aria-label" -> "Day of arrival date"),
         attributesMonth = Map("aria-label" -> "Month of arrival date"),
         attributesYear = Map("aria-label" -> "Year of arrival date")
@@ -62,14 +62,14 @@
       @forms.inputTime(
         form = form,
         id = "timeOfArrival",
-        legendContent = "form.export-questions.vessel-details.timeOfArrival",
+        legendContent = "form.export-questions.vessel-details.timeOfDeparture",
         legendClasses = "",
         legendAsPageHeading = false,
         attributesHour = Map("aria-label" -> "Hour of arrival time"),
         attributesMinutes = Map("aria-label" -> "Minutes of arrival time"),
         attributesPeriod = Map("aria-label" -> "Day period of arrival time"),
         showSelectPeriod = false,
-        hintText = Some("form.export-questions.vessel-details.timeOfArrival.hint")
+        hintText = Some("form.export-questions.vessel-details.timeOfDeparture.hint")
       )
     }
 
