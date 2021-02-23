@@ -332,28 +332,29 @@ error.exportFreightType.required=Select the type of transport you’re using
 error.vesselName.required=Enter the ship, vehicle or airline name
 error.vesselName.invalid-characters=Name must only include letters a to z, numbers, spaces, hyphens, ampersands, apostrophes and full stops
 error.vesselName.invalid-length=Name must be 128 characters or fewer
-error.dateOfArrival.all.required=Enter the date of arrival
-error.dateOfArrival.year.required=Date of arrival must include a year
-error.dateOfArrival.month.required=Date of arrival must include a month
-error.dateOfArrival.day.required=Date of arrival must include a day
-error.dateOfArrival.all.invalid-value=Date of arrival must be a real date
-error.dateOfArrival.year.invalid-value=Date of arrival must be a real date
-error.dateOfArrival.month.invalid-value=Date of arrival must be a real date
-error.dateOfArrival.day.invalid-value=Date of arrival must be a real date
-error.dateOfArrival.year.invalid-digits=Year of arrival must only contain numbers
-error.dateOfArrival.month.invalid-digits=Month of arrival must only contain numbers
-error.dateOfArrival.day.invalid-digits=Day of arrival must only contain numbers
-error.dateOfArrival.all.invalid-value-range=Date of arrival must be between {0} and {1}
-error.dateOfArrival.all.invalid-value-before-entry-date=Date of arrival must be between {0} (the date of entry) and {1}
-error.timeOfArrival.all.required=Enter the estimated time of arrival
-error.timeOfArrival.hour.required=Time of arrival must include an hour
-error.timeOfArrival.minutes.required=Time of arrival must include minutes
-error.timeOfArrival.period.required=Time of arrival must include period
-error.timeOfArrival.hour.invalid-digits=Hour of arrival must only contain numbers
-error.timeOfArrival.minutes.invalid-digits=Minutes of arrival must only contain numbers
-error.timeOfArrival.hour.invalid-value=Hours must be between 0 and 23
-error.timeOfArrival.minutes.invalid-value=Minutes must be between 00 and 59
-error.timeOfArrival.period.invalid-value=Period must be am or pm
+
+error.dateOfDeparture.all.required=Enter the date of departure
+error.dateOfDeparture.year.required=Date of departure must include a year
+error.dateOfDeparture.month.required=Date of departure must include a month
+error.dateOfDeparture.day.required=Date of departure must include a day
+error.dateOfDeparture.all.invalid-value=Date of departure must be a real date
+error.dateOfDeparture.year.invalid-value=Date of departure must be a real date
+error.dateOfDeparture.month.invalid-value=Date of departure must be a real date
+error.dateOfDeparture.day.invalid-value=Date of departure must be a real date
+error.dateOfDeparture.year.invalid-digits=Year of departure must only contain numbers
+error.dateOfDeparture.month.invalid-digits=Month of departure must only contain numbers
+error.dateOfDeparture.day.invalid-digits=Day of departure must only contain numbers
+error.dateOfDeparture.all.invalid-value-range=Date of departure must be between {0} and {1}
+error.dateOfDeparture.all.invalid-value-before-entry-date=Date of departure must be between {0} (the date of entry) and {1}
+error.timeOfDeparture.all.required=Enter the estimated time of departure
+error.timeOfDeparture.hour.required=Time of departure must include an hour
+error.timeOfDeparture.minutes.required=Time of departure must include minutes
+error.timeOfDeparture.period.required=Time of departure must include period
+error.timeOfDeparture.hour.invalid-digits=Hour of departure must only contain numbers
+error.timeOfDeparture.minutes.invalid-digits=Minutes of departure must only contain numbers
+error.timeOfDeparture.hour.invalid-value=Hours must be between 0 and 23
+error.timeOfDeparture.minutes.invalid-value=Minutes must be between 00 and 59
+error.timeOfDeparture.period.invalid-value=Period must be am or pm
 
 # Import Questions Form
 # ----------------------------------------------------------
@@ -408,6 +409,29 @@ error.contactEmail.invalid-length=Email address must be 128 characters or fewer
 error.contactEmail=Enter an email address in the correct format, like name@example.com
 error.contactEmail.required=Enter an email address
 error.contactName.required=Enter your full name
+
+error.dateOfArrival.all.required=Enter the date of arrival
+error.dateOfArrival.year.required=Date of arrival must include a year
+error.dateOfArrival.month.required=Date of arrival must include a month
+error.dateOfArrival.day.required=Date of arrival must include a day
+error.dateOfArrival.all.invalid-value=Date of arrival must be a real date
+error.dateOfArrival.year.invalid-value=Date of arrival must be a real date
+error.dateOfArrival.month.invalid-value=Date of arrival must be a real date
+error.dateOfArrival.day.invalid-value=Date of arrival must be a real date
+error.dateOfArrival.year.invalid-digits=Year of arrival must only contain numbers
+error.dateOfArrival.month.invalid-digits=Month of arrival must only contain numbers
+error.dateOfArrival.day.invalid-digits=Day of arrival must only contain numbers
+error.dateOfArrival.all.invalid-value-range=Date of arrival must be between {0} and {1}
+error.dateOfArrival.all.invalid-value-before-entry-date=Date of arrival must be between {0} (the date of entry) and {1}
+error.timeOfArrival.all.required=Enter the estimated time of arrival
+error.timeOfArrival.hour.required=Time of arrival must include an hour
+error.timeOfArrival.minutes.required=Time of arrival must include minutes
+error.timeOfArrival.period.required=Time of arrival must include period
+error.timeOfArrival.hour.invalid-digits=Hour of arrival must only contain numbers
+error.timeOfArrival.minutes.invalid-digits=Minutes of arrival must only contain numbers
+error.timeOfArrival.hour.invalid-value=Hours must be between 0 and 23
+error.timeOfArrival.minutes.invalid-value=Minutes must be between 00 and 59
+error.timeOfArrival.period.invalid-value=Period must be am or pm
 
 # Summary messages
 # ----------------------------------------------------------

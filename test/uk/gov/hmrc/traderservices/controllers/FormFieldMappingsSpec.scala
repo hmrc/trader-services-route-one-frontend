@@ -461,6 +461,121 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
     }
 
+    "validate mandatory dateOfDeparture" in {
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(Some(LocalDate.parse("2020-12-31")))
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "01", "day" -> "01")) shouldBe Right(Some(LocalDate.parse("2020-01-01")))
+      mandatoryDateOfDepartureMapping.bind(Map()) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfDeparture.all.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfDeparture.all.required"
+      )
+      mandatoryDateOfDepartureMapping.bind(Map("year" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
+        "error.dateOfDeparture.all.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+        "error.dateOfDeparture.year.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+        "error.dateOfDeparture.month.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
+        "error.dateOfDeparture.month.required"
+      )
+      mandatoryDateOfDepartureMapping
+        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+    }
+
+    "validate optional dateOfDeparture" in {
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "31")) shouldBe Right(
+        Some(LocalDate.parse("2020-12-31"))
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "01", "day" -> "01")) shouldBe Right(
+        Some(LocalDate.parse("2020-01-01"))
+      )
+      optionalDateOfDepartureMapping.bind(Map()) shouldBe Right(None)
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)
+      optionalDateOfDepartureMapping.bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
+        "error.dateOfDeparture.year.required"
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "31")) should haveOnlyError(
+        "error.dateOfDeparture.month.required"
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "2020", "month" -> "", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
+        "error.dateOfDeparture.month.required"
+      )
+
+      optionalDateOfDepartureMapping
+        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
+        "error.dateOfDeparture.day.required"
+      )
+    }
+
+    "validate mandatory timeOfDeparture" in {
+      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
+        "error.timeOfDeparture.all.required"
+      )
+      mandatoryTimeOfDepartureMapping.bind(Map()) should haveOnlyError(
+        "error.timeOfDeparture.all.required"
+      )
+    }
+
+    "validate optional timeOfDeparture" in {
+      optionalTimeOfDepartureMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
+        Some(LocalTime.parse("00:00"))
+      )
+      optionalTimeOfDepartureMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
+        Some(LocalTime.parse("12:00"))
+      )
+      optionalTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)
+      optionalTimeOfDepartureMapping.bind(Map()) shouldBe Right(None)
+    }
+
     "validate import contactNameMapping" in {
       importContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
