@@ -71,6 +71,12 @@ case class FileUploads(
       case _                       => true
     })
 
+  def onlyAccepted: FileUploads =
+    copy(files = files.filter {
+      case _: FileUpload.Accepted => true
+      case _                      => false
+    })
+
 }
 
 object FileUploads {

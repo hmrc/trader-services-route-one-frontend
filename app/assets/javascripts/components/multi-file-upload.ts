@@ -49,6 +49,7 @@ export class MultiFileUpload extends Component {
     this.classes = {
       itemList: 'multi-file-upload__item-list',
       item: 'multi-file-upload__item',
+      waiting: 'multi-file-upload__item--waiting',
       uploading: 'multi-file-upload__item--uploading',
       verifying: 'multi-file-upload__item--verifying',
       uploaded: 'multi-file-upload__item--uploaded',
@@ -113,11 +114,11 @@ export class MultiFileUpload extends Component {
 
     if (rowCount < this.config.startRows) {
       for (let a = rowCount; a < this.config.startRows; a++) {
-        this.addItemWithProvisioning();
+        this.addItem();
       }
     }
     else if (rowCount < this.config.maxFiles) {
-      this.addItemWithProvisioning();
+      this.addItem();
     }
   }
 
@@ -141,13 +142,13 @@ export class MultiFileUpload extends Component {
   private handleSubmit(e: Event): void {
     e.preventDefault();
 
-    this.updateFormStatusVisibility();
+    this.updateFormStatusVisibility(this.isBusy());
 
     if (this.errorManager.hasErrors()) {
       return;
     }
 
-    if (this.isBusy()) {
+    if (this.isInProgress()) {
       this.addNotification(this.messages.stillTransferring);
 
       return;
@@ -163,7 +164,7 @@ export class MultiFileUpload extends Component {
   }
 
   private handleAddItem(): void {
-    const item = this.addItemWithProvisioning();
+    const item = this.addItem();
     const file = this.getFileFromItem(item);
 
     file.focus();
@@ -179,15 +180,6 @@ export class MultiFileUpload extends Component {
     this.itemList.append(item);
 
     this.updateButtonVisibility();
-
-    return item;
-  }
-
-  private addItemWithProvisioning(): HTMLElement {
-    const item = this.addItem();
-    const file = this.getFileFromItem(item);
-
-    this.provisionUpload(file);
 
     return item;
   }
@@ -214,7 +206,7 @@ export class MultiFileUpload extends Component {
   }
 
   private requestRemoveFile(file: HTMLInputElement) {
-    const item = file.closest(`.${this.classes.item}`) as HTMLElement;
+    const item = this.getItemFromFile(file);
 
     fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
       method: 'PUT'
@@ -247,15 +239,27 @@ export class MultiFileUpload extends Component {
     this.updateFormStatusVisibility();
 
     if (this.getItems().length === 0) {
-      this.addItemWithProvisioning();
+      this.addItem();
     }
 
     delete this.uploadData[file.id];
+
+    this.uploadNext();
   }
 
   private provisionUpload(file: HTMLInputElement): void {
+    if (Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
+      this.prepareFileUpload(file);
+
+      return;
+    }
+
     this.uploadData[file.id] = {};
     this.uploadData[file.id].provisionPromise = this.requestProvisionUpload(file);
+
+    this.uploadData[file.id].provisionPromise.then(() => {
+      this.prepareFileUpload(file);
+    });
   }
 
   private requestProvisionUpload(file: HTMLInputElement) {
@@ -286,18 +290,28 @@ export class MultiFileUpload extends Component {
     const file = e.target as HTMLInputElement;
     const item = this.getItemFromFile(file);
 
-    if (!file.files.length) {
-      this.errorManager.removeError(file.id);
+    this.errorManager.removeError(file.id);
 
+    if (!file.files.length) {
       return;
     }
 
-    this.getFileNameElement(item).textContent = '';
-    this.setItemState(item, UploadState.Uploading);
+    this.getFileNameElement(item).textContent = this.extractFileName(file.value);
+    this.setItemState(item, UploadState.Waiting);
+    this.uploadNext();
+  }
 
-    this.uploadData[file.id].provisionPromise.then(() => {
-      this.prepareFileUpload(file);
-    });
+  private uploadNext(): void {
+    const nextItem = this.itemList.querySelector(`.${this.classes.waiting}`) as HTMLElement;
+
+    if (!nextItem || this.isBusy()) {
+      return;
+    }
+
+    const file = this.getFileFromItem(nextItem);
+
+    this.setItemState(nextItem, UploadState.Uploading);
+    this.provisionUpload(file);
   }
 
   private prepareFileUpload(file: HTMLInputElement): void {
@@ -390,12 +404,14 @@ export class MultiFileUpload extends Component {
     switch (response['fileStatus']) {
       case 'ACCEPTED':
         this.handleFileStatusSuccessful(file, response['previewUrl']);
+        this.uploadNext();
         break;
 
       case 'FAILED':
       case 'REJECTED':
       case 'DUPLICATE':
         this.handleFileStatusFailed(file, error);
+        this.uploadNext();
         break;
 
       case 'NOT_UPLOADED':
@@ -407,6 +423,7 @@ export class MultiFileUpload extends Component {
           this.uploadData[file.id].retries = 0;
 
           this.handleFileStatusFailed(file, this.messages.genericError);
+          this.uploadNext();
         }
         else {
           this.delayedRequestUploadStatus(fileRef);
@@ -457,8 +474,13 @@ export class MultiFileUpload extends Component {
     this.toggleUploadMoreMessage(itemCount === this.config.maxFiles);
   }
 
-  private updateFormStatusVisibility() {
-    toggleElement(this.formStatus, this.isBusy());
+  private updateFormStatusVisibility(forceState = undefined) {
+    if (forceState !== undefined) {
+      toggleElement(this.formStatus, forceState);
+    }
+    else if (!this.isBusy()) {
+      toggleElement(this.formStatus, false);
+    }
   }
 
   private updateUploadProgress(item, value): void {
@@ -469,7 +491,7 @@ export class MultiFileUpload extends Component {
     this.getItems().forEach(item => {
       const button = this.getRemoveButtonFromItem(item);
 
-      if (this.isUploading(item) || this.isVerifying(item) || this.isUploaded(item)) {
+      if (this.isWaiting(item) || this.isUploading(item) || this.isVerifying(item) || this.isUploaded(item)) {
         state = true;
       }
 
@@ -555,12 +577,22 @@ export class MultiFileUpload extends Component {
     return fileName.split(/([\\/])/g).pop();
   }
 
+  private isInProgress(): boolean {
+    const stillWaiting = this.container.querySelector(`.${this.classes.waiting}`) !== null;
+
+    return stillWaiting || this.isBusy();
+  }
+
   private isBusy(): boolean {
     const stillUploading = this.container.querySelector(`.${this.classes.uploading}`) !== null;
     const stillVerifying = this.container.querySelector(`.${this.classes.verifying}`) !== null;
     const stillRemoving = this.container.querySelector(`.${this.classes.removing}`) !== null;
 
     return stillUploading || stillVerifying || stillRemoving;
+  }
+
+  private isWaiting(item: HTMLElement): boolean {
+    return item.classList.contains(this.classes.waiting);
   }
 
   private isUploading(item: HTMLElement): boolean {
@@ -577,11 +609,14 @@ export class MultiFileUpload extends Component {
 
   private setItemState(item: HTMLElement, uploadState: UploadState): void {
     const file = this.getFileFromItem(item);
-    item.classList.remove(this.classes.uploading, this.classes.verifying, this.classes.uploaded, this.classes.removing);
+    item.classList.remove(this.classes.waiting, this.classes.uploading, this.classes.verifying, this.classes.uploaded, this.classes.removing);
 
     file.disabled = uploadState !== UploadState.Default;
 
     switch (uploadState) {
+      case UploadState.Waiting:
+        item.classList.add(this.classes.waiting);
+        break;
       case UploadState.Uploading:
         item.classList.add(this.classes.uploading);
         break;

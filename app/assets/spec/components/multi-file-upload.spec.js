@@ -118,16 +118,11 @@ describe('Multi File Upload component', () => {
       describe('When component is initialised', () => {
         beforeEach(() => {
           instance = new MultiFileUpload(container);
-          spyOn(instance, 'requestProvisionUpload').and.returnValue(Promise.resolve(true));
           instance.init();
         });
 
         it('Then one row should be present', () => {
           expect(container.querySelectorAll('.multi-file-upload__item').length).toEqual(1);
-        });
-
-        it('Then file upload should get provisioned', () => {
-          expect(instance.requestProvisionUpload).toHaveBeenCalled();
         });
       });
 
@@ -139,7 +134,6 @@ describe('Multi File Upload component', () => {
         describe('And component is initialised', () => {
           beforeEach(() => {
             instance = new MultiFileUpload(container);
-            spyOn(instance, 'requestProvisionUpload').and.returnValue(Promise.resolve(true));
             instance.init();
           });
 
@@ -169,22 +163,8 @@ describe('Multi File Upload component', () => {
     });
 
     describe('And component is initialised', () => {
-      beforeEach((done) => {
+      beforeEach(() => {
         instance = new MultiFileUpload(container);
-
-        spyOn(instance, 'requestProvisionUpload').and.callFake((file) => {
-          const response = getProvisionResponse();
-          const promise = Promise.resolve(response);
-
-          promise.then(() => {
-            instance.handleProvisionUploadCompleted(file, response);
-            done();
-          });
-
-          return promise;
-        });
-
-        spyOn(instance, 'uploadFile');
 
         instance.init();
 
@@ -194,9 +174,27 @@ describe('Multi File Upload component', () => {
 
       describe('When user selects a file', () => {
         beforeEach((done) => {
+          spyOn(instance, 'requestProvisionUpload').and.callFake((file) => {
+            const response = getProvisionResponse();
+            const promise = Promise.resolve(response);
+
+            promise.then(() => {
+              instance.handleProvisionUploadCompleted(file, response);
+              done();
+            });
+
+            return promise;
+          });
+
+          spyOn(instance, 'uploadFile');
+
           input.files = createFileList([new File([''], '/path/to/test.txt')]);
           input.dispatchEvent(new Event('change'));
           done();
+        });
+
+        it('Then file upload should get provisioned', () => {
+          expect(instance.requestProvisionUpload).toHaveBeenCalled();
         });
 
         it('Then item should be in "uploading" state', (done) => {
@@ -223,20 +221,9 @@ describe('Multi File Upload component', () => {
     });
 
     describe('And component is initialised', () => {
-      beforeEach((done) => {
+      beforeEach(() => {
         instance = new MultiFileUpload(container);
 
-        spyOn(instance, 'requestProvisionUpload').and.callFake((file) => {
-          const response = getProvisionResponse();
-          const promise = Promise.resolve(response);
-
-          promise.then(() => {
-            instance.handleProvisionUploadCompleted(file, response);
-            done();
-          });
-
-          return promise;
-        });
         spyOn(instance, 'uploadFile').and.callFake((file) => {
           instance.handleUploadFileCompleted(file.dataset.multiFileUploadFileRef);
         });
@@ -255,6 +242,18 @@ describe('Multi File Upload component', () => {
 
       describe('When file is uploaded', () => {
         beforeEach((done) => {
+          spyOn(instance, 'requestProvisionUpload').and.callFake((file) => {
+            const response = getProvisionResponse();
+            const promise = Promise.resolve(response);
+
+            promise.then(() => {
+              instance.handleProvisionUploadCompleted(file, response);
+              done();
+            });
+
+            return promise;
+          });
+
           input.files = createFileList([new File([''], '/path/to/test.txt')]);
           input.dispatchEvent(new Event('change'));
           done();
