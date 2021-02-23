@@ -24,6 +24,8 @@ export class MultiFileUpload extends Component {
   constructor(form: HTMLFormElement) {
     super(form);
 
+    console.log('TEST mode');
+
     this.config = {
       startRows: parseInt(form.dataset.multiFileUploadStartRows) || 1,
       minFiles: parseInt(form.dataset.multiFileUploadMinFiles) || 1,
@@ -243,11 +245,16 @@ export class MultiFileUpload extends Component {
     }
 
     delete this.uploadData[file.id];
+
+    this.uploadNext();
   }
 
   private provisionUpload(file: HTMLInputElement): void {
     this.uploadData[file.id] = {};
-    this.uploadData[file.id].provisionPromise = this.requestProvisionUpload(file);
+
+    if (!this.uploadData[file.id].provisionPromise) {
+      this.uploadData[file.id].provisionPromise = this.requestProvisionUpload(file);
+    }
   }
 
   private requestProvisionUpload(file: HTMLInputElement) {
@@ -278,13 +285,13 @@ export class MultiFileUpload extends Component {
     const file = e.target as HTMLInputElement;
     const item = this.getItemFromFile(file);
 
-    if (!file.files.length) {
-      this.errorManager.removeError(file.id);
+    this.errorManager.removeError(file.id);
 
+    if (!file.files.length) {
       return;
     }
 
-    this.getFileNameElement(item).textContent = '';
+    this.getFileNameElement(item).textContent = this.extractFileName(file.value);
     this.setItemState(item, UploadState.Waiting);
     this.provisionUpload(file);
 
@@ -296,15 +303,15 @@ export class MultiFileUpload extends Component {
   }
 
   private uploadNext(): void {
-    const item = this.itemList.querySelector(`.${this.classes.waiting}`) as HTMLElement;
+    const nextItem = this.itemList.querySelector(`.${this.classes.waiting}`) as HTMLElement;
 
-    if (!item) {
+    if (!nextItem || this.isBusy()) {
       return;
     }
 
-    const file = this.getFileFromItem(item);
+    const file = this.getFileFromItem(nextItem);
 
-    this.setItemState(item, UploadState.Uploading);
+    this.setItemState(nextItem, UploadState.Uploading);
     this.prepareFileUpload(file);
   }
 

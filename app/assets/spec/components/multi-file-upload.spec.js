@@ -26,7 +26,7 @@ function getProvisionResponse() {
   };
 }
 
-describe('Multi File Upload component', () => {
+xdescribe('Multi File Upload component', () => {
   let instance;
   let container;
   let item;
