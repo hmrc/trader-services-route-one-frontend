@@ -188,17 +188,17 @@ export class MultiFileUpload extends Component {
     const target = e.target as HTMLElement;
     const item = target.closest(`.${this.classes.item}`) as HTMLElement;
     const file = this.getFileFromItem(item);
+    const ref = file.dataset.multiFileUploadFileRef;
 
-    if (this.isUploaded(item) || this.isVerifying(item)) {
-      this.setItemState(item, UploadState.Removing);
-      this.requestRemoveFile(file);
-    }
-    else if (this.isUploading(item)) {
+    if (this.isUploading(item)) {
       if (this.uploadData[file.id].uploadHandle) {
         this.uploadData[file.id].uploadHandle.abort();
       }
+    }
 
-      this.removeItem(item);
+    if (ref) {
+      this.setItemState(item, UploadState.Removing);
+      this.requestRemoveFile(file);
     }
     else {
       this.removeItem(item);
@@ -248,6 +248,8 @@ export class MultiFileUpload extends Component {
   }
 
   private provisionUpload(file: HTMLInputElement): void {
+    const item = this.getItemFromFile(file);
+
     if (Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
       this.prepareFileUpload(file);
 
@@ -258,7 +260,9 @@ export class MultiFileUpload extends Component {
     this.uploadData[file.id].provisionPromise = this.requestProvisionUpload(file);
 
     this.uploadData[file.id].provisionPromise.then(() => {
-      this.prepareFileUpload(file);
+      if (item.parentNode !== null && !this.isRemoving(item)) {
+        this.prepareFileUpload(file);
+      }
     });
   }
 
@@ -605,6 +609,10 @@ export class MultiFileUpload extends Component {
 
   private isUploaded(item: HTMLElement): boolean {
     return item.classList.contains(this.classes.uploaded);
+  }
+
+  private isRemoving(item: HTMLElement): boolean {
+    return item.classList.contains(this.classes.removing);
   }
 
   private setItemState(item: HTMLElement, uploadState: UploadState): void {
