@@ -133,6 +133,7 @@ trait ErrorAuditing extends HttpAuditEvent {
       case _: NotFoundException => notFoundError
       case _                    => unexpectedError
     }
+    Logger(getClass).error(s"Server error [${ex.getClass.getSimpleName()}] ${ex.getMessage()}")
     auditConnector.sendEvent(
       dataEvent(eventType, transactionName, request, Map(TransactionFailureReason -> ex.getMessage))(
         HeaderCarrierConverter.fromHeadersAndSession(request.headers, Try(request.session).toOption)
