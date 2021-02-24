@@ -22,6 +22,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import play.api.mvc.Call
 import play.api.mvc.RequestHeader
+import play.api.Logger
 
 @Singleton
 class PrintStylesheet @Inject() (wsClient: WSClient) {
@@ -29,10 +30,13 @@ class PrintStylesheet @Inject() (wsClient: WSClient) {
   private val location: Call = controllers.routes.Assets
     .versioned("stylesheets/download-receipt.css")
 
-  final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] =
+  final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] = {
+    val url = location.absoluteURL
+    Logger(getClass).info(s"Downloading $url ...")
     wsClient
-      .url(location.absoluteURL)
+      .url(url)
       .get()
       .map(_.body)
+  }
 
 }
