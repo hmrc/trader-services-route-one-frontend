@@ -51,6 +51,7 @@ import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayo
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+import play.api.Logger
 
 @Singleton
 class ErrorHandler @Inject() (
