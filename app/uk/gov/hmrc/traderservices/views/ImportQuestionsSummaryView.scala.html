@@ -43,7 +43,7 @@
 
   @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
 
-  @html.summaryList(context.summaryListOfVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()),
+  @html.summaryList(context.summaryListOfImportVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()),
     context.getChangeCallForVesselDetails(importQuestions)))
 
   @html.h2(messages("view.import-questions.summary.contact-details.heading"))

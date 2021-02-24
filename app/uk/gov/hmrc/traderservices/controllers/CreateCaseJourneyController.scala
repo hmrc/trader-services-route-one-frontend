@@ -191,7 +191,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/export/transport-information-required
   final val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => mandatoryVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state => mandatoryExportVesselDetailsForm(extractArrivalDate(state)))
       .apply(Transitions.submittedExportQuestionsMandatoryVesselDetails)
 
   // GET /new/export/transport-information
@@ -203,7 +203,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/export/transport-information
   final val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => optionalVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state => optionalExportVesselDetailsForm(extractArrivalDate(state)))
       .apply(Transitions.submittedExportQuestionsOptionalVesselDetails)
 
   // GET /new/export/contact-information
@@ -316,7 +316,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/import/transport-information-required
   final val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => mandatoryVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state => mandatoryImportVesselDetailsForm(extractArrivalDate(state)))
       .apply(Transitions.submittedImportQuestionsMandatoryVesselDetails)
 
   // GET /new/import/transport-information
@@ -328,7 +328,7 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/import/transport-information
   final val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => optionalVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state => optionalImportVesselDetailsForm(extractArrivalDate(state)))
       .apply(Transitions.submittedImportQuestionsOptionalVesselDetails)
 
   // GET /new/import/contact-information
@@ -752,7 +752,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsMandatoryVesselDetailsView(
             formWithErrors
-              .or(mandatoryVesselDetailsForm(extractArrivalDate(state)), model.exportQuestionsAnswers.vesselDetails),
+              .or(
+                mandatoryExportVesselDetailsForm(extractArrivalDate(state)),
+                model.exportQuestionsAnswers.vesselDetails
+              ),
             controller.submitExportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
           )
@@ -762,7 +765,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsOptionalVesselDetailsView(
             formWithErrors
-              .or(optionalVesselDetailsForm(extractArrivalDate(state)), model.exportQuestionsAnswers.vesselDetails),
+              .or(
+                optionalExportVesselDetailsForm(extractArrivalDate(state)),
+                model.exportQuestionsAnswers.vesselDetails
+              ),
             controller.submitExportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerExportQuestionsFreightType()
           )
@@ -851,7 +857,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsMandatoryVesselDetailsView(
             formWithErrors
-              .or(mandatoryVesselDetailsForm(extractArrivalDate(state)), model.importQuestionsAnswers.vesselDetails),
+              .or(
+                mandatoryImportVesselDetailsForm(extractArrivalDate(state)),
+                model.importQuestionsAnswers.vesselDetails
+              ),
             controller.submitImportQuestionsMandatoryVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
           )
@@ -861,7 +870,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsOptionalVesselDetailsView(
             formWithErrors
-              .or(optionalVesselDetailsForm(extractArrivalDate(state)), model.importQuestionsAnswers.vesselDetails),
+              .or(
+                optionalImportVesselDetailsForm(extractArrivalDate(state)),
+                model.importQuestionsAnswers.vesselDetails
+              ),
             controller.submitImportQuestionsOptionalVesselInfoAnswer(),
             controller.showAnswerImportQuestionsFreightType()
           )
@@ -1206,9 +1218,9 @@ object CreateCaseJourneyController {
     )(ImportContactInfo.apply)(ImportContactInfo.unapply)
   )
 
-  val MandatoryVesselDetailsForm = mandatoryVesselDetailsForm(None)
+  val MandatoryImportVesselDetailsForm = mandatoryImportVesselDetailsForm(None)
 
-  def mandatoryVesselDetailsForm(entryDate: Option[LocalDate]) =
+  def mandatoryImportVesselDetailsForm(entryDate: Option[LocalDate]) =
     Form[VesselDetails](
       mapping(
         "vesselName" -> mandatoryVesselNameMapping,
@@ -1218,15 +1230,39 @@ object CreateCaseJourneyController {
       )(VesselDetails.apply)(VesselDetails.unapply)
     )
 
-  val OptionalVesselDetailsForm = optionalVesselDetailsForm(None)
+  val OptionalImportVesselDetailsForm = optionalImportVesselDetailsForm(None)
 
-  def optionalVesselDetailsForm(entryDate: Option[LocalDate]) =
+  def optionalImportVesselDetailsForm(entryDate: Option[LocalDate]) =
     Form[VesselDetails](
       mapping(
         "vesselName" -> optionalVesselNameMapping,
         "dateOfArrival" -> optionalDateOfArrivalMapping
           .verifying(dateOfArrivalRangeConstraint(entryDate)),
         "timeOfArrival" -> optionalTimeOfArrivalMapping
+      )(VesselDetails.apply)(VesselDetails.unapply)
+    )
+
+  val MandatoryExportVesselDetailsForm = mandatoryExportVesselDetailsForm(None)
+
+  def mandatoryExportVesselDetailsForm(entryDate: Option[LocalDate]) =
+    Form[VesselDetails](
+      mapping(
+        "vesselName" -> mandatoryVesselNameMapping,
+        "dateOfDeparture" -> mandatoryDateOfDepartureMapping
+          .verifying(dateOfDepartureRangeConstraint(entryDate)),
+        "timeOfDeparture" -> mandatoryTimeOfDepartureMapping
+      )(VesselDetails.apply)(VesselDetails.unapply)
+    )
+
+  val OptionalExportVesselDetailsForm = optionalExportVesselDetailsForm(None)
+
+  def optionalExportVesselDetailsForm(entryDate: Option[LocalDate]) =
+    Form[VesselDetails](
+      mapping(
+        "vesselName" -> optionalVesselNameMapping,
+        "dateOfDeparture" -> optionalDateOfDepartureMapping
+          .verifying(dateOfDepartureRangeConstraint(entryDate)),
+        "timeOfDeparture" -> optionalTimeOfDepartureMapping
       )(VesselDetails.apply)(VesselDetails.unapply)
     )
 

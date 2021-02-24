@@ -208,9 +208,24 @@ object FormFieldMappings {
       )
     )
 
+  def dateOfDepartureRangeConstraint(entryDate: Option[LocalDate]) =
+    some(
+      DateFieldHelper.dateIsBetween(
+        "dateOfDeparture.all",
+        if (entryDate.isDefined) "invalid-value-before-entry-date" else "invalid-value-range",
+        arrivalDate => entryDate.getOrElse(arrivalDate.minusMonths(6)),
+        _.plusMonths(6)
+      )
+    )
+
   val mandatoryDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper
       .dateFieldsMapping("dateOfArrival")
+      .transform(Option.apply, _.getOrElse(DateFieldHelper.emptyDate))
+
+  val mandatoryDateOfDepartureMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper
+      .dateFieldsMapping("dateOfDeparture")
       .transform(Option.apply, _.getOrElse(DateFieldHelper.emptyDate))
 
   val mandatoryTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
@@ -218,11 +233,22 @@ object FormFieldMappings {
       .timeFieldsMapping("timeOfArrival")
       .transform(Option.apply, _.getOrElse(Time24FieldHelper.emptyTime))
 
+  val mandatoryTimeOfDepartureMapping: Mapping[Option[LocalTime]] =
+    Time24FieldHelper
+      .timeFieldsMapping("timeOfDeparture")
+      .transform(Option.apply, _.getOrElse(Time24FieldHelper.emptyTime))
+
   val optionalDateOfArrivalMapping: Mapping[Option[LocalDate]] =
     DateFieldHelper.optionalDateFieldsMapping("dateOfArrival")
 
+  val optionalDateOfDepartureMapping: Mapping[Option[LocalDate]] =
+    DateFieldHelper.optionalDateFieldsMapping("dateOfDeparture")
+
   val optionalTimeOfArrivalMapping: Mapping[Option[LocalTime]] =
     Time24FieldHelper.optionalTimeFieldsMapping("timeOfArrival")
+
+  val optionalTimeOfDepartureMapping: Mapping[Option[LocalTime]] =
+    Time24FieldHelper.optionalTimeFieldsMapping("timeOfDeparture")
 
   val importContactNameMapping: Mapping[Option[String]] = optional(
     of[String]
