@@ -51,7 +51,7 @@ class CreateCaseJourneyController @Inject() (
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
   uploadFileViewContext: UploadFileViewContext,
-  printStylesheet: PrintStylesheet,
+  printStylesheet: ReceiptStylesheet,
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)

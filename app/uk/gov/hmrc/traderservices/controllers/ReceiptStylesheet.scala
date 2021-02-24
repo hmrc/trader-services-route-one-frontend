@@ -23,20 +23,22 @@ import scala.concurrent.Future
 import play.api.mvc.Call
 import play.api.mvc.RequestHeader
 import play.api.Logger
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 @Singleton
-class PrintStylesheet @Inject() (wsClient: WSClient) {
+class ReceiptStylesheet @Inject() (wsClient: WSClient, appConfig: AppConfig) {
 
   private val location: Call = controllers.routes.Assets
     .versioned("stylesheets/download-receipt.css")
 
-  final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] = {
-    val url = location.absoluteURL
-    Logger(getClass).info(s"Downloading $url ...")
+  private val url = s"${appConfig.baseInternalCallbackUrl}$location"
+
+  Logger(getClass).info(s"Sourcing download stylesheet from $url")
+
+  final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] =
     wsClient
       .url(url)
       .get()
       .map(_.body)
-  }
 
 }

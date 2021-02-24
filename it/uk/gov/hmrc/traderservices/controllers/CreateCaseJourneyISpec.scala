@@ -21,6 +21,7 @@ import scala.util.Random
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
+import com.github.tomakehurst.wiremock.client.WireMock
 class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
@@ -2155,6 +2156,12 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        WireMock.stubFor(
+          WireMock
+            .get(WireMock.urlEqualTo("/send-documents-for-customs-check/assets/stylesheets/download-receipt.css"))
+            .willReturn(WireMock.aResponse.withBody(""))
+        )
 
         val result = await(request("/new/confirmation/receipt").get)
 
