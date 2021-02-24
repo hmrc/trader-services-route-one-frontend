@@ -758,12 +758,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
         val payload = Map(
-          "vesselName"            -> "Foo Bar",
-          "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
-          "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
-          "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
-          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
+          "vesselName"              -> "Foo Bar",
+          "dateOfDeparture.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+          "dateOfDeparture.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+          "dateOfDeparture.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+          "timeOfDeparture.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfDeparture.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
         val result = await(request("/new/export/transport-information-required").post(payload))
@@ -867,12 +867,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
         val payload = Map(
-          "vesselName"            -> "Foo Bar",
-          "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
-          "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
-          "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
-          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
-          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
+          "vesselName"              -> "Foo Bar",
+          "dateOfDeparture.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+          "dateOfDeparture.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+          "dateOfDeparture.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+          "timeOfDeparture.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfDeparture.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
         val result = await(request("/new/export/transport-information").post(payload))
@@ -956,7 +956,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorised
 
-        val payload = Map("dateOfArrival.year" -> "202A")
+        val payload = Map("dateOfDeparture.year" -> "202A")
 
         val result = await(request("/new/export/transport-information").post(payload))
 
