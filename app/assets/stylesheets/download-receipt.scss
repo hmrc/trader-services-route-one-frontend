@@ -1,0 +1,9 @@
+$govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
+@import "lib/govuk-frontend/govuk/all";
+
+@import "receipt";
+
+.receipt {
+  box-sizing: border-box;
+  max-width: 660px;
+}

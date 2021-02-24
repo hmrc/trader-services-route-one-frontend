@@ -49,13 +49,15 @@
 }
 
 .receipt__crown-logo {
+  display: inline-block;
   height: 100px;
-  width:auto;
+  width: auto;
   margin-right: -15px;
   margin-bottom: 40px;
   padding-left: 0;
 }
 
-.receipt__file-list {
+.receipt__file-list,
+.receipt__case-ref {
   word-break: break-all;
 }

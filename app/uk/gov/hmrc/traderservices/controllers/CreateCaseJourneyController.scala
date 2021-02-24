@@ -51,6 +51,7 @@ class CreateCaseJourneyController @Inject() (
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
   uploadFileViewContext: UploadFileViewContext,
+  printStylesheet: PrintStylesheet,
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
@@ -550,6 +551,11 @@ class CreateCaseJourneyController @Inject() (
       .orRollback
       .andCleanBreadcrumbs() // forget journey history
 
+  // GET /new/confirmation/receipt
+  final def downloadCreateCaseConfirmationReceipt: Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayAsyncUsing(implicit request => renderConfirmationReceiptHtml)
+
   // GET /new/case-already-exists
   final def showCaseAlreadyExists: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -959,7 +965,8 @@ class CreateCaseJourneyController @Inject() (
             uploadedFiles,
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
-            controller.showStart()
+            controller.downloadCreateCaseConfirmationReceipt,
+            controller.showStart
           )
         )
 
@@ -1069,6 +1076,36 @@ class CreateCaseJourneyController @Inject() (
       case _: FileUploadState.WaitingForFileVerification => Accepted
       case _                                             => NoContent
     }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+
+  private def renderConfirmationReceiptHtml(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
+    implicit request: Request[_]
+  ): Future[Result] =
+    state match {
+      case CreateCaseConfirmation(
+            declarationDetails,
+            _,
+            uploadedFiles,
+            TraderServicesResult(caseReferenceId, generatedAt),
+            caseSLA
+          ) =>
+        printStylesheet.content.map(stylesheet =>
+          Ok(
+            views.createCaseConfirmationReceiptView(
+              caseReferenceId,
+              declarationDetails,
+              uploadedFiles,
+              generatedAt.ddMMYYYYAtTimeFormat,
+              caseSLA,
+              stylesheet,
+              controller.showStart
+            )
+          ).withHeaders(
+            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="case-$caseReferenceId.html""""
+          )
+        )
+
+      case _ => Future.successful(BadRequest)
+    }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 
