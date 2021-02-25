@@ -10,11 +10,14 @@ case class TestAppConfig(
 ) extends AppConfig {
 
   override val appName: String = "trader-services-frontend"
+
   override val baseInternalCallbackUrl: String = wireMockBaseUrl
   override val baseExternalCallbackUrl: String = wireMockBaseUrl
+
   override val authBaseUrl: String = wireMockBaseUrl
   override val traderServicesApiBaseUrl: String = wireMockBaseUrl
   override val upscanInitiateBaseUrl: String = wireMockBaseUrl
+  override val pdfGeneratorServiceBaseUrl: String = wireMockBaseUrl
 
   override val createCaseApiPath: String = "/create-case"
   override val updateCaseApiPath: String = "/update-case"

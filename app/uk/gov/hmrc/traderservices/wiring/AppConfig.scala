@@ -36,9 +36,11 @@ trait AppConfig {
   val appName: String
   val baseInternalCallbackUrl: String
   val baseExternalCallbackUrl: String
+
   val authBaseUrl: String
   val traderServicesApiBaseUrl: String
   val upscanInitiateBaseUrl: String
+  val pdfGeneratorServiceBaseUrl: String
 
   val createCaseApiPath: String
   val updateCaseApiPath: String
@@ -87,9 +89,11 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val baseExternalCallbackUrl: String = config.getString("urls.callback.external")
   override val baseInternalCallbackUrl: String = config.getString("urls.callback.internal")
+
   override val authBaseUrl: String = config.baseUrl("auth")
   override val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
   override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
+  override val pdfGeneratorServiceBaseUrl: String = config.baseUrl("pdf-generator-service")
 
   override val createCaseApiPath: String =
     config.getConfString(
