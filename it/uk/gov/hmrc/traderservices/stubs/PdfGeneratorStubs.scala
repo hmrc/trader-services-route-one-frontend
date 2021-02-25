@@ -10,7 +10,7 @@ trait PdfGeneratorStubs {
 
   def givenPdfGenerationSucceeds(pdfContent: Array[Byte]): StubMapping =
     stubFor(
-      post(urlEqualTo(s"/pdf-generator-service/pdf-generator/generate"))
+      post(urlEqualTo(s"/pdf-generator-service/generate"))
         .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
         .withRequestBody(
           matchingJsonPath("html", containing("<html"))

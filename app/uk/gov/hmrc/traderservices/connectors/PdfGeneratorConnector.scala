@@ -32,7 +32,7 @@ import play.api.http.HeaderNames
 @Singleton
 class PdfGeneratorConnector @Inject() (appConfig: AppConfig, val actorSystem: ActorSystem) extends FileStream {
 
-  final val url = s"${appConfig.pdfGeneratorServiceBaseUrl}/pdf-generator-service/pdf-generator/generate"
+  final val url = s"${appConfig.pdfGeneratorServiceBaseUrl}/pdf-generator-service/generate"
 
   final def convertHtmlToPdf(html: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val httpRequest = HttpRequest(

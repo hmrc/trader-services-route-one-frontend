@@ -985,6 +985,7 @@ class CreateCaseJourneyController @Inject() (
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
+            controller.downloadCreateCaseConfirmationReceiptAsPdf(s"case-$caseReferenceId.pdf"),
             controller.showStart
           )
         )
