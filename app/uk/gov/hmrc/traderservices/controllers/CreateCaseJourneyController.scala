@@ -313,12 +313,13 @@ class CreateCaseJourneyController @Inject() (
     case _                              => None
   }
 
-  final val extractRequestType: State => Option[ExportRequestType] = {
-    case s: State.HasExportQuestionsStateModel =>
-      println(s.model.exportQuestionsAnswers.requestType)
-      s.model.exportQuestionsAnswers.requestType
+  private val extractRequestType: State => Option[ExportRequestType] = {
+    case s: FileUploadState =>
+      s.hostData.questionsAnswers match {
+        case eq: ExportQuestions => eq.requestType
+        case _                   => None
+      }
     case _ => None
-
   }
 
   // POST /new/import/transport-information-required

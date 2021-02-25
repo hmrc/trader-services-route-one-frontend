@@ -29,18 +29,6 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
 
   val dateTime = LocalDateTime.now()
 
-  "samTest" should {
-    "something" in {
-      val state = AnswerExportQuestionsRequestType(
-        ExportQuestionsStateModel(
-          DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
-          ExportQuestions(requestType = Some(ExportRequestType.C1601))
-        )
-      )
-      controller.extractRequestType(state) shouldBe Some(ExportRequestType.C1601)
-    }
-  }
-
   "CreateCaseJourneyController" when {
 
     "GET /send-documents-for-customs-check/" should {
