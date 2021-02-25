@@ -1073,7 +1073,16 @@ class CreateCaseJourneyController @Inject() (
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
-            getFileStream(file.url, file.fileName, file.fileMimeType)
+            getFileStream(
+              file.url,
+              file.fileName,
+              file.fileMimeType,
+              (fileName, fileMimeType) =>
+                fileMimeType match {
+                  case _ =>
+                    HeaderNames.CONTENT_DISPOSITION -> s"""inline; filename="$fileName""""
+                }
+            )
 
           case _ => Future.successful(NotFound)
         }
