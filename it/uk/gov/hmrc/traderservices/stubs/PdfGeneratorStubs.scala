@@ -13,7 +13,7 @@ trait PdfGeneratorStubs {
       post(urlEqualTo(s"/pdf-generator-service/pdf-generator/generate"))
         .withHeader(HeaderNames.CONTENT_TYPE, containing("application/json"))
         .withRequestBody(
-          matchingJsonPath("html", containing("<html>"))
+          matchingJsonPath("html", containing("<html"))
         )
         .willReturn(
           aResponse()
