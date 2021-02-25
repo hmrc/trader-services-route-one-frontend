@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.controllers
+package uk.gov.hmrc.traderservices.connectors
 
 import akka.stream.scaladsl.Flow
 import akka.http.scaladsl.model.HttpRequest
@@ -29,9 +29,10 @@ import play.api.mvc.Results
 import scala.util.Failure
 import scala.util.Success
 import akka.stream.scaladsl.Source
-import play.mvc.Http.HeaderNames
 import scala.concurrent.Future
 import play.api.Logger
+import uk.gov.hmrc.http.HeaderCarrier
+import akka.http.scaladsl.model.headers.RawHeader
 
 trait FileStream {
 
@@ -40,13 +41,30 @@ trait FileStream {
   private val connectionPool: Flow[(HttpRequest, String), (Try[HttpResponse], String), NotUsed] =
     Http().superPool[String]()
 
-  final def fileStream(url: String, fileName: String, fileMimeType: String): Future[Result] = {
+  final def getFileStream(
+    url: String,
+    fileName: String,
+    fileMimeType: String,
+    contentDispositionForMimeType: (String, String) => (String, String)
+  )(implicit hc: HeaderCarrier): Future[Result] = {
     val httpRequest = HttpRequest(method = HttpMethods.GET, uri = url)
+    fileStream(httpRequest, fileName, fileMimeType, contentDispositionForMimeType)
+  }
+
+  final def fileStream(
+    httpRequest: HttpRequest,
+    fileName: String,
+    fileMimeType: String,
+    contentDispositionForMimeType: (String, String) => (String, String)
+  )(implicit hc: HeaderCarrier): Future[Result] = {
+    val httpRequestWithMdtpHeaders = httpRequest.withHeaders(
+      hc.headers.map { case (k, v) => RawHeader(k, v) }.toList
+    )
     Source
-      .single((httpRequest, url))
+      .single((httpRequestWithMdtpHeaders, httpRequest.uri.toString()))
       .via(connectionPool)
       .runFold[Result](Results.Ok) {
-        case (_, (Success(httpResponse), fileRequest)) =>
+        case (_, (Success(httpResponse), url)) =>
           if (httpResponse.status.isSuccess())
             Results.Ok
               .streamed(
@@ -54,22 +72,16 @@ trait FileStream {
                 contentLength = httpResponse.entity.contentLengthOption,
                 contentType = Some(fileMimeType)
               )
-              .withHeaders(contentDispositionForMimeType(fileMimeType, fileName))
+              .withHeaders(contentDispositionForMimeType(fileName, fileMimeType))
           else {
-            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing uploaded file.")
+            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing $url")
             Results.InternalServerError
           }
 
-        case (_, (Failure(error), fileRequest)) =>
-          Logger(getClass).error(s"Error when accessing uploaded file: ${error.getMessage()}.")
+        case (_, (Failure(error), url)) =>
+          Logger(getClass).error(s"Error when accessing $url: ${error.getMessage()}.")
           Results.InternalServerError
       }
   }
-
-  final def contentDispositionForMimeType(mimeType: String, fileName: String): (String, String) =
-    mimeType match {
-      case _ =>
-        HeaderNames.CONTENT_DISPOSITION -> s"""inline; filename="$fileName""""
-    }
 
 }

@@ -75,6 +75,7 @@ POST       /new/journey/:journeyId/callback-from-upscan/:nonce      @uk.gov.hmrc
 POST       /new/create-case                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /new/confirmation                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
 GET        /new/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.downloadCreateCaseConfirmationReceipt
+GET        /new/confirmation/receipt/pdf/:fileName                  @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.downloadCreateCaseConfirmationReceiptAsPdf(fileName: String)
 GET        /new/case-already-exists                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCaseAlreadyExists
 
 GET        /add                                                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showStart

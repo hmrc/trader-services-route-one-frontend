@@ -350,6 +350,10 @@ view.create-case-confirmation.info.heading=Os oes angen rhagor o wybodaeth arnom
 view.create-case-confirmation.info.description=Byddwn yn cysylltu â chi drwy CHIEF neu drwy’ch meddalwedd datgan os oes arnom angen rhagor o ddogfennau gennych chi.
 view.create-case-confirmation.continue=Anfon dogfennau i’w gwirio gan y tollau
 view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
+view.create-case-confirmation.button.print=Print your receipt
+view.create-case-confirmation.button.download-html=Save your receipt (HTML)
+view.create-case-confirmation.button.download-pdf=Save your receipt (PDF)
+
 view.case-already-exists.title=Mae’r achos hwn eisoes yn bodoli
 view.case-already-exists.heading=Mae’r achos hwn eisoes yn bodoli
 view.case-already-exists.description.1=Nid ydym wedi cadw eich atebion na’ch dogfennau oherwydd ein bod eisoes wedi cael achos gyda’r manylion hyn.

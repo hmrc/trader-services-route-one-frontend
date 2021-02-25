@@ -9,7 +9,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHost
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
 import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestData, TestJourneyService}
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
@@ -22,7 +22,9 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock
-class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
+
+class CreateCaseJourneyISpec
+    extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
@@ -2172,6 +2174,52 @@ class CreateCaseJourneyISpec extends CreateCaseJourneyISpecSetup with TraderServ
         result.body should include(
           s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
+
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/confirmation/receipt/pdf/test.pdf" should {
+      "download the confirmation receipt as pdf" in {
+        implicit val journeyId: JourneyId = JourneyId()
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = CreateCaseConfirmation(
+          TestData.exportDeclarationDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          Seq(
+            UploadedFile(
+              "foo-123",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("ABC01234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        WireMock.stubFor(
+          WireMock
+            .get(WireMock.urlEqualTo("/send-documents-for-customs-check/assets/stylesheets/download-receipt.css"))
+            .willReturn(WireMock.aResponse.withBody(""))
+        )
+
+        val pdfContent = Array.ofDim[Byte](7777)
+        Random.nextBytes(pdfContent)
+        givenPdfGenerationSucceeds(pdfContent)
+
+        val result = await(request("/new/confirmation/receipt/pdf/test.pdf").get)
+
+        result.status shouldBe 200
+        result.header("Content-Type") shouldBe Some("application/pdf")
+        result.header("Content-Disposition") shouldBe Some("""attachment; filename="case-ABC01234567890.pdf"""")
+
+        result.bodyAsBytes.toArray shouldBe pdfContent
 
         journey.getState shouldBe state
       }

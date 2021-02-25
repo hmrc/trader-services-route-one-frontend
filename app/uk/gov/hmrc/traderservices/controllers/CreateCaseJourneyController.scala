@@ -26,7 +26,7 @@ import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
-import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
+import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, PdfGeneratorConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
@@ -39,6 +39,7 @@ import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import java.time.LocalDate
 import akka.actor.Scheduler
 import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.connectors.FileStream
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -52,6 +53,7 @@ class CreateCaseJourneyController @Inject() (
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
   uploadFileViewContext: UploadFileViewContext,
   printStylesheet: ReceiptStylesheet,
+  pdfGeneratorConnector: PdfGeneratorConnector,
   override val journeyService: CreateCaseJourneyServiceWithHeaderCarrier,
   override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
@@ -556,6 +558,11 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser.showCurrentState
       .displayAsyncUsing(implicit request => renderConfirmationReceiptHtml)
 
+  // GET /new/confirmation/receipt/pdf/:fileName
+  final def downloadCreateCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayAsyncUsing(implicit request => renderConfirmationReceiptPdf)
+
   // GET /new/case-already-exists
   final def showCaseAlreadyExists: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -978,6 +985,7 @@ class CreateCaseJourneyController @Inject() (
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
+            controller.downloadCreateCaseConfirmationReceiptAsPdf(s"case-$caseReferenceId.pdf"),
             controller.showStart
           )
         )
@@ -1072,7 +1080,16 @@ class CreateCaseJourneyController @Inject() (
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
-            fileStream(file.url, file.fileName, file.fileMimeType)
+            getFileStream(
+              file.url,
+              file.fileName,
+              file.fileMimeType,
+              (fileName, fileMimeType) =>
+                fileMimeType match {
+                  case _ =>
+                    HeaderNames.CONTENT_DISPOSITION -> s"""inline; filename="$fileName""""
+                }
+            )
 
           case _ => Future.successful(NotFound)
         }
@@ -1108,13 +1125,41 @@ class CreateCaseJourneyController @Inject() (
               uploadedFiles,
               generatedAt.ddMMYYYYAtTimeFormat,
               caseSLA,
-              stylesheet,
-              controller.showStart
+              stylesheet
             )
           ).withHeaders(
             HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="case-$caseReferenceId.html""""
           )
         )
+
+      case _ => Future.successful(BadRequest)
+    }
+
+  private def renderConfirmationReceiptPdf(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
+    implicit request: Request[_]
+  ): Future[Result] =
+    state match {
+      case CreateCaseConfirmation(
+            declarationDetails,
+            _,
+            uploadedFiles,
+            TraderServicesResult(caseReferenceId, generatedAt),
+            caseSLA
+          ) =>
+        printStylesheet.content
+          .map(stylesheet =>
+            views
+              .createCaseConfirmationReceiptView(
+                caseReferenceId,
+                declarationDetails,
+                uploadedFiles,
+                generatedAt.ddMMYYYYAtTimeFormat,
+                caseSLA,
+                stylesheet
+              )
+              .body
+          )
+          .flatMap(pdfGeneratorConnector.convertHtmlToPdf(_, s"case-$caseReferenceId.pdf"))
 
       case _ => Future.successful(BadRequest)
     }
