@@ -39,6 +39,7 @@ import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import java.time.LocalDate
 import akka.actor.Scheduler
 import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.connectors.FileStream
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -1072,7 +1073,7 @@ class CreateCaseJourneyController @Inject() (
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
-            fileStream(file.url, file.fileName, file.fileMimeType)
+            getFileStream(file.url, file.fileName, file.fileMimeType)
 
           case _ => Future.successful(NotFound)
         }

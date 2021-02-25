@@ -589,7 +589,7 @@ class AmendCaseJourneyController @Inject() (
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
-            fileStream(file.url, file.fileName, file.fileMimeType)
+            getFileStream(file.url, file.fileName, file.fileMimeType)
 
           case _ => Future.successful(NotFound)
         }

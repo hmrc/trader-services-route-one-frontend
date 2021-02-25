@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.controllers
+package uk.gov.hmrc.traderservices.connectors
 
 import akka.stream.scaladsl.Flow
 import akka.http.scaladsl.model.HttpRequest
@@ -40,13 +40,17 @@ trait FileStream {
   private val connectionPool: Flow[(HttpRequest, String), (Try[HttpResponse], String), NotUsed] =
     Http().superPool[String]()
 
-  final def fileStream(url: String, fileName: String, fileMimeType: String): Future[Result] = {
+  final def getFileStream(url: String, fileName: String, fileMimeType: String): Future[Result] = {
     val httpRequest = HttpRequest(method = HttpMethods.GET, uri = url)
+    fileStream(httpRequest, fileName, fileMimeType)
+  }
+
+  final def fileStream(httpRequest: HttpRequest, fileName: String, fileMimeType: String): Future[Result] =
     Source
-      .single((httpRequest, url))
+      .single((httpRequest, httpRequest.uri.toString()))
       .via(connectionPool)
       .runFold[Result](Results.Ok) {
-        case (_, (Success(httpResponse), fileRequest)) =>
+        case (_, (Success(httpResponse), url)) =>
           if (httpResponse.status.isSuccess())
             Results.Ok
               .streamed(
@@ -56,15 +60,14 @@ trait FileStream {
               )
               .withHeaders(contentDispositionForMimeType(fileMimeType, fileName))
           else {
-            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing uploaded file.")
+            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing $url")
             Results.InternalServerError
           }
 
-        case (_, (Failure(error), fileRequest)) =>
-          Logger(getClass).error(s"Error when accessing uploaded file: ${error.getMessage()}.")
+        case (_, (Failure(error), url)) =>
+          Logger(getClass).error(s"Error when accessing $url: ${error.getMessage()}.")
           Results.InternalServerError
       }
-  }
 
   final def contentDispositionForMimeType(mimeType: String, fileName: String): (String, String) =
     mimeType match {
