@@ -384,7 +384,7 @@ export class MultiFileUpload extends Component {
   private requestUploadStatus(fileRef: string): void {
     const file = this.getFileByReference(fileRef);
 
-    if (!Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
+    if (!file || !Object.prototype.hasOwnProperty.call(this.uploadData, file.id)) {
       return;
     }
 
