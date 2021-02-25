@@ -57,10 +57,10 @@ context: UploadFileViewContext
     @html.p{ @messages("view.upload-file.line1") }
     @html.p{ @messages("view.upload-file.line2") }
     @html.p{ @{exportRequestType match {
-      case Some(requestType)  if requestType == ExportRequestType.C1601 => "test1601"
-      case Some(requestType)  if requestType == ExportRequestType.C1602 => "test1602"
-      case Some(requestType)  if requestType == ExportRequestType.C1603 => "test1603"
-      case _ => "none"
+      case Some(ExportRequestType.C1601) => messages("view.upload-multiple-files.c1601")
+      case Some(ExportRequestType.C1602) => messages("view.upload-multiple-files.c1602")
+      case Some(ExportRequestType.C1603) => messages("view.upload-multiple-files.c1603")
+      case _ =>
     } } }
 
 
