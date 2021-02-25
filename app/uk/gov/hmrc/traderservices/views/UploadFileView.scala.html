@@ -18,19 +18,20 @@
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
+@import uk.gov.hmrc.traderservices.models.ExportRequestType
 
 @this(
-        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-        forms: uk.gov.hmrc.traderservices.views.components.forms,
-        html: uk.gov.hmrc.traderservices.views.components.html,
-        details: uk.gov.hmrc.traderservices.views.html.components.details,
-        govukFileUpload: GovukFileUpload,
-        govukButton: GovukButton,
-        appConfig: AppConfig,
-        context: UploadFileViewContext
+govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+forms: uk.gov.hmrc.traderservices.views.components.forms,
+html: uk.gov.hmrc.traderservices.views.components.html,
+details: uk.gov.hmrc.traderservices.views.html.components.details,
+govukFileUpload: GovukFileUpload,
+govukButton: GovukButton,
+appConfig: AppConfig,
+context: UploadFileViewContext
 )
 
-@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], exportRequestType: Option[ExportRequestType], successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title", maybeUploadError.isDefined),
@@ -55,6 +56,13 @@
 
     @html.p{ @messages("view.upload-file.line1") }
     @html.p{ @messages("view.upload-file.line2") }
+    @html.p{ @{exportRequestType match {
+      case Some(requestType)  if requestType == ExportRequestType.C1601 => "test1601"
+      case Some(requestType)  if requestType == ExportRequestType.C1602 => "test1602"
+      case Some(requestType)  if requestType == ExportRequestType.C1603 => "test1603"
+      case _ => "none"
+    } } }
+
 
     @details(messages("view.upload-file.help.linkText")) {
       @html.p{ @messages("view.upload-file.help.line1") }

@@ -313,6 +313,14 @@ class CreateCaseJourneyController @Inject() (
     case _                              => None
   }
 
+  final val extractRequestType: State => Option[ExportRequestType] = {
+    case s: State.HasExportQuestionsStateModel =>
+      println(s.model.exportQuestionsAnswers.requestType)
+      s.model.exportQuestionsAnswers.requestType
+    case _ => None
+
+  }
+
   // POST /new/import/transport-information-required
   final val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -912,6 +920,7 @@ class CreateCaseJourneyController @Inject() (
             removeFile = controller.removeFileUploadByReferenceAsync,
             previewFile = controller.previewFileUploadByReference,
             markFileRejected = controller.markFileUploadAsRejectedAsync,
+            exportRequestType = extractRequestType(state),
             continueAction = linkToSummary(model.questionsAnswers),
             backLink = backLinkFromFileUpload(model.questionsAnswers)
           )
@@ -923,6 +932,7 @@ class CreateCaseJourneyController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
+            exportRequestType = extractRequestType(state),
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),

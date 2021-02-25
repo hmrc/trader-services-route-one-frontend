@@ -119,6 +119,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       def declarationDetails: DeclarationDetails
     }
 
+    sealed trait HasExportRequestType {
+      def exportRequestType: ExportRequestType
+    }
+
     sealed trait HasExportQuestionsStateModel {
       val model: ExportQuestionsStateModel
     }
