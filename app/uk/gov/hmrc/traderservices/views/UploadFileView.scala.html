@@ -56,14 +56,12 @@ context: UploadFileViewContext
 
     @html.p{ @messages("view.upload-file.line1") }
     @html.p{ @messages("view.upload-file.line2") }
-    <div class="govuk-inset-text">
     @html.p{ @{exportRequestType match {
-      case Some(ExportRequestType.C1601) => messages("view.upload-multiple-files.c1601")
-      case Some(ExportRequestType.C1602) => messages("view.upload-multiple-files.c1602")
-      case Some(ExportRequestType.C1603) => messages("view.upload-multiple-files.c1603")
+      case Some(ExportRequestType.C1601) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1601")} </div>
+      case Some(ExportRequestType.C1602) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1602")} </div>
+      case Some(ExportRequestType.C1603) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1603")} </div>
       case _ =>
     } } }
-    </div>
 
 
 
