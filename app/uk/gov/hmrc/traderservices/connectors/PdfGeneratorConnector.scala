@@ -28,6 +28,7 @@ import akka.http.scaladsl.model.HttpEntity
 import akka.http.scaladsl.model.ContentTypes
 import play.api.libs.json.Json
 import play.api.http.HeaderNames
+import akka.http.scaladsl.model.headers.RawHeader
 
 @Singleton
 class PdfGeneratorConnector @Inject() (appConfig: AppConfig, val actorSystem: ActorSystem) extends FileStream {
@@ -39,6 +40,8 @@ class PdfGeneratorConnector @Inject() (appConfig: AppConfig, val actorSystem: Ac
       method = HttpMethods.POST,
       uri = url,
       entity = HttpEntity(ContentTypes.`application/json`, Json.stringify(Json.obj("html" -> html)))
+    ).withHeaders(
+      hc.headers.map { case (k, v) => RawHeader(k, v) }.toList
     )
     fileStream(
       httpRequest,

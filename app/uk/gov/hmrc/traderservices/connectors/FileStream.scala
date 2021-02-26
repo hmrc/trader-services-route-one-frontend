@@ -31,8 +31,6 @@ import scala.util.Success
 import akka.stream.scaladsl.Source
 import scala.concurrent.Future
 import play.api.Logger
-import uk.gov.hmrc.http.HeaderCarrier
-import akka.http.scaladsl.model.headers.RawHeader
 
 trait FileStream {
 
@@ -46,7 +44,7 @@ trait FileStream {
     fileName: String,
     fileMimeType: String,
     contentDispositionForMimeType: (String, String) => (String, String)
-  )(implicit hc: HeaderCarrier): Future[Result] = {
+  ): Future[Result] = {
     val httpRequest = HttpRequest(method = HttpMethods.GET, uri = url)
     fileStream(httpRequest, fileName, fileMimeType, contentDispositionForMimeType)
   }
@@ -56,12 +54,9 @@ trait FileStream {
     fileName: String,
     fileMimeType: String,
     contentDispositionForMimeType: (String, String) => (String, String)
-  )(implicit hc: HeaderCarrier): Future[Result] = {
-    val httpRequestWithMdtpHeaders = httpRequest.withHeaders(
-      hc.headers.map { case (k, v) => RawHeader(k, v) }.toList
-    )
+  ): Future[Result] =
     Source
-      .single((httpRequestWithMdtpHeaders, httpRequest.uri.toString()))
+      .single((httpRequest, httpRequest.uri.toString()))
       .via(connectionPool)
       .runFold[Result](Results.Ok) {
         case (_, (Success(httpResponse), url)) =>
@@ -82,6 +77,5 @@ trait FileStream {
           Logger(getClass).error(s"Error when accessing $url: ${error.getMessage()}.")
           Results.InternalServerError
       }
-  }
 
 }
