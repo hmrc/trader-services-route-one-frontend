@@ -434,6 +434,7 @@ class AmendCaseJourneyController @Inject() (
             removeFile = controller.removeFileUploadByReferenceAsync,
             previewFile = controller.previewFileUploadByReference,
             markFileRejected = controller.markFileUploadAsRejectedAsync,
+            None,
             continueAction = controller.showAmendCaseSummary,
             backLink = backLinkFromFileUpload(model)
           )
@@ -445,6 +446,7 @@ class AmendCaseJourneyController @Inject() (
             uploadRequest,
             fileUploads,
             maybeUploadError,
+            None,
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),

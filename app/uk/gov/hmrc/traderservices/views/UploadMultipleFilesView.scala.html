@@ -19,26 +19,28 @@
 @import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials.multiFileUpload
 @import uk.gov.hmrc.traderservices.views.html.partials.errorManager
+@import uk.gov.hmrc.traderservices.models.ExportRequestType
 
 @this(
-        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-        forms: uk.gov.hmrc.traderservices.views.components.forms,
-        html: uk.gov.hmrc.traderservices.views.components.html,
-        details: uk.gov.hmrc.traderservices.views.html.components.details,
-        govukFileUpload: GovukFileUpload,
-        govukButton: GovukButton,
-        appConfig: AppConfig,
-        context: UploadFileViewContext
+govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+forms: uk.gov.hmrc.traderservices.views.components.forms,
+html: uk.gov.hmrc.traderservices.views.components.html,
+details: uk.gov.hmrc.traderservices.views.html.components.details,
+govukFileUpload: GovukFileUpload,
+govukButton: GovukButton,
+appConfig: AppConfig,
+context: UploadFileViewContext
 )
 
-@(maxFileUploadsNumber: Int, 
-  initialFileUploads: Seq[FileUpload], 
-  initiateNextFileUpload: String => Call, 
-  checkFileVerificationStatus: String => Call, 
-  removeFile: String => Call, 
-  previewFile: (String,String) => Call, 
+@(maxFileUploadsNumber: Int,
+  initialFileUploads: Seq[FileUpload],
+  initiateNextFileUpload: String => Call,
+  checkFileVerificationStatus: String => Call,
+  removeFile: String => Call,
+  previewFile: (String,String) => Call,
   markFileRejected: Call,
-  continueAction: Call, 
+  exportRequestType: Option[ExportRequestType],
+  continueAction: Call,
   backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
@@ -83,6 +85,12 @@
 
   @html.p{ @messages("view.upload-multiple-files.line1") }
   @html.p{ @messages("view.upload-multiple-files.line2") }
+  @html.p{ @{exportRequestType match {
+      case Some(ExportRequestType.C1601) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1601")} </div>
+      case Some(ExportRequestType.C1602) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1602")} </div>
+      case Some(ExportRequestType.C1603) => <div class="govuk-inset-text"> {messages("view.upload-multiple-files.c1603")} </div>
+      case _ =>
+  } } }
 
   @html.p(
     content = Html(messages("view.upload-multiple-files.uploadOnSelect")),

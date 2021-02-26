@@ -32,6 +32,7 @@ class CreateCaseJourneyISpec
   val dateTime = LocalDateTime.now()
 
   "CreateCaseJourneyController" when {
+
     "GET /send-documents-for-customs-check/" should {
       "show the start page" in {
         implicit val journeyId: JourneyId = JourneyId()
@@ -2827,6 +2828,8 @@ class CreateCaseJourneyISpec
 }
 
 trait CreateCaseJourneyISpecSetup extends ServerISpec {
+
+  lazy val controller = app.injector.instanceOf[CreateCaseJourneyController]
 
   lazy val journey = new TestJourneyService[JourneyId]
     with CreateCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
