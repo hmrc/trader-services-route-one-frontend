@@ -43,6 +43,7 @@ import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import akka.actor.Scheduler
 import scala.concurrent.Future
+import javax.mail.internet.MimeUtility
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -598,7 +599,7 @@ class AmendCaseJourneyController @Inject() (
               (fileName, fileMimeType) =>
                 fileMimeType match {
                   case _ =>
-                    HeaderNames.CONTENT_DISPOSITION -> s"""inline; filename="$fileName""""
+                    HeaderNames.CONTENT_DISPOSITION -> MimeUtility.encodeText(s"""inline; filename="$fileName"""")
                 }
             )
 

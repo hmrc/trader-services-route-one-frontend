@@ -40,6 +40,7 @@ import java.time.LocalDate
 import akka.actor.Scheduler
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
+import javax.mail.internet.MimeUtility
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -1098,7 +1099,7 @@ class CreateCaseJourneyController @Inject() (
               (fileName, fileMimeType) =>
                 fileMimeType match {
                   case _ =>
-                    HeaderNames.CONTENT_DISPOSITION -> s"""inline; filename="$fileName""""
+                    HeaderNames.CONTENT_DISPOSITION -> MimeUtility.encodeText(s"""inline; filename="$fileName"""")
                 }
             )
 
