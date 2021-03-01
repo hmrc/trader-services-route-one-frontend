@@ -643,7 +643,7 @@ view.beta.beforeYouStart=Before you start
 view.beta.beforeYouStart.paragraph1=You will need a user ID and password. If you do not have a user ID, you can create one the first time you send us your documents for customs clearance.
 view.beta.beforeYouStart.startNow=Start now
 view.beta.afterSendingDocuments=After you’ve sent HMRC supporting documents
-view.beta.afterSendingDocuments.paragraph1=After you have completed the service you'll be told when your goods should be cleared. You’ll be notified through your software when they have cleared.
+view.beta.afterSendingDocuments.paragraph1=After you have completed the service you’ll be told when your goods should be cleared. You’ll be notified through your software when they have cleared.
 view.beta.afterSendingDocuments.paragraph2=If your goods are not cleared by that time, you can contact the <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub" class="govuk-link" target="_blank" rel="noopener noreferrer">National Clearance Hub</a>.
 
 receipt.heading=Your customs check document receipt
