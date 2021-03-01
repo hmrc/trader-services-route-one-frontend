@@ -1,0 +1,32 @@
+.contents-list {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid $govuk-border-colour;
+}
+
+.contents-list__title {
+  margin: 0;
+  font-size: 16px;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-weight: normal;
+}
+
+.contents-list__list {
+  position: relative;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.contents-list__item {
+  margin: 0;
+  padding: 7.5px 0 0 25px;
+
+  &::before {
+    position: absolute;
+    left: 0;
+    width: 20px;
+    overflow: hidden;
+    content: "—";
+  }
+}
