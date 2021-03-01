@@ -40,8 +40,6 @@ import java.time.LocalDate
 import akka.actor.Scheduler
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
-import javax.mail.internet.MimeUtility
-import java.net.URLEncoder
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -1101,8 +1099,8 @@ class CreateCaseJourneyController @Inject() (
                 fileMimeType match {
                   case _ =>
                     HeaderNames.CONTENT_DISPOSITION ->
-                      s"""inline; filename="${fileName.filter(_.toInt < 128)}"; filename*=utf-8''${URLEncoder
-                        .encode(fileName, "utf-8")}"""
+                      s"""inline; filename="${fileName.filter(_.toInt < 128)}"; filename*=utf-8''${RFC3986Encoder
+                        .encode(fileName)}"""
                 }
             )
 
