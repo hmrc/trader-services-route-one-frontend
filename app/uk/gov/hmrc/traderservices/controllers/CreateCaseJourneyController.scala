@@ -41,6 +41,7 @@ import akka.actor.Scheduler
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
 import javax.mail.internet.MimeUtility
+import java.net.URLEncoder
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -1099,7 +1100,9 @@ class CreateCaseJourneyController @Inject() (
               (fileName, fileMimeType) =>
                 fileMimeType match {
                   case _ =>
-                    HeaderNames.CONTENT_DISPOSITION -> MimeUtility.encodeText(s"""inline; filename="$fileName"""")
+                    HeaderNames.CONTENT_DISPOSITION ->
+                      s"""inline; filename="${fileName.filter(_.toInt < 128)}"; filename*=utf-8''${URLEncoder
+                        .encode(fileName, "utf-8")}"""
                 }
             )
 

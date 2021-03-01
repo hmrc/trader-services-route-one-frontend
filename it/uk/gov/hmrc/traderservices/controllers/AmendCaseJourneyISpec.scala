@@ -1051,7 +1051,9 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.status shouldBe 200
         result.header("Content-Type") shouldBe Some("image/png")
         result.header("Content-Length") shouldBe Some(s"${bytes.length}")
-        result.header("Content-Disposition") shouldBe Some("""inline; filename="test1.png"""")
+        result.header("Content-Disposition") shouldBe Some(
+          """inline; filename="test1.png"; filename*=utf-8''test1.png"""
+        )
         result.bodyAsBytes.toArray[Byte] shouldBe bytes
         journey.getState shouldBe state
       }
