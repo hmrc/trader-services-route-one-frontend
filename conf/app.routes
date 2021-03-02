@@ -4,6 +4,7 @@
 ->         /hmrc-frontend                                           hmrcfrontend.Routes 
 
 GET        /                                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showStart
+GET        /start                                                   @uk.gov.hmrc.traderservices.controllers.PrivateBetaStartPageController.showPrivateBetaStart
 GET        /new-or-existing                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showChooseNewOrExistingCase
 POST       /new-or-existing                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitNewOrExistingCaseChoice
 
