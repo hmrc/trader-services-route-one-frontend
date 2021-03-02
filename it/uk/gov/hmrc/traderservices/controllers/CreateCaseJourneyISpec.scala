@@ -2763,7 +2763,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.header("Content-Type") shouldBe Some("application/pdf")
         result.header("Content-Length") shouldBe Some(s"${bytes.length}")
-        result.header("Content-Disposition") shouldBe Some("""inline; filename="test.pdf"""")
+        result.header("Content-Disposition") shouldBe Some("""inline; filename="test.pdf"; filename*=utf-8''test.pdf""")
         result.bodyAsBytes.toArray[Byte] shouldBe bytes
         journey.getState shouldBe state
       }

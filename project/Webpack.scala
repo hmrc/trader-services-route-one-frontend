@@ -13,7 +13,7 @@ object Webpack {
 
       override def beforeStarted(): Unit = {
         log.info("run npm ci...")
-        Process("npm ci", base).!
+        Process("npm install --no-save", base).!
 
         log.info("Starting webpack in watch mode...")
         watchProcess = Some(Process("npm start", base).run)
