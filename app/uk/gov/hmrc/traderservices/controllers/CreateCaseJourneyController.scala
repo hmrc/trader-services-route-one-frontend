@@ -698,7 +698,7 @@ class CreateCaseJourneyController @Inject() (
           views.chooseNewOrExistingCaseView(
             formWithErrors.or(NewOrExistingCaseForm, newOrExistingCaseOpt),
             controller.submitNewOrExistingCaseChoice(),
-            Call("GET", "https://www.gov.uk/")
+            routes.PrivateBetaStartPageController.showPrivateBetaStart
           )
         )
 
