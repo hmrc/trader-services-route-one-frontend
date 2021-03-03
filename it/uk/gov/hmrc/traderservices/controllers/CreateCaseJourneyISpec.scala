@@ -2169,7 +2169,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/confirmation/receipt").get)
 
         result.status shouldBe 200
-        result.header("Content-Disposition") shouldBe Some("""attachment; filename="Document_receipt_ABC01234567890.html"""")
+        result.header("Content-Disposition") shouldBe Some(
+          """attachment; filename="Document_receipt_Z00000Z.html""""
+        )
 
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         result.body should include(
@@ -2218,7 +2220,9 @@ class CreateCaseJourneyISpec
 
         result.status shouldBe 200
         result.header("Content-Type") shouldBe Some("application/pdf")
-        result.header("Content-Disposition") shouldBe Some("""attachment; filename="Document_receipt_ABC01234567890.pdf"""")
+        result.header("Content-Disposition") shouldBe Some(
+          """attachment; filename="Document_receipt_Z00000Z.pdf""""
+        )
 
         result.bodyAsBytes.toArray shouldBe pdfContent
 
