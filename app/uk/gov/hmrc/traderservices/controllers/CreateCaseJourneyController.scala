@@ -996,7 +996,9 @@ class CreateCaseJourneyController @Inject() (
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
-            controller.downloadCreateCaseConfirmationReceiptAsPdf(s"case-$caseReferenceId.pdf"),
+            controller.downloadCreateCaseConfirmationReceiptAsPdf(
+              s"Document_receipt_${declarationDetails.entryNumber.value}.pdf"
+            ),
             controller.showStart
           )
         )
@@ -1141,7 +1143,7 @@ class CreateCaseJourneyController @Inject() (
               stylesheet
             )
           ).withHeaders(
-            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="case-$caseReferenceId.html""""
+            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${declarationDetails.entryNumber.value}.html""""
           )
         )
 
@@ -1172,7 +1174,9 @@ class CreateCaseJourneyController @Inject() (
               )
               .body
           )
-          .flatMap(pdfGeneratorConnector.convertHtmlToPdf(_, s"case-$caseReferenceId.pdf"))
+          .flatMap(
+            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${declarationDetails.entryNumber.value}.pdf")
+          )
 
       case _ => Future.successful(BadRequest)
     }
