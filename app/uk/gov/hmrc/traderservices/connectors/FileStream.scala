@@ -30,7 +30,6 @@ import scala.util.Failure
 import scala.util.Success
 import akka.stream.scaladsl.Source
 import scala.concurrent.Future
-import play.api.Logger
 
 trait FileStream {
 
@@ -68,14 +67,11 @@ trait FileStream {
                 contentType = Some(fileMimeType)
               )
               .withHeaders(contentDispositionForMimeType(fileName, fileMimeType))
-          else {
-            Logger(getClass).error(s"Error status ${httpResponse.status} when accessing $url")
-            Results.InternalServerError
-          }
+          else
+            throw new Exception(s"Error status ${httpResponse.status} when accessing $url")
 
         case (_, (Failure(error), url)) =>
-          Logger(getClass).error(s"Error when accessing $url: ${error.getMessage()}.")
-          Results.InternalServerError
+          throw new Exception(s"Error when accessing $url: ${error.getMessage()}.")
       }
 
 }

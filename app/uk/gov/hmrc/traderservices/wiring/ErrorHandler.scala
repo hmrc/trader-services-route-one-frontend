@@ -45,7 +45,6 @@ import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.traderservices.connectors.{TraderServicesAmendApiError, TraderServicesApiError}
 import uk.gov.hmrc.traderservices.views.html.{AmendCaseErrorView, InternalErrorView, PageNotFoundErrorView}
-import uk.gov.hmrc.traderservices.views.html.components.h1
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
 
 import javax.inject.{Inject, Singleton}
@@ -59,7 +58,7 @@ class ErrorHandler @Inject() (
   val auditConnector: AuditConnector,
   @Named("appName") val appName: String,
   govUkWrapper: GovukLayoutWrapper,
-  h1: h1,
+  html: uk.gov.hmrc.traderservices.views.components.html,
   pageNotFoundErrorView: PageNotFoundErrorView,
   amendCaseErrorView: AmendCaseErrorView,
   internalErrorView: InternalErrorView
@@ -90,12 +89,12 @@ class ErrorHandler @Inject() (
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
     request: Request[_]
   ) =
-    new ErrorTemplate(govUkWrapper, h1)(pageTitle, heading, message)
+    new ErrorTemplate(govUkWrapper, html)(pageTitle, heading, message)
 
   override def notFoundTemplate(implicit request: Request[_]) = pageNotFoundErrorView()
 
   def externalErrorTemplate()(implicit request: Request[_]) =
-    new ErrorTemplate(govUkWrapper, h1)(
+    new ErrorTemplate(govUkWrapper, html)(
       Messages("external.error.500.title"),
       Messages("external.error.500.heading"),
       Messages("external.error.500.message")

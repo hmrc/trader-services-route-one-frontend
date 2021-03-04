@@ -18,7 +18,7 @@
 
 @this(
         govuk_wrapper: GovukLayoutWrapper,
-        h1: components.h1
+        html: uk.gov.hmrc.traderservices.views.components.html
 )
 
 @(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages, appConfig:
@@ -26,8 +26,11 @@ AppConfig)
 
 @govuk_wrapper(Some(messages(pageTitle))) {
 
-  @h1(messages(heading))
+  @html.h1(messages(heading))
 
   <p class="govuk-body">@messages(message)</p>
+
+  @html.p { @messages("global.error.500.line1") }
+  @html.p { @Html(messages("global.error.500.line2", appConfig.reportProblemUrl)) }
 
 }
