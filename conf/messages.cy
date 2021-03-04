@@ -61,7 +61,7 @@ global.error.404.line2=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod w
 global.error.404.line3=<a class="govuk-link" href="{0}">Anfon eich dogfennau i’w gwirio gan y tollau</a>
 
 global.error.500.line1=If you’ve entered any information, we have not saved your answers. When the service is available, you’ll have to start again.
-global.error.500.line2=You can <a class="govuk-link" href="{0}">report the problem</a> if you need help. We will respond to you within two working days.
+global.error.500.line2=You can <a class="govuk-link" href="{0}">report the problem (opens in a new window or tab)</a> if you need help. We will respond to you within two working days.
 
 external.error.500.title=Service unavailable
 external.error.500.heading=Sorry, the service is unavailable
@@ -74,7 +74,7 @@ internal.error.500.title=Sorry, there is a problem with the service
 internal.error.500.heading=Sorry, there is a problem with the service
 internal.error.500.line1=Try again later.
 internal.error.500.line2=Any answers you provided may not have been saved. When the service is available, you might have to start again.
-internal.error.500.line3=You can <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">report the problem</a> if you need help. We will respond to you within two working days.
+internal.error.500.line3=You can <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">report the problem (opens in a new window or tab)</a> if you need help. We will respond to you within two working days.
 
 external.update.error.500.title=Sorry, something has gone wrong
 external.update.error.500.heading=Sorry, something has gone wrong
