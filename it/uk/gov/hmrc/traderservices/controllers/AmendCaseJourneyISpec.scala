@@ -1103,7 +1103,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         result.body should include(htmlEscapedPageTitle("internal.error.500.title"))
         result.body should include(htmlEscapedMessage("internal.error.500.heading"))
         result.body should include(htmlEscapedMessage("internal.error.500.line1"))
-        result.body should include(htmlEscapedMessage("internal.error.500.line2"))
+        result.body should include(htmlEscapedMessage("global.error.500.line1"))
         journey.getState shouldBe state
       }
     }

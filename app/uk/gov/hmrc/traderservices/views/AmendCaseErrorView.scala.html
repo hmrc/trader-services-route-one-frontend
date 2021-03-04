@@ -15,10 +15,12 @@
  *@
 
 @import uk.gov.hmrc.traderservices.controllers.routes
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-        html: uk.gov.hmrc.traderservices.views.components.html
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        appConfig: AppConfig
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -31,4 +33,6 @@
 
   @html.p { @messages("external.update.error.500.line1") }
   @html.p { @Html(messages("external.update.error.500.line2", routes.AmendCaseJourneyController.showEnterCaseReferenceNumber.url)) }
+
+  @html.p { @Html(messages("global.error.500.line2", appConfig.reportProblemUrl)) }
 }

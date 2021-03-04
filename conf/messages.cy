@@ -73,8 +73,6 @@ external.error.500.list-item2=Too many users on the service
 internal.error.500.title=Sorry, there is a problem with the service
 internal.error.500.heading=Sorry, there is a problem with the service
 internal.error.500.line1=Try again later.
-internal.error.500.line2=Any answers you provided may not have been saved. When the service is available, you might have to start again.
-internal.error.500.line3=You can <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">report the problem (opens in a new window or tab)</a> if you need help. We will respond to you within two working days.
 
 external.update.error.500.title=Sorry, something has gone wrong
 external.update.error.500.heading=Sorry, something has gone wrong

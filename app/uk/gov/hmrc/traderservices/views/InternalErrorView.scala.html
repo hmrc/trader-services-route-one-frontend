@@ -31,6 +31,8 @@
   @html.h1(messages("internal.error.500.heading"))
 
   @html.p { @messages("internal.error.500.line1") }
-  @html.p { @messages("internal.error.500.line2") }
-  @html.p { @Html(messages("internal.error.500.line3", appConfig.reportProblemUrl)) }
+  
+  @html.p { @messages("global.error.500.line1") }
+  @html.p { @Html(messages("global.error.500.line2", appConfig.reportProblemUrl)) }
+
 }
