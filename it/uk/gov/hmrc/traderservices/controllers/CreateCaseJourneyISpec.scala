@@ -2772,7 +2772,7 @@ class CreateCaseJourneyISpec
         journey.getState shouldBe state
       }
 
-      "return 500 if file does not exist" in {
+      "return error page if file does not exist" in {
         implicit val journeyId: JourneyId = JourneyId()
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -2811,7 +2811,11 @@ class CreateCaseJourneyISpec
             request("/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf")
               .get()
           )
-        result.status shouldBe 500
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("internal.error.500.title"))
+        result.body should include(htmlEscapedMessage("internal.error.500.heading"))
+        result.body should include(htmlEscapedMessage("internal.error.500.line1"))
+        result.body should include(htmlEscapedMessage("internal.error.500.line2"))
         journey.getState shouldBe state
       }
     }

@@ -60,6 +60,27 @@ global.error.404.line1=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod y
 global.error.404.line2=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
 global.error.404.line3=<a class="govuk-link" href="{0}">Anfon eich dogfennau i’w gwirio gan y tollau</a>
 
+global.error.500.line1=If you’ve entered any information, we have not saved your answers. When the service is available, you’ll have to start again.
+global.error.500.line2=You can <a class="govuk-link" href="{0}">report the problem</a> if you need help. We will respond to you within two working days.
+
+external.error.500.title=Service unavailable
+external.error.500.heading=Sorry, the service is unavailable
+external.error.500.message=Try again later.
+external.error.500.listParagraph=This could be for a number of reasons, including:
+external.error.500.list-item1=An external service error
+external.error.500.list-item2=Too many users on the service
+
+internal.error.500.title=Sorry, there is a problem with the service
+internal.error.500.heading=Sorry, there is a problem with the service
+internal.error.500.line1=Try again later.
+internal.error.500.line2=Any answers you provided may not have been saved. When the service is available, you might have to start again.
+internal.error.500.line3=You can <a class="govuk-link" href="{0}">report the problem</a> if you need help. We will respond to you within two working days.
+
+external.update.error.500.title=Sorry, something has gone wrong
+external.update.error.500.heading=Sorry, something has gone wrong
+external.update.error.500.line1=You may have entered some incorrect details.
+external.update.error.500.line2=Try to <a class="govuk-link" href="{0}">enter your case reference number</a> again.
+
 footer.cookies=Cwcis
 footer.privacy=Polisi preifatrwydd
 footer.termsConditions=Telerau ac amodau
