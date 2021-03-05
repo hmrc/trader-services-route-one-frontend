@@ -328,7 +328,7 @@ view.upload-file.line2=Mae’n rhaid i bob dogfen fod yn llai na 6MB.
 view.upload-file.help.line1=Caniateir y mathau hyn o ffeiliau:
 view.upload-file.help.fileFormat1=image (.jpg, .jpeg, .png or .tiff)
 view.upload-file.help.fileFormat2=PDF (.pdf)
-view.upload-file.help.fileFormat3=email (.txt, .oft or .msg)
+view.upload-file.help.fileFormat3=email (.txt or .msg)
 view.upload-file.help.line4=You cannot upload Microsoft files, zip files or documents that are password-protected.
 view.upload-file.help.line5=If you have a Word or Excel document to upload, you need to convert it to PDF first.
 
@@ -349,7 +349,7 @@ form.file-uploaded.continue=Yn eich blaen
 error.file-upload.required=Dewiswch ffeil
 error.file-upload.invalid-size-small=Mae’r ffeil dan sylw yn wag
 error.file-upload.invalid-size-large=Mae’n rhaid i’r ffeil dan sylw fod yn llai na {0}MB
-error.file-upload.invalid-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf .jpg, .png, .tiff, .pdf, .txt, .oft, neu .msg
+error.file-upload.invalid-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf .jpg, .png, .tiff, .pdf, .txt, neu .msg
 error.file-upload.quarantine=Mae feirws yn y ffeil dan sylw – uwchlwythwch un wahanol
 error.file-upload.unknown=Nid oedd modd uwchlwytho’r ffeil dan sylw
 error.uploadAnotherFile.required=Dewiswch ‘Iawn’ os hoffech uwchlwytho dogfen arall
