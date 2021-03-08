@@ -6,9 +6,9 @@ import java.time.LocalDate
 
 object TestData {
 
-  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
-  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
-  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+  val exportEntryDetails = EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
+  val importEntryDetails = EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val invalidEntryDetails = EntryDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
 
   def fullExportQuestions(dateTimeOfArrival: LocalDateTime) =
     ExportQuestions(

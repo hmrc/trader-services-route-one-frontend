@@ -111,16 +111,16 @@ class CreateCaseJourneyController @Inject() (
       .apply(Transitions.submittedNewOrExistingCaseChoice)
 
   // GET /new/entry-details
-  final val showEnterDeclarationDetails: Action[AnyContent] =
+  final val showEnterEntryDetails: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.EnterDeclarationDetails]
-      .orApply(Transitions.backToEnterDeclarationDetails)
+      .show[State.EnterEntryDetails]
+      .orApply(Transitions.backToEnterEntryDetails)
 
   // POST /new/entry-details
-  final val submitDeclarationDetails: Action[AnyContent] =
+  final val submitEntryDetails: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindForm(DeclarationDetailsForm)
-      .apply(Transitions.submittedDeclarationDetails)
+      .bindForm(EntryDetailsForm)
+      .apply(Transitions.submittedEntryDetails)
 
   // ----------------------- EXPORT QUESTIONS -----------------------
 
@@ -311,8 +311,8 @@ class CreateCaseJourneyController @Inject() (
       .orApply(Transitions.backToAnswerImportQuestionsMandatoryVesselInfo)
 
   private val extractArrivalDate: State => Option[LocalDate] = {
-    case s: State.HasDeclarationDetails => Some(s.declarationDetails.entryDate)
-    case _                              => None
+    case s: State.HasEntryDetails => Some(s.entryDetails.entryDate)
+    case _                        => None
   }
 
   private val extractRequestType: State => Option[ExportRequestType] = {
@@ -596,8 +596,8 @@ class CreateCaseJourneyController @Inject() (
         else
           routes.AmendCaseJourneyController.showStart()
 
-      case _: EnterDeclarationDetails =>
-        controller.showEnterDeclarationDetails()
+      case _: EnterEntryDetails =>
+        controller.showEnterEntryDetails()
 
       case _: AnswerExportQuestionsRequestType =>
         controller.showAnswerExportQuestionsRequestType()
@@ -708,11 +708,11 @@ class CreateCaseJourneyController @Inject() (
         else
           Redirect(routes.AmendCaseJourneyController.showStart())
 
-      case EnterDeclarationDetails(declarationDetailsOpt, _, _, _) =>
+      case EnterEntryDetails(entryDetailsOpt, _, _, _) =>
         Ok(
-          views.declarationDetailsEntryView(
-            formWithErrors.or(DeclarationDetailsForm, declarationDetailsOpt),
-            controller.submitDeclarationDetails(),
+          views.entryDetailsEntryView(
+            formWithErrors.or(EntryDetailsForm, entryDetailsOpt),
+            controller.submitEntryDetails(),
             controller.showChooseNewOrExistingCase()
           )
         )
@@ -722,7 +722,7 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsRequestTypeView(
             formWithErrors.or(ExportRequestTypeForm, model.exportQuestionsAnswers.requestType),
             controller.submitExportQuestionsRequestTypeAnswer(),
-            controller.showEnterDeclarationDetails()
+            controller.showEnterEntryDetails()
           )
         )
 
@@ -804,7 +804,7 @@ class CreateCaseJourneyController @Inject() (
       case ExportQuestionsSummary(model) =>
         Ok(
           views.exportQuestionsSummaryView(
-            model.declarationDetails,
+            model.entryDetails,
             model.exportQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
@@ -818,7 +818,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsRequestTypeView(
             formWithErrors.or(ImportRequestTypeForm, model.importQuestionsAnswers.requestType),
             controller.submitImportQuestionsRequestTypeAnswer(),
-            controller.showEnterDeclarationDetails()
+            controller.showEnterEntryDetails()
           )
         )
 
@@ -909,7 +909,7 @@ class CreateCaseJourneyController @Inject() (
       case ImportQuestionsSummary(model) =>
         Ok(
           views.importQuestionsSummaryView(
-            model.declarationDetails,
+            model.entryDetails,
             model.importQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
@@ -982,7 +982,7 @@ class CreateCaseJourneyController @Inject() (
         )
 
       case CreateCaseConfirmation(
-            declarationDetails,
+            entryDetails,
             _,
             uploadedFiles,
             TraderServicesResult(caseReferenceId, generatedAt),
@@ -991,13 +991,13 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
-            declarationDetails,
+            entryDetails,
             uploadedFiles,
             generatedAt.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
             controller.downloadCreateCaseConfirmationReceiptAsPdf(
-              s"Document_receipt_${declarationDetails.entryNumber.value}.pdf"
+              s"Document_receipt_${entryDetails.entryNumber.value}.pdf"
             ),
             controller.showStart
           )
@@ -1126,7 +1126,7 @@ class CreateCaseJourneyController @Inject() (
   ): Future[Result] =
     state match {
       case CreateCaseConfirmation(
-            declarationDetails,
+            entryDetails,
             _,
             uploadedFiles,
             TraderServicesResult(caseReferenceId, generatedAt),
@@ -1136,14 +1136,14 @@ class CreateCaseJourneyController @Inject() (
           Ok(
             views.createCaseConfirmationReceiptView(
               caseReferenceId,
-              declarationDetails,
+              entryDetails,
               uploadedFiles,
               generatedAt.ddMMYYYYAtTimeFormat,
               caseSLA,
               stylesheet
             )
           ).withHeaders(
-            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${declarationDetails.entryNumber.value}.html""""
+            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${entryDetails.entryNumber.value}.html""""
           )
         )
 
@@ -1155,7 +1155,7 @@ class CreateCaseJourneyController @Inject() (
   ): Future[Result] =
     state match {
       case CreateCaseConfirmation(
-            declarationDetails,
+            entryDetails,
             _,
             uploadedFiles,
             TraderServicesResult(caseReferenceId, generatedAt),
@@ -1166,7 +1166,7 @@ class CreateCaseJourneyController @Inject() (
             views
               .createCaseConfirmationReceiptView(
                 caseReferenceId,
-                declarationDetails,
+                entryDetails,
                 uploadedFiles,
                 generatedAt.ddMMYYYYAtTimeFormat,
                 caseSLA,
@@ -1175,7 +1175,7 @@ class CreateCaseJourneyController @Inject() (
               .body
           )
           .flatMap(
-            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${declarationDetails.entryNumber.value}.pdf")
+            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${entryDetails.entryNumber.value}.pdf")
           )
 
       case _ => Future.successful(BadRequest)
@@ -1212,12 +1212,12 @@ object CreateCaseJourneyController {
     mapping("newOrExistingCase" -> newOrExistingCaseMapping)(identity)(Option.apply)
   )
 
-  val DeclarationDetailsForm = Form[DeclarationDetails](
+  val EntryDetailsForm = Form[EntryDetails](
     mapping(
       "epu"         -> epuMapping,
       "entryNumber" -> entryNumberMapping,
       "entryDate"   -> entryDateMapping
-    )(DeclarationDetails.apply)(DeclarationDetails.unapply)
+    )(EntryDetails.apply)(EntryDetails.unapply)
   )
 
   val ExportRequestTypeForm = Form[ExportRequestType](

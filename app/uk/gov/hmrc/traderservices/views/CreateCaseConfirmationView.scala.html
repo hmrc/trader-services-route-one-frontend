@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.models.CaseSLA
-@import uk.gov.hmrc.traderservices.models.DeclarationDetails
+@import uk.gov.hmrc.traderservices.models.EntryDetails
 @import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
@@ -29,7 +29,7 @@
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, downloadPdfCall:Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, entryDetails: EntryDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, downloadPdfCall:Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
   pageTitle = pageTitle("view.create-case-confirmation.title"),
@@ -102,7 +102,7 @@
   </div>
 
   <div class="govuk-grid-column-two-thirds">
-    @partials.receipt(caseReferenceId, context, declarationDetails, uploadedFiles, generatedAt)(messages)
+    @partials.receipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt)(messages)
   </div>
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">

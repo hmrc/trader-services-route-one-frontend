@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.fsm.JsonStateFormats
 object CreateCaseJourneyStateFormats
     extends FileUploadJourneyStateFormats(CreateCaseJourneyModel) with JsonStateFormats[State] {
 
-  val enterDeclarationDetailsFormat = Json.format[EnterDeclarationDetails]
+  val enterEntryDetailsFormat = Json.format[EnterEntryDetails]
   val chooseNewOrExistingCaseFormat = Json.format[ChooseNewOrExistingCase]
   val turnToAmendCaseJourneyFormat = Json.format[TurnToAmendCaseJourney]
   val answerExportQuestionsRequestTypeFormat = Json.format[AnswerExportQuestionsRequestType]
@@ -54,7 +54,7 @@ object CreateCaseJourneyStateFormats
   override val fileUploadHostDataFormat: Format[FileUploadHostData] = Json.format[FileUploadHostData]
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case s: EnterDeclarationDetails                  => enterDeclarationDetailsFormat.writes(s)
+    case s: EnterEntryDetails                        => enterEntryDetailsFormat.writes(s)
     case s: ChooseNewOrExistingCase                  => chooseNewOrExistingCaseFormat.writes(s)
     case s: TurnToAmendCaseJourney                   => turnToAmendCaseJourneyFormat.writes(s)
     case s: AnswerExportQuestionsRequestType         => answerExportQuestionsRequestTypeFormat.writes(s)
@@ -87,7 +87,7 @@ object CreateCaseJourneyStateFormats
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
     stateName match {
       case "Start"                                   => JsSuccess(Start)
-      case "EnterDeclarationDetails"                 => enterDeclarationDetailsFormat.reads(properties)
+      case "EnterEntryDetails"                       => enterEntryDetailsFormat.reads(properties)
       case "ChooseNewOrExistingCase"                 => chooseNewOrExistingCaseFormat.reads(properties)
       case "TurnToAmendCaseJourney"                  => turnToAmendCaseJourneyFormat.reads(properties)
       case "AnswerExportQuestionsRequestType"        => answerExportQuestionsRequestTypeFormat.reads(properties)

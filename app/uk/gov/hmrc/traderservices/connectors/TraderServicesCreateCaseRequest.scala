@@ -17,17 +17,17 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, QuestionsAnswers, UploadedFile}
+import uk.gov.hmrc.traderservices.models.{EntryDetails, QuestionsAnswers, UploadedFile}
 
 /**
-  * @param declarationDetails
+  * @param entryDetails
   * @param questionsAnswers
   * @param uploadedFiles
   * @param eori
   *
   * @example
   * {
-  *  "declarationDetails" : {
+  *  "entryDetails" : {
   *    "epu" : "123",
   *    "entryNumber" : "000000Z",
   *    "entryDate" : "2020-10-05"
@@ -60,7 +60,7 @@ import uk.gov.hmrc.traderservices.models.{DeclarationDetails, QuestionsAnswers, 
   * }
   */
 case class TraderServicesCreateCaseRequest(
-  declarationDetails: DeclarationDetails,
+  entryDetails: EntryDetails,
   questionsAnswers: QuestionsAnswers,
   uploadedFiles: Seq[UploadedFile],
   eori: Option[String]

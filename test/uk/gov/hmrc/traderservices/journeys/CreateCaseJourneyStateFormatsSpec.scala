@@ -42,13 +42,13 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         State.TurnToAmendCaseJourney(true)
       )
       validateJsonFormat(
-        """{"state":"ChooseNewOrExistingCase","properties":{"newOrExistingCaseOpt":"New","declarationDetailsOpt":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"ChooseNewOrExistingCase","properties":{"newOrExistingCaseOpt":"New","entryDetailsOpt":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswersOpt":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}},"continueAmendCaseJourney":true}}""".stripMargin,
         State.ChooseNewOrExistingCase(
           Some(NewOrExistingCase.New),
-          Some(DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05"))),
+          Some(EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05"))),
           importQuestionsAnswersOpt = Some(
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
@@ -77,52 +77,52 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"EnterDeclarationDetails","properties":{"declarationDetailsOpt":{"epu":"123","entryNumber":"100000Z","entryDate":"2000-01-01"}}}""",
-        State.EnterDeclarationDetails(
-          Some(DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2000-01-01")))
+        """{"state":"EnterEntryDetails","properties":{"entryDetailsOpt":{"epu":"123","entryNumber":"100000Z","entryDate":"2000-01-01"}}}""",
+        State.EnterEntryDetails(
+          Some(EntryDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2000-01-01")))
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsRequestType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{}}}}""",
+        """{"state":"AnswerExportQuestionsRequestType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{}}}}""",
         State.AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions()
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsRouteType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New"}}}}""",
+        """{"state":"AnswerExportQuestionsRouteType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New"}}}}""",
         State.AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(requestType = Some(ExportRequestType.New))
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsHasPriorityGoods","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route6"}}}}""",
+        """{"state":"AnswerExportQuestionsHasPriorityGoods","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route6"}}}}""",
         State.AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route6))
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsWhichPriorityGoods","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}}""",
+        """{"state":"AnswerExportQuestionsWhichPriorityGoods","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1"}}}}""",
         State.AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","priorityGoods":"LiveAnimals"}}}}""",
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"New","routeType":"Route1","priorityGoods":"LiveAnimals"}}}}""",
         State.AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route1),
@@ -132,10 +132,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals"}}}}""",
+        """{"state":"AnswerExportQuestionsFreightType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals"}}}}""",
         State.AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               routeType = Some(ExportRouteType.Route3),
               requestType = Some(ExportRequestType.C1601),
@@ -145,10 +145,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
+        """{"state":"AnswerExportQuestionsMandatoryVesselInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
         State.AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
@@ -159,10 +159,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsOptionalVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
+        """{"state":"AnswerExportQuestionsOptionalVesselInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
         State.AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
@@ -173,12 +173,12 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerExportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
+        """{"state":"AnswerExportQuestionsContactInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
           |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route3","priorityGoods":"LiveAnimals","freightType":"RORO",
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
@@ -197,13 +197,13 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
       validateJsonFormat(
         """{"state":"ExportQuestionsSummary","properties":{"model":{
-          |"declarationDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
+          |"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
           |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route2","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.ExportQuestionsSummary(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route2),
@@ -230,19 +230,19 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsRequestType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{}}}}""",
+        """{"state":"AnswerImportQuestionsRequestType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{}}}}""",
         State.AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions()
           )
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsRouteType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New"}}}}""",
+        """{"state":"AnswerImportQuestionsRouteType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New"}}}}""",
         State.AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New)
             )
@@ -250,10 +250,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsHasPriorityGoods","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1Cap"}}}}""",
+        """{"state":"AnswerImportQuestionsHasPriorityGoods","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1Cap"}}}}""",
         State.AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route1Cap)
@@ -262,10 +262,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsWhichPriorityGoods","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1Cap","priorityGoods":"LiveAnimals"}}}}""",
+        """{"state":"AnswerImportQuestionsWhichPriorityGoods","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1Cap","priorityGoods":"LiveAnimals"}}}}""",
         State.AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route1Cap),
@@ -275,10 +275,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsALVS","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true}}}}""",
+        """{"state":"AnswerImportQuestionsALVS","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true}}}}""",
         State.AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -289,10 +289,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsFreightType","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
+        """{"state":"AnswerImportQuestionsFreightType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
         State.AnswerImportQuestionsFreightType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -304,10 +304,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsMandatoryVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"100000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
+        """{"state":"AnswerImportQuestionsMandatoryVesselInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"100000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Hold","priorityGoods":"LiveAnimals","freightType":"RORO"}}}}""",
         State.AnswerImportQuestionsMandatoryVesselInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("100000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Hold),
@@ -318,10 +318,10 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsOptionalVesselInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
+        """{"state":"AnswerImportQuestionsOptionalVesselInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{"requestType":"New","routeType":"Route1","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO"}}}}""",
         State.AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route1),
@@ -333,12 +333,12 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"AnswerImportQuestionsContactInfo","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"AnswerImportQuestionsContactInfo","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -357,13 +357,13 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"ImportQuestionsSummary","properties":{"model":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"ImportQuestionsSummary","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.ImportQuestionsSummary(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -390,7 +390,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"UploadFile","properties":{"hostData":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"import":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
@@ -405,7 +405,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |]},"maybeUploadError":{"FileVerificationFailed":{"details":{"failureReason":"QUARANTINE","message":"some reason"}}}}}""".stripMargin,
         FileUploadState.UploadFile(
           FileUploadHostData(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -459,7 +459,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"UploadFile","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"UploadFile","properties":{"hostData":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
@@ -474,7 +474,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |]}}}""".stripMargin,
         FileUploadState.UploadFile(
           FileUploadHostData(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             exportQuestions
           ),
           "foo-bar-ref-2",
@@ -506,7 +506,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
         )
       )
       validateJsonFormat(
-        """{"state":"WaitingForFileVerification","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"WaitingForFileVerification","properties":{"hostData":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
@@ -522,7 +522,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |]}}}""".stripMargin,
         FileUploadState.WaitingForFileVerification(
           FileUploadHostData(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             exportQuestions
           ),
           "foo-bar-ref-2",
@@ -556,7 +556,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        """{"state":"FileUploaded","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"FileUploaded","properties":{"hostData":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
@@ -570,7 +570,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"acknowledged":false}}""".stripMargin,
         FileUploadState.FileUploaded(
           FileUploadHostData(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             exportQuestions
           ),
           FileUploads(files =
@@ -601,7 +601,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        """{"state":"UploadMultipleFiles","properties":{"hostData":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        """{"state":"UploadMultipleFiles","properties":{"hostData":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
           |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
           |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}},
@@ -614,7 +614,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |]}}}""".stripMargin,
         FileUploadState.UploadMultipleFiles(
           FileUploadHostData(
-            DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             exportQuestions
           ),
           FileUploads(files =
@@ -652,7 +652,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
       )
 
       validateJsonFormat(
-        s"""{"state":"CreateCaseConfirmation","properties":{"declarationDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+        s"""{"state":"CreateCaseConfirmation","properties":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
            |"questionsAnswers":{"export":{"requestType":"New","routeType":"Route2","hasPriorityGoods":false,"freightType":"Air",
            |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"10:09:00"},
            |"contactInfo":{"contactName":"Bob","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}},
@@ -662,7 +662,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
            |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"},
            |"caseSLA":{"dateTime":"${generatedAt.plusHours(2)}"}}}""".stripMargin,
         State.CreateCaseConfirmation(
-          DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+          EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
           exportQuestions,
           Seq(
             UploadedFile(

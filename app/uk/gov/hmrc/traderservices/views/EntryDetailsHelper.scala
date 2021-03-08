@@ -16,36 +16,36 @@
 
 package uk.gov.hmrc.traderservices.views
 
-import uk.gov.hmrc.traderservices.models.DeclarationDetails
+import uk.gov.hmrc.traderservices.models.EntryDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.i18n.Messages
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 
-trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper {
+trait EntryDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper {
 
-  def summaryListOfDeclarationDetails(
-    declarationDetails: DeclarationDetails
+  def summaryListOfEntryDetails(
+    entryDetails: EntryDetails
   )(implicit messages: Messages): SummaryList =
     SummaryList(rows =
       Seq(
         summaryListRow(
           label = "summary.entry-information.epu",
-          value = declarationDetails.epu.value.format3d,
+          value = entryDetails.epu.value.format3d,
           visuallyHiddenText = Some("summary.entry-information.epu"),
-          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterEntryDetails, "site.change")
         ),
         summaryListRow(
           label = "summary.entry-information.entryNumber",
-          value = declarationDetails.entryNumber.value,
+          value = entryDetails.entryNumber.value,
           visuallyHiddenText = Some("summary.entry-information.entryNumber"),
-          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterEntryDetails, "site.change")
         ),
         summaryListRow(
           label = "summary.entry-information.entryDate",
-          value = formatDateForDisplay(declarationDetails.entryDate),
+          value = formatDateForDisplay(entryDetails.entryDate),
           visuallyHiddenText = Some("summary.entry-information.entryDate"),
-          action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
+          action = (CreateCaseJourneyController.showEnterEntryDetails, "site.change")
         )
       )
     )

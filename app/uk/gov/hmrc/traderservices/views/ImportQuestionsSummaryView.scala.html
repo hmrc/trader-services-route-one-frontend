@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.{DeclarationDetails, ImportQuestions, VesselDetails, ImportContactInfo, FileUploads}
+@import uk.gov.hmrc.traderservices.models.{EntryDetails, ImportQuestions, VesselDetails, ImportContactInfo, FileUploads}
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 
@@ -25,7 +25,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(declarationDetails: DeclarationDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.summary.title"),
@@ -35,7 +35,7 @@
 
   @html.h2(messages("view.import-questions.summary.entry-information.heading"))
 
-  @html.summaryList(context.summaryListOfDeclarationDetails(declarationDetails))
+  @html.summaryList(context.summaryListOfEntryDetails(entryDetails))
 
   @html.h2(messages("view.import-questions.summary.pre-clearance.heading"))
 
