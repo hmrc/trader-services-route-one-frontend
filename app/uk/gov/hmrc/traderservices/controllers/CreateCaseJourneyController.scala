@@ -110,13 +110,13 @@ class CreateCaseJourneyController @Inject() (
       .bindForm(NewOrExistingCaseForm)
       .apply(Transitions.submittedNewOrExistingCaseChoice)
 
-  // GET /new/declaration-details
+  // GET /new/entry-details
   final val showEnterDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.EnterDeclarationDetails]
       .orApply(Transitions.backToEnterDeclarationDetails)
 
-  // POST /new/declaration-details
+  // POST /new/entry-details
   final val submitDeclarationDetails: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(DeclarationDetailsForm)

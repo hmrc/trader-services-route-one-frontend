@@ -74,8 +74,8 @@ class CreateCaseJourneyNoEnrolmentISpec
         val result = await(request("/new-or-existing").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails()
       }
 
@@ -114,17 +114,17 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
     }
 
-    "GET /send-documents-for-customs-check/new/declaration-details" should {
+    "GET /send-documents-for-customs-check/new/entry-details" should {
       "show declaration details page if at Start" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails())
         givenAuthorised
 
-        val result = await(request("/new/declaration-details").get())
+        val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails()
       }
 
@@ -140,11 +140,11 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
         givenAuthorised
 
-        val result = await(request("/new/declaration-details").get())
+        val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
         result.body should (include("235") and include("A11111X"))
         result.body should (include("2020") and include("09") and include("23"))
         journey.getState shouldBe EnterDeclarationDetails(
@@ -154,7 +154,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
     }
 
-    "POST /new/declaration-details" should {
+    "POST /new/entry-details" should {
       "submit the form and ask next for requestType when entryNumber is for export" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(EnterDeclarationDetails(None))
@@ -168,7 +168,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           "entryNumber"     -> "A11111X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
@@ -194,7 +194,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           "entryNumber"     -> "111111X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
         journey.getState shouldBe AnswerImportQuestionsRequestType(
@@ -218,11 +218,11 @@ class CreateCaseJourneyNoEnrolmentISpec
           "entryNumber"     -> "A11X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should include(htmlEscapedPageTitleWithError("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterDeclarationDetails()
       }
     }

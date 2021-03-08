@@ -9,8 +9,8 @@ GET        /new-or-existing                                         @uk.gov.hmrc
 POST       /new-or-existing                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitNewOrExistingCaseChoice
 
 GET        /new                                                     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showStart
-GET        /new/declaration-details                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showEnterDeclarationDetails
-POST       /new/declaration-details                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitDeclarationDetails
+GET        /new/entry-details                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showEnterDeclarationDetails
+POST       /new/entry-details                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitDeclarationDetails
 GET        /new/export/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRequestType
 POST       /new/export/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsRequestTypeAnswer
 GET        /new/export/route-type                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRouteType

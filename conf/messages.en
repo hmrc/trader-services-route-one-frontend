@@ -188,19 +188,20 @@ error.newOrExistingCase.required=Select what you want to do
 error.newOrExistingCase.invalid-option=Select what you want to do
 view.new-or-existing-case.continue=Continue
 
-# Declaration Details Page
+# Entry Details Page
 # ----------------------------------------------------------
-view.declaration-details.title=What are your declaration details?
-view.declaration-details.heading=What are your declaration details?
-view.declaration-details.description=You can find these on your declaration.
+view.entry-details.title=Entry details
+view.entry-details.heading=Entry details
+view.entry-details.description=You can find these on your declaration.
 
-# Declaration Details Form
+# Entry Details Form
 # ----------------------------------------------------------
-form.declaration-details.epu=Entry Processing Unit (EPU) number
-form.declaration-details.entryNumber=Entry number
-form.declaration-details.entryDate=Date of entry
-form.declaration-details.entryDate.hint=For example, {0}
-form.declaration-details.continue=Continue
+form.entry-details.epu=Entry Processing Unit (EPU) number
+form.entry-details.epu.hint=This is 3 numbers, for example 121
+form.entry-details.entryNumber=Entry number
+form.entry-details.entryDate=Entry date
+form.entry-details.entryDate.hint=For example, {0}
+form.entry-details.continue=Continue
 error.epu.required=Enter an EPU number
 error.epu.invalid-length=EPU number must be 3 characters
 error.epu.invalid-only-digits=EPU number must only contain numbers
@@ -247,7 +248,7 @@ view.export-questions.contactInfo.heading=What are your contact details?
 view.export-questions.contactInfo.description=We will only use these details if we cannot contact you through CHIEF or your declaration software.
 view.export-questions.summary.title=Review your case details
 view.export-questions.summary.heading=Review your case details
-view.export-questions.summary.declaration-details.heading=Declaration information
+view.export-questions.summary.entry-information.heading=Entry information
 view.export-questions.summary.pre-clearance.heading=Customs information
 view.export-questions.summary.vessel-details.heading=Transport information
 view.export-questions.summary.contact-details.heading=Contact details
@@ -280,7 +281,7 @@ view.import-questions.contactInfo.title=What are your contact details?
 view.import-questions.contactInfo.heading=What are your contact details?
 view.import-questions.summary.title=Review your case details
 view.import-questions.summary.heading=Review your case details
-view.import-questions.summary.declaration-details.heading=Declaration information
+view.import-questions.summary.entry-information.heading=Entry information
 view.import-questions.summary.pre-clearance.heading=Customs information
 view.import-questions.summary.vessel-details.heading=Transport information
 view.import-questions.summary.contact-details.heading=Contact details
@@ -437,9 +438,9 @@ error.timeOfArrival.period.invalid-value=Period must be am or pm
 
 # Summary messages
 # ----------------------------------------------------------
-summary.declaration-details.epu=EPU number
-summary.declaration-details.entryNumber=Entry number
-summary.declaration-details.entryDate=Entry date
+summary.entry-information.epu=EPU number
+summary.entry-information.entryNumber=Entry number
+summary.entry-information.entryDate=Entry date
 summary.import-questions.requestType=Type of import request
 summary.import-questions.routeType=Route
 summary.import-questions.hasPriorityGoods=Priority goods
@@ -652,7 +653,7 @@ receipt.heading=Your customs check document receipt
 receipt.caseReferenceNumber=Case reference number
 receipt.submissionDateAndTime=Submission date and time
 receipt.documentsReceivedOn=Documents received on {0}
-receipt.declarationInformation=Declaration information
+receipt.entryInformation=Entry information
 receipt.epuNumber=EPU number
 receipt.entryNumber=Entry number
 receipt.entryDate=Entry date

@@ -30,21 +30,21 @@ trait DeclarationDetailsHelper extends SummaryListRowHelper with DateTimeFormatH
     SummaryList(rows =
       Seq(
         summaryListRow(
-          label = "summary.declaration-details.epu",
+          label = "summary.entry-information.epu",
           value = declarationDetails.epu.value.format3d,
-          visuallyHiddenText = Some("summary.declaration-details.epu"),
+          visuallyHiddenText = Some("summary.entry-information.epu"),
           action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),
         summaryListRow(
-          label = "summary.declaration-details.entryNumber",
+          label = "summary.entry-information.entryNumber",
           value = declarationDetails.entryNumber.value,
-          visuallyHiddenText = Some("summary.declaration-details.entryNumber"),
+          visuallyHiddenText = Some("summary.entry-information.entryNumber"),
           action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         ),
         summaryListRow(
-          label = "summary.declaration-details.entryDate",
+          label = "summary.entry-information.entryDate",
           value = formatDateForDisplay(declarationDetails.entryDate),
-          visuallyHiddenText = Some("summary.declaration-details.entryDate"),
+          visuallyHiddenText = Some("summary.entry-information.entryDate"),
           action = (CreateCaseJourneyController.showEnterDeclarationDetails, "site.change")
         )
       )
