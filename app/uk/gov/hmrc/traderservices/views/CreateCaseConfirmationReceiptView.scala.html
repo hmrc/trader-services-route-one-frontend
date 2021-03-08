@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.traderservices.models.CaseSLA
-@import uk.gov.hmrc.traderservices.models.DeclarationDetails
+@import uk.gov.hmrc.traderservices.models.EntryDetails
 @import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
@@ -25,7 +25,7 @@
         context: CaseConfirmationViewContext
 )
 
-@(caseReferenceId: String, declarationDetails: DeclarationDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, stylesheet: String)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, entryDetails: EntryDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, stylesheet: String)(implicit request: Request[_], messages: Messages)
 
 <html lang="en">
   <head>
@@ -35,6 +35,6 @@
     <style>@Html(stylesheet)</style>
   </head>
   <body>
-    @partials.receipt(caseReferenceId, context, declarationDetails, uploadedFiles, generatedAt, isStandalone = true)(messages)
+    @partials.receipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt, isStandalone = true)(messages)
   </body>
 </html>

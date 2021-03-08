@@ -51,36 +51,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(Start) when chooseNewOrExistingCase should thenGo(ChooseNewOrExistingCase())
       }
 
-      "fail when enterDeclarationDetails" in {
-        given(Start) shouldFailWhen backToEnterDeclarationDetails
+      "fail when enterEntryDetails" in {
+        given(Start) shouldFailWhen backToEnterEntryDetails
       }
 
       "fail if any other transition requested" in {
-        given(Start) shouldFailWhen submittedDeclarationDetails(
-          exportDeclarationDetails
+        given(Start) shouldFailWhen submittedEntryDetails(
+          exportEntryDetails
         )
       }
     }
 
     "at state ChooseNewOrExistingCase" should {
-      "go to clean EnterDeclarationDetails when selected New and no former answers" in {
+      "go to clean EnterEntryDetails when selected New and no former answers" in {
         given(ChooseNewOrExistingCase()) when submittedNewOrExistingCaseChoice(
           NewOrExistingCase.New
-        ) should thenGo(EnterDeclarationDetails())
+        ) should thenGo(EnterEntryDetails())
       }
 
-      "go to EnterDeclarationDetails when selected New and keep former answers" in {
+      "go to EnterEntryDetails when selected New and keep former answers" in {
         given(
           ChooseNewOrExistingCase(
-            declarationDetailsOpt = Some(importDeclarationDetails),
+            entryDetailsOpt = Some(importEntryDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
         ) when submittedNewOrExistingCaseChoice(
           NewOrExistingCase.New
         ) should thenGo(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = Some(importDeclarationDetails),
+          EnterEntryDetails(
+            entryDetailsOpt = Some(importEntryDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
@@ -102,7 +102,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go back to Start when start" in {
         given(
           ChooseNewOrExistingCase(
-            declarationDetailsOpt = Some(importDeclarationDetails),
+            entryDetailsOpt = Some(importEntryDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers)
           )
         ) when start should thenGo(Start)
@@ -123,28 +123,28 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
     }
 
-    "at state EnterDeclarationDetails" should {
+    "at state EnterEntryDetails" should {
       "go to AnswerExportQuestionsRequestType when submitted declaration details for export" in {
-        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(
-          exportDeclarationDetails
+        given(EnterEntryDetails(None)) when submittedEntryDetails(
+          exportEntryDetails
         ) should thenGo(
-          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+          AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportEntryDetails, ExportQuestions()))
         )
       }
 
       "go to ExportQuestionsSummary when submitted declaration details for export and all answers are complete" in {
         given(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = None,
+          EnterEntryDetails(
+            entryDetailsOpt = None,
             exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when submittedDeclarationDetails(
-          exportDeclarationDetails
+        ) when submittedEntryDetails(
+          exportEntryDetails
         ) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -153,26 +153,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "go to AnswerImportQuestionsRequestType when submitted declaration details for import" in {
-        given(EnterDeclarationDetails(None)) when submittedDeclarationDetails(
-          importDeclarationDetails
+        given(EnterEntryDetails(None)) when submittedEntryDetails(
+          importEntryDetails
         ) should thenGo(
-          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+          AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importEntryDetails, ImportQuestions()))
         )
       }
 
       "go to ImportQuestionsSummary when submitted declaration details for import and all answers are complete" in {
         given(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = None,
+          EnterEntryDetails(
+            entryDetailsOpt = None,
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
-        ) when submittedDeclarationDetails(
-          importDeclarationDetails
+        ) when submittedEntryDetails(
+          importEntryDetails
         ) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -182,15 +182,15 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "go back to ChooseNewOrExistingCase when chooseNewOrExistingCase and keep answers" in {
         given(
-          EnterDeclarationDetails(
-            declarationDetailsOpt = Some(importDeclarationDetails),
+          EnterEntryDetails(
+            entryDetailsOpt = Some(importEntryDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads)
           )
         ) when chooseNewOrExistingCase should thenGo(
           ChooseNewOrExistingCase(
             newOrExistingCaseOpt = Some(NewOrExistingCase.New),
-            declarationDetailsOpt = Some(importDeclarationDetails),
+            entryDetailsOpt = Some(importEntryDetails),
             importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
             fileUploadsOpt = Some(nonEmptyFileUploads),
             continueAmendCaseJourney = false
@@ -203,12 +203,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       for (requestType <- ExportRequestType.values) {
         s"go to AnswerExportQuestionsRouteType when submitted request type ${ExportRequestType.keyOf(requestType).get}" in {
           given(
-            AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions()))
+            AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportEntryDetails, ExportQuestions()))
           ) when submittedExportQuestionsAnswerRequestType(
             requestType
           ) should thenGo(
             AnswerExportQuestionsRouteType(
-              ExportQuestionsStateModel(exportDeclarationDetails, ExportQuestions(requestType = Some(requestType)))
+              ExportQuestionsStateModel(exportEntryDetails, ExportQuestions(requestType = Some(requestType)))
             )
           )
         }
@@ -217,7 +217,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsRequestType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -227,7 +227,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -244,7 +244,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsRouteType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(requestType = Some(ExportRequestType.New))
               )
             )
@@ -253,7 +253,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerExportQuestionsHasPriorityGoods(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(routeType))
               )
             )
@@ -264,7 +264,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsRouteType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -274,7 +274,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(routeType = Some(routeType)),
                 Some(nonEmptyFileUploads)
               )
@@ -290,14 +290,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
             )
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route1),
@@ -311,14 +311,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route1))
             )
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(false) should thenGo(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route1),
@@ -334,12 +334,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(true), priorityGoods = None)
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+            ExportQuestionsStateModel(exportEntryDetails, answers)
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               answers.copy(hasPriorityGoods = Some(true))
             )
           )
@@ -351,12 +351,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(false), priorityGoods = None)
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(exportDeclarationDetails, answers)
+            ExportQuestionsStateModel(exportEntryDetails, answers)
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               answers.copy(hasPriorityGoods = Some(true))
             )
           )
@@ -368,12 +368,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ExportPriorityGoods.HumanRemains))
         given(
           AnswerExportQuestionsHasPriorityGoods(
-            ExportQuestionsStateModel(exportDeclarationDetails, answers, Some(nonEmptyFileUploads))
+            ExportQuestionsStateModel(exportEntryDetails, answers, Some(nonEmptyFileUploads))
           )
         ) when submittedExportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               answers,
               Some(nonEmptyFileUploads)
             )
@@ -389,7 +389,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsWhichPriorityGoods(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(requestType = Some(ExportRequestType.C1601), routeType = Some(ExportRouteType.Route3))
               )
             )
@@ -398,7 +398,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(ExportRequestType.C1601),
                   routeType = Some(ExportRouteType.Route3),
@@ -413,7 +413,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsWhichPriorityGoods(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -423,7 +423,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(priorityGoods = Some(priorityGood)),
                 Some(nonEmptyFileUploads)
               )
@@ -444,7 +444,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
@@ -457,7 +457,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerExportQuestionsOptionalVesselInfo(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
@@ -475,7 +475,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -485,7 +485,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -504,7 +504,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
@@ -517,7 +517,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Route3),
@@ -535,7 +535,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -545,7 +545,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -564,7 +564,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold),
@@ -577,7 +577,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold),
@@ -595,7 +595,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(
                   requestType = Some(requestType),
                   routeType = Some(ExportRouteType.Hold)
@@ -608,7 +608,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 completeExportQuestionsAnswers.copy(
                   freightType = Some(freightType),
                   requestType = Some(requestType),
@@ -628,7 +628,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1601),
                 routeType = Some(ExportRouteType.Route3),
@@ -642,7 +642,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1601),
                 routeType = Some(ExportRouteType.Route3),
@@ -662,7 +662,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -670,7 +670,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedExportQuestionsMandatoryVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
@@ -683,7 +683,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerExportQuestionsMandatoryVesselInfo(
               ExportQuestionsStateModel(
-                exportDeclarationDetails,
+                exportEntryDetails,
                 ExportQuestions(
                   requestType = Some(ExportRequestType.C1601),
                   routeType = Some(ExportRouteType.Route3),
@@ -704,7 +704,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -718,7 +718,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -734,7 +734,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to AnswerExportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
         val answerMandatoryVesselInfo = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            exportDeclarationDetails,
+            exportEntryDetails,
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Hold),
@@ -754,7 +754,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -762,7 +762,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedExportQuestionsOptionalVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
@@ -774,7 +774,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -788,7 +788,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -806,7 +806,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -814,7 +814,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedExportQuestionsOptionalVesselDetails(vesselDetails) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
@@ -843,7 +843,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -859,7 +859,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           UploadFile(
             hostData = FileUploadHostData(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -897,7 +897,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -914,7 +914,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           FileUploaded(
             hostData = FileUploadHostData(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -949,7 +949,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -966,7 +966,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           UploadMultipleFiles(
             hostData = FileUploadHostData(
-              exportDeclarationDetails,
+              exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route3),
@@ -987,12 +987,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       for (requestType <- ImportRequestType.values) {
         s"go to AnswerImportQuestionsRequestType when submitted request type ${ImportRequestType.keyOf(requestType).get}" in {
           given(
-            AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions()))
+            AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importEntryDetails, ImportQuestions()))
           ) when submittedImportQuestionsAnswersRequestType(
             requestType
           ) should thenGo(
             AnswerImportQuestionsRouteType(
-              ImportQuestionsStateModel(importDeclarationDetails, ImportQuestions(requestType = Some(requestType)))
+              ImportQuestionsStateModel(importEntryDetails, ImportQuestions(requestType = Some(requestType)))
             )
           )
         }
@@ -1001,7 +1001,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsRequestType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -1011,7 +1011,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -1029,7 +1029,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(requestType = Some(ImportRequestType.New))
               )
             )
@@ -1038,7 +1038,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerImportQuestionsHasPriorityGoods(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(routeType))
               )
             )
@@ -1049,7 +1049,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -1059,7 +1059,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(routeType = Some(routeType)),
                 Some(nonEmptyFileUploads)
               )
@@ -1075,14 +1075,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route1),
@@ -1096,14 +1096,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(false) should thenGo(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route1),
@@ -1118,12 +1118,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(true), priorityGoods = None)
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            ImportQuestionsStateModel(importDeclarationDetails, answers)
+            ImportQuestionsStateModel(importEntryDetails, answers)
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               answers.copy(hasPriorityGoods = Some(true))
             )
           )
@@ -1135,12 +1135,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(false), priorityGoods = None)
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            ImportQuestionsStateModel(importDeclarationDetails, answers)
+            ImportQuestionsStateModel(importEntryDetails, answers)
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               answers.copy(hasPriorityGoods = Some(true))
             )
           )
@@ -1152,12 +1152,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           .copy(hasPriorityGoods = Some(true), priorityGoods = Some(ImportPriorityGoods.HumanRemains))
         given(
           AnswerImportQuestionsHasPriorityGoods(
-            ImportQuestionsStateModel(importDeclarationDetails, answers, Some(nonEmptyFileUploads))
+            ImportQuestionsStateModel(importEntryDetails, answers, Some(nonEmptyFileUploads))
           )
         ) when submittedImportQuestionsAnswerHasPriorityGoods(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               answers,
               Some(nonEmptyFileUploads)
             )
@@ -1172,7 +1172,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsWhichPriorityGoods(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
               )
             )
@@ -1181,7 +1181,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerImportQuestionsALVS(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(
                   requestType = Some(ImportRequestType.New),
                   routeType = Some(ImportRouteType.Route3),
@@ -1195,7 +1195,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsWhichPriorityGoods(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers,
                 Some(nonEmptyFileUploads)
               )
@@ -1205,7 +1205,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(priorityGoods = Some(priorityGoods)),
                 Some(nonEmptyFileUploads)
               )
@@ -1220,14 +1220,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
         ) when submittedImportQuestionsAnswerHasALVS(true) should thenGo(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route1),
@@ -1242,7 +1242,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1250,7 +1250,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedImportQuestionsAnswerHasALVS(true) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers.copy(hasALVS = Some(true)),
               Some(nonEmptyFileUploads)
             )
@@ -1262,14 +1262,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
             )
           )
         ) when submittedImportQuestionsAnswerHasALVS(false) should thenGo(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route1),
@@ -1284,7 +1284,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsALVS(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1292,7 +1292,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedImportQuestionsAnswerHasALVS(false) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers.copy(hasALVS = Some(false)),
               Some(nonEmptyFileUploads)
             )
@@ -1304,7 +1304,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to AnswerImportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
         val answerMandatoryVesselInfo = AnswerImportQuestionsMandatoryVesselInfo(
           ImportQuestionsStateModel(
-            importDeclarationDetails,
+            importEntryDetails,
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Hold),
@@ -1330,7 +1330,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ImportRouteType.Route3),
@@ -1343,7 +1343,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerImportQuestionsOptionalVesselInfo(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ImportRouteType.Route3),
@@ -1361,7 +1361,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -1371,7 +1371,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
                 Some(nonEmptyFileUploads)
               )
@@ -1391,7 +1391,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ImportRouteType.Hold),
@@ -1404,7 +1404,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             AnswerImportQuestionsMandatoryVesselInfo(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 ImportQuestions(
                   requestType = Some(requestType),
                   routeType = Some(ImportRouteType.Hold),
@@ -1421,7 +1421,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers
                   .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold)),
                 Some(nonEmptyFileUploads)
@@ -1432,7 +1432,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) should thenGo(
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
-                importDeclarationDetails,
+                importEntryDetails,
                 completeImportQuestionsAnswers.copy(
                   freightType = Some(freightType),
                   requestType = Some(requestType),
@@ -1452,7 +1452,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1466,7 +1466,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1486,7 +1486,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1496,7 +1496,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
@@ -1508,7 +1508,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1522,7 +1522,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1540,7 +1540,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1550,7 +1550,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
@@ -1579,7 +1579,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1595,7 +1595,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           UploadFile(
             hostData = FileUploadHostData(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1633,7 +1633,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1650,7 +1650,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           FileUploaded(
             hostData = FileUploadHostData(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1685,7 +1685,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1701,7 +1701,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) should thenGo(
           UploadMultipleFiles(
             hostData = FileUploadHostData(
-              importDeclarationDetails,
+              importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3),
@@ -1737,11 +1737,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         given(
           ExportQuestionsSummary(
-            ExportQuestionsStateModel(exportDeclarationDetails, completeExportQuestionsAnswers)
+            ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
           )
         ) when initiateFileUpload(upscanRequest)(mockUpscanInitiate) should thenGo(
           UploadFile(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
@@ -1771,11 +1771,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         given(
           ImportQuestionsSummary(
-            ImportQuestionsStateModel(importDeclarationDetails, completeImportQuestionsAnswers)
+            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
           )
         ) when initiateFileUpload(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref",
             UploadRequest(
               href = "https://s3.bucket",
@@ -1798,13 +1798,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to ImportQuestionsSummary when non-empty file uploads and toSummary" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             nonEmptyFileUploads
           )
         ) when toSummary should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1815,13 +1815,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to ExportQuestionsSummary when non-empty file uploads and toSummary" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads
           )
         ) when toSummary should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              exportDeclarationDetails,
+              exportEntryDetails,
               completeExportQuestionsAnswers,
               Some(nonEmptyFileUploads)
             )
@@ -1831,7 +1831,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "stay when import and empty file uploads, and transition toSummary" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
           FileUploads()
         )
         given(state) when toSummary should thenGo(state)
@@ -1839,7 +1839,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "stay when export and empty file uploads, and transition toSummary" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads()
         )
         given(state) when toSummary should thenGo(state)
@@ -1848,7 +1848,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "stay and filter accepted uploads when export and toUploadMultipleFiles transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
               .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
               Nonce(4),
@@ -1864,7 +1864,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Accepted(
               Nonce(4),
               Timestamp.Any,
@@ -1883,7 +1883,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "stay and filter accepted uploads when import and toUploadMultipleFiles transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
               .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
               Nonce(4),
@@ -1899,7 +1899,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when toUploadMultipleFiles should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             nonEmptyFileUploads + FileUpload.Accepted(
               Nonce(4),
               Timestamp.Any,
@@ -1918,12 +1918,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads()
           )
         ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads() +
               FileUpload.Initiated(
                 Nonce.Any,
@@ -1943,12 +1943,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) + FileUpload.Rejected(Nonce(9), Timestamp.Any, "foo-bar-ref-9", S3UploadError("a", "b", "c"))
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             fileUploads
           )
         ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             fileUploads +
               FileUpload.Initiated(
                 Nonce.Any,
@@ -1964,13 +1964,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "do nothing when initiateNextFileUpload with existing uploadId" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads +
               FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
           )
         ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             nonEmptyFileUploads +
               FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
           )
@@ -1984,12 +1984,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             fileUploads
           )
         ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             fileUploads
           )
         )
@@ -1998,7 +1998,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "mark file upload as POSTED when markUploadAsPosted transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2009,7 +2009,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", Some("bucket-123"))) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2023,7 +2023,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when markUploadAsPosted transition and already in POSTED state" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2038,7 +2038,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2060,7 +2060,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2075,7 +2075,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do not overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state but timestamp gap is too small" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2100,7 +2100,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when markUploadAsPosted transition and none matching upload exist" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2115,7 +2115,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "mark file upload as REJECTED when markUploadAsRejected transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2128,7 +2128,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2148,7 +2148,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when markUploadAsRejected transition and already in REJECTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2161,7 +2161,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2181,7 +2181,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when markUploadAsRejected transition and already in ACCEPTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2205,7 +2205,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2225,7 +2225,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when markUploadAsRejected transition and none matching file upload found" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2242,7 +2242,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "update file upload status to ACCEPTED when positive upscanCallbackArrived transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2265,7 +2265,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2290,7 +2290,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "update file upload status to ACCEPTED with sanitized name of the file" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2313,7 +2313,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2337,7 +2337,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when positive upscanCallbackArrived transition and none matching file upload found" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2364,7 +2364,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2397,7 +2397,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2422,7 +2422,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "do not overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state if timestamp gap is to small" in {
         val now = Timestamp.now
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2459,7 +2459,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Rejected(Nonce(1), Timestamp.Any, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
@@ -2482,7 +2482,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2507,7 +2507,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
@@ -2538,7 +2538,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2563,7 +2563,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2582,7 +2582,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
@@ -2604,7 +2604,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when negative upscanCallbackArrived transition and none matching file upload found" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2627,7 +2627,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when negative upscanCallbackArrived transition and upload already in FAILED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
@@ -2654,7 +2654,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
@@ -2677,7 +2677,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "overwrite upload status when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -2706,7 +2706,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Failed(
@@ -2729,7 +2729,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "remove file upload when removeFileUploadByReference transition and reference exists" in {
         given(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2751,7 +2751,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
           UploadMultipleFiles(
-            FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2765,7 +2765,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       "do nothing when removeFileUploadByReference transition and none file upload matches" in {
         val state = UploadMultipleFiles(
-          FileUploadHostData(exportDeclarationDetails, completeExportQuestionsAnswers),
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2795,7 +2795,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2831,7 +2831,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2872,7 +2872,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to FileUploaded when waitForFileVerification and accepted already" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-3",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2908,7 +2908,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -2939,7 +2939,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when waitForFileVerification and file upload already rejected" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -2975,7 +2975,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-4",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3020,7 +3020,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3046,7 +3046,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -3069,7 +3069,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when upscanCallbackArrived and accepted, and reference matches but upload is a duplicate" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3110,7 +3110,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3157,7 +3157,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3179,7 +3179,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3211,7 +3211,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile with error when fileUploadWasRejected" in {
         val state =
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3269,7 +3269,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     "at state WaitingForFileVerification" should {
       "stay when waitForFileVerification and not verified yet" in {
         val state = WaitingForFileVerification(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
           "foo-bar-ref-1",
           UploadRequest(
             href = "https://s3.bucket",
@@ -3292,7 +3292,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when waitForFileVerification and reference unknown" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3311,7 +3311,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-2",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3333,7 +3333,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to FileUploaded when waitForFileVerification and file already accepted" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3372,7 +3372,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -3395,7 +3395,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when waitForFileVerification and file already failed" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3424,7 +3424,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when waitForFileVerification should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3454,7 +3454,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3481,7 +3481,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Accepted(
@@ -3504,7 +3504,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3527,7 +3527,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           UploadFile(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3559,7 +3559,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3587,7 +3587,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) should thenGo(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3616,7 +3616,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "retreat to FileUploaded when some files has been uploaded already" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3646,7 +3646,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when backToFileUploaded should thenGo(
           FileUploaded(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
@@ -3671,7 +3671,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "retreat to AnswerImportQuestionsContactInfo when none file has been uploaded and accepted yet" in {
         given(
           WaitingForFileVerification(
-            FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
             "foo-bar-ref-1",
             UploadRequest(
               href = "https://s3.bucket",
@@ -3692,7 +3692,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when backToFileUploaded should thenGo(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(
                 FileUploads(files =
@@ -3711,7 +3711,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     "at state FileUploaded" should {
       "go to acknowledged FileUploaded when waitForFileVerification" in {
         val state = FileUploaded(
-          FileUploadHostData(importDeclarationDetails, completeImportQuestionsAnswers),
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
           FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -3747,7 +3747,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(
                 FileUploads(files =
@@ -3770,7 +3770,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
           CreateCaseConfirmation(
-            importDeclarationDetails,
+            importEntryDetails,
             completeImportQuestionsAnswers,
             Seq(
               UploadedFile(
@@ -3801,7 +3801,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
-              importDeclarationDetails,
+              importEntryDetails,
               completeImportQuestionsAnswers,
               Some(
                 FileUploads(files =
@@ -3832,7 +3832,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       "go to Start when start" in {
         given(
           CreateCaseConfirmation(
-            importDeclarationDetails,
+            importEntryDetails,
             completeImportQuestionsAnswers,
             Seq(
               UploadedFile(
@@ -3851,10 +3851,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when start should thenGo(Start)
       }
 
-      "go to clean EnterDeclarationDetails when going back" in {
+      "go to clean EnterEntryDetails when going back" in {
         given(
           CreateCaseConfirmation(
-            importDeclarationDetails,
+            importEntryDetails,
             completeImportQuestionsAnswers,
             Seq(
               UploadedFile(
@@ -3870,7 +3870,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             TraderServicesResult("A1234567890", generatedAt),
             CaseSLA(Some(generatedAt.plusHours(2)))
           )
-        ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
+        ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
       }
     }
 
@@ -3881,10 +3881,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when start should thenGo(Start)
       }
 
-      "go to clean EnterDeclarationDetails when going back" in {
+      "go to clean EnterEntryDetails when going back" in {
         given(
           CaseAlreadyExists("A1234567890")
-        ) when backToEnterDeclarationDetails should thenGo(EnterDeclarationDetails())
+        ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
       }
     }
   }

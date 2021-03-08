@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.models.DeclarationDetails
+@import uk.gov.hmrc.traderservices.models.EntryDetails
 @import uk.gov.hmrc.traderservices.controllers.DateFieldHelper
 @import java.time.LocalDate
 
@@ -24,10 +24,10 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[DeclarationDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[EntryDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle = pageTitle("view.declaration-details.title",form),
+  pageTitle = pageTitle("view.entry-details.title",form),
   backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
@@ -35,27 +35,28 @@
   @forms.formWithCSRF(action = postAction) {
 
     @forms.fieldset(
-      legend = messages("view.declaration-details.heading")
+      legend = messages("view.entry-details.heading")
     ) {
       @forms.inputText(
         form = form,
         id = "epu",
         name = "epu",
-        label = "form.declaration-details.epu",
+        label = "form.entry-details.epu",
         isPageHeading = false,
         isInFieldset = true,
         classes = Some("govuk-input--width-3"),
         attributes = Map(
           "inputmode" -> "numeric",
           "pattern" -> "[0-9]*"
-        )
+        ),
+        hint = Some(Html(messages("form.entry-details.epu.hint")))
       )
 
       @forms.inputText(
         form = form,
         id = "entryNumber",
         name = "entryNumber",
-        label = "form.declaration-details.entryNumber",
+        label = "form.entry-details.entryNumber",
         isPageHeading = false,
         isInFieldset = true,
         classes = Some("govuk-input--width-10"),
@@ -65,16 +66,16 @@
       @forms.inputDate(
         form = form,
         id = "entryDate",
-        legendContent = "form.declaration-details.entryDate",
+        legendContent = "form.entry-details.entryDate",
         legendClasses = "",
         legendAsPageHeading = false,
-        hintText = Some(messages("form.declaration-details.entryDate.hint", DateFieldHelper.getValidDateHint(LocalDate.now))),
+        hintText = Some(messages("form.entry-details.entryDate.hint", DateFieldHelper.getValidDateHint(LocalDate.now))),
         attributesDay = Map("aria-label" -> "Day of entry date"),
         attributesMonth = Map("aria-label" -> "Month of entry date"),
         attributesYear = Map("aria-label" -> "Year of entry date")
       )
     }
 
-    @html.button("form.declaration-details.continue")
+    @html.button("form.entry-details.continue")
   }
 }

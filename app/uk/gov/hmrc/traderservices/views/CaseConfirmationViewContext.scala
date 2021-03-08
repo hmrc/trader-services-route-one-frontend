@@ -22,11 +22,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.ZonedDateTime
 import java.time.ZoneId
-import uk.gov.hmrc.traderservices.models.DeclarationDetails
+import uk.gov.hmrc.traderservices.models.EntryDetails
 import uk.gov.hmrc.traderservices.models.UploadedFile
 
 @Singleton
-class CaseConfirmationViewContext extends DeclarationDetailsHelper {
+class CaseConfirmationViewContext extends EntryDetailsHelper {
 
   final val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -38,8 +38,8 @@ class CaseConfirmationViewContext extends DeclarationDetailsHelper {
     s"""<span id="sla-time">$time</span> <span id="sla-suffix">$suffix</span>"""
   }
 
-  def entryDateForDisplay(declarationDetails: DeclarationDetails): String =
-    formatDateForDisplay(declarationDetails.entryDate)
+  def entryDateForDisplay(entryDetails: EntryDetails): String =
+    formatDateForDisplay(entryDetails.entryDate)
 
   def fileNamesForDisplay(uploadedFiles: Seq[UploadedFile]): Seq[String] =
     uploadedFiles.map(_.fileName)

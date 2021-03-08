@@ -17,7 +17,7 @@ trait TraderServicesApiStubs {
 
   val requestBodyOfCreateCaseApi: String =
     s"""{
-       |"declarationDetails":{},
+       |"entryDetails":{},
        |"questionsAnswers":{},
        |"uploadedFiles":[{}],
        |"eori":"GB123456789012345"
@@ -25,7 +25,7 @@ trait TraderServicesApiStubs {
 
   def validRequestOfCreateCaseApiWithoutEori(): String =
     s"""{
-       |"declarationDetails":{},
+       |"entryDetails":{},
        |"questionsAnswers":{},
        |"uploadedFiles":[{}]
        |}""".stripMargin

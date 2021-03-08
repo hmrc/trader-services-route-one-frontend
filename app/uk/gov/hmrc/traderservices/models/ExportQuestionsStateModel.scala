@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.models
 import play.api.libs.json.{Format, Json}
 
 case class ExportQuestionsStateModel(
-  declarationDetails: DeclarationDetails,
+  entryDetails: EntryDetails,
   exportQuestionsAnswers: ExportQuestions = ExportQuestions(),
   fileUploadsOpt: Option[FileUploads] = None
 ) {

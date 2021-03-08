@@ -20,7 +20,7 @@ import java.time.LocalDate
 
 import play.api.libs.json.{Format, Json}
 
-case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate) {
+case class EntryDetails(epu: EPU, entryNumber: EntryNumber, entryDate: LocalDate) {
 
   val isExportDeclaration: Boolean =
     entryNumber.value.headOption.forall(_.isLetter) && entryNumber.value.lastOption.forall(_.isLetter)
@@ -28,6 +28,6 @@ case class DeclarationDetails(epu: EPU, entryNumber: EntryNumber, entryDate: Loc
     entryNumber.value.headOption.forall(_.isDigit) && entryNumber.value.lastOption.forall(_.isLetter)
 }
 
-object DeclarationDetails {
-  implicit val formats: Format[DeclarationDetails] = Json.format[DeclarationDetails]
+object EntryDetails {
+  implicit val formats: Format[EntryDetails] = Json.format[EntryDetails]
 }

@@ -33,7 +33,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
   /** Opaque data carried through the file upload process. */
   final case class FileUploadHostData(
-    declarationDetails: DeclarationDetails,
+    entryDetails: EntryDetails,
     questionsAnswers: QuestionsAnswers
   )
 
@@ -115,8 +115,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     // MARKER TRAITS
 
-    sealed trait HasDeclarationDetails {
-      def declarationDetails: DeclarationDetails
+    sealed trait HasEntryDetails {
+      def entryDetails: EntryDetails
     }
 
     sealed trait HasExportRequestType {
@@ -133,12 +133,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     // SPECIALIZED STATE TRAITS
 
-    sealed trait ExportQuestionsState extends State with HasDeclarationDetails with HasExportQuestionsStateModel {
-      final def declarationDetails: DeclarationDetails = model.declarationDetails
+    sealed trait ExportQuestionsState extends State with HasEntryDetails with HasExportQuestionsStateModel {
+      final def entryDetails: EntryDetails = model.entryDetails
     }
 
-    sealed trait ImportQuestionsState extends State with HasDeclarationDetails with HasImportQuestionsStateModel {
-      final def declarationDetails: DeclarationDetails = model.declarationDetails
+    sealed trait ImportQuestionsState extends State with HasEntryDetails with HasImportQuestionsStateModel {
+      final def entryDetails: EntryDetails = model.entryDetails
     }
 
     sealed trait SummaryState extends State
@@ -149,7 +149,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class ChooseNewOrExistingCase(
       newOrExistingCaseOpt: Option[NewOrExistingCase] = None,
-      declarationDetailsOpt: Option[DeclarationDetails] = None,
+      entryDetailsOpt: Option[EntryDetails] = None,
       exportQuestionsAnswersOpt: Option[ExportQuestions] = None,
       importQuestionsAnswersOpt: Option[ImportQuestions] = None,
       fileUploadsOpt: Option[FileUploads] = None,
@@ -160,8 +160,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       continueAmendCaseJourney: Boolean = true
     ) extends State
 
-    final case class EnterDeclarationDetails(
-      declarationDetailsOpt: Option[DeclarationDetails] = None,
+    final case class EnterEntryDetails(
+      entryDetailsOpt: Option[EntryDetails] = None,
       exportQuestionsAnswersOpt: Option[ExportQuestions] = None,
       importQuestionsAnswersOpt: Option[ImportQuestions] = None,
       fileUploadsOpt: Option[FileUploads] = None
@@ -202,7 +202,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ExportQuestionsState with CanEnterFileUpload {
 
       final def hostData: FileUploadHostData =
-        FileUploadHostData(model.declarationDetails, model.exportQuestionsAnswers)
+        FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers)
 
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
@@ -213,7 +213,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ExportQuestionsState with SummaryState with CanEnterFileUpload {
 
       final def hostData: FileUploadHostData =
-        FileUploadHostData(model.declarationDetails, model.exportQuestionsAnswers)
+        FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers)
 
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
@@ -258,7 +258,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ImportQuestionsState with CanEnterFileUpload {
 
       final def hostData: FileUploadHostData =
-        FileUploadHostData(model.declarationDetails, model.importQuestionsAnswers)
+        FileUploadHostData(model.entryDetails, model.importQuestionsAnswers)
 
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
@@ -269,7 +269,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     ) extends ImportQuestionsState with SummaryState with CanEnterFileUpload {
 
       final def hostData: FileUploadHostData =
-        FileUploadHostData(model.declarationDetails, model.importQuestionsAnswers)
+        FileUploadHostData(model.entryDetails, model.importQuestionsAnswers)
 
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
@@ -278,7 +278,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     // END-OF-JOURNEY STATES
 
     final case class CreateCaseConfirmation(
-      declarationDetails: DeclarationDetails,
+      entryDetails: EntryDetails,
       questionsAnswers: QuestionsAnswers,
       uploadedFiles: Seq[UploadedFile],
       result: TraderServicesResult,
@@ -338,7 +338,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val chooseNewOrExistingCase =
       Transition {
-        case EnterDeclarationDetails(a, b, c, d) =>
+        case EnterEntryDetails(a, b, c, d) =>
           goto(ChooseNewOrExistingCase(Some(NewOrExistingCase.New), a, b, c, d, continueAmendCaseJourney = false))
 
         case TurnToAmendCaseJourney(_) =>
@@ -353,7 +353,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         case ChooseNewOrExistingCase(_, a, b, c, d, continue) =>
           newOrExisting match {
             case NewOrExistingCase.New =>
-              goto(EnterDeclarationDetails(a, b, c, d))
+              goto(EnterEntryDetails(a, b, c, d))
 
             case NewOrExistingCase.Existing =>
               goto(TurnToAmendCaseJourney(continue))
@@ -361,12 +361,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
       }
 
-    final val backToEnterDeclarationDetails =
+    final val backToEnterEntryDetails =
       Transition {
         case s: ExportQuestionsState =>
           goto(
-            EnterDeclarationDetails(
-              Some(s.model.declarationDetails),
+            EnterEntryDetails(
+              Some(s.model.entryDetails),
               exportQuestionsAnswersOpt = Some(s.model.exportQuestionsAnswers),
               fileUploadsOpt = s.model.fileUploadsOpt
             )
@@ -374,25 +374,25 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
         case s: ImportQuestionsState =>
           goto(
-            EnterDeclarationDetails(
-              Some(s.model.declarationDetails),
+            EnterEntryDetails(
+              Some(s.model.entryDetails),
               importQuestionsAnswersOpt = Some(s.model.importQuestionsAnswers),
               fileUploadsOpt = s.model.fileUploadsOpt
             )
           )
 
         case s: EndState =>
-          goto(EnterDeclarationDetails())
+          goto(EnterEntryDetails())
       }
 
-    final def submittedDeclarationDetails(declarationDetails: DeclarationDetails) =
+    final def submittedEntryDetails(entryDetails: EntryDetails) =
       Transition {
-        case EnterDeclarationDetails(_, exportQuestionsOpt, importQuestionsOpt, fileUploadsOpt) =>
-          if (declarationDetails.isExportDeclaration)
+        case EnterEntryDetails(_, exportQuestionsOpt, importQuestionsOpt, fileUploadsOpt) =>
+          if (entryDetails.isExportDeclaration)
             gotoSummaryIfCompleteOr(
               AnswerExportQuestionsRequestType(
                 ExportQuestionsStateModel(
-                  declarationDetails,
+                  entryDetails,
                   exportQuestionsOpt.getOrElse(ExportQuestions()),
                   fileUploadsOpt
                 )
@@ -402,7 +402,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             gotoSummaryIfCompleteOr(
               AnswerImportQuestionsRequestType(
                 ImportQuestionsStateModel(
-                  declarationDetails,
+                  entryDetails,
                   importQuestionsOpt.getOrElse(ImportQuestions()),
                   fileUploadsOpt
                 )
@@ -543,7 +543,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               goto(
                 AnswerExportQuestionsContactInfo(
                   ExportQuestionsStateModel(
-                    declarationDetails = s.hostData.declarationDetails,
+                    entryDetails = s.hostData.entryDetails,
                     exportQuestionsAnswers = exportQuestionsAnswers,
                     fileUploadsOpt = Some(s.fileUploads)
                   )
@@ -581,14 +581,14 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             case answers: ExportQuestions =>
               goto(
                 AnswerExportQuestionsContactInfo(
-                  ExportQuestionsStateModel(s.hostData.declarationDetails, answers, Some(s.fileUploads))
+                  ExportQuestionsStateModel(s.hostData.entryDetails, answers, Some(s.fileUploads))
                 )
               )
 
             case answers: ImportQuestions =>
               goto(
                 AnswerImportQuestionsContactInfo(
-                  ImportQuestionsStateModel(s.hostData.declarationDetails, answers, Some(s.fileUploads))
+                  ImportQuestionsStateModel(s.hostData.entryDetails, answers, Some(s.fileUploads))
                 )
               )
           }
@@ -748,7 +748,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               goto(
                 AnswerImportQuestionsContactInfo(
                   ImportQuestionsStateModel(
-                    declarationDetails = s.hostData.declarationDetails,
+                    entryDetails = s.hostData.entryDetails,
                     importQuestionsAnswers = importQuestionsAnswers,
                     fileUploadsOpt = Some(s.fileUploads)
                   )
@@ -782,7 +782,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           state.hostData.questionsAnswers match {
             case exportQuestionsAnswers: ExportQuestions =>
               val updatedModel = ExportQuestionsStateModel(
-                declarationDetails = state.hostData.declarationDetails,
+                entryDetails = state.hostData.entryDetails,
                 exportQuestionsAnswers = exportQuestionsAnswers,
                 fileUploadsOpt = Some(state.fileUploads)
               )
@@ -794,7 +794,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             case importQuestionsAnswers: ImportQuestions =>
               val updatedModel =
                 ImportQuestionsStateModel(
-                  declarationDetails = state.hostData.declarationDetails,
+                  entryDetails = state.hostData.entryDetails,
                   importQuestionsAnswers = importQuestionsAnswers,
                   fileUploadsOpt = Some(state.fileUploads)
                 )
@@ -815,7 +815,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             val createCaseResult = response.result.get
             goto(
               CreateCaseConfirmation(
-                request.declarationDetails,
+                request.entryDetails,
                 request.questionsAnswers,
                 request.uploadedFiles,
                 createCaseResult,
@@ -846,7 +846,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
             TraderServicesCreateCaseRequest(
-              state.model.declarationDetails,
+              state.model.entryDetails,
               state.model.exportQuestionsAnswers,
               uploadedFiles,
               eori
@@ -858,7 +858,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
             TraderServicesCreateCaseRequest(
-              state.model.declarationDetails,
+              state.model.entryDetails,
               state.model.importQuestionsAnswers,
               uploadedFiles,
               eori

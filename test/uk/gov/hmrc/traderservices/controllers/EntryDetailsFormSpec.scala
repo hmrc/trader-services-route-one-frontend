@@ -20,15 +20,15 @@ import java.time.LocalDate
 
 import play.api.data.FormError
 import uk.gov.hmrc.traderservices.support.UnitSpec
-import uk.gov.hmrc.traderservices.models.{DeclarationDetails, EPU, EntryNumber}
+import uk.gov.hmrc.traderservices.models.{EPU, EntryDetails, EntryNumber}
 import uk.gov.hmrc.traderservices.support.FormMatchers
 import java.time.temporal.ChronoField
 
-class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
+class EntryDetailsFormSpec extends UnitSpec with FormMatchers {
 
   val date = LocalDate.now
 
-  val formOutput = DeclarationDetails(
+  val formOutput = EntryDetails(
     epu = EPU(123),
     entryNumber = EntryNumber("000000Z"),
     entryDate = date
@@ -45,11 +45,11 @@ class DeclarationDetailsFormSpec extends UnitSpec with FormMatchers {
 
   val formInput = formInputFor(date)
 
-  "DeclarationDetailsForm" should {
+  "EntryDetailsForm" should {
 
-    val form = CreateCaseJourneyController.DeclarationDetailsForm
+    val form = CreateCaseJourneyController.EntryDetailsForm
 
-    "bind some input fields and return DeclarationDetails and fill it back" in {
+    "bind some input fields and return EntryDetails and fill it back" in {
       form.bind(formInput).value shouldBe Some(formOutput)
       form.fill(formOutput).data shouldBe formInput
     }

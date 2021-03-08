@@ -76,9 +76,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new-or-existing").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
-        journey.getState shouldBe EnterDeclarationDetails()
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        journey.getState shouldBe EnterEntryDetails()
       }
 
       "submit the choice of Existing and ask next for case reference number" in {
@@ -116,18 +116,18 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "GET /send-documents-for-customs-check/new/declaration-details" should {
+    "GET /send-documents-for-customs-check/new/entry-details" should {
       "show declaration details page if at Start" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterDeclarationDetails())
+        journey.setState(EnterEntryDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/declaration-details").get())
+        val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
-        journey.getState shouldBe EnterDeclarationDetails()
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        journey.getState shouldBe EnterEntryDetails()
       }
 
       "redisplay pre-filled enter declaration details page " in {
@@ -135,31 +135,31 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions()
             )
           )
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/declaration-details").get())
+        val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
         result.body should (include("235") and include("A11111X"))
         result.body should (include("2020") and include("09") and include("23"))
-        journey.getState shouldBe EnterDeclarationDetails(
-          Some(DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23"))),
+        journey.getState shouldBe EnterEntryDetails(
+          Some(EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23"))),
           Some(ExportQuestions())
         )
       }
     }
 
-    "POST /new/declaration-details" should {
+    "POST /new/entry-details" should {
       "submit the form and ask next for requestType when entryNumber is for export" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterDeclarationDetails(None))
+        journey.setState(EnterEntryDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -170,14 +170,14 @@ class CreateCaseJourneyISpec
           "entryNumber"     -> "A11111X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions()
           )
         )
@@ -185,7 +185,7 @@ class CreateCaseJourneyISpec
 
       "submit the form and go next page when entryNumber is for import" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterDeclarationDetails(None))
+        journey.setState(EnterEntryDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -196,12 +196,12 @@ class CreateCaseJourneyISpec
           "entryNumber"     -> "111111X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
         journey.getState shouldBe AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions()
           )
         )
@@ -209,7 +209,7 @@ class CreateCaseJourneyISpec
 
       "submit invalid form and re-display the form page with errors" in {
         implicit val journeyId: JourneyId = JourneyId()
-        journey.setState(EnterDeclarationDetails())
+        journey.setState(EnterEntryDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -220,12 +220,12 @@ class CreateCaseJourneyISpec
           "entryNumber"     -> "A11X"
         )
 
-        val result = await(request("/new/declaration-details").post(payload))
+        val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.declaration-details.title"))
-        result.body should include(htmlEscapedMessage("view.declaration-details.heading"))
-        journey.getState shouldBe EnterDeclarationDetails()
+        result.body should include(htmlEscapedPageTitleWithError("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        journey.getState shouldBe EnterEntryDetails()
       }
     }
 
@@ -234,7 +234,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions()
           )
         )
@@ -256,7 +256,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions()
             )
           )
@@ -272,7 +272,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(requestType = Some(ExportRequestType.New))
           )
         )
@@ -282,7 +282,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions()
           )
         )
@@ -305,7 +305,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(requestType = Some(ExportRequestType.C1601))
           )
         )
@@ -327,7 +327,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions(requestType = Some(ExportRequestType.C1602))
             )
           )
@@ -343,7 +343,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route3))
           )
         )
@@ -353,7 +353,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(requestType = Some(ExportRequestType.C1602))
           )
         )
@@ -376,7 +376,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
           )
         )
@@ -398,7 +398,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route2))
             )
           )
@@ -414,7 +414,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route2),
@@ -429,7 +429,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route2)
@@ -448,7 +448,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route2),
@@ -462,7 +462,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route2)
@@ -488,7 +488,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route6))
           )
         )
@@ -510,7 +510,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
               ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
             )
           )
@@ -526,7 +526,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Route3),
@@ -540,7 +540,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(requestType = Some(ExportRequestType.C1603), routeType = Some(ExportRouteType.Route3))
           )
         )
@@ -563,7 +563,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Route6),
@@ -589,7 +589,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1603),
                 routeType = Some(ExportRouteType.Route3),
@@ -610,7 +610,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Route3),
@@ -626,7 +626,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1601),
                 routeType = Some(ExportRouteType.Route3),
@@ -647,7 +647,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
@@ -662,7 +662,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route3),
@@ -690,7 +690,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1601),
               routeType = Some(ExportRouteType.Route6),
@@ -717,7 +717,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1603),
               routeType = Some(ExportRouteType.Hold),
@@ -745,7 +745,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.C1602),
                 routeType = Some(ExportRouteType.Route6),
@@ -774,7 +774,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route6),
@@ -796,7 +796,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.C1602),
               routeType = Some(ExportRouteType.Route6),
@@ -827,7 +827,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -854,7 +854,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
@@ -885,7 +885,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -908,7 +908,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
@@ -930,7 +930,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -946,7 +946,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -976,7 +976,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions()
             )
           )
@@ -990,7 +990,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions()
           )
         )
@@ -1003,7 +1003,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
               ExportQuestions(
                 requestType = Some(ExportRequestType.New),
                 routeType = Some(ExportRouteType.Route6),
@@ -1029,7 +1029,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe UploadFile(
           hostData = FileUploadHostData(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -1065,7 +1065,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ExportQuestions(
               requestType = Some(ExportRequestType.New),
               routeType = Some(ExportRouteType.Route6),
@@ -1097,7 +1097,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
-          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+          ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1116,7 +1116,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions()
           )
         )
@@ -1138,7 +1138,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsRequestType(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+              EntryDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.Cancellation),
                 routeType = Some(ImportRouteType.Route6)
@@ -1157,7 +1157,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            EntryDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
           )
         )
@@ -1169,7 +1169,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
+            EntryDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
             ImportQuestions(requestType = Some(ImportRequestType.New))
           )
         )
@@ -1191,7 +1191,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+              EntryDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
               ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
             )
           )
@@ -1207,7 +1207,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
+            EntryDetails(EPU(444), EntryNumber("011111X"), LocalDate.parse("2020-10-01")),
             ImportQuestions(
               requestType = Some(ImportRequestType.Cancellation),
               routeType = Some(ImportRouteType.Route6)
@@ -1222,7 +1222,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(110), EntryNumber("911111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(110), EntryNumber("911111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
           )
         )
@@ -1244,7 +1244,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
             )
           )
@@ -1260,7 +1260,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(101), EntryNumber("811111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route2),
@@ -1275,7 +1275,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
             )
           )
@@ -1291,7 +1291,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(100), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route2),
@@ -1307,7 +1307,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route6))
           )
         )
@@ -1329,7 +1329,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
             )
           )
@@ -1345,7 +1345,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -1361,7 +1361,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
           )
         )
@@ -1384,7 +1384,7 @@ class CreateCaseJourneyISpec
           journey.setState(
             AnswerImportQuestionsALVS(
               ImportQuestionsStateModel(
-                DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
+                EntryDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
                 ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route2))
               )
             )
@@ -1404,7 +1404,7 @@ class CreateCaseJourneyISpec
           result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
           journey.getState shouldBe AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("011111X"), LocalDate.parse("2020-09-23")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route2),
@@ -1420,7 +1420,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsFreightType(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6)
@@ -1445,7 +1445,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route3)
@@ -1463,7 +1463,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(236), EntryNumber("211111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route3),
@@ -1478,7 +1478,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+              EntryDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
               ImportQuestions(
                 routeType = Some(ImportRouteType.Hold),
                 requestType = Some(ImportRequestType.New)
@@ -1496,7 +1496,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerImportQuestionsMandatoryVesselInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
+            EntryDetails(EPU(100), EntryNumber("011111X"), LocalDate.parse("2020-09-21")),
             ImportQuestions(
               routeType = Some(ImportRouteType.Hold),
               requestType = Some(ImportRequestType.New),
@@ -1512,7 +1512,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
@@ -1540,7 +1540,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+              EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
@@ -1569,7 +1569,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
@@ -1592,7 +1592,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+              EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
@@ -1612,7 +1612,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
@@ -1630,7 +1630,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val state = AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions()
           )
         )
@@ -1652,7 +1652,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
-              DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+              EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
               ImportQuestions(
                 requestType = Some(ImportRequestType.New),
                 routeType = Some(ImportRouteType.Route6),
@@ -1681,7 +1681,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe UploadFile(
           hostData = FileUploadHostData(
-            DeclarationDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
+            EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
             ImportQuestions(
               requestType = Some(ImportRequestType.New),
               routeType = Some(ImportRouteType.Route6),
@@ -1719,7 +1719,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
-          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+          ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1738,7 +1738,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
         )
         journey.setState(state)
@@ -1756,7 +1756,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
-          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
         )
         journey.setState(state)
@@ -1774,7 +1774,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
-          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+          ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1785,7 +1785,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
         result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
         )
       }
@@ -1794,7 +1794,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
-          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+          ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1805,7 +1805,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
         result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe UploadMultipleFiles(
-          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
         )
       }
@@ -1816,7 +1816,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
         )
         journey.setState(state)
@@ -1850,7 +1850,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe
           UploadMultipleFiles(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             fileUploads = FileUploads(files =
               Seq(
                 FileUpload.Initiated(
@@ -1886,7 +1886,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(
             Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"))
           )
@@ -1922,7 +1922,7 @@ class CreateCaseJourneyISpec
 
         journey.getState shouldBe
           UploadMultipleFiles(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             fileUploads = FileUploads(files =
               Seq(
                 FileUpload.Posted(Nonce.Any, Timestamp.Any, "23370e18-6e24-453e-b45a-76d3e32ea389"),
@@ -1961,7 +1961,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
-          ImportQuestionsStateModel(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival))
+          ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1975,7 +1975,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
           uploadRequest = UploadRequest(
             href = "https://bucketName.s3.eu-west-2.amazonaws.com",
@@ -2003,7 +2003,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
-          ExportQuestionsStateModel(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival))
+          ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -2017,7 +2017,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
-          FileUploadHostData(TestData.exportDeclarationDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
           uploadRequest = UploadRequest(
             href = "https://bucketName.s3.eu-west-2.amazonaws.com",
@@ -2049,7 +2049,7 @@ class CreateCaseJourneyISpec
         journey.setState(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
-              TestData.exportDeclarationDetails,
+              TestData.exportEntryDetails,
               TestData.fullExportQuestions(dateTimeOfArrival),
               Some(
                 FileUploads(files =
@@ -2080,7 +2080,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         journey.getState shouldBe CreateCaseConfirmation(
-          TestData.exportDeclarationDetails,
+          TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
           Seq(
             UploadedFile(
@@ -2104,7 +2104,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
-          TestData.exportDeclarationDetails,
+          TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
           Seq(
             UploadedFile(
@@ -2141,7 +2141,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
-          TestData.exportDeclarationDetails,
+          TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
           Seq(
             UploadedFile(
@@ -2187,7 +2187,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
-          TestData.exportDeclarationDetails,
+          TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
           Seq(
             UploadedFile(
@@ -2236,7 +2236,7 @@ class CreateCaseJourneyISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -2260,7 +2260,7 @@ class CreateCaseJourneyISpec
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           UploadFile(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -2294,7 +2294,7 @@ class CreateCaseJourneyISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -2314,7 +2314,7 @@ class CreateCaseJourneyISpec
         result1.body.isEmpty shouldBe true
         journey.getState shouldBe (
           WaitingForFileVerification(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "11370e18-6e24-453e-b45a-76d3e32ea33d",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -2334,7 +2334,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(
@@ -2434,7 +2434,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2466,7 +2466,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2512,7 +2512,7 @@ class CreateCaseJourneyISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             "2b72fe99-8adf-4edb-865e-622ae710f77c",
             UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
             FileUploads(files =
@@ -2535,7 +2535,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
         result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           "2b72fe99-8adf-4edb-865e-622ae710f77c",
           UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
           FileUploads(files =
@@ -2559,7 +2559,7 @@ class CreateCaseJourneyISpec
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadMultipleFiles(
-            FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
             FileUploads(files =
               Seq(
                 FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -2583,7 +2583,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 201
 
         journey.getState shouldBe UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -2604,7 +2604,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2641,7 +2641,7 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
         result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
         journey.getState shouldBe FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2666,7 +2666,7 @@ class CreateCaseJourneyISpec
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2702,7 +2702,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 204
 
         journey.getState shouldBe UploadMultipleFiles(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
             Seq(
               FileUpload.Accepted(
@@ -2730,7 +2730,7 @@ class CreateCaseJourneyISpec
         val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
@@ -2777,7 +2777,7 @@ class CreateCaseJourneyISpec
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
-          FileUploadHostData(TestData.importDeclarationDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
             Seq(
               FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),

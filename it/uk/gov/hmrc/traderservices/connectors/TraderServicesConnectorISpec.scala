@@ -92,7 +92,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
   def createCaseRequest = {
     val dateTimeOfArrival = LocalDateTime.now.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
     TraderServicesCreateCaseRequest(
-      declarationDetails = TestData.exportDeclarationDetails,
+      entryDetails = TestData.exportEntryDetails,
       questionsAnswers = TestData.fullExportQuestions(dateTimeOfArrival),
       uploadedFiles = Seq(
         UploadedFile(

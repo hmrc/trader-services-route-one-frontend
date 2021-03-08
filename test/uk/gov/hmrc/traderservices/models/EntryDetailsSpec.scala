@@ -20,46 +20,46 @@ import java.time.LocalDate
 
 import uk.gov.hmrc.traderservices.support.UnitSpec
 
-class DeclarationDetailsSpec extends UnitSpec with DeclarationDetailsTestData {
+class EntryDetailsSpec extends UnitSpec with EntryDetailsTestData {
 
-  "DeclarationDetails" when {
+  "EntryDetails" when {
     "isExportDeclaration is called" should {
       "return true when entry number begins and ends with a letter" in {
-        exportDeclarationDetails.isExportDeclaration shouldBe true
+        exportEntryDetails.isExportDeclaration shouldBe true
       }
 
       "return false when entry number starts with a digit and ends with a letter" in {
-        importDeclarationDetails.isExportDeclaration shouldBe false
+        importEntryDetails.isExportDeclaration shouldBe false
       }
 
       "return false when entry number starts and ends with a digit" in {
-        invalidDeclarationDetails.isExportDeclaration shouldBe false
+        invalidEntryDetails.isExportDeclaration shouldBe false
       }
     }
 
     "isImportDeclaration is called" should {
       "return false when entry number begins and ends with a letter" in {
-        exportDeclarationDetails.isImportDeclaration shouldBe false
+        exportEntryDetails.isImportDeclaration shouldBe false
       }
 
       "return true when entry number start with a digit and ends with a letter" in {
-        importDeclarationDetails.isImportDeclaration shouldBe true
+        importEntryDetails.isImportDeclaration shouldBe true
       }
 
       "return false when entry number starts and ends with a digit" in {
-        invalidDeclarationDetails.isImportDeclaration shouldBe false
+        invalidEntryDetails.isImportDeclaration shouldBe false
       }
     }
   }
 }
 
-trait DeclarationDetailsTestData {
+trait EntryDetailsTestData {
 
   val eoriNumber = "foo"
   val correlationId = "123"
 
-  val exportDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
-  val importDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
-  val invalidDeclarationDetails = DeclarationDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
+  val exportEntryDetails = EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
+  val importEntryDetails = EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
+  val invalidEntryDetails = EntryDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
 
 }
