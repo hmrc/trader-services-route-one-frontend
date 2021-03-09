@@ -19,6 +19,9 @@ package uk.gov.hmrc.traderservices.connectors
 import play.api.libs.json.{Format, Json}
 
 import java.time.LocalDateTime
+import scala.util.Try
+import scala.util.Success
+import scala.util.Failure
 
 case class TraderServicesResult(caseId: String, generatedAt: LocalDateTime)
 
@@ -36,6 +39,17 @@ case class TraderServicesCaseResponse(
 )
 
 object TraderServicesCaseResponse {
+
   implicit val formats: Format[TraderServicesCaseResponse] =
     Json.format[TraderServicesCaseResponse]
+
+  final def shouldRetry(response: Try[TraderServicesCaseResponse]): Boolean =
+    response match {
+      case Success(result) if result.error.map(_.errorCode).exists(_.matches("5\\d\\d")) => true
+      case Failure(TraderServicesApiError(e))                                            => true
+      case _                                                                             => false
+    }
+
+  final def errorMessage(response: TraderServicesCaseResponse): String =
+    s"${response.error.map(_.errorCode).getOrElse("")} ${response.error.flatMap(_.errorMessage).getOrElse("")}"
 }

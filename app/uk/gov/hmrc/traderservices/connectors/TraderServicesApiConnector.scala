@@ -25,13 +25,19 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
+import akka.actor.ActorSystem
+import scala.concurrent.duration._
 
 /**
   * Connects to the backend trader-services-route-one service API.
   */
 @Singleton
-class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
-    extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor {
+class TraderServicesApiConnector @Inject() (
+  appConfig: AppConfig,
+  http: HttpGet with HttpPost,
+  metrics: Metrics,
+  val actorSystem: ActorSystem
+) extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor with Retries {
 
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
   val createCaseApiPath = appConfig.createCaseApiPath
@@ -42,16 +48,18 @@ class TraderServicesApiConnector @Inject() (appConfig: AppConfig, http: HttpGet 
   def createCase(
     request: TraderServicesCreateCaseRequest
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCaseResponse] =
-    monitor(s"ConsumedAPI-trader-services-create-case-api-POST") {
-      http
-        .POST[TraderServicesCreateCaseRequest, TraderServicesCaseResponse](
-          new URL(baseUrl + createCaseApiPath).toExternalForm,
-          request
-        )
-        .recoverWith {
-          case e: Throwable =>
-            Future.failed(TraderServicesApiError(e))
-        }
+    retry(1.second, 2.seconds)(TraderServicesCaseResponse.shouldRetry, TraderServicesCaseResponse.errorMessage) {
+      monitor(s"ConsumedAPI-trader-services-create-case-api-POST") {
+        http
+          .POST[TraderServicesCreateCaseRequest, TraderServicesCaseResponse](
+            new URL(baseUrl + createCaseApiPath).toExternalForm,
+            request
+          )
+          .recoverWith {
+            case e: Throwable =>
+              Future.failed(TraderServicesApiError(e))
+          }
+      }
     }
 
   def updateCase(
