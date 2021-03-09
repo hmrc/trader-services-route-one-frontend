@@ -8,8 +8,6 @@ import uk.gov.hmrc.traderservices.stubs.PdfGeneratorStubs
 import uk.gov.hmrc.traderservices.stubs.DataStreamStubs
 import scala.util.Random
 import java.util.UUID
-import uk.gov.hmrc.http.logging.RequestId
-import uk.gov.hmrc.http.logging.SessionId
 
 class PdfGeneratorConnectorISpec extends PdfGeneratorConnectorISpecSetup {
 

@@ -29,11 +29,25 @@ import akka.http.scaladsl.model.ContentTypes
 import play.api.libs.json.Json
 import play.api.http.HeaderNames
 import akka.http.scaladsl.model.headers.RawHeader
+import uk.gov.hmrc.http.{HeaderNames => MdtpHeaderNames}
 
 @Singleton
 class PdfGeneratorConnector @Inject() (appConfig: AppConfig, val actorSystem: ActorSystem) extends FileStream {
 
   final val url = s"${appConfig.pdfGeneratorServiceBaseUrl}/pdf-generator-service/generate"
+
+  private val headerNames = Seq(
+    MdtpHeaderNames.xRequestId,
+    MdtpHeaderNames.xSessionId,
+    MdtpHeaderNames.xForwardedFor,
+    MdtpHeaderNames.xRequestChain,
+    MdtpHeaderNames.authorisation,
+    MdtpHeaderNames.trueClientIp,
+    MdtpHeaderNames.googleAnalyticTokenId,
+    MdtpHeaderNames.googleAnalyticUserId,
+    MdtpHeaderNames.deviceID,
+    MdtpHeaderNames.akamaiReputation
+  )
 
   final def convertHtmlToPdf(html: String, fileName: String)(implicit hc: HeaderCarrier): Future[Result] = {
     val httpRequest = HttpRequest(
@@ -41,7 +55,7 @@ class PdfGeneratorConnector @Inject() (appConfig: AppConfig, val actorSystem: Ac
       uri = url,
       entity = HttpEntity(ContentTypes.`application/json`, Json.stringify(Json.obj("html" -> html)))
     ).withHeaders(
-      hc.headers.map { case (k, v) => RawHeader(k, v) }.toList
+      hc.headers(headerNames).map { case (k, v) => RawHeader(k, v) }.toList
     )
     fileStream(
       httpRequest,
