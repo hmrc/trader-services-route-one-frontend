@@ -148,4 +148,8 @@ trait TraderServicesApiStubs {
     url
   }
 
+  def verifyCreateCaseRequestHappened(times: Int = 1) {
+    verify(times, postRequestedFor(urlEqualTo("/create-case")))
+  }
+
 }
