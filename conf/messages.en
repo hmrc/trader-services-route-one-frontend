@@ -561,7 +561,7 @@ view.case-already-exists.description.2=You can <a class="govuk-link" href="{0}">
 # ----------------------------------------------------------
 view.case-reference-number.title=What’s the case reference number?
 view.case-reference-number.heading=What’s the case reference number?
-view.case-reference-number.hint=For example PC12010081330XGBNZJO04
+view.case-reference-number.hint=For example, PC12010081330XGBNZJO04
 view.case-reference-number.continue=Continue
 view.case-reference-number.linkText=Help with case reference 
 view.case-reference-number.help.line1=You would have been given your case reference number when you submitted your first set of documents.
