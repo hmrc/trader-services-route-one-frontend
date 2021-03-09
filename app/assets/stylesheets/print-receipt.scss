@@ -3,7 +3,7 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 @import "lib/govuk-frontend/govuk/all";
 @import "lib/hmrc-frontend/hmrc/all";
 
-@import "receipt";
+@import "components/receipt";
 
 .govuk-header,
 .ssp-research-banner,
