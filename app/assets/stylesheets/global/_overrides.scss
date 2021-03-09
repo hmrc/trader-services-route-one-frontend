@@ -1,11 +1,6 @@
 // Overrides for GOV UK frontend CSS rules
 
-.govuk-button + .govuk-button--secondary {
-  @include govuk-media-query($from: tablet) {
-    margin-left: 10px;
-  }
-}
-
+// Show red border around a focused field with error
 .govuk-input--error {
   border: $govuk-border-width-form-element-error solid $govuk-error-colour !important;
 
@@ -14,14 +9,17 @@
   }
 }
 
+// Make the file input more accessible to screen magnifiers
 .govuk-file-upload {
   width: 100%;
 }
 
+// Make nested html elements in hints grey
 .govuk-hint * {
   color: $govuk-secondary-text-colour;
 }
 
+// Improve the appearance of date input combo
 .app-time-input .govuk-date-input__item:first-of-type {
   margin-right: 0;
 
@@ -34,10 +32,11 @@
   }
 }
 
+// Fix to prevent the reference number from overflowing on smaller screens
 .app-reference-number {
   // Using a custom breakpoint value because govuk desktop breakpoint is at 769px and it wasn't enough to fix the issue (DOR-194)
   @include govuk-media-query($until: 1019px) {
-    @include govuk-font($size: 24);
-    font-weight: bold;
+    @include govuk-font($size: 24, $weight: 'bold');
+    word-break: break-all;
   }
 }

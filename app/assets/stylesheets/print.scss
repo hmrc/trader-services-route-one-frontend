@@ -1,1 +1,15 @@
-@import "print-styles/print";
+* {
+  font-family: sans-serif;
+  color: #000;
+}
+
+footer,
+.govuk-skip-link,
+.govuk-back-link,
+.govuk-phase-banner,
+.print-document-header,
+.hmrc-language-select,
+.hmrc-sign-out-nav,
+.ssp-research-banner {
+  display: none !important;
+}

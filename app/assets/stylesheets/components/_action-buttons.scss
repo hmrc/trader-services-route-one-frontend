@@ -21,9 +21,9 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  font-family: "GDS Transport", arial, sans-serif;
   text-decoration: underline;
+  font-size: 16px;
+  font-family: $govuk-font-family;
 
   &:hover {
     color: $govuk-link-hover-colour;
@@ -50,12 +50,12 @@
 
 .action-buttons__button--download {
   &::before {
-    background-image: url('../images/save-icon.svg');
+    background-image: url($images-path + "/save-icon.svg");
   }
 }
 
 .action-buttons__button--print {
   &::before {
-    background-image: url('../images/print-icon.svg');
+    background-image: url($images-path + "/print-icon.svg");
   }
 }

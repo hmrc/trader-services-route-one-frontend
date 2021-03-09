@@ -6,9 +6,7 @@
 
 .contents-list__title {
   margin: 0;
-  font-size: 16px;
-  font-family: "GDS Transport", arial, sans-serif;
-  font-weight: normal;
+  @include govuk-font($size: 16);
 }
 
 .contents-list__list {

@@ -31,12 +31,10 @@
   word-break: break-all;
   margin-bottom: 10px;
   margin-right: 10px;
-  font-size: 16px;
-  font-family: "GDS Transport", arial, sans-serif;
+  @include govuk-font($size: 19);
 
   @include govuk-media-query($from: tablet) {
     margin-bottom: 0;
-    font-size: 19px;
   }
 }
 
@@ -88,13 +86,12 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 16px;
   text-decoration: underline;
+  @include govuk-font($size: 19);
 
   @include govuk-media-query($from: tablet) {
     margin-left: 15px;
     margin-right: 0;
-    font-size: 19px;
   }
 }
 
@@ -104,12 +101,7 @@
 
 .multi-file-upload__removing {
   display: none;
-  font-size: 16px;
-  font-family: "GDS Transport", arial, sans-serif;
-
-  @include govuk-media-query($from: tablet) {
-    font-size: 19px;
-  }
+  @include govuk-font($size: 19);
 }
 
 .multi-file-upload__item--waiting {

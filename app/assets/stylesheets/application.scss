@@ -1,33 +1,17 @@
+$images-path: "../images";
 $govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
 $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
 @import "lib/govuk-frontend/govuk/all";
 @import "lib/hmrc-frontend/hmrc/all";
 
-@import "js-hidden";
-@import "timeout-dialog";
-@import "autocomplete";
-@import "currency-input";
-@import "percentage-input";
-@import "task-list";
-@import "summary-list";
-@import "print-preview";
-@import "panel";
-@import "language-toggle";
-@import "research-banner";
-@import "responsive-table";
-@import "upload-loading";
-@import "overrides";
+@import "global/overrides";
 
-// Components
-@import "action-buttons";
-@import "contents-list";
-@import "multi-file-upload";
-@import "receipt";
+// 3rd party components
+@import "components/3rd-party/research-banner";
+@import "components/3rd-party/upload-loading";
 
-.app-\!-previous-claims-status-width {
-  width: 30.5% !important;
-}
-
-.app-\!-previous-claims-action-width {
-  width: 25% !important;
-}
+// Custom components
+@import "components/action-buttons";
+@import "components/contents-list";
+@import "components/multi-file-upload";
+@import "components/receipt";
