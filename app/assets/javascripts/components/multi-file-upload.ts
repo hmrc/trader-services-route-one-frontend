@@ -209,7 +209,7 @@ export class MultiFileUpload extends Component {
     const item = this.getItemFromFile(file);
 
     fetch(this.getRemoveUrl(file.dataset.multiFileUploadFileRef), {
-      method: 'PUT'
+      method: 'POST'
     })
       .then(this.requestRemoveFileCompleted.bind(this, file))
       .catch(() => {
@@ -268,7 +268,7 @@ export class MultiFileUpload extends Component {
 
   private requestProvisionUpload(file: HTMLInputElement) {
     return fetch(this.getSendUrl(file.id), {
-      method: 'PUT'
+      method: 'POST'
     })
       .then(response => response.json())
       .then(this.handleProvisionUploadCompleted.bind(this, file))

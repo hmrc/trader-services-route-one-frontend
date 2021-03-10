@@ -1809,7 +1809,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
     }
 
-    "PUT /new/upload-files/initialise/:uploadId" should {
+    "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -1823,7 +1823,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-files/initialise/001").put(""))
+        val result = await(request("/new/upload-files/initialise/001").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -1895,7 +1895,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-files/initialise/002").put(""))
+        val result = await(request("/new/upload-files/initialise/002").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -2472,7 +2472,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
     }
 
-    "PUT /new/file-uploaded/:reference/remove" should {
+    "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -2508,7 +2508,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorised
 
-        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").put(""))
+        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").post(""))
 
         result.status shouldBe 204
 

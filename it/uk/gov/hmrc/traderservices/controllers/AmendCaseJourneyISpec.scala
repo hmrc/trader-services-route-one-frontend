@@ -248,7 +248,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "PUT /add/upload-files/initialise/:uploadId" should {
+    "POST /add/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = UploadMultipleFiles(
@@ -265,7 +265,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/add/upload-files/initialise/001").put(""))
+        val result = await(request("/add/upload-files/initialise/001").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -346,7 +346,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/add/upload-files/initialise/002").put(""))
+        val result = await(request("/add/upload-files/initialise/002").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -801,7 +801,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "PUT /add/file-rejected" should {
+    "POST /add/file-rejected" should {
       "mark file upload as rejected" in {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(
@@ -821,7 +821,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(
-          request("/add/file-rejected").put(
+          request("/add/file-rejected").post(
             Json.obj(
               "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
               "errorCode"    -> "EntityTooLarge",
@@ -919,7 +919,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
       }
     }
 
-    "PUT /add/file-uploaded/:reference/remove" should {
+    "POST /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
         implicit val journeyId: JourneyId = JourneyId()
         val state = UploadMultipleFiles(
@@ -957,7 +957,7 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/add/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").put(""))
+        val result = await(request("/add/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").post(""))
 
         result.status shouldBe 204
 

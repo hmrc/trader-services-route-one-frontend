@@ -1811,7 +1811,7 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "PUT /new/upload-files/initialise/:uploadId" should {
+    "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -1825,7 +1825,7 @@ class CreateCaseJourneyISpec
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-files/initialise/001").put(""))
+        val result = await(request("/new/upload-files/initialise/001").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -1897,7 +1897,7 @@ class CreateCaseJourneyISpec
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
 
-        val result = await(request("/new/upload-files/initialise/002").put(""))
+        val result = await(request("/new/upload-files/initialise/002").post(""))
 
         result.status shouldBe 200
         val json = result.body[JsValue]
@@ -2553,7 +2553,7 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "PUT /new/file-rejected" should {
+    "POST /new/file-rejected" should {
       "mark file upload as rejected" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -2571,7 +2571,7 @@ class CreateCaseJourneyISpec
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(
-          request("/new/file-rejected").put(
+          request("/new/file-rejected").post(
             Json.obj(
               "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
               "errorCode"    -> "EntityTooLarge",
@@ -2661,7 +2661,7 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "PUT /new/file-uploaded/:reference/remove" should {
+    "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
         implicit val journeyId: JourneyId = JourneyId()
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
@@ -2697,7 +2697,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").put(""))
+        val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").post(""))
 
         result.status shouldBe 204
 
