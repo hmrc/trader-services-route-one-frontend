@@ -17,12 +17,12 @@
 package uk.gov.hmrc.traderservices.services
 
 import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.cache.repository.{CacheMongoRepository, CacheRepository}
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 import uk.gov.hmrc.crypto.{ApplicationCrypto, CompositeSymmetricCrypto, Protected}
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.traderservices.repository.CacheRepository
 
 /**
   * Journey persistence service mixin,
@@ -30,7 +30,7 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
-  val cacheMongoRepository: CacheMongoRepository
+  val cacheMongoRepository: CacheRepository
   val applicationCrypto: ApplicationCrypto
   val stateFormats: Format[model.State]
   def getJourneyId(context: RequestContext): Option[String]

@@ -23,6 +23,7 @@ import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
 import scala.util.Try
+import scala.concurrent.duration.Duration
 
 object AppConfig {
   val vesselArrivalConstraintMonths = 6
@@ -45,7 +46,8 @@ trait AppConfig {
   val createCaseApiPath: String
   val updateCaseApiPath: String
 
-  val mongoSessionExpiryTime: Int
+  val mongoSessionExpiration: Duration
+
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
   val subscriptionJourneyUrl: String
@@ -114,7 +116,7 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
       )
     )
 
-  override val mongoSessionExpiryTime: Int = config.getInt("mongodb.session.expireAfterSeconds")
+  override val mongoSessionExpiration: Duration = config.getDuration("mongodb.session.expiration")
 
   override val authorisedServiceName: String = config.getString("authorisedServiceName")
   override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
