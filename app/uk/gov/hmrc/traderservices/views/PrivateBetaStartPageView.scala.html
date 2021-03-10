@@ -29,26 +29,24 @@
   @html.h1(messages("view.beta.heading"), classes = "govuk-heading-l")
   @html.p { @messages("view.beta.lede") }
 
-  <aside>
-    <nav class="contents-list">
-      <h2 class="contents-list__title" id="contents">@messages("view.beta.contents")</h2>
+  <nav class="contents-list">
+    <h2 class="contents-list__title" id="contents">@messages("view.beta.contents")</h2>
 
-      <ul class="contents-list__list" aria-labelledby="contents">
-        <li class="contents-list__item">
-          <a class="govuk-link" href="#what-you-need">@messages("view.beta.whatYouNeed")</a>
-        </li>
-        <li class="contents-list__item">
-          <a class="govuk-link" href="#how-to-upload">@messages("view.beta.howToUpload")</a>
-        </li>
-        <li class="contents-list__item">
-          <a class="govuk-link" href="#before-you-start">@messages("view.beta.beforeYouStart")</a>
-        </li>
-        <li class="contents-list__item">
-          <a class="govuk-link" href="#after-sending-documents">@messages("view.beta.afterSendingDocuments")</a>
-        </li>
-      </ul>
-    </nav>
-  </aside>
+    <ul class="contents-list__list" aria-labelledby="contents">
+      <li class="contents-list__item">
+        <a class="govuk-link" href="#what-you-need">@messages("view.beta.whatYouNeed")</a>
+      </li>
+      <li class="contents-list__item">
+        <a class="govuk-link" href="#how-to-upload">@messages("view.beta.howToUpload")</a>
+      </li>
+      <li class="contents-list__item">
+        <a class="govuk-link" href="#before-you-start">@messages("view.beta.beforeYouStart")</a>
+      </li>
+      <li class="contents-list__item">
+        <a class="govuk-link" href="#after-sending-documents">@messages("view.beta.afterSendingDocuments")</a>
+      </li>
+    </ul>
+  </nav>
 
   @html.p { @messages("view.beta.paragraph1") }
   @html.p { @messages("view.beta.paragraph2") }
