@@ -205,7 +205,7 @@ class AmendCaseJourneyController @Inject() (
       .apply(FileUploadTransitions.toUploadMultipleFiles)
       .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
 
-  // PUT /add/upload-files/initialise/:uploadId
+  // POST /add/upload-files/initialise/:uploadId
   final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>
@@ -231,7 +231,7 @@ class AmendCaseJourneyController @Inject() (
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
 
-  // PUT /new/file-rejected
+  // POST /new/file-rejected
   final val markFileUploadAsRejectedAsync: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
@@ -310,7 +310,7 @@ class AmendCaseJourneyController @Inject() (
         )
       }
 
-  // PUT /add/file-uploaded/:reference/remove
+  // POST /add/file-uploaded/:reference/remove
   final def removeFileUploadByReferenceAsync(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser
       .applyWithRequest { implicit request =>

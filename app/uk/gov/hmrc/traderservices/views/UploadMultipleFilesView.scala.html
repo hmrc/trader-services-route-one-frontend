@@ -57,7 +57,7 @@ context: UploadFileViewContext
    *                        use to provide initial input for multi-file upload script
    *
    * + initiateNextFileUpload - a function accepting UPLOAD_ID (some unique string) and returning a call to frontend service,
-   *                            PUT request to this call will provision new file upload and return 200 with JSON result 
+   *                            POST request to this call will provision new file upload and return 200 with JSON result 
               {"uploadId":"123abc","upscanReference":"f029444f-415c-4dec-9cf2-36774ec63ab8","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}      
    * 
    * + checkFileVerificationStatus - a function accepting upscan reference and returning a call to frontend service,
@@ -70,7 +70,7 @@ context: UploadFileViewContext
    *         - {"reference":"$reference$","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}
    *
    * + removeFile - a function accepting upscan reference and returning a call to frontend service,
-   *                PUT request to this call will remove specified file upload and return 204
+   *                POST request to this call will remove specified file upload and return 204
    *
    * + previewFile - a function accepting upscan reference and file name, and returning a call to preview uploaded file
    *
