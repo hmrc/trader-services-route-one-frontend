@@ -1,6 +1,8 @@
 package uk.gov.hmrc.traderservices.support
 
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 case class TestAppConfig(
   wireMockBaseUrl: String,
@@ -22,7 +24,7 @@ case class TestAppConfig(
   override val createCaseApiPath: String = "/create-case"
   override val updateCaseApiPath: String = "/update-case"
 
-  override val mongoSessionExpiryTime: Int = 3600
+  override val mongoSessionExpiration: Duration = 1.hour
 
   override val gtmContainerId: Option[String] = None
   override val contactHost: String = wireMockBaseUrl

@@ -17,12 +17,12 @@
 import com.google.inject.AbstractModule
 import play.api.{Configuration, Environment, Logger}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.services._
-import uk.gov.hmrc.traderservices.repository.JourneyCacheRepository
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
+import uk.gov.hmrc.traderservices.repository.JourneyCacheRepository
+import uk.gov.hmrc.traderservices.repository.CacheRepository
 
 class FrontendModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
 
@@ -37,7 +37,7 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
 
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
 
-    bind(classOf[CacheMongoRepository]).to(classOf[JourneyCacheRepository])
+    bind(classOf[CacheRepository]).to(classOf[JourneyCacheRepository])
 
     bind(classOf[CreateCaseJourneyServiceWithHeaderCarrier])
       .to(classOf[MongoDBCachedCreateCaseJourneyService])

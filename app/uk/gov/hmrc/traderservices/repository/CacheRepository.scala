@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.traderservices.repository
 
-import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.traderservices.wiring.AppConfig
-
-import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.Duration
 import uk.gov.hmrc.mongo.MongoComponent
-import play.api.Configuration
 import uk.gov.hmrc.mongo.TimestampSupport
+import uk.gov.hmrc.mongo.cache.MongoCacheRepository
+import uk.gov.hmrc.mongo.cache.CacheIdType
+import scala.concurrent.ExecutionContext
 
-@Singleton
-class JourneyCacheRepository @Inject() (
+class CacheRepository(
   mongoComponent: MongoComponent,
-  configuration: Configuration,
-  timestampSupport: TimestampSupport,
-  appConfig: AppConfig
+  collectionName: String,
+  ttl: Duration,
+  timestampSupport: TimestampSupport
 )(implicit ec: ExecutionContext)
-    extends CacheRepository(
+    extends MongoCacheRepository[String](
       mongoComponent = mongoComponent,
-      collectionName = "fsm-journeys",
-      ttl = appConfig.mongoSessionExpiration,
-      timestampSupport = timestampSupport
-    )
+      collectionName = collectionName,
+      replaceIndexes = true,
+      ttl = ttl,
+      timestampSupport = timestampSupport,
+      cacheIdType = CacheIdType.SimpleCacheId
+    )(ec)

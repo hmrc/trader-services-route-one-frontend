@@ -3,11 +3,11 @@ package uk.gov.hmrc.traderservices.controllers
 import play.api.libs.json.Format
 import play.api.libs.ws.DefaultWSCookie
 import play.api.mvc.Session
-import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
@@ -1124,7 +1124,7 @@ trait AmendCaseJourneyNoEnrolmentISpecSetup extends ServerISpec {
   lazy val journey = new TestJourneyService[JourneyId]
     with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
-    override lazy val cacheMongoRepository = app.injector.instanceOf[CacheMongoRepository]
+    override lazy val cacheMongoRepository = app.injector.instanceOf[CacheRepository]
     override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
 
     override val stateFormats: Format[model.State] =

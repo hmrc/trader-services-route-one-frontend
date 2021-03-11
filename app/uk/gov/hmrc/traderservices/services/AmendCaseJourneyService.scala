@@ -18,12 +18,12 @@ package uk.gov.hmrc.traderservices.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Format
-import uk.gov.hmrc.cache.repository.CacheMongoRepository
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyModel, AmendCaseJourneyStateFormats}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import uk.gov.hmrc.traderservices.repository.CacheRepository
 
 trait AmendCaseJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -41,7 +41,7 @@ trait AmendCaseJourneyServiceWithHeaderCarrier extends AmendCaseJourneyService[H
 
 @Singleton
 case class MongoDBCachedAmendCaseJourneyService @Inject() (
-  cacheMongoRepository: CacheMongoRepository,
+  cacheMongoRepository: CacheRepository,
   applicationCrypto: ApplicationCrypto,
   appConfig: AppConfig
 ) extends MongoDBCachedJourneyService[HeaderCarrier] with AmendCaseJourneyServiceWithHeaderCarrier {
