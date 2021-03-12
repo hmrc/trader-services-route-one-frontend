@@ -23,6 +23,7 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
+import akka.actor.ActorSystem
 
 /**
   * Journey persistence service mixin,
@@ -30,11 +31,14 @@ import uk.gov.hmrc.traderservices.repository.CacheRepository
   */
 trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
-  val cacheMongoRepository: CacheRepository
+  val actorSystem: ActorSystem
+  val cacheRepository: CacheRepository
   val applicationCrypto: ApplicationCrypto
   val stateFormats: Format[model.State]
   def getJourneyId(context: RequestContext): Option[String]
   val traceFSM: Boolean = false
+
+  private val self = this
 
   case class PersistentState(state: model.State, breadcrumbs: List[model.State])
 
@@ -46,17 +50,18 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
   implicit lazy val encryptionFormat: JsonEncryptor[PersistentState] = new JsonEncryptor()
   implicit lazy val decryptionFormat: JsonDecryptor[PersistentState] = new JsonDecryptor()
 
-  final val cache = new SessionCache[Protected[PersistentState], RequestContext] {
+  final val cache = new JourneyCache[Protected[PersistentState], RequestContext] {
 
-    override lazy val sessionName: String = journeyKey
-    override lazy val cacheRepository: CacheRepository = cacheMongoRepository
+    override lazy val actorSystem: ActorSystem = self.actorSystem
+    override lazy val journeyKey: String = self.journeyKey
+    override lazy val cacheRepository: CacheRepository = self.cacheRepository
+    override lazy val format: Format[Protected[PersistentState]] = implicitly[Format[Protected[PersistentState]]]
 
-    // uses journeyId as a sessionId to persist state and breadcrumbs
-    override def getSessionId(implicit requestContext: RequestContext): Option[String] =
-      getJourneyId(requestContext)
+    override def getJourneyId(implicit requestContext: RequestContext): Option[String] =
+      self.getJourneyId(requestContext)
   }
 
-  override protected def fetch(implicit
+  final override protected def fetch(implicit
     requestContext: RequestContext,
     ec: ExecutionContext
   ): Future[Option[StateAndBreadcrumbs]] =
@@ -66,7 +71,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
         (entry.state, entry.breadcrumbs)
       })
 
-  override protected def save(
+  final override protected def save(
     state: StateAndBreadcrumbs
   )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] = {
     val entry = PersistentState(state._1, state._2)
@@ -82,7 +87,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       }
   }
 
-  override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
+  final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     cache.delete().map(_ => ())
 
 }

@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.repository.CacheRepository
+import akka.actor.ActorSystem
 
 trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -41,9 +42,10 @@ trait CreateCaseJourneyServiceWithHeaderCarrier extends CreateCaseJourneyService
 
 @Singleton
 case class MongoDBCachedCreateCaseJourneyService @Inject() (
-  cacheMongoRepository: CacheRepository,
+  cacheRepository: CacheRepository,
   applicationCrypto: ApplicationCrypto,
-  appConfig: AppConfig
+  appConfig: AppConfig,
+  actorSystem: ActorSystem
 ) extends MongoDBCachedJourneyService[HeaderCarrier] with CreateCaseJourneyServiceWithHeaderCarrier {
 
   override val stateFormats: Format[model.State] =

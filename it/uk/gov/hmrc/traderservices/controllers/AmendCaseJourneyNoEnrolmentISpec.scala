@@ -19,6 +19,7 @@ import scala.util.Random
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
+import akka.actor.ActorSystem
 
 class AmendCaseJourneyNoEnrolmentISpec
     extends AmendCaseJourneyNoEnrolmentISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -26,13 +27,15 @@ class AmendCaseJourneyNoEnrolmentISpec
   import journey.model.FileUploadState._
   import journey.model.State._
 
+  implicit val journeyId: JourneyId = JourneyId()
+
   val dateTime = LocalDateTime.now()
 
   "AmendCaseJourneyController" when {
 
     "GET /send-documents-for-customs-check/add/case-reference-number" should {
       "show enter case reference number page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         givenAuthorised
 
         val result = await(request("/add/case-reference-number").get())
@@ -46,7 +49,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "POST /send-documents-for-customs-check/add/case-reference-number" should {
       "sumbit case reference number and show next page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(EnterCaseReferenceNumber())
         givenAuthorised
 
@@ -65,7 +68,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /send-documents-for-customs-check/add/type-of-amendment" should {
       "show select type of amendment page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = SelectTypeOfAmendment(
           AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         )
@@ -83,7 +86,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "POST /send-documents-for-customs-check/add/type-of-amendment" should {
       "submit type of amendment choice and show next page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           SelectTypeOfAmendment(
             AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
@@ -109,7 +112,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /send-documents-for-customs-check/add/write-response" should {
       "show write response page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = EnterResponseText(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -130,7 +133,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "POST /send-documents-for-customs-check/add/write-response" should {
       "submit type of amendment choice and show next page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO05"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
@@ -156,7 +159,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/upload-files" should {
       "show the upload multiple files page when in UploadDocuments mode" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -176,7 +179,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "show the upload multiple files page when in WriteResponseAndUploadDocuments mode" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -197,7 +200,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files when in UploadDocuments mode" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AmendCaseSummary(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -222,7 +225,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files when in WriteResponseAndUploadDocuments mode" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AmendCaseSummary(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -251,7 +254,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "POST /add/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -328,7 +331,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "initialise next file upload" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -414,7 +417,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/file-upload" should {
       "show the upload first document page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val callbackUrl =
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         val state = UploadFile(
@@ -459,7 +462,6 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-        implicit val journeyId: JourneyId = JourneyId()
 
         journey.setState(
           UploadFile(
@@ -523,7 +525,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           UploadFile(
             AmendCaseModel(
@@ -569,7 +571,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/file-verification/:reference/status" should {
       "return file verification status" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -671,7 +673,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/file-uploaded" should {
       "show uploaded singular file view" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -705,7 +707,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "show uploaded plural file view" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -752,7 +754,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -819,7 +821,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "POST /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -885,7 +887,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/confirmation" should {
       "show confirmation page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
         journey.setState(state)
         givenAuthorised
@@ -904,7 +906,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /add/file-uploaded/:reference/:fileName" should {
       "stream the uploaded file content back if exists" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
@@ -957,7 +959,7 @@ class AmendCaseJourneyNoEnrolmentISpec
       }
 
       "return error page if file does not exist" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val state = FileUploaded(
           AmendCaseModel(
@@ -1011,7 +1013,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         val bytes = Array.ofDim[Byte](1024 * 1024)
 
         val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
-        implicit val journeyId: JourneyId = JourneyId()
+
         val fullAmendCaseStateModel = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
@@ -1050,7 +1052,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         journey.getState shouldBe state
       }
       "show the amendment review page with only additional information section from WriteResponse mode" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse),
@@ -1074,7 +1076,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         val bytes = Array.ofDim[Byte](1024 * 1024)
 
         val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
-        implicit val journeyId: JourneyId = JourneyId()
+
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
@@ -1124,7 +1126,8 @@ trait AmendCaseJourneyNoEnrolmentISpecSetup extends ServerISpec {
   lazy val journey = new TestJourneyService[JourneyId]
     with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
-    override lazy val cacheMongoRepository = app.injector.instanceOf[CacheRepository]
+    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
+    override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
     override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
 
     override val stateFormats: Format[model.State] =
@@ -1133,7 +1136,7 @@ trait AmendCaseJourneyNoEnrolmentISpecSetup extends ServerISpec {
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
 
-  def request(path: String)(implicit journeyId: JourneyId) = {
+  final def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
 
     wsClient

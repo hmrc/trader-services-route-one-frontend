@@ -43,9 +43,6 @@ import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import akka.actor.Scheduler
 import scala.concurrent.Future
-import javax.mail.internet.MimeUtility
-import java.net.URLEncoder
-import java.net.URI
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -214,7 +211,7 @@ class AmendCaseJourneyController @Inject() (
             upscanInitiateConnector.initiate(_)
           )
       }
-      .displayUsing(implicit request => renderUploadRequestJson(uploadId))
+      .displayUsing(renderUploadRequestJson(uploadId))
 
   // GET /add/file-upload
   final val showFileUpload: Action[AnyContent] =
@@ -236,14 +233,14 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // GET /add/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // GET /add/file-verification
   final val showWaitingForFileVerification: Action[AnyContent] =
@@ -257,10 +254,10 @@ class AmendCaseJourneyController @Inject() (
     actions
       .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
         INITIAL_CALLBACK_WAIT_TIME_SECONDS,
-        implicit request => acknowledgeFileUploadRedirect
+        acknowledgeFileUploadRedirect
       )
       .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // OPTIONS
   final def preflightUpload(journeyId: String): Action[AnyContent] =
@@ -273,7 +270,7 @@ class AmendCaseJourneyController @Inject() (
     actions
       .bindForm(UpscanUploadSuccessForm)
       .apply(FileUploadTransitions.markUploadAsPosted)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // POST /add/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
@@ -318,17 +315,17 @@ class AmendCaseJourneyController @Inject() (
           upscanInitiateConnector.initiate(_)
         )
       }
-      .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
+      .displayUsing(renderFileRemovalStatusJson(reference))
 
   // GET /add/file-uploaded/:reference/:fileName
   final def previewFileUploadByReference(reference: String, fileName: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(implicit request => streamFileFromUspcan(reference))
+      .displayAsyncUsing(streamFileFromUspcan(reference))
 
   // GET /add/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayUsing(implicit request => renderFileVerificationStatus(reference))
+      .displayUsing(renderFileVerificationStatus(reference))
 
   // ----------------------- CONFIRMATION -----------------------
 
@@ -529,10 +526,8 @@ class AmendCaseJourneyController @Inject() (
 
   private def renderUploadRequestJson(
     uploadId: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
+  ) =
+    Renderer.simple {
       case s: FileUploadState.UploadMultipleFiles =>
         s.fileUploads
           .findReferenceAndUploadRequestForUploadId(uploadId) match {
@@ -553,44 +548,40 @@ class AmendCaseJourneyController @Inject() (
 
   private def renderFileVerificationStatus(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
-      case s: FileUploadState =>
-        s.fileUploads.files.find(_.reference == reference) match {
-          case Some(file) =>
-            Ok(
-              Json.toJson(
-                FileVerificationStatus(
-                  file,
-                  uploadFileViewContext,
-                  controller.previewFileUploadByReference(_, _),
-                  appConfig.fileFormats.maxFileSizeMb
+  ) =
+    Renderer.withRequest { implicit request =>
+      {
+        case s: FileUploadState =>
+          s.fileUploads.files.find(_.reference == reference) match {
+            case Some(file) =>
+              Ok(
+                Json.toJson(
+                  FileVerificationStatus(
+                    file,
+                    uploadFileViewContext,
+                    controller.previewFileUploadByReference(_, _),
+                    appConfig.fileFormats.maxFileSizeMb
+                  )
                 )
               )
-            )
-          case None => NotFound
-        }
-      case _ => NotFound
+            case None => NotFound
+          }
+        case _ => NotFound
+      }
     }
 
   private def renderFileRemovalStatusJson(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
+  ) =
+    Renderer.simple {
       case s: FileUploadState => NoContent
       case _                  => BadRequest
     }
 
   private def streamFileFromUspcan(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Future[Result] =
-    state match {
+  ) =
+    AsyncRenderer.simple {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
@@ -610,17 +601,18 @@ class AmendCaseJourneyController @Inject() (
           case _ => Future.successful(NotFound)
         }
       case _ => Future.successful(NotFound)
+
     }
 
-  private def acknowledgeFileUploadRedirect(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
-    implicit request: Request[_]
-  ): Result =
-    (state match {
-      case _: FileUploadState.UploadMultipleFiles        => Created
-      case _: FileUploadState.FileUploaded               => Created
-      case _: FileUploadState.WaitingForFileVerification => Accepted
-      case _                                             => NoContent
-    }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+  private lazy val acknowledgeFileUploadRedirect = Renderer.simple {
+    case state =>
+      (state match {
+        case _: FileUploadState.UploadMultipleFiles        => Created
+        case _: FileUploadState.FileUploaded               => Created
+        case _: FileUploadState.WaitingForFileVerification => Accepted
+        case _                                             => NoContent
+      }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+  }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 

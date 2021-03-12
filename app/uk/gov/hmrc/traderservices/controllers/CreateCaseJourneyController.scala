@@ -310,20 +310,6 @@ class CreateCaseJourneyController @Inject() (
       .show[State.AnswerImportQuestionsMandatoryVesselInfo]
       .orApply(Transitions.backToAnswerImportQuestionsMandatoryVesselInfo)
 
-  private val extractArrivalDate: State => Option[LocalDate] = {
-    case s: State.HasEntryDetails => Some(s.entryDetails.entryDate)
-    case _                        => None
-  }
-
-  private val extractRequestType: State => Option[ExportRequestType] = {
-    case s: FileUploadState =>
-      s.hostData.questionsAnswers match {
-        case eq: ExportQuestions => eq.requestType
-        case _                   => None
-      }
-    case _ => None
-  }
-
   // POST /new/import/transport-information-required
   final val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -430,7 +416,7 @@ class CreateCaseJourneyController @Inject() (
             upscanInitiateConnector.initiate(_)
           )
       }
-      .displayUsing(implicit request => renderUploadRequestJson(uploadId))
+      .displayUsing(renderUploadRequestJson(uploadId))
 
   // GET /new/file-upload
   final val showFileUpload: Action[AnyContent] =
@@ -452,14 +438,14 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // GET /new/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     actions
       .bindForm(UpscanUploadErrorForm)
       .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // GET /new/file-verification
   final val showWaitingForFileVerification: Action[AnyContent] =
@@ -473,10 +459,10 @@ class CreateCaseJourneyController @Inject() (
     actions
       .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
         INITIAL_CALLBACK_WAIT_TIME_SECONDS,
-        implicit request => acknowledgeFileUploadRedirect
+        acknowledgeFileUploadRedirect
       )
       .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // OPTIONS
   final def preflightUpload(journeyId: String): Action[AnyContent] =
@@ -489,7 +475,7 @@ class CreateCaseJourneyController @Inject() (
     actions
       .bindForm(UpscanUploadSuccessForm)
       .apply(FileUploadTransitions.markUploadAsPosted)
-      .displayUsing(implicit request => acknowledgeFileUploadRedirect)
+      .displayUsing(acknowledgeFileUploadRedirect)
 
   // POST /new/journey/:journeyId/callback-from-upscan
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
@@ -534,17 +520,17 @@ class CreateCaseJourneyController @Inject() (
           upscanInitiateConnector.initiate(_)
         )
       }
-      .displayUsing(implicit request => renderFileRemovalStatusJson(reference))
+      .displayUsing(renderFileRemovalStatusJson(reference))
 
   // GET /new/file-uploaded/:reference/:fileName
   final def previewFileUploadByReference(reference: String, fileName: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(implicit request => streamFileFromUspcan(reference))
+      .displayAsyncUsing(streamFileFromUspcan(reference))
 
   // GET /new/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayUsing(implicit request => renderFileVerificationStatusJson(reference))
+      .displayUsing(renderFileVerificationStatusJson(reference))
 
   // ----------------------- CONFIRMATION -----------------------
 
@@ -565,12 +551,12 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/confirmation/receipt
   final def downloadCreateCaseConfirmationReceipt: Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(implicit request => renderConfirmationReceiptHtml)
+      .displayAsyncUsing(renderConfirmationReceiptHtml)
 
   // GET /new/confirmation/receipt/pdf/:fileName
   final def downloadCreateCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
     whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(implicit request => renderConfirmationReceiptPdf)
+      .displayAsyncUsing(renderConfirmationReceiptPdf)
 
   // GET /new/case-already-exists
   final def showCaseAlreadyExists: Action[AnyContent] =
@@ -1028,10 +1014,8 @@ class CreateCaseJourneyController @Inject() (
 
   private def renderUploadRequestJson(
     uploadId: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
+  ) =
+    Renderer.simple {
       case s: FileUploadState.UploadMultipleFiles =>
         s.fileUploads
           .findReferenceAndUploadRequestForUploadId(uploadId) match {
@@ -1052,10 +1036,8 @@ class CreateCaseJourneyController @Inject() (
 
   private def renderFileVerificationStatusJson(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
+  ) =
+    Renderer.withRequest(implicit request => {
       case s: FileUploadState =>
         s.fileUploads.findUploadWithUpscanReference(reference) match {
           case Some(file) =>
@@ -1072,24 +1054,20 @@ class CreateCaseJourneyController @Inject() (
           case None => NotFound
         }
       case _ => NotFound
-    }
+    })
 
   private def renderFileRemovalStatusJson(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Result =
-    state match {
+  ) =
+    Renderer.simple {
       case s: FileUploadState => NoContent
       case _                  => BadRequest
     }
 
   private def streamFileFromUspcan(
     reference: String
-  )(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
-  ): Future[Result] =
-    state match {
+  ) =
+    AsyncRenderer.simple {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
@@ -1111,20 +1089,21 @@ class CreateCaseJourneyController @Inject() (
       case _ => Future.successful(NotFound)
     }
 
-  private def acknowledgeFileUploadRedirect(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
-    implicit request: Request[_]
-  ): Result =
-    (state match {
-      case _: FileUploadState.UploadMultipleFiles        => Created
-      case _: FileUploadState.FileUploaded               => Created
-      case _: FileUploadState.WaitingForFileVerification => Accepted
-      case _                                             => NoContent
-    }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+  private def acknowledgeFileUploadRedirect =
+    Renderer
+      .simple {
+        case state =>
+          (state match {
+            case _: FileUploadState.UploadMultipleFiles        => Created
+            case _: FileUploadState.FileUploaded               => Created
+            case _: FileUploadState.WaitingForFileVerification => Accepted
+            case _                                             => NoContent
+          })
+            .withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+      }
 
-  private def renderConfirmationReceiptHtml(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
-    implicit request: Request[_]
-  ): Future[Result] =
-    state match {
+  private val renderConfirmationReceiptHtml =
+    AsyncRenderer.withRequest(implicit request => {
       case CreateCaseConfirmation(
             entryDetails,
             _,
@@ -1148,12 +1127,10 @@ class CreateCaseJourneyController @Inject() (
         )
 
       case _ => Future.successful(BadRequest)
-    }
+    })
 
-  private def renderConfirmationReceiptPdf(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(
-    implicit request: Request[_]
-  ): Future[Result] =
-    state match {
+  private val renderConfirmationReceiptPdf =
+    AsyncRenderer.withRequest(implicit request => {
       case CreateCaseConfirmation(
             entryDetails,
             _,
@@ -1179,7 +1156,21 @@ class CreateCaseJourneyController @Inject() (
           )
 
       case _ => Future.successful(BadRequest)
-    }
+    })
+
+  private val extractArrivalDate: State => Option[LocalDate] = {
+    case s: State.HasEntryDetails => Some(s.entryDetails.entryDate)
+    case _                        => None
+  }
+
+  private val extractRequestType: State => Option[ExportRequestType] = {
+    case s: FileUploadState =>
+      s.hostData.questionsAnswers match {
+        case eq: ExportQuestions => eq.requestType
+        case _                   => None
+      }
+    case _ => None
+  }
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 
