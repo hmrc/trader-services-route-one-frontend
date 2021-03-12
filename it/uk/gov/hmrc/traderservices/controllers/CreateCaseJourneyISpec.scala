@@ -22,6 +22,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock
+import akka.actor.ActorSystem
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -31,11 +32,13 @@ class CreateCaseJourneyISpec
 
   val dateTime = LocalDateTime.now()
 
+  implicit val journeyId: JourneyId = JourneyId()
+
   "CreateCaseJourneyController" when {
 
     "GET /send-documents-for-customs-check/" should {
       "show the start page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(Start)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -50,7 +53,7 @@ class CreateCaseJourneyISpec
 
     "GET /send-documents-for-customs-check/new-or-existing" should {
       "show the choice between new and existing case" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -65,7 +68,7 @@ class CreateCaseJourneyISpec
 
     "POST /new-or-existing" should {
       "submit the choice of New and ask next for declaration details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -82,7 +85,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit the choice of Existing and ask next for case reference number" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -99,7 +102,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid choice and re-display the form page with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -118,7 +121,7 @@ class CreateCaseJourneyISpec
 
     "GET /send-documents-for-customs-check/new/entry-details" should {
       "show declaration details page if at Start" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(EnterEntryDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -131,7 +134,7 @@ class CreateCaseJourneyISpec
       }
 
       "redisplay pre-filled enter declaration details page " in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
@@ -158,7 +161,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/entry-details" should {
       "submit the form and ask next for requestType when entryNumber is for export" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(EnterEntryDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -184,7 +187,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit the form and go next page when entryNumber is for import" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(EnterEntryDetails(None))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -208,7 +211,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(EnterEntryDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -231,7 +234,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/request-type" should {
       "show the export request type question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -252,7 +255,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/request-type" should {
       "submit the form and ask next for routeType" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
@@ -279,7 +282,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -302,7 +305,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/route-type" should {
       "show the export route type question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -323,7 +326,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/route-type" should {
       "submit the form and ask next for hasPriorityGoods" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -350,7 +353,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -373,7 +376,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/has-priority-goods" should {
       "show the export has priority goods page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -394,7 +397,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/has-priority-goods" should {
       "submit YES choice and ask next for which priority goods" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
@@ -425,7 +428,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit NO choice and ask next for transport type" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
@@ -459,7 +462,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit empty choice and re-display the form with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23")),
@@ -485,7 +488,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/which-priority-goods" should {
       "show the export which priority goods page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -506,7 +509,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/which-priority-goods" should {
       "submit selected priority goods and ask next for transport type" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
@@ -537,7 +540,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit empty priority goods and re-display the form with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
@@ -560,7 +563,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/transport-type" should {
       "show the export transport type page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -585,7 +588,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/transport-type" should {
       "submit selected RORO transport type without C1601 and ask next for optional vessel details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
@@ -622,7 +625,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit selected Air transport type with C1601 and ask next for mandatory vessel details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
@@ -659,7 +662,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit empty transport type and re-display the form with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), LocalDate.parse("2020-09-21")),
@@ -687,7 +690,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/transport-information-required" should {
       "show the export vessel details page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -714,7 +717,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/transport-information-required" should {
       "show the export vessel details page when routeType=Hold" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -741,7 +744,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/transport-information-required" should {
       "submit mandatory vessel details and ask next for contact details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
@@ -793,7 +796,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit incomplete vessel details and re-display the form page with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -824,7 +827,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/transport-information" should {
       "show the export vessel details page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -850,7 +853,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/transport-information" should {
       "submit optional vessel details and ask next for contact details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -904,7 +907,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit none vessel details and ask next for contact details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -943,7 +946,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid vessel details and re-display the form page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), LocalDate.parse("2020-10-05")),
@@ -972,7 +975,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/contact-information" should {
       "show the export contact information question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -999,7 +1002,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/export/contact-information" should {
       "go to upload file page when an email submitted" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -1062,7 +1065,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit invalid contact info and re-display the form page with error" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
@@ -1094,7 +1097,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/check-your-answers" should {
       "show the export questions summary page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -1113,7 +1116,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/request-type" should {
       "show the import request type question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
@@ -1134,7 +1137,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/request-type" should {
       "submit the form and ask next for route type" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsRequestType(
             ImportQuestionsStateModel(
@@ -1166,7 +1169,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/route-type" should {
       "show the import route type question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(532), EntryNumber("111111X"), LocalDate.parse("2020-10-08")),
@@ -1187,7 +1190,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/route-type" should {
       "submit the form and ask next for hasPriorityGoods" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1219,7 +1222,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/has-priority-goods" should {
       "show the import has priority goods page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), LocalDate.parse("2020-09-23")),
@@ -1240,7 +1243,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/has-priority-goods" should {
       "submit YES choice and ask next for which priority goods" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
@@ -1271,7 +1274,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit NO choice and ask next for transport type" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
@@ -1304,7 +1307,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/which-priority-goods" should {
       "show the import which priority goods page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
@@ -1325,7 +1328,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/which-priority-goods" should {
       "submit selected priority goods and ask next for automatic licence verification" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
@@ -1358,7 +1361,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/automatic-licence-verification" should {
       "show the import has ALVS page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("711111X"), LocalDate.parse("2020-09-23")),
@@ -1380,7 +1383,7 @@ class CreateCaseJourneyISpec
     "POST /new/import/automatic-licence-verification" should {
       for (hasALVS <- Seq(true, false))
         s"submit ${if (hasALVS) "YES" else "NO"} choice and ask next for transport type" in {
-          implicit val journeyId: JourneyId = JourneyId()
+
           journey.setState(
             AnswerImportQuestionsALVS(
               ImportQuestionsStateModel(
@@ -1417,7 +1420,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/transport-type" should {
       "show the import transport type page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsFreightType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("311111Z"), LocalDate.parse("2020-10-05")),
@@ -1441,7 +1444,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/transport-type" should {
       "submit selected transport type and ask next for optional vessel details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
@@ -1474,7 +1477,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit selected transport type and ask next for mandatory vessel details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
@@ -1509,7 +1512,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/transport-information" should {
       "show the import vessel details page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("111111Z"), LocalDate.parse("2020-10-05")),
@@ -1536,7 +1539,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/transport-information" should {
       "submit optional vessel details and ask next for contact details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1588,7 +1591,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit none vessel details and ask next for contact details" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1627,7 +1630,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/contact-information" should {
       "show the import contact information question page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val state = AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), LocalDate.parse("2020-09-23")),
@@ -1648,7 +1651,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/import/contact-information" should {
       "go to upload file page when an email submitted" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         journey.setState(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
@@ -1716,7 +1719,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/check-your-answers" should {
       "show the import questions summary page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -1735,7 +1738,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/upload-files" should {
       "show the upload multiple files page for an importer" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -1753,7 +1756,7 @@ class CreateCaseJourneyISpec
       }
 
       "show the upload multiple files page for an exporter" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -1771,7 +1774,7 @@ class CreateCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files page for an importer" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -1791,7 +1794,7 @@ class CreateCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files page for an exporter" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -1813,7 +1816,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -1883,7 +1886,7 @@ class CreateCaseJourneyISpec
       }
 
       "initialise next file upload" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -1958,7 +1961,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-upload" should {
       "show the upload first document page for the importer" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -2000,7 +2003,7 @@ class CreateCaseJourneyISpec
       }
 
       "show the upload first document page for the exporter" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -2044,7 +2047,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/create-case" should {
       "create case and show the confirmation page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           ExportQuestionsSummary(
@@ -2101,7 +2104,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation" should {
       "show the confirmation page" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
@@ -2138,7 +2141,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation/receipt" should {
       "download the confirmation receipt" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
@@ -2184,7 +2187,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation/receipt/pdf/test.pdf" should {
       "download the confirmation receipt as pdf" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
@@ -2232,7 +2235,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
@@ -2290,7 +2293,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
@@ -2331,7 +2334,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-verification/:reference/status" should {
       "return file verification status" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2431,7 +2434,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-uploaded" should {
       "show uploaded singular file view" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2463,7 +2466,7 @@ class CreateCaseJourneyISpec
       }
 
       "show uploaded plural file view" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2508,7 +2511,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-rejected" should {
       "show upload document again" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
@@ -2555,7 +2558,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/file-rejected" should {
       "mark file upload as rejected" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadMultipleFiles(
@@ -2601,7 +2604,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2663,7 +2666,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2724,7 +2727,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-uploaded/:reference" should {
       "stream the uploaded file content back if exists" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
@@ -2773,7 +2776,7 @@ class CreateCaseJourneyISpec
       }
 
       "return error page if file does not exist" in {
-        implicit val journeyId: JourneyId = JourneyId()
+
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
@@ -2822,14 +2825,14 @@ class CreateCaseJourneyISpec
 
     "GET /foo" should {
       "return an error page not found" in {
-        implicit val journeyId: JourneyId = JourneyId()
+        val state = journey.getState
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/foo").get())
 
         result.status shouldBe 404
         result.body should include("Page not found")
-        journey.get shouldBe None
+        journey.getState shouldBe state
       }
     }
   }
@@ -2842,7 +2845,8 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
   lazy val journey = new TestJourneyService[JourneyId]
     with CreateCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
 
-    override lazy val cacheMongoRepository = app.injector.instanceOf[CacheRepository]
+    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
+    override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
     override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
 
     override val stateFormats: Format[model.State] =
@@ -2851,7 +2855,7 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
 
-  def request(path: String)(implicit journeyId: JourneyId) = {
+  final def request(path: String)(implicit journeyId: JourneyId) = {
     val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
 
     wsClient
