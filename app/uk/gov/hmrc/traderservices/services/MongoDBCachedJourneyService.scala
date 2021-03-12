@@ -61,6 +61,38 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       self.getJourneyId(requestContext)
   }
 
+  final override def apply(
+    transition: model.Transition
+  )(implicit rc: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] =
+    cache
+      .modify(Protected(PersistentState(model.root, Nil))) { protectedEntry =>
+        val entry = protectedEntry.decryptedValue
+        val (state, breadcrumbs) = (entry.state, entry.breadcrumbs)
+        transition.apply
+          .applyOrElse(
+            state,
+            (_: model.State) => model.fail(model.TransitionNotAllowed(state, breadcrumbs, transition))
+          )
+          .map { endState =>
+            Protected(
+              PersistentState(
+                endState,
+                if (endState == state) breadcrumbs
+                else state :: breadcrumbsRetentionStrategy(breadcrumbs)
+              )
+            )
+          }
+      }
+      .map { protectedEntry =>
+        val entry = protectedEntry.decryptedValue
+        val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
+        if (traceFSM) {
+          println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
+          println(stateAndBreadcrumbs._1)
+        }
+        stateAndBreadcrumbs
+      }
+
   final override protected def fetch(implicit
     requestContext: RequestContext,
     ec: ExecutionContext
@@ -72,22 +104,22 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       })
 
   final override protected def save(
-    state: StateAndBreadcrumbs
+    stateAndBreadcrumbs: StateAndBreadcrumbs
   )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] = {
-    val entry = PersistentState(state._1, state._2)
+    val entry = PersistentState(stateAndBreadcrumbs._1, stateAndBreadcrumbs._2)
     val protectedEntry = Protected(entry)
     cache
       .save(protectedEntry)
       .map { _ =>
         if (traceFSM) {
-          println("-" + state._2.length + "-" * 32)
-          println(state._1)
+          println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
+          println(stateAndBreadcrumbs._1)
         }
-        state
+        stateAndBreadcrumbs
       }
   }
 
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
-    cache.delete().map(_ => ())
+    cache.clear()
 
 }

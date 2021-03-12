@@ -50,6 +50,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   def getJourneyId(implicit requestContext: C): Option[String]
 
+  import JourneyCache._
+
   private val managerUuid = UUID.randomUUID().toString().takeRight(8)
 
   lazy val stateCacheActor: ActorRef =
@@ -58,68 +60,83 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   final implicit val timeout: Timeout =
     Timeout.apply(timeoutSeconds, TimeUnit.SECONDS)
 
-  final def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[T]] =
-    get.flatMap {
-      case Right(cache) => cache
-      case Left(error) =>
-        Logger(getClass).warn(error)
-        Future.failed(new RuntimeException(error))
-    }
-
-  final def save(input: T)(implicit requestContext: C, ec: ExecutionContext): Future[T] =
-    store(input).flatMap {
-      case Right(_) => input
-      case Left(error) =>
-        Logger(getClass).warn(error)
-        Future.failed(new RuntimeException(error))
-    }
-
   implicit final def toFuture[A](a: A): Future[A] = Future.successful(a)
 
-  import JourneyCache._
+  final def modify(
+    default: T
+  )(modification: T => Future[T])(implicit requestContext: C, ec: ExecutionContext): Future[T] =
+    getJourneyId match {
+      case Some(journeyId) =>
+        (
+          stateCacheActor
+            .ask(replyTo => (journeyId, Modify(modification, default), replyTo))
+          )
+          .flatMap {
+            case Right(entity: T) =>
+              Future.successful(entity)
 
-  private def get(implicit
-    requestContext: C,
-    ec: ExecutionContext
-  ): Future[Either[String, Option[T]]] =
+            case Left(error: String) =>
+              Logger(getClass).warn(error)
+              Future.failed(new RuntimeException(error))
+          }
+
+      case None =>
+        val error = s"no cacheId provided in order to cache in mongo"
+        Logger(getClass).warn(error)
+        Future.failed(new RuntimeException(error))
+    }
+
+  final def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[T]] =
     getJourneyId match {
       case Some(journeyId) =>
         (
           stateCacheActor
             .ask(replyTo => (journeyId, Get, replyTo))
           )
-          .map(_.asInstanceOf[Either[String, Option[T]]])
+          .flatMap {
+            case Right(entityOpt: Option[T]) =>
+              Future.successful(entityOpt)
+
+            case Left(error: String) =>
+              Logger(getClass).warn(error)
+              Future.failed(new RuntimeException(error))
+          }
 
       case None =>
-        Right(None)
+        Future.successful(None)
     }
 
-  private def store(
-    journeyState: T
-  )(implicit requestContext: C, ec: ExecutionContext): Future[Either[String, Unit]] =
+  final def save(input: T)(implicit requestContext: C, ec: ExecutionContext): Future[T] =
     getJourneyId match {
       case Some(journeyId) =>
         (
           stateCacheActor
-            .ask(replyTo => (journeyId, Store(journeyState), replyTo))
+            .ask(replyTo => (journeyId, Store(input), replyTo))
           )
-          .map(_.asInstanceOf[Either[String, Unit]])
+          .flatMap {
+            case Right(_) => input
+            case Left(error: String) =>
+              Logger(getClass).warn(error)
+              Future.failed(new RuntimeException(error))
+          }
 
       case None =>
-        Left(s"no cacheId provided in order to cache in mongo")
+        val error = s"no cacheId provided in order to cache in mongo"
+        Logger(getClass).warn(error)
+        Future.failed(new RuntimeException(error))
     }
 
-  final def delete()(implicit requestContext: C, ec: ExecutionContext): Future[Either[String, Unit]] =
+  final def clear()(implicit requestContext: C, ec: ExecutionContext): Future[Unit] =
     getJourneyId match {
       case Some(journeyId) =>
         (
           stateCacheActor
             .ask(replyTo => (journeyId, Delete, replyTo))
           )
-          .map(_.asInstanceOf[Either[String, Unit]])
+          .map(_ => ())
 
       case None =>
-        Right(())
+        Future.successful(())
     }
 
   /** An actor managing a pool of separate workers for each journeyId. */
@@ -152,6 +169,10 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
       }
 
     override def receive: Receive = {
+
+      case m @ (journeyId: String, Modify(modification, default), replyTo) =>
+        getWorker(journeyId) ! m
+
       case m @ (journeyId: String, Get, replyTo) =>
         getWorker(journeyId) ! m
 
@@ -192,6 +213,49 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
         replyTo ! value
         release()
         unstashAll()
+
+      case (`journeyId`, Modify(modification, default), replyTo: ActorRef) =>
+        if (tryAcquire())
+          cacheRepository
+            .findById(journeyId)
+            .map {
+              case Some(cacheItem) =>
+                (cacheItem.data \ journeyKey).asOpt[JsValue] match {
+                  case None => Right(default)
+                  case Some(obj: JsValue) =>
+                    obj.validate[T](format) match {
+                      case JsSuccess(entity, _) => Right(entity)
+                      case JsError(errors) =>
+                        val allErrors = errors.map(_._2.map(_.message).mkString(",")).mkString(",")
+                        Left(allErrors)
+                    }
+                }
+              case None => Right(default)
+            }
+            .flatMap {
+              case Right(entity) =>
+                modification
+                  .apply(entity.asInstanceOf[T])
+                  .flatMap { newEntity =>
+                    cacheRepository
+                      .put[T](journeyId)(DataKey(journeyKey), newEntity.asInstanceOf[T])(format)
+                      .map(_ => Right(newEntity))
+                  }
+
+              case left => left
+            }
+            .recover {
+              case JsResultException(_) =>
+                Left(
+                  "Encountered issue with de-serialising JSON state from cache. Check if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
+                )
+              case e =>
+                Left(e.getMessage)
+            }
+            .map(Result(_, replyTo))
+            .pipeTo(context.self)
+        else
+          stash()
 
       case (`journeyId`, Store(entity), replyTo: ActorRef) =>
         if (tryAcquire())
@@ -255,6 +319,7 @@ object JourneyCache {
   case object Get
   case object Delete
   case class Store(entity: Any)
+  case class Modify[T](modification: T => Future[T], default: T)
   case class Result(value: Any, replyTo: ActorRef)
   case object Ready
   case object LifeEnd
