@@ -62,6 +62,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   implicit final def toFuture[A](a: A): Future[A] = Future.successful(a)
 
+  /** Applies atomic transition (modification) of the state. */
   final def modify(
     default: T
   )(modification: T => Future[T])(implicit requestContext: C, ec: ExecutionContext): Future[T] =
@@ -75,17 +76,23 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             case Right(entity: T) =>
               Future.successful(entity)
 
-            case Left(error: String) =>
+            case Left(JsResultException(_)) =>
+              val error =
+                "Encountered issue with de-serialising JSON state from cache. Check if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
               Logger(getClass).warn(error)
-              Future.failed(new RuntimeException(error))
+              Future.failed(new Exception(error))
+
+            case Left(error: Throwable) =>
+              Future.failed(error)
           }
 
       case None =>
-        val error = s"no cacheId provided in order to cache in mongo"
+        val error = s"No journeyId provided in order to cache state in mongo."
         Logger(getClass).warn(error)
         Future.failed(new RuntimeException(error))
     }
 
+  /** Retrieves current state for the journeyId/journeyKey or None. */
   final def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[T]] =
     getJourneyId match {
       case Some(journeyId) =>
@@ -106,6 +113,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
         Future.successful(None)
     }
 
+  /** Saves provided state under the journeyId/journeyKey */
   final def save(input: T)(implicit requestContext: C, ec: ExecutionContext): Future[T] =
     getJourneyId match {
       case Some(journeyId) =>
@@ -121,11 +129,12 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
           }
 
       case None =>
-        val error = s"no cacheId provided in order to cache in mongo"
+        val error = s"No journeyId provided in order to cache state in mongo."
         Logger(getClass).warn(error)
         Future.failed(new RuntimeException(error))
     }
 
+  /** Removes journeyId/journeyKey */
   final def clear()(implicit requestContext: C, ec: ExecutionContext): Future[Unit] =
     getJourneyId match {
       case Some(journeyId) =>
@@ -244,14 +253,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
               case left => left
             }
-            .recover {
-              case JsResultException(_) =>
-                Left(
-                  "Encountered issue with de-serialising JSON state from cache. Check if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
-                )
-              case e =>
-                Left(e.getMessage)
-            }
+            .recover { case e => Left(e) }
             .map(Result(_, replyTo))
             .pipeTo(context.self)
         else

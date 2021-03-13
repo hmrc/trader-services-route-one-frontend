@@ -120,7 +120,7 @@ class CreateCaseJourneyISpec
     }
 
     "GET /send-documents-for-customs-check/new/entry-details" should {
-      "show declaration details page if at Start" in {
+      "show declaration details page if at EnterEntryDetails" in {
 
         journey.setState(EnterEntryDetails())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -156,6 +156,37 @@ class CreateCaseJourneyISpec
           Some(EntryDetails(EPU(235), EntryNumber("A11111X"), LocalDate.parse("2020-09-23"))),
           Some(ExportQuestions())
         )
+      }
+
+      "show declaration details page if at CreateCaseConfirmation" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          CreateCaseConfirmation(
+            TestData.exportEntryDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Seq(
+              UploadedFile(
+                "foo-123",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            TraderServicesResult("TBC", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/entry-details").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        journey.getState shouldBe EnterEntryDetails()
       }
     }
 
@@ -2103,7 +2134,7 @@ class CreateCaseJourneyISpec
     }
 
     "GET /new/confirmation" should {
-      "show the confirmation page" in {
+      "show the confirmation page if in CreateCaseConfirmation state" in {
 
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
@@ -2132,6 +2163,50 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         result.body should include(
+          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
+        )
+
+        journey.getState shouldBe state
+      }
+
+      "stay at the confirmation page if in CreateCaseConfirmation state" in {
+
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = CreateCaseConfirmation(
+          TestData.exportEntryDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          Seq(
+            UploadedFile(
+              "foo-123",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("TBC", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result1 = await(request("/new/export/check-your-answers").get)
+
+        result1.status shouldBe 200
+        result1.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result1.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result1.body should include(
+          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
+        )
+
+        val result2 = await(request("/new/import/check-your-answers").get)
+
+        result2.status shouldBe 200
+        result2.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result2.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result2.body should include(
           s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
         )
 
