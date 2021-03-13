@@ -1,4 +1,4 @@
-package uk.gov.hmrc.traderservices.controllers
+package uk.gov.hmrc.traderservices.services
 
 import play.api.libs.json.Format
 import uk.gov.hmrc.traderservices.models._
@@ -8,7 +8,6 @@ import uk.gov.hmrc.traderservices.support.AppISpec
 import uk.gov.hmrc.play.fsm.JourneyModel
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.traderservices.services.MongoDBCachedJourneyService
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import scala.concurrent.Future
@@ -44,6 +43,12 @@ class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecS
           )
         )
       ) shouldBe Seq(1, 3, 6, 10, 15, 150, 0)
+    }
+
+    "propagate TransitionNotAllowed exception" in {
+      a[service.model.TransitionNotAllowed] shouldBe thrownBy {
+        await(service.apply(service.model.notAllowed))
+      }
     }
   }
 
@@ -83,6 +88,11 @@ trait MongoDBCachedJourneyServiceISpecSetup extends AppISpec {
     def modify(f: Int => Int) =
       Transition {
         case i => goto(f(i))
+      }
+
+    val notAllowed =
+      Transition {
+        case i if false => goto(i)
       }
   }
 
