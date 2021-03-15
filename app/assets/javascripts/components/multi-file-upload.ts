@@ -508,6 +508,10 @@ export class MultiFileUpload extends Component {
     element.textContent = message;
 
     this.notifications.append(element);
+
+    window.setTimeout(() => {
+      element.remove();
+    }, 1000);
   }
 
   private toggleAddButton(state: boolean): void {
