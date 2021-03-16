@@ -26,7 +26,6 @@ case class TestAppConfig(
 
   override val mongoSessionExpiration: Duration = 1.hour
 
-  override val gtmContainerId: Option[String] = None
   override val contactHost: String = wireMockBaseUrl
   override val contactFormServiceIdentifier: String = "dummy"
 
