@@ -18,6 +18,8 @@
 @import uk.gov.hmrc.traderservices.views.components.FooterLinks
 @import uk.gov.hmrc.traderservices.controllers.routes
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
+@import views.html.helper.CSPNonce
 
 @this(
 govukLayout: GovukLayout,
@@ -27,18 +29,17 @@ siteHeader: components.siteHeader,
 phaseBanner: components.phaseBanner,
 languageSelection: components.languageSelection,
 link: components.link,
-gtmHeadSnippet: GtmHeadSnippet,
-gtmBodySnippet: GtmBodySnippet,
 researchBanner: components.researchBanner,
 appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig,
-hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper
+hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
 None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
 
 @head = {
-@gtmHeadSnippet()
+@hmrcTrackingConsentSnippet(nonce = CSPNonce.get)
 <meta name="format-detection" content="telephone=no">
 <!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
 <!--[if gt IE 8]><!-->
@@ -68,7 +69,6 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 }
 
 @beforeContentBlock = {
-  @gtmBodySnippet()
 
   @researchBanner()
   @phaseBanner("beta")

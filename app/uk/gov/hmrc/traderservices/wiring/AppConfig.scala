@@ -57,8 +57,6 @@ trait AppConfig {
     "cymraeg" -> Lang("cy")
   )
 
-  val gtmContainerId: Option[String]
-
   def routeToSwitchLanguage: String => Call =
     (lang: String) => uk.gov.hmrc.traderservices.controllers.routes.LanguageSwitchController.switchToLanguage(lang)
 
@@ -122,8 +120,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val authorisedIdentifierKey: String = config.getString("authorisedIdentifierKey")
 
   override val subscriptionJourneyUrl: String = config.getString("urls.subscriptionJourney")
-
-  override val gtmContainerId: Option[String] = Try(config.getString("gtm.containerId")).toOption
 
   override val contactHost: String = config.getString("contact-frontend.host")
   override val contactFormServiceIdentifier: String = config.getString("feedback-frontend.formIdentifier")
