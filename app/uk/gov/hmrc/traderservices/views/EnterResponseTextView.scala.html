@@ -54,6 +54,10 @@
 
       <div id="responseText-info" class="govuk-hint govuk-character-count__message" aria-live="polite"></div>
 
+      <noscript>
+        <p class="govuk-body govuk-hint">@messages("view.write-response-text.noJs.limit")</p>
+      </noscript>
+
       </div>
 
       @html.button("view.write-response-text.continue")

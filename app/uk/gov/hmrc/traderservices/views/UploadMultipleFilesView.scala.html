@@ -142,7 +142,7 @@ context: UploadFileViewContext
       @html.button("form.upload-multiple-files.continue")
     </div>
 
-    <div class="multi-file-upload__notifications govuk-visually-hidden" aria-live="polite"></div>
+    <div class="multi-file-upload__notifications govuk-visually-hidden" aria-live="polite" role="status"></div>
 
     <script type="text/x-template" id="multi-file-upload-item-tpl"> @multiFileUpload.item(appConfig.fileFormats.approvedFileExtensions) </script>
     <script type="text/x-template" id="error-manager-summary-tpl"> @errorManager.summary(messages) </script>
