@@ -6,5 +6,6 @@ import 'mdn-polyfills/Node.prototype.after';
 import 'mdn-polyfills/Node.prototype.before';
 import 'mdn-polyfills/Node.prototype.append';
 import 'mdn-polyfills/Node.prototype.remove';
+import 'mdn-polyfills/Number.isNaN';
 import 'mdn-polyfills/Object.entries';
 import 'mdn-polyfills/Object.keys';
