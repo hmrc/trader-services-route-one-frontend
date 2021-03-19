@@ -355,9 +355,10 @@ view.create-case-confirmation.save.bullet2=mae angen rhagor o wybodaeth arnom ge
 view.create-case-confirmation.save.bullet3=rydych yn dymuno ychwanegu rhagor o wybodaeth neu ddogfennau at yr achos hwn
 view.create-case-confirmation.save.description2=Cadwch gyfeirnod eich achos ar gyfer eich cofnodion eich hun.
 view.create-case-confirmation.next.heading=Y camau nesaf
-view.create-case-confirmation.next.description.sla1=Dylai’r gwaith o wirio’ch dogfennau gael ei gwblhau erbyn {18:59} Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
+view.create-case-confirmation.next.description.sla1=Dylai’r gwaith o wirio’ch dogfennau gael ei gwblhau erbyn {0}. Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.create-case-confirmation.next.description.sla2=Os nad ydych wedi clywed gennym erbyn yr amser hwn, gallwch <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">gysylltu â ni ynghylch cynnydd eich cais</a>.
 view.create-case-confirmation.next.description2=Os oes angen, gallwch <a class="govuk-link" href="{0}">anfon dogfennau am wiriad arall gan y tollau</a>.
+view.create-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.create-case-confirmation.print-receipts.heading=Argraffu neu gadw’ch derbynneb ar gyfer eich cofnodion
 view.create-case-confirmation.print-receipts.description=Bydd angen cyfeirnod eich achos arnoch os bydd angen i chi roi rhagor o wybodaeth.
 view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
@@ -395,13 +396,16 @@ error.responseText.invalid-length=Mae’n rhaid i’r ymateb fod yn 1000 o gymer
 view.amend-case-confirmation.title=Rydych wedi cyflwyno’ch gwybodaeth ychwanegol
 view.amend-case-confirmation.heading=Rydych wedi cyflwyno’ch gwybodaeth ychwanegol
 view.amend-case-confirmation.reference=Cyfeirnod eich achos:
+view.amend-case-confirmation.date=Achos wedi’i ddiweddaru ar:
 view.amend-case-confirmation.save.heading=Cadw cyfeirnod eich achos
 view.amend-case-confirmation.save.description=Bydd angen i chi ddefnyddio’r cyfeirnod achos hwn ar gyfer unrhyw ohebiaeth bellach ynghylch yr achos hwn.
 view.amend-case-confirmation.save.description2=Yr un cyfeirnod achos ydyw a roddwyd i chi pan grëwyd yr achos gyntaf.
 view.amend-case-confirmation.next.heading=Y camau nesaf
 view.amend-case-confirmation.next.description=Unwaith y bydd y gwaith o wirio’r wybodaeth wedi’i gwblhau, byddwch yn clywed gennym drwy CHIEF neu drwy’ch meddalwedd datgan. Byddwn yn rhoi gwybod i chi os bydd arnom angen rhagor o wybodaeth gennych chi.
 view.amend-case-confirmation.next.description2=Os oes angen, gallwch <a class="govuk-link" href="{0}">anfon dogfennau am wiriad arall gan y tollau</a>.
-view.amend-case-confirmation.footnote="Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+view.amend-case-confirmation.info.heading=Os oes angen mwy o wybodaeth arnom
+view.amend-case-confirmation.info.description=Byddwn yn cysylltu â chi drwy’r system CHIEF neu drwy’ch meddalwedd datgan os oes angen arnom ragor o ddogfennau gennych chi.
+view.amend-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.amend-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
 view.amend-case.summary.title=Adolygu manylion eich achos
 view.amend-case.summary.declaration.details.heading=Gwybodaeth am y datganiad
@@ -416,7 +420,7 @@ view.beta.title=Anfon dogfennau i’w gwirio gan y tollau ar gyfer datganiadau a
 view.beta.heading=Anfon dogfennau i’w gwirio gan y tollau ar gyfer datganiadau a wneir drwy’r system CHIEF
 view.beta.lede=Os ydych yn cyflwyno datganiadau gan ddefnyddio System y Tollau ar gyfer Trin Nwyddau a Gaiff eu Mewnforio a’u Hallforio (CHIEF) a gofynnir i chi anfon dogfennau ategol, gallwch eu hanfon i CThEM ar-lein.
 view.beta.contents=Cynnwys
-view.beta.paragraph1="Gallwch ddefnyddio’r gwasanaeth hwn i uwchlwytho dogfennau ategol ar gyfer datganiadau a wnaed drwy’r system CHIEF, ac wedi’u clirio drwy’r tollau. Os ydych eisoes wedi anfon eich dogfennau i’w clirio, gallwch uwchlwytho gwybodaeth ychwanegol.
+view.beta.paragraph1=Gallwch ddefnyddio’r gwasanaeth hwn i uwchlwytho dogfennau ategol ar gyfer datganiadau a wnaed drwy’r system CHIEF, ac wedi’u clirio drwy’r tollau. Os ydych eisoes wedi anfon eich dogfennau i’w clirio, gallwch uwchlwytho gwybodaeth ychwanegol.
 view.beta.paragraph2=Mae ond angen i chi anfon dogfennau i CThEM os yw statws eich datganiad yn dangos bod rhaid anfon dogfennau.
 view.beta.paragraph3=Mae llwybrau clirio’r tollau’n cynnwys:
 view.beta.routes.route1=Llwybr 1: gwiriad llawn o’r dogfennau
