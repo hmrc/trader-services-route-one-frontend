@@ -331,6 +331,7 @@ view.file-uploaded.plural.title=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.plural.heading=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.uploadAnotherFile.heading=A hoffech uwchlwytho dogfen arall?
 view.file-uploaded.list.heading=Dogfennau rydych wedi’u huwchlwytho
+view.file-uploaded.maximum=Gallwch uwchlwytho hyd at 10 ffeil. Er mwyn uwchlwytho rhagor, mae’n rhaid i chi gyflwyno’r ffeiliau hyn yn gyntaf, ac wedyn defnyddio’r gwasanaeth eto
 form.upload-file.submit=Uwchlwytho
 form.file-uploaded.uploadAnotherFile.yes=Iawn
 form.file-uploaded.uploadAnotherFile.no=Na
@@ -452,7 +453,7 @@ view.beta.beforeYouStart.paragraph1=Bydd angen Dynodydd Defnyddiwr (ID) a chyfri
 view.beta.beforeYouStart.startNow=Dechrau nawr
 view.beta.afterSendingDocuments=Ar ôl i chi anfon dogfennau ategol i CThEM
 view.beta.afterSendingDocuments.paragraph1=Ar ôl i chi gwblhau’r gwasanaeth, cewch wybod pryd y dylai’ch nwyddau gael eu clirio. Cewch wybod drwy’ch meddalwedd.
-view.beta.afterSendingDocuments.paragraph2=Os na chaiff eich nwyddau eu clirio erbyn yr amser hwnnw, gallwch gysylltu â’r <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub" class="govuk-link" target="_blank" rel="noopener noreferrer">Ganolfan Glirio Genedlaethol] (National Clearance Hub)</a>.
+view.beta.afterSendingDocuments.paragraph2=Os na chaiff eich nwyddau eu clirio erbyn yr amser hwnnw, gallwch gysylltu â’r <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub" class="govuk-link" target="_blank" rel="noopener noreferrer">Ganolfan Glirio Genedlaethol (National Clearance Hub)</a>.
 receipt.heading=Eich derbynneb ar gyfer gwiriad o’ch dogfennau gan y tollau
 receipt.caseReferenceNumber=Cyfeirnod yr achos
 receipt.submissionDateAndTime=Dyddiad ac amser cyflwyno
