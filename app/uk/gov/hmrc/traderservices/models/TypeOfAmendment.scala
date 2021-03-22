@@ -23,13 +23,13 @@ sealed trait TypeOfAmendment extends View
 object TypeOfAmendment extends EnumerationFormats[TypeOfAmendment] {
 
   case object WriteResponse extends TypeOfAmendment {
-    override def viewFormat = "Message"
+    override def viewFormat = "view.amend-case.summary.type.message"
   }
   case object UploadDocuments extends TypeOfAmendment {
-    override def viewFormat = "Documents"
+    override def viewFormat = "view.amend-case.summary.type.documents"
   }
   case object WriteResponseAndUploadDocuments extends TypeOfAmendment {
-    override def viewFormat = "Message and documents"
+    override def viewFormat = "view.amend-case.summary.type.messageAndDocuments"
   }
 
   val values = Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)

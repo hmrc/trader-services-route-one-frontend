@@ -610,6 +610,9 @@ view.amend-case.summary.additionalInfo.type=Information type
 view.amend-case.summary.additionalInfo.message=Message
 view.amend-case.summary.documents.heading=Documents you are submitting
 view.amend-case.summary.filenames=File names
+view.amend-case.summary.type.message=Message
+view.amend-case.summary.type.documents=Documents
+view.amend-case.summary.type.messageAndDocuments=Message and documents
 form.amend-case.summary.continue=Submit
 
 view.beta.title=Send documents for a customs check for declarations made in CHIEF
