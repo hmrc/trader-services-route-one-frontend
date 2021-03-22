@@ -31,14 +31,14 @@ class CaseConfirmationViewContext extends EntryDetailsHelper {
   final val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
   def getSlaTimeTextFor(dateTime: LocalDateTime)(implicit messages: Messages): String = {
-    val time = timeFormat.format(dateTime.toLocalTime())
+    val time = timeFormat.withLocale(messages.lang.locale).format(dateTime.toLocalTime())
     val today = ZonedDateTime.now(ZoneId.of("Europe/London")).toLocalDate()
     val suffix =
       messages(if (dateTime.toLocalDate.isAfter(today)) "site.tomorrow" else "site.today")
     s"""<span id="sla-time">$time</span> <span id="sla-suffix">$suffix</span>"""
   }
 
-  def entryDateForDisplay(entryDetails: EntryDetails): String =
+  def entryDateForDisplay(entryDetails: EntryDetails)(implicit messages: Messages): String =
     formatDateForDisplay(entryDetails.entryDate)
 
   def fileNamesForDisplay(uploadedFiles: Seq[UploadedFile]): Seq[String] =

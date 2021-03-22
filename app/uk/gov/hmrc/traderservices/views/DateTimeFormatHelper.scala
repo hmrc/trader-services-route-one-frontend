@@ -18,15 +18,17 @@ package uk.gov.hmrc.traderservices.views
 
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
+import play.api.i18n.Messages
 
 trait DateTimeFormatHelper {
 
   val govUkDateFormat = DateTimeFormatter.ofPattern("d MMMM yyyy")
-
   val govUkTimeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
-  def formatDateForDisplay(date: TemporalAccessor): String = govUkDateFormat.format(date)
+  def formatDateForDisplay(date: TemporalAccessor)(implicit messages: Messages): String =
+    govUkDateFormat.withLocale(messages.lang.locale).format(date)
 
-  def formatTimeForDisplay(time: TemporalAccessor): String = govUkTimeFormat.format(time).toLowerCase()
+  def formatTimeForDisplay(time: TemporalAccessor)(implicit messages: Messages): String =
+    govUkTimeFormat.withLocale(messages.lang.locale).format(time).toLowerCase()
 
 }
