@@ -60,7 +60,11 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
 
-    final case class AmendCaseConfirmation(result: TraderServicesResult) extends State
+    final case class AmendCaseConfirmation(
+      uploadedFiles: Seq[UploadedFile],
+      model: AmendCaseModel,
+      result: TraderServicesResult
+    ) extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -242,6 +246,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
               if (response.result.get.caseId == caseReferenceNumber)
                 goto(
                   AmendCaseConfirmation(
+                    request.uploadedFiles,
+                    model,
                     TraderServicesResult(caseReferenceNumber, response.result.get.generatedAt)
                   )
                 )

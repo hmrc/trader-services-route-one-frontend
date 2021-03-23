@@ -2061,7 +2061,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           AmendCaseSummary(model)
         ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
-            AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            AmendCaseConfirmation(
+              Seq.empty,
+              model,
+              TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
+            )
           )
       }
       "goto AmendConfirmation when in AmendSummary mode and both text and files are provided" in {
@@ -2077,7 +2081,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           AmendCaseSummary(fullAmendCaseStateModel)
         ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
-            AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            AmendCaseConfirmation(
+              Seq.empty,
+              fullAmendCaseStateModel,
+              TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
+            )
           )
       }
       "goto AmendConfirmation when in AmendSummary mode and only files are uploaded" in {
@@ -2100,7 +2108,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           AmendCaseSummary(model)
         ) when amendCase(updateCaseApi)(eoriNumber) should
           thenGo(
-            AmendCaseConfirmation(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            AmendCaseConfirmation(
+              someFileUploads.toUploadedFiles,
+              model,
+              TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
+            )
           )
       }
       "fail when submitted response text in AmendCaseSummary mode and UpdateCase API returned an error" in {

@@ -15,60 +15,44 @@
  *@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import uk.gov.hmrc.traderservices.models.UploadedFile
+@import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
+@import uk.gov.hmrc.traderservices.views.html.partials
 
 @this(
-        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
+        context: CaseConfirmationViewContext,
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, generatedAt: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, uploadedFiles: Seq[UploadedFile], responseText: Option[String], generatedAt: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout(
+@govukLayout2(
   pageTitle = pageTitle("view.amend-case-confirmation.title"),
-  backLink = None) {
+  backLink = None,
+  mainContentClasses = "",
+  hasPrintReceipt = true) {
 
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">
-            @messages("view.amend-case-confirmation.heading")
-        </h1>
-        <div class="govuk-panel__body">
-            @messages("view.amend-case-confirmation.reference")<br>
-            <strong class="app-reference-number">@caseReferenceId</strong><br>
-            <p class="govuk-!-font-size-19">@messages("view.amend-case-confirmation.date") @generatedAt</p>
-        </div>
+      <h1 class="govuk-panel__title">
+      @messages("view.amend-case-confirmation.heading")
+      </h1>
+      <div class="govuk-panel__body">
+        <p class="govuk-!-font-size-19">@messages("view.amend-case-confirmation.date") @generatedAt</p>
+      </div>
     </div>
-
-    @html.h2("view.amend-case-confirmation.save.heading", classes = "govuk-heading-m")
-
-    @html.p {
-      @messages("view.amend-case-confirmation.save.description")
-    }
-
-    @html.p {
-      @messages("view.amend-case-confirmation.save.description2")
-    }
 
     @html.h2("view.amend-case-confirmation.next.heading", classes = "govuk-heading-m")
 
     @html.p {
+      @Html(messages("view.amend-case-confirmation.save.description", caseReferenceId))
+    }
+
+    @html.p {
       @messages("view.amend-case-confirmation.next.description")
-    }
-
-
-    @html.p {
-    @Html(messages("view.amend-case-confirmation.next.description2", restartCall.url))
-    }
-
-    @html.h2("view.amend-case-confirmation.info.heading", classes = "govuk-heading-m")
-
-    @html.p {
-    @messages("view.amend-case-confirmation.info.description")
-    }
-
-    @html.p {
-    @Html(messages("view.amend-case-confirmation.footnote"))
     }
 
     @html.p {
@@ -77,4 +61,31 @@
         messageKey = "view.amend-case-confirmation.feedback"
       )
     }
+
+    @html.h2("view.amend-case-confirmation.info.heading", classes = "govuk-heading-m")
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    <ul class="action-buttons">
+      <li class="action-buttons__item">
+        <button class="print-page action-buttons__button action-buttons__button--print">
+        @messages("view.create-case-confirmation.button.print")
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <div class="govuk-grid-column-two-thirds">
+    @partials.amendCaseReceipt(caseReferenceId, context, uploadedFiles, responseText, generatedAt)(messages)
+  </div>
+
+  <div class="govuk-grid-column-two-thirds print-receipt-hide">
+    @html.p {
+      @Html(messages("view.amend-case-confirmation.next.description2", restartCall.url))
+    }
+
+    @html.p {
+      @Html(messages("view.amend-case-confirmation.footnote"))
+    }
+  </div>
 }

@@ -35,6 +35,6 @@
     <style>@Html(stylesheet)</style>
   </head>
   <body>
-    @partials.receipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt, isStandalone = true)(messages)
+    @partials.createCaseReceipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt, isStandalone = true)(messages)
   </body>
 </html>
