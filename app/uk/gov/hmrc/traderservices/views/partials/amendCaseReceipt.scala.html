@@ -37,29 +37,33 @@
     </dl>
   </div>
 
-  @if(isStandalone) {
-    <h2 class="govuk-heading-m">@messages("receipt.additionalInformation")</h2>
-  } else {
-    <h4 class="govuk-heading-m">@messages("receipt.additionalInformation")</h4>
+  @if(responseText.nonEmpty) {
+    @if(isStandalone) {
+      <h2 class="govuk-heading-m">@messages("receipt.additionalInformation")</h2>
+    } else {
+      <h4 class="govuk-heading-m">@messages("receipt.additionalInformation")</h4>
+    }
+    <dl>
+      <dt>@messages("receipt.message")</dt>
+      <dd>@responseText</dd>
+    </dl>
   }
-  <dl>
-    <dt>@messages("receipt.message")</dt>
-    <dd>@responseText</dd>
-  </dl>
 
-  @if(isStandalone) {
-    <h2 class="govuk-heading-m">@messages("receipt.documents")</h2>
-  } else {
-    <h4 class="govuk-heading-m">@messages("receipt.documents")</h4>
-  }
-  <dl>
-    <dt>@messages("receipt.fileNames")</dt>
-    <dd>
-      <ul class="receipt__file-list">
+  @if(uploadedFiles.nonEmpty) {
+    @if(isStandalone) {
+      <h2 class="govuk-heading-m">@messages("receipt.documents")</h2>
+    } else {
+      <h4 class="govuk-heading-m">@messages("receipt.documents")</h4>
+    }
+    <dl>
+      <dt>@messages("receipt.fileNames")</dt>
+      <dd>
+        <ul class="receipt__file-list">
         @context.fileNamesForDisplay(uploadedFiles).map { fileName =>
           <li>@fileName</li>
         }
-      </ul>
-    </dd>
-  </dl>
+        </ul>
+      </dd>
+    </dl>
+  }
 </div>
