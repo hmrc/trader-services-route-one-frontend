@@ -501,7 +501,7 @@ class AmendCaseJourneyController @Inject() (
           views.amendCaseConfirmationView(
             caseReferenceNumber,
             uploadedFiles,
-            Some(model.responseText),
+            model.responseText,
             generatedAt.ddMMYYYYAtTimeFormat,
             routes.CreateCaseJourneyController.showStart()
           )
