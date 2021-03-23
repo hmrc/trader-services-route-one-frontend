@@ -44,7 +44,7 @@ class AmendCaseSummaryHelper extends SummaryListRowHelper with FileUploadsHelper
     val responseText = model.responseText
     val additionalInfo = summaryListRow(
       label = "view.amend-case.summary.additionalInfo.type",
-      value = model.typeOfAmendment.map(_.viewFormat).getOrElse(""),
+      value = messages(model.typeOfAmendment.map(_.viewFormat).getOrElse("")),
       visuallyHiddenText = Some("view.amend-case.summary.additionalInfo.type"),
       action = (AmendCaseJourneyController.showSelectTypeOfAmendment, "site.change")
     )

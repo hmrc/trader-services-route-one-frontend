@@ -100,8 +100,8 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate EntryDate" in {
-      entryDateMapping.bind(Map("year" -> "2020", "month" -> "09", "day" -> "21")) shouldBe Right(
-        LocalDate.parse("2020-09-21")
+      entryDateMapping.bind(Map("year" -> "2021", "month" -> "03", "day" -> "23")) shouldBe Right(
+        LocalDate.parse("2021-03-23")
       )
       entryDateMapping.bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[LocalDate](
         "error.entryDate.all.required"
