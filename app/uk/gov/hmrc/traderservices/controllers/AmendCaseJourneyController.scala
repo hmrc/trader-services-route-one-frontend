@@ -492,10 +492,16 @@ class AmendCaseJourneyController @Inject() (
           views.amendCaseSummaryView(model, controller.amendCase, backLinkFromSummary(model))
         )
 
-      case AmendCaseConfirmation(TraderServicesResult(caseReferenceNumber, generatedAt)) =>
+      case AmendCaseConfirmation(
+            uploadedFiles,
+            model,
+            TraderServicesResult(caseReferenceNumber, generatedAt)
+          ) =>
         Ok(
           views.amendCaseConfirmationView(
             caseReferenceNumber,
+            uploadedFiles,
+            Some(model.responseText.get),
             generatedAt.ddMMYYYYAtTimeFormat,
             routes.CreateCaseJourneyController.showStart()
           )

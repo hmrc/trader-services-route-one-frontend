@@ -592,12 +592,12 @@ view.amend-case-confirmation.heading=You’ve submitted your extra information
 view.amend-case-confirmation.reference=Your case reference number:
 view.amend-case-confirmation.date=Case updated on:
 view.amend-case-confirmation.save.heading=Save your case reference number
-view.amend-case-confirmation.save.description=You’ll need to use this case reference number for any further correspondence on this case.
+view.amend-case-confirmation.save.description=You’ll need to use the same case reference number <strong>{0}</strong> for any further correspondence on this case.
 view.amend-case-confirmation.save.description2=It is the same case reference number that you were given when the case was first created.
 view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you’ll hear from us through CHIEF or your declaration software. We’ll let you know if we need any further information from you.
 view.amend-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
-view.amend-case-confirmation.info.heading=If we need more information
+view.amend-case-confirmation.info.heading=Print your receipt for your records
 view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.amend-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 view.amend-case-confirmation.feedback=Give feedback on this service
@@ -653,14 +653,16 @@ view.beta.afterSendingDocuments=After you’ve sent HMRC supporting documents
 view.beta.afterSendingDocuments.paragraph1=After you have completed the service you’ll be told when your goods should be cleared. You’ll be notified through your software when they have cleared.
 view.beta.afterSendingDocuments.paragraph2=If your goods are not cleared by that time, you can contact the <a href="https://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub" class="govuk-link" target="_blank" rel="noopener noreferrer">National Clearance Hub</a>.
 
-receipt.heading=Your customs check document receipt
+receipt.heading=Your customs check submission receipt
 receipt.caseReferenceNumber=Case reference number
 receipt.submissionDateAndTime=Submission date and time
-receipt.documentsReceivedOn=Documents received on {0}
+receipt.documentsReceivedOn=Information received on {0}
 receipt.entryInformation=Entry information
+receipt.additionalInformation=Additional information
 receipt.epuNumber=EPU number
 receipt.entryNumber=Entry number
 receipt.entryDate=Entry date
+receipt.message=Message
 receipt.documents=Documents you have submitted
 receipt.fileNames=File names
 
