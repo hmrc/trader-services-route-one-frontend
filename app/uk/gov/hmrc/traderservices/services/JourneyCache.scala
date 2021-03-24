@@ -46,7 +46,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   val format: Format[T]
 
   val maxWorkerLifespanMinutes: Int = 30
-  val timeoutSeconds: Int = 15
+  // Transition timeout, some transitions may depend on long external calls.
+  val timeoutSeconds: Int = 300
 
   def getJourneyId(implicit requestContext: C): Option[String]
 
