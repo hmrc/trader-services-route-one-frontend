@@ -1238,6 +1238,10 @@ class AmendCaseJourneyISpec extends AmendCaseJourneyISpecSetup with TraderServic
 }
 
 trait AmendCaseJourneyISpecSetup extends ServerISpec {
+
+  import play.api.i18n._
+  implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
+
   // define test service capable of manipulating journey state
   lazy val journey = new TestJourneyService[JourneyId]
     with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {

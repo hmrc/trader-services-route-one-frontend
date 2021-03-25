@@ -2915,6 +2915,9 @@ class CreateCaseJourneyISpec
 
 trait CreateCaseJourneyISpecSetup extends ServerISpec {
 
+  import play.api.i18n._
+  implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
+
   val today = LocalDate.now
   val (y, m, d) = (today.getYear(), today.getMonthValue(), today.getDayOfMonth())
 
