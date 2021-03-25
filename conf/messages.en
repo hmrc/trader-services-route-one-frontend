@@ -47,6 +47,8 @@ site.Oct = October
 site.Nov = November
 site.Dec = December
 
+site.datetime.preposition=at
+
 # Validation errors
 error.summary.heading=There is a problem
 error.prefix=Error:

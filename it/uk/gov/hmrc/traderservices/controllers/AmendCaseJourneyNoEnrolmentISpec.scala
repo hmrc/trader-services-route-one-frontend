@@ -1137,6 +1137,8 @@ class AmendCaseJourneyNoEnrolmentISpec
 
 trait AmendCaseJourneyNoEnrolmentISpecSetup extends ServerISpec {
 
+  import play.api.i18n._
+  implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
   override val requireEnrolmentFeature: Boolean = false
 
   // define test service capable of manipulating journey state

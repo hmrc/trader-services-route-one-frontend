@@ -33,6 +33,7 @@ site.Sept=Medi
 site.Oct=Hydref
 site.Nov=Tachwedd
 site.Dec=Rhagfyr
+site.datetime.preposition=am
 error.summary.heading=Mae problem wedi codi
 button.continue=Yn eich blaen
 global.error.404.title=Heb ddod o hyd i’r dudalen
