@@ -145,6 +145,8 @@ export class MultiFileUpload extends Component {
     this.updateFormStatusVisibility(this.isBusy());
 
     if (this.errorManager.hasErrors()) {
+      this.errorManager.focusSummary();
+
       return;
     }
 
@@ -160,6 +162,7 @@ export class MultiFileUpload extends Component {
     else {
       const firstFileInput = this.itemList.querySelector(`.${this.classes.file}`);
       this.errorManager.addError(firstFileInput.id, this.messages.noFilesUploadedError);
+      this.errorManager.focusSummary();
     }
   }
 

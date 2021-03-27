@@ -120,6 +120,10 @@ export default class ErrorManager {
     }
   }
 
+  public focusSummary(): void {
+    this.errorSummary.focus();
+  }
+
   private getContainer(input: HTMLElement): HTMLElement {
     return input.closest(`.${this.classes.inputContainer}`) as HTMLElement;
   }
