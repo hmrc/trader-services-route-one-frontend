@@ -65,9 +65,11 @@
   &__button {
     @include govuk-media-query($from: tablet) {
       font-size: 19px;
+      font-size: 1.1875rem;
     }
 
     font-size: 16px;
+    font-size: 1rem;
     padding: 0;
     background: none;
     border: none;
