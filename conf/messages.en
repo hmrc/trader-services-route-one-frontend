@@ -553,6 +553,8 @@ view.create-case-confirmation.feedback=Give feedback on this service
 view.create-case-confirmation.button.print=Print your receipt
 view.create-case-confirmation.button.download-html=Save your receipt (HTML)
 view.create-case-confirmation.button.download-pdf=Save your receipt (PDF)
+view.create-case-confirmation.sendAnother.heading=Need to send documents for another case?
+view.create-case-confirmation.sendAnother.button=Send documents for another customs check
 
 view.case-already-exists.title=This case already exists
 view.case-already-exists.heading=This case already exists
@@ -603,6 +605,8 @@ view.amend-case-confirmation.info.heading=Print your receipt for your records
 view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.amend-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 view.amend-case-confirmation.feedback=Give feedback on this service
+view.amend-case-confirmation.sendAnother.heading=Need to send documents for another case?
+view.amend-case-confirmation.sendAnother.button=Send documents for another customs check
 
 view.amend-case.summary.title=Review your case details
 view.amend-case.summary.declaration.details.heading=Declaration information

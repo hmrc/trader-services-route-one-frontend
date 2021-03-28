@@ -80,9 +80,11 @@
   </div>
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
-    @html.p {
-      @Html(messages("view.amend-case-confirmation.next.description2", restartCall.url))
-    }
+    @html.h2("view.amend-case-confirmation.sendAnother.heading", classes = "govuk-heading-m")
+
+    <a href="@restartCall.url" class="govuk-link govuk-button govuk-button--secondary" role="button" data-module="govuk-button">
+      @messages("view.amend-case-confirmation.sendAnother.button")
+    </a>
 
     @html.p {
       @Html(messages("view.amend-case-confirmation.footnote"))
