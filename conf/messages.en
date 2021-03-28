@@ -104,8 +104,9 @@ footer.accessibilityStatement = Accessibility statement
 
 # Accessibility statement
 # -----------------------
-a11yStatement.title = Accessibility statement for Trader Services
-a11yStatement.heading = Accessibility statement for Trader Services
+a11yStatement.title = Accessibility statement for Send documents for a customs check
+a11yStatement.heading = Accessibility statement for Send documents for a customs check
+a11yStatement.temp.p1=This accessibility statement is being prepared, as we are still busy with our accessibility testing. If you have any accessibility queries, you can contact the Customs Process Solutions team at <a href="mailto:betatesting@hmrc.gov.uk" class="govuk-link">betatesting@hmrc.gov.uk</a>.
 a11yStatement.p1 = This accessibility statement explains how accessible this service is, what to do if you have difficulty using it, and how to report accessibility problems with the service.
 a11yStatement.p2.start = This service is part of the wider GOV.UK website. There is a separate
 a11yStatement.p2.link = accessibility statement
