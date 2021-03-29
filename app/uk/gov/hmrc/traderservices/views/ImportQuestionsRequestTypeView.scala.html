@@ -26,13 +26,6 @@
 
 @(form: Form[ImportRequestType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@cancellationConditional = {
-@html.p(
-  content = Html(messages("form.export-questions.requestType.cancellationConditional")),
-  classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
-)
-}
-
 @govukLayout(
   pageTitle("view.import-questions.requestType.title",form), 
   backLink = Some(backLink.url)) {
@@ -54,8 +47,7 @@
         RadioItem(
           value = Some("Cancellation"),
           content = Text(messages("form.export-questions.requestType.Cancellation")),
-          checked = form("requestType").value.contains("Cancellation"),
-          conditionalHtml = Some(cancellationConditional)
+          checked = form("requestType").value.contains("Cancellation")
         )
       ),
       inline = false,
