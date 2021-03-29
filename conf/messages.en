@@ -546,6 +546,8 @@ view.create-case-confirmation.next.heading=Next steps
 view.create-case-confirmation.next.description.sla1=Your document checks should be completed by {0}. You’ll hear from us through CHIEF or your declaration software.
 view.create-case-confirmation.next.description.sla2=If you have not heard from us by this time, you can <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">contact us about your case’s progress</a>.
 view.create-case-confirmation.next.description.nosla=When your transportation arrives, we’ll begin the document checks. Once our checks are complete, you’ll hear from us through CHIEF or your declaration software.
+view.create-case-confirmation.next.cancellation=You will now need to cancel this entry in CHIEF.
+view.create-case-confirmation.next.withdrawal=You will now need to withdraw this entry in CHIEF.
 view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.create-case-confirmation.print-receipts.heading=Print or save your receipt for your records
 view.create-case-confirmation.print-receipts.description=You’ll need your case reference number if you need to provide more information.

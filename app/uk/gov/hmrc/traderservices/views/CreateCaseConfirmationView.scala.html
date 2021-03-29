@@ -68,6 +68,18 @@
       }
     }
 
+    @if(context.isCancellation(questionAnswers)) {
+      @html.p {
+        @messages("view.create-case-confirmation.next.cancellation")
+      }
+    }
+
+    @if(context.isWithdrawal(questionAnswers)) {
+      @html.p {
+        @messages("view.create-case-confirmation.next.withdrawal")
+      }
+    }
+
     @html.p {
       @html.a(
         link = appConfig.exitSurveyUrl,
