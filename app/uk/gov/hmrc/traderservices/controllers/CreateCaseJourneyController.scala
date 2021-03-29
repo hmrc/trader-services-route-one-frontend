@@ -969,7 +969,7 @@ class CreateCaseJourneyController @Inject() (
 
       case CreateCaseConfirmation(
             entryDetails,
-            _,
+            questionsAnswers,
             uploadedFiles,
             TraderServicesResult(caseReferenceId, generatedAt),
             caseSLA
@@ -978,6 +978,7 @@ class CreateCaseJourneyController @Inject() (
           views.createCaseConfirmationView(
             caseReferenceId,
             entryDetails,
+            questionsAnswers,
             uploadedFiles,
             generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             caseSLA,

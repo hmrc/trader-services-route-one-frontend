@@ -24,6 +24,11 @@ import java.time.ZonedDateTime
 import java.time.ZoneId
 import uk.gov.hmrc.traderservices.models.EntryDetails
 import uk.gov.hmrc.traderservices.models.UploadedFile
+import uk.gov.hmrc.traderservices.models.QuestionsAnswers
+import uk.gov.hmrc.traderservices.models.ExportQuestions
+import uk.gov.hmrc.traderservices.models.ExportRequestType
+import uk.gov.hmrc.traderservices.models.ImportQuestions
+import uk.gov.hmrc.traderservices.models.ImportRequestType
 
 @Singleton
 class CaseConfirmationViewContext extends EntryDetailsHelper {
@@ -43,5 +48,17 @@ class CaseConfirmationViewContext extends EntryDetailsHelper {
 
   def fileNamesForDisplay(uploadedFiles: Seq[UploadedFile]): Seq[String] =
     uploadedFiles.map(_.fileName)
+
+  def isCancellation(questionsAnswers: QuestionsAnswers): Boolean =
+    questionsAnswers match {
+      case q: ExportQuestions => q.requestType.contains(ExportRequestType.Cancellation)
+      case q: ImportQuestions => q.requestType.contains(ImportRequestType.Cancellation)
+    }
+
+  def isWithdrawal(questionsAnswers: QuestionsAnswers): Boolean =
+    questionsAnswers match {
+      case q: ExportQuestions => q.requestType.contains(ExportRequestType.WithdrawalOrReturn)
+      case q: ImportQuestions => false
+    }
 
 }
