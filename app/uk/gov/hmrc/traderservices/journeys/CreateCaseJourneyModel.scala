@@ -22,8 +22,7 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
-import java.time.ZoneId
-import java.time.ZoneOffset
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -820,10 +819,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                 request.uploadedFiles,
                 createCaseResult,
                 CaseSLA.calculateFrom(
-                  createCaseResult.generatedAt
-                    .atOffset(ZoneOffset.UTC)
-                    .atZoneSameInstant(ZoneId.of("Europe/London"))
-                    .toLocalDateTime(),
+                  createCaseResult.generatedAt.asLondonClockTime,
                   request.questionsAnswers
                 )
               )

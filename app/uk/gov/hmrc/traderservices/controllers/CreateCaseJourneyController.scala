@@ -979,7 +979,7 @@ class CreateCaseJourneyController @Inject() (
             caseReferenceId,
             entryDetails,
             uploadedFiles,
-            generatedAt.ddMMYYYYAtTimeFormat,
+            generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
             controller.downloadCreateCaseConfirmationReceiptAsPdf(

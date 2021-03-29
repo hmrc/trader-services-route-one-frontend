@@ -19,6 +19,8 @@ package uk.gov.hmrc.traderservices.views
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import play.api.i18n.Messages
+import java.time.ZoneOffset
+import java.time.ZoneId
 
 object CommonUtilsHelper {
 
@@ -39,6 +41,11 @@ object CommonUtilsHelper {
       val preposition = messages("site.datetime.preposition")
       s"$dateFormatted $preposition $timeFormatted"
     }
+
+    def asLondonClockTime =
+      s.atOffset(ZoneOffset.UTC)
+        .atZoneSameInstant(ZoneId.of("Europe/London"))
+        .toLocalDateTime()
   }
 
   /**
