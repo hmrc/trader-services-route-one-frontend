@@ -113,6 +113,8 @@ POST       /add/journey/:journeyId/callback-from-upscan/:nonce      @uk.gov.hmrc
 GET        /add/check-your-answers                                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
 GET        /add/confirmation                                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
+GET        /add/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceipt
+GET        /add/confirmation/receipt/pdf/:fileName                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceiptAsPdf(fileName: String)
 
 GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
 
