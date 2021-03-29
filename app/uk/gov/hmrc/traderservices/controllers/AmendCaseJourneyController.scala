@@ -502,7 +502,7 @@ class AmendCaseJourneyController @Inject() (
             caseReferenceNumber,
             uploadedFiles,
             model.responseText,
-            generatedAt.ddMMYYYYAtTimeFormat,
+            generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             routes.CreateCaseJourneyController.showStart()
           )
         )
