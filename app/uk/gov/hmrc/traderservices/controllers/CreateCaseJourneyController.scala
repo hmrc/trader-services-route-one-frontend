@@ -15,7 +15,6 @@
  */
 
 package uk.gov.hmrc.traderservices.controllers
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
@@ -40,6 +39,7 @@ import java.time.LocalDate
 import akka.actor.Scheduler
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -1117,7 +1117,7 @@ class CreateCaseJourneyController @Inject() (
               caseReferenceId,
               entryDetails,
               uploadedFiles,
-              generatedAt.ddMMYYYYAtTimeFormat,
+              generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
               caseSLA,
               stylesheet
             )
@@ -1145,7 +1145,7 @@ class CreateCaseJourneyController @Inject() (
                 caseReferenceId,
                 entryDetails,
                 uploadedFiles,
-                generatedAt.ddMMYYYYAtTimeFormat,
+                generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
                 caseSLA,
                 stylesheet
               )
