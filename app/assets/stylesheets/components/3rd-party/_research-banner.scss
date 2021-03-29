@@ -54,6 +54,12 @@
       float: right;
       text-align: right;
     }
+
+    display: none;
+
+    .js-enabled & {
+      display: block;
+    }
   }
 
   &__button {
