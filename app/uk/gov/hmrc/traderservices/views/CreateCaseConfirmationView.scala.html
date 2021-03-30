@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.traderservices.models.CaseSLA
 @import uk.gov.hmrc.traderservices.models.EntryDetails
 @import uk.gov.hmrc.traderservices.models.UploadedFile
+@import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
 
@@ -29,7 +30,7 @@
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, entryDetails: EntryDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, downloadPdfCall:Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, entryDetails: EntryDetails, questionAnswers: QuestionsAnswers, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, downloadPdfCall:Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
   pageTitle = pageTitle("view.create-case-confirmation.title"),
@@ -64,6 +65,18 @@
     @if(caseSLA.dateTime.isEmpty) {
       @html.p {
         @messages("view.create-case-confirmation.next.description.nosla")
+      }
+    }
+
+    @if(context.isCancellation(questionAnswers)) {
+      @html.p {
+        @messages("view.create-case-confirmation.next.cancellation")
+      }
+    }
+
+    @if(context.isWithdrawal(questionAnswers)) {
+      @html.p {
+        @messages("view.create-case-confirmation.next.withdrawal")
       }
     }
 

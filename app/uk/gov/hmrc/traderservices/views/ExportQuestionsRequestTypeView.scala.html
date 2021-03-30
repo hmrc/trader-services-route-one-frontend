@@ -26,20 +26,6 @@
 
 @(form: Form[ExportRequestType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@cancellationConditional = {
-  @html.p(
-    content = Html(messages("form.export-questions.requestType.cancellationConditional")),
-    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
-  )
-}
-
-@withdrawalConditional = {
-  @html.p(
-    content = Html(messages("form.export-questions.requestType.withdrawalConditional")),
-    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
-  )
-}
-
 @govukLayout(pageTitle("view.export-questions.requestType.title",form), backLink = Some(backLink.url)) {
 
   @forms.errorSummary(form.errors)
@@ -59,14 +45,12 @@
         RadioItem(
           value = Some("Cancellation"),
           content = Text(messages("form.export-questions.requestType.Cancellation")),
-          checked = form("requestType").value.contains("Cancellation"),
-          conditionalHtml = Some(cancellationConditional)
+          checked = form("requestType").value.contains("Cancellation")
         ),
         RadioItem(
           value = Some("WithdrawalOrReturn"),
           content = Text(messages("form.export-questions.requestType.WithdrawalOrReturn")),
-          checked = form("requestType").value.contains("WithdrawalOrReturn"),
-          conditionalHtml = Some(withdrawalConditional)
+          checked = form("requestType").value.contains("WithdrawalOrReturn")
         ),
         RadioItem(
           value = Some("C1601"),
