@@ -43,6 +43,7 @@ import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import akka.actor.Scheduler
 import scala.concurrent.Future
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -55,6 +56,8 @@ class AmendCaseJourneyController @Inject() (
   controllerComponents: MessagesControllerComponents,
   views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
   uploadFileViewContext: UploadFileViewContext,
+  printStylesheet: ReceiptStylesheet,
+  pdfGeneratorConnector: PdfGeneratorConnector,
   override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
   override val actionBuilder: DefaultActionBuilder
 )(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
@@ -343,6 +346,16 @@ class AmendCaseJourneyController @Inject() (
       .orRollback
       .andCleanBreadcrumbs() // forget journey history
 
+  // GET /add/confirmation/receipt
+  final def downloadAmendCaseConfirmationReceipt: Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayAsyncUsing(renderConfirmationReceiptHtml)
+
+  // GET /add/confirmation/receipt/pdf/:fileName
+  final def downloadAmendCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
+    whenAuthorisedAsUser.showCurrentState
+      .displayAsyncUsing(renderConfirmationReceiptPdf)
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -502,7 +515,11 @@ class AmendCaseJourneyController @Inject() (
             caseReferenceNumber,
             uploadedFiles,
             model.responseText,
-            generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
+            generatedAt.ddMMYYYYAtTimeFormat,
+            controller.downloadAmendCaseConfirmationReceipt,
+            controller.downloadAmendCaseConfirmationReceiptAsPdf(
+              s"Document_receipt_$caseReferenceNumber.pdf"
+            ),
             routes.CreateCaseJourneyController.showStart()
           )
         )
@@ -619,6 +636,56 @@ class AmendCaseJourneyController @Inject() (
         case _                                             => NoContent
       }).withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
   }
+
+  private val renderConfirmationReceiptHtml =
+    AsyncRenderer.withRequest(implicit request => {
+      case AmendCaseConfirmation(
+            uploadedFiles,
+            model,
+            TraderServicesResult(caseReferenceNumber, generatedAt)
+          ) =>
+        printStylesheet.content.map(stylesheet =>
+          Ok(
+            views.amendCaseConfirmationReceiptView(
+              model.caseReferenceNumber.get,
+              uploadedFiles,
+              model.responseText,
+              generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
+              stylesheet
+            )
+          ).withHeaders(
+            HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${model.caseReferenceNumber.get}.html""""
+          )
+        )
+
+      case _ => Future.successful(BadRequest)
+    })
+
+  private val renderConfirmationReceiptPdf =
+    AsyncRenderer.withRequest(implicit request => {
+      case AmendCaseConfirmation(
+            uploadedFiles,
+            model,
+            TraderServicesResult(caseReferenceNumber, generatedAt)
+          ) =>
+        printStylesheet.content
+          .map(stylesheet =>
+            views
+              .amendCaseConfirmationReceiptView(
+                model.caseReferenceNumber.get,
+                uploadedFiles,
+                model.responseText,
+                generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
+                stylesheet
+              )
+              .body
+          )
+          .flatMap(
+            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${model.caseReferenceNumber.get}.pdf")
+          )
+
+      case _ => Future.successful(BadRequest)
+    })
 
   private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
 

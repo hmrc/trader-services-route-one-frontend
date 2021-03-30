@@ -364,9 +364,9 @@ view.create-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link"
 view.create-case-confirmation.print-receipts.heading=Argraffu neu gadw’ch derbynneb ar gyfer eich cofnodion
 view.create-case-confirmation.print-receipts.description=Bydd angen cyfeirnod eich achos arnoch os bydd angen i chi roi rhagor o wybodaeth.
 view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
-view.create-case-confirmation.button.print=Argraffu’ch derbynneb
-view.create-case-confirmation.button.download-html=Cadw’ch derbynneb (PDF)
-view.create-case-confirmation.button.download-pdf=Cadw’ch derbynneb (HTML)
+view.case-confirmation.button.print=Argraffu’ch derbynneb
+view.case-confirmation.button.download-html=Cadw’ch derbynneb (PDF)
+view.case-confirmation.button.download-pdf=Cadw’ch derbynneb (HTML)
 view.case-already-exists.title=Mae’r achos hwn eisoes yn bodoli
 view.case-already-exists.heading=Mae’r achos hwn eisoes yn bodoli
 view.case-already-exists.description.1=Nid ydym wedi cadw eich atebion na’ch dogfennau oherwydd ein bod eisoes wedi cael achos gyda’r manylion hyn.
