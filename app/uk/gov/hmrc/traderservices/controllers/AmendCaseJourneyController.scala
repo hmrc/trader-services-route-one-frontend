@@ -515,7 +515,7 @@ class AmendCaseJourneyController @Inject() (
             caseReferenceNumber,
             uploadedFiles,
             model.responseText,
-            generatedAt.ddMMYYYYAtTimeFormat,
+            generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             controller.downloadAmendCaseConfirmationReceipt,
             controller.downloadAmendCaseConfirmationReceiptAsPdf(
               s"Document_receipt_$caseReferenceNumber.pdf"
