@@ -45,6 +45,6 @@
         @html.summaryList(helper.summaryListOfFileUploads(model.fileUploads.get, backLink))
     }
     @forms.formWithCSRF(action = postAction) {
-        @html.button("form.amend-case.summary.continue")
+        @html.button("form.amend-case.summary.continue", disableAfterClick=true)
     }
 }

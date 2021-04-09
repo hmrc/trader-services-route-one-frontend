@@ -16,12 +16,12 @@
 
 @this(govukButton: GovukButton)
 
-@(msg: String, id: Option[String] = None)(implicit messages: Messages)
+@(msg: String, id: Option[String] = None, disableAfterClick: Boolean = false)(implicit messages: Messages)
 
 @govukButton(
     Button(
         content = Text(messages(msg)),
         preventDoubleClick = true,
-        attributes = Map("id" -> id.getOrElse("send-documents-for-customs-check-submit"))
+        attributes = Map("id" -> id.getOrElse("send-documents-for-customs-check-submit")) ++ (if(disableAfterClick)Map("data-disable-after-click" -> "true") else Map())
     )
 )
