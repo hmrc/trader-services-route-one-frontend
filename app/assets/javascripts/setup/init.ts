@@ -13,7 +13,7 @@ export default function init(): void {
       element.addEventListener('click', function (event: Event) {
         const target = event.target as HTMLInputElement;
         window.setTimeout((target: HTMLInputElement) => {
-          target.setAttribute("disabled", "")
+          target.setAttribute('disabled', '');
         }, 10, target);
         return true;
       });
