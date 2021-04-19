@@ -24,7 +24,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.createCase(createCaseRequest))
 
-        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt, fileTransferResults))
         result.error shouldBe None
 
         verifyCreateCaseRequestHappened(1)
@@ -60,7 +60,7 @@ class TraderServicesApiConnectorISpec extends TraderServicesApiConnectorISpecSet
         val result: TraderServicesCaseResponse =
           await(connector.updateCase(updateCaseRequest))
 
-        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt))
+        result.result shouldBe Some(TraderServicesResult("A1234567890", generatedAt, fileTransferResults))
         result.error shouldBe None
       }
 
@@ -135,4 +135,14 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
       eori = Some("GB123456789012345")
     )
   }
+
+  // {"upscanReference":"foo1","success":true,"httpStatus":201,"transferredAt":"2021-04-18T12:07:36"}
+  val fileTransferResults = List(
+    FileTransferResult(
+      upscanReference = "foo1",
+      success = true,
+      httpStatus = 201,
+      transferredAt = LocalDateTime.parse("2021-04-18T12:07:36")
+    )
+  )
 }

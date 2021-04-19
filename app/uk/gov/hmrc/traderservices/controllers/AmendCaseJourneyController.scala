@@ -73,6 +73,16 @@ class AmendCaseJourneyController @Inject() (
 
   /** AsUser authorisation request */
   final val AsUser: WithAuthorised[Option[String]] =
+    if (appConfig.requireEnrolmentFeature) { implicit request => body =>
+      authorisedWithEnrolment(
+        appConfig.authorisedServiceName,
+        appConfig.authorisedIdentifierKey
+      )(x => body(x._2))
+    } else { implicit request => body =>
+      authorisedWithoutEnrolment(x => body(x._2))
+    }
+
+  final val AsUserWithUidAndEori: WithAuthorised[(Option[String], Option[String])] =
     if (appConfig.requireEnrolmentFeature) { implicit request =>
       authorisedWithEnrolment(
         appConfig.authorisedServiceName,
@@ -85,6 +95,7 @@ class AmendCaseJourneyController @Inject() (
   /** Base authorized action builder */
   final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
   final val whenAuthorisedAsUserWithEori = actions.whenAuthorisedWithRetrievals(AsUser)
+  final val whenAuthorisedAsUserWithUidAndEori = actions.whenAuthorisedWithRetrievals(AsUserWithUidAndEori)
 
   /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
@@ -334,9 +345,9 @@ class AmendCaseJourneyController @Inject() (
 
   // POST /add/amend-case
   final def amendCase: Action[AnyContent] =
-    whenAuthorisedAsUserWithEori
-      .applyWithRequest { implicit request => eoriOpt =>
-        Transitions.amendCase(traderServicesApiConnector.updateCase(_))(eoriOpt)
+    whenAuthorisedAsUserWithUidAndEori
+      .applyWithRequest { implicit request => uidAndEori =>
+        Transitions.amendCase(traderServicesApiConnector.updateCase(_))(uidAndEori)
       }
 
   // GET /add/confirmation
@@ -508,7 +519,7 @@ class AmendCaseJourneyController @Inject() (
       case AmendCaseConfirmation(
             uploadedFiles,
             model,
-            TraderServicesResult(caseReferenceNumber, generatedAt)
+            TraderServicesResult(caseReferenceNumber, generatedAt, _)
           ) =>
         Ok(
           views.amendCaseConfirmationView(
@@ -642,7 +653,7 @@ class AmendCaseJourneyController @Inject() (
       case AmendCaseConfirmation(
             uploadedFiles,
             model,
-            TraderServicesResult(caseReferenceNumber, generatedAt)
+            TraderServicesResult(caseReferenceNumber, generatedAt, _)
           ) =>
         printStylesheet.content.map(stylesheet =>
           Ok(
@@ -666,7 +677,7 @@ class AmendCaseJourneyController @Inject() (
       case AmendCaseConfirmation(
             uploadedFiles,
             model,
-            TraderServicesResult(caseReferenceNumber, generatedAt)
+            TraderServicesResult(caseReferenceNumber, generatedAt, _)
           ) =>
         printStylesheet.content
           .map(stylesheet =>

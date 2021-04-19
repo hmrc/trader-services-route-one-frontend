@@ -69,6 +69,16 @@ class CreateCaseJourneyController @Inject() (
 
   /** AsUser authorisation request */
   final val AsUser: WithAuthorised[Option[String]] =
+    if (appConfig.requireEnrolmentFeature) { implicit request => body =>
+      authorisedWithEnrolment(
+        appConfig.authorisedServiceName,
+        appConfig.authorisedIdentifierKey
+      )(x => body(x._2))
+    } else { implicit request => body =>
+      authorisedWithoutEnrolment(x => body(x._2))
+    }
+
+  final val AsUserWithUidAndEori: WithAuthorised[(Option[String], Option[String])] =
     if (appConfig.requireEnrolmentFeature) { implicit request =>
       authorisedWithEnrolment(
         appConfig.authorisedServiceName,
@@ -81,6 +91,7 @@ class CreateCaseJourneyController @Inject() (
   /** Base authorized action builder */
   final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
   final val whenAuthorisedAsUserWithEori = actions.whenAuthorisedWithRetrievals(AsUser)
+  final val whenAuthorisedAsUserWithUidAndEori = actions.whenAuthorisedWithRetrievals(AsUserWithUidAndEori)
 
   /** Dummy action to use only when developing to fill loose-ends. */
   private val actionNotYetImplemented = Action(NotImplemented)
@@ -536,9 +547,9 @@ class CreateCaseJourneyController @Inject() (
 
   // POST /new/create-case
   final def createCase: Action[AnyContent] =
-    whenAuthorisedAsUserWithEori
-      .applyWithRequest { implicit request => eoriOpt =>
-        Transitions.createCase(traderServicesApiConnector.createCase(_))(eoriOpt)
+    whenAuthorisedAsUserWithUidAndEori
+      .applyWithRequest { implicit request => uidAndEori =>
+        Transitions.createCase(traderServicesApiConnector.createCase(_))(uidAndEori)
       }
 
   // GET /new/confirmation
@@ -971,7 +982,7 @@ class CreateCaseJourneyController @Inject() (
             entryDetails,
             questionsAnswers,
             uploadedFiles,
-            TraderServicesResult(caseReferenceId, generatedAt),
+            TraderServicesResult(caseReferenceId, generatedAt, _),
             caseSLA
           ) =>
         Ok(
@@ -1109,7 +1120,7 @@ class CreateCaseJourneyController @Inject() (
             entryDetails,
             _,
             uploadedFiles,
-            TraderServicesResult(caseReferenceId, generatedAt),
+            TraderServicesResult(caseReferenceId, generatedAt, _),
             caseSLA
           ) =>
         printStylesheet.content.map(stylesheet =>
@@ -1136,7 +1147,7 @@ class CreateCaseJourneyController @Inject() (
             entryDetails,
             _,
             uploadedFiles,
-            TraderServicesResult(caseReferenceId, generatedAt),
+            TraderServicesResult(caseReferenceId, generatedAt, _),
             caseSLA
           ) =>
         printStylesheet.content

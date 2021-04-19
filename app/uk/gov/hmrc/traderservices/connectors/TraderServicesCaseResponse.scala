@@ -23,7 +23,11 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
-case class TraderServicesResult(caseId: String, generatedAt: LocalDateTime)
+case class TraderServicesResult(
+  caseId: String,
+  generatedAt: LocalDateTime,
+  fileTransferResults: Seq[FileTransferResult] = Seq.empty
+)
 
 object TraderServicesResult {
   implicit val formats: Format[TraderServicesResult] =
@@ -36,7 +40,10 @@ case class TraderServicesCaseResponse(
   error: Option[ApiError] = None,
   // Represents the result
   result: Option[TraderServicesResult] = None
-)
+) {
+  def isSuccess: Boolean = result.isDefined
+  def hasError: Boolean = error.isDefined
+}
 
 object TraderServicesCaseResponse {
 

@@ -228,7 +228,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             goto(current)
       }
 
-    final def amendCase(updateCaseApi: UpdateCaseApi)(eori: Option[String])(implicit ec: ExecutionContext) = {
+    final def amendCase(
+      updateCaseApi: UpdateCaseApi
+    )(uidAndEori: (Option[String], Option[String]))(implicit ec: ExecutionContext) = {
 
       def callUpdateCase(model: AmendCaseModel) = {
         val caseReferenceNumber = model.caseReferenceNumber.get
@@ -238,17 +240,18 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             model.typeOfAmendment.get,
             model.responseText,
             model.fileUploads.map(_.toUploadedFiles).getOrElse(Seq.empty),
-            eori
+            uidAndEori._2
           )
         updateCaseApi(request)
           .flatMap { response =>
+            JourneyLog.logUpdateCase(uidAndEori._1, request, response)
             if (response.result.isDefined)
               if (response.result.get.caseId == caseReferenceNumber)
                 goto(
                   AmendCaseConfirmation(
                     request.uploadedFiles,
                     model,
-                    TraderServicesResult(caseReferenceNumber, response.result.get.generatedAt)
+                    response.result.get
                   )
                 )
               else

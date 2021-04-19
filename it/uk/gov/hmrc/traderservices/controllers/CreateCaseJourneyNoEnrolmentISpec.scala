@@ -22,6 +22,7 @@ import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import akka.actor.ActorSystem
+import uk.gov.hmrc.traderservices.connectors.FileTransferResult
 
 class CreateCaseJourneyNoEnrolmentISpec
     extends CreateCaseJourneyNoEnrolmentISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -2094,7 +2095,18 @@ class CreateCaseJourneyNoEnrolmentISpec
               Some(4567890)
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt),
+          TraderServicesResult(
+            "A1234567890",
+            generatedAt,
+            List(
+              FileTransferResult(
+                upscanReference = "foo1",
+                success = true,
+                httpStatus = 201,
+                transferredAt = LocalDateTime.parse("2021-04-18T12:07:36")
+              )
+            )
+          ),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }
