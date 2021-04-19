@@ -38,7 +38,8 @@ object JourneyLog {
     hasPriority: Option[Boolean],
     priorityGoods: Option[ExportPriorityGoods],
     uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None
+    uploadsFailure: Option[Int] = None,
+    errorCode: Option[String] = None
   ) extends CreateCaseLog
 
   case class ImportCreateCaseLog(
@@ -52,7 +53,8 @@ object JourneyLog {
     priorityGoods: Option[ImportPriorityGoods],
     hasALVS: Option[Boolean],
     uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None
+    uploadsFailure: Option[Int] = None,
+    errorCode: Option[String] = None
   ) extends CreateCaseLog
 
   object CreateCaseLog {
@@ -68,7 +70,8 @@ object JourneyLog {
             hasPriority = q.hasPriorityGoods,
             priorityGoods = q.priorityGoods,
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success))
+            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
+            errorCode = response.error.map(_.errorCode)
           )
 
         case q: ImportQuestions =>
@@ -82,7 +85,8 @@ object JourneyLog {
             transport = q.freightType,
             hasALVS = q.hasALVS,
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success))
+            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
+            errorCode = response.error.map(_.errorCode)
           )
       }
 
@@ -100,7 +104,8 @@ object JourneyLog {
     action: String = "update",
     `type`: TypeOfAmendment,
     uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None
+    uploadsFailure: Option[Int] = None,
+    errorCode: Option[String] = None
   )
 
   object UpdateCaseLog {
@@ -109,7 +114,8 @@ object JourneyLog {
         response.isSuccess,
         `type` = request.typeOfAmendment,
         uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-        uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success))
+        uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
+        errorCode = response.error.map(_.errorCode)
       )
 
     implicit val formatUpdateCaseLog = Json.format[UpdateCaseLog]
