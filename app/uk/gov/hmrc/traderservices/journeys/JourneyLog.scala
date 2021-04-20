@@ -39,7 +39,8 @@ object JourneyLog {
     priorityGoods: Option[ExportPriorityGoods],
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
-    errorCode: Option[String] = None
+    errorCode: Option[String] = None,
+    userId: Option[String] = None
   ) extends CreateCaseLog
 
   case class ImportCreateCaseLog(
@@ -54,11 +55,16 @@ object JourneyLog {
     hasALVS: Option[Boolean],
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
-    errorCode: Option[String] = None
+    errorCode: Option[String] = None,
+    userId: Option[String] = None
   ) extends CreateCaseLog
 
   object CreateCaseLog {
-    def apply(request: TraderServicesCreateCaseRequest, response: TraderServicesCaseResponse): CreateCaseLog =
+    def apply(
+      userId: Option[String],
+      request: TraderServicesCreateCaseRequest,
+      response: TraderServicesCaseResponse
+    ): CreateCaseLog =
       request.questionsAnswers match {
         case q: ExportQuestions =>
           ExportCreateCaseLog(
@@ -71,7 +77,8 @@ object JourneyLog {
             priorityGoods = q.priorityGoods,
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
             uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
-            errorCode = response.error.map(_.errorCode)
+            errorCode = response.error.map(_.errorCode),
+            userId = userId
           )
 
         case q: ImportQuestions =>
@@ -86,7 +93,8 @@ object JourneyLog {
             hasALVS = q.hasALVS,
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
             uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
-            errorCode = response.error.map(_.errorCode)
+            errorCode = response.error.map(_.errorCode),
+            userId = userId
           )
       }
 
@@ -105,17 +113,23 @@ object JourneyLog {
     `type`: TypeOfAmendment,
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
-    errorCode: Option[String] = None
+    errorCode: Option[String] = None,
+    userId: Option[String] = None
   )
 
   object UpdateCaseLog {
-    def apply(request: TraderServicesUpdateCaseRequest, response: TraderServicesCaseResponse): UpdateCaseLog =
+    def apply(
+      userId: Option[String],
+      request: TraderServicesUpdateCaseRequest,
+      response: TraderServicesCaseResponse
+    ): UpdateCaseLog =
       UpdateCaseLog(
         response.isSuccess,
         `type` = request.typeOfAmendment,
         uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
         uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
-        errorCode = response.error.map(_.errorCode)
+        errorCode = response.error.map(_.errorCode),
+        userId = userId
       )
 
     implicit val formatUpdateCaseLog = Json.format[UpdateCaseLog]
@@ -126,13 +140,13 @@ object JourneyLog {
     request: TraderServicesCreateCaseRequest,
     response: TraderServicesCaseResponse
   ): Unit =
-    Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(request, response)))}")
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(userId, request, response)))}")
 
   final def logUpdateCase(
     userId: Option[String],
     request: TraderServicesUpdateCaseRequest,
     response: TraderServicesCaseResponse
   ): Unit =
-    Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(request, response)))}")
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(userId, request, response)))}")
 
 }
