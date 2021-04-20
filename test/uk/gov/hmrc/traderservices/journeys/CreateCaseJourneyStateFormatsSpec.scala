@@ -659,7 +659,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
            |"uploadedFiles":[
            |{"upscanReference":"foo","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}
            |],
-           |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}"},
+           |"result":{"caseId":"7w7e7wq87ABDFD78wq7e87","generatedAt":"${generatedAt.toString}","fileTransferResults":[]},
            |"caseSLA":{"dateTime":"${generatedAt.plusHours(2)}"}}}""".stripMargin,
         State.CreateCaseConfirmation(
           EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),

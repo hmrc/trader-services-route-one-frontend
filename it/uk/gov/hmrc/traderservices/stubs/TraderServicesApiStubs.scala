@@ -35,7 +35,10 @@ trait TraderServicesApiStubs {
        |  "correlationId": "",
        |  "result": {
        |      "caseId": "$caseReferenceNumber",
-       |      "generatedAt": "${generatedAt.toString}"
+       |      "generatedAt": "${generatedAt.toString}",
+       |      "fileTransferResults": [
+       |        {"upscanReference":"foo1","success":true,"httpStatus":201,"transferredAt":"2021-04-18T12:07:36"}
+       |      ]
        |  } 
        |}""".stripMargin
 

@@ -19,7 +19,7 @@ class AuthActionsISpec extends AuthActionISpecSetup {
       givenAuthorisedForEnrolment(Enrolment("serviceName", "serviceKey", "serviceIdentifierFoo"))
       val result = TestController.testAuthorizedWithEnrolment("serviceName", "serviceKey")
       status(result) shouldBe 200
-      bodyOf(result) should be("serviceIdentifierFoo")
+      bodyOf(result) should be("12345-credId,serviceIdentifierFoo")
     }
 
     "redirect to subscription journey when insufficient enrollments" in {
@@ -45,7 +45,7 @@ class AuthActionsISpec extends AuthActionISpecSetup {
       givenAuthorised
       val result = TestController.testAuhorizedWithoutEnrolment
       status(result) shouldBe 200
-      bodyOf(result) should be("none")
+      bodyOf(result) should be("12345-credId,none")
     }
 
     "redirect to government gateway login when authorization fails" in {
@@ -77,13 +77,15 @@ trait AuthActionISpecSetup extends AppISpec {
     implicit val request = FakeRequest().withSession(SessionKeys.authToken -> "Bearer XYZ")
 
     def testAuthorizedWithEnrolment[A](serviceName: String, identifierKey: String): Result =
-      await(super.authorisedWithEnrolment(serviceName, identifierKey) { res =>
-        Future.successful(Ok(res.getOrElse("none")))
+      await(super.authorisedWithEnrolment(serviceName, identifierKey) {
+        case (uid, res) =>
+          Future.successful(Ok(uid.getOrElse("none") + "," + res.getOrElse("none")))
       })
 
     def testAuhorizedWithoutEnrolment[A]: Result =
-      await(super.authorisedWithoutEnrolment { res =>
-        Future.successful(Ok(res.getOrElse("none")))
+      await(super.authorisedWithoutEnrolment {
+        case (uid, res) =>
+          Future.successful(Ok(uid.getOrElse("none") + "," + res.getOrElse("none")))
       })
 
     override def toSubscriptionJourney(continueUrl: String): Result = Redirect("/subscription")

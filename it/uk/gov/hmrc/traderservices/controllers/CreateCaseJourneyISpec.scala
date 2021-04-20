@@ -23,6 +23,7 @@ import play.api.libs.json.JsObject
 import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock
 import akka.actor.ActorSystem
+import uk.gov.hmrc.traderservices.connectors.FileTransferResult
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -2127,7 +2128,18 @@ class CreateCaseJourneyISpec
               Some(4567890)
             )
           ),
-          TraderServicesResult("A1234567890", generatedAt),
+          TraderServicesResult(
+            "A1234567890",
+            generatedAt,
+            List(
+              FileTransferResult(
+                upscanReference = "foo1",
+                success = true,
+                httpStatus = 201,
+                transferredAt = LocalDateTime.parse("2021-04-18T12:07:36")
+              )
+            )
+          ),
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
       }

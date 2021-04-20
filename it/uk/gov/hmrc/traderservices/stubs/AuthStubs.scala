@@ -32,7 +32,7 @@ trait AuthStubs {
                |    { "identifiers":[], "state":"Activated", "enrolment": "${enrolment.serviceName}" },
                |    { "authProviders": ["GovernmentGateway"] }
                |  ],
-               |  "retrieve":["authorisedEnrolments"]
+               |  "retrieve":["optionalCredentials","authorisedEnrolments"]
                |}
            """.stripMargin,
             true,
@@ -44,6 +44,7 @@ trait AuthStubs {
             .withStatus(200)
             .withBody(s"""
                          |{
+                         |"optionalCredentials": {"providerId": "12345-credId", "providerType": "GovernmentGateway"},
                          |"authorisedEnrolments": [
                          |  { "key":"${enrolment.serviceName}", "identifiers": [
                          |    {"key":"${enrolment.identifierName}", "value": "${enrolment.identifierValue}"}
@@ -75,7 +76,8 @@ trait AuthStubs {
                |{
                |  "authorise": [
                |    { "authProviders": ["GovernmentGateway"] }
-               |  ]
+               |  ],
+               |  "retrieve":["optionalCredentials"]
                |}
            """.stripMargin,
             true,
@@ -85,7 +87,9 @@ trait AuthStubs {
         .willReturn(
           aResponse()
             .withStatus(200)
-            .withBody(s"""{}""".stripMargin)
+            .withBody(
+              s"""{"optionalCredentials": {"providerId": "12345-credId", "providerType": "GovernmentGateway"}}""".stripMargin
+            )
         )
     )
 

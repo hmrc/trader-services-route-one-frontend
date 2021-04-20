@@ -24,6 +24,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.UpscanInitiate
 
 trait TestData {
 
+  val uidAndEori = (Some("user-123"), Some("foo"))
   val eoriNumber = Some("foo")
   val correlationId = "123"
   val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 0)

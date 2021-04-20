@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.controllers
 import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
@@ -31,29 +32,33 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
   def toSubscriptionJourney(continueUrl: String): Result
 
   protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(
-    body: Option[String] => Future[Result]
+    body: ((Option[String], Option[String])) => Future[Result]
   )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(
       Enrolment(serviceName)
         and AuthProviders(GovernmentGateway)
     )
-      .retrieve(authorisedEnrolments) { enrolments =>
-        val id = for {
-          enrolment  <- enrolments.getEnrolment(serviceName)
-          identifier <- enrolment.getIdentifier(identifierKey)
-        } yield identifier.value
+      .retrieve(credentials and authorisedEnrolments) {
+        case credentials ~ enrolments =>
+          val id = for {
+            enrolment  <- enrolments.getEnrolment(serviceName)
+            identifier <- enrolment.getIdentifier(identifierKey)
+          } yield identifier.value
 
-        id.map(x => body(Some(x)))
-          .getOrElse(
-            throw new IllegalStateException(s"Cannot find identifier key $identifierKey for service name $serviceName!")
-          )
+          id.map(x => body((credentials.map(_.providerId), Some(x))))
+            .getOrElse(
+              throw new IllegalStateException(
+                s"Cannot find identifier key $identifierKey for service name $serviceName!"
+              )
+            )
       }
       .recover(handleFailure)
 
   protected def authorisedWithoutEnrolment[A](
-    body: Option[String] => Future[Result]
+    body: ((Option[String], Option[String])) => Future[Result]
   )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
-    authorised(AuthProviders(GovernmentGateway))(body(None))
+    authorised(AuthProviders(GovernmentGateway))
+      .retrieve(credentials)(credentials => body((credentials.map(_.providerId), None)))
       .recover(handleFailure)
 
   def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {

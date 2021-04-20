@@ -23,6 +23,7 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import play.api.Logger
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -806,10 +807,13 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
-    final def createCase(createCaseApi: CreateCaseApi)(eori: Option[String])(implicit ec: ExecutionContext) = {
+    final def createCase(
+      createCaseApi: CreateCaseApi
+    )(uidAndEori: (Option[String], Option[String]))(implicit ec: ExecutionContext) = {
 
       def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
         createCaseApi(request).flatMap { response =>
+          JourneyLog.logCreateCase(uidAndEori._1, request, response)
           if (response.result.isDefined) {
             val createCaseResult = response.result.get
             goto(
@@ -845,7 +849,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               state.model.entryDetails,
               state.model.exportQuestionsAnswers,
               uploadedFiles,
-              eori
+              uidAndEori._2
             )
           invokeCreateCaseApi(createCaseRequest)
 
@@ -857,7 +861,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               state.model.entryDetails,
               state.model.importQuestionsAnswers,
               uploadedFiles,
-              eori
+              uidAndEori._2
             )
           invokeCreateCaseApi(createCaseRequest)
       }

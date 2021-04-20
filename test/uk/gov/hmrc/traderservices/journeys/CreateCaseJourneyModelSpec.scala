@@ -3768,7 +3768,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
           CreateCaseConfirmation(
             importEntryDetails,
             completeImportQuestionsAnswers,
@@ -3822,7 +3822,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when (createCase(mockCreateCaseApi)(eoriNumber)) should thenGo(
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
           CaseAlreadyExists("A1234567890")
         )
       }

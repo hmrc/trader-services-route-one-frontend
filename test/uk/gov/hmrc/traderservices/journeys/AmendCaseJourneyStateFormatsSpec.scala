@@ -61,7 +61,7 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
         s"""{"state":"AmendCaseConfirmation","properties":{
            |"uploadedFiles":[{"upscanReference":"foo-bar-ref-1","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}],
            |"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"UploadDocuments"},
-           |"result":{"caseId":"PC12010081330XGBNZJO04","generatedAt":"${generatedAt.toString}"}}}""".stripMargin,
+           |"result":{"caseId":"PC12010081330XGBNZJO04","generatedAt":"${generatedAt.toString}","fileTransferResults":[]}}}""".stripMargin,
         State.AmendCaseConfirmation(
           Seq(
             UploadedFile(
