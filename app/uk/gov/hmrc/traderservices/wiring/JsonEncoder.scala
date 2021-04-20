@@ -29,6 +29,7 @@ import com.typesafe.config.ConfigFactory
 
 import scala.util.{Success, Try}
 import scala.collection.JavaConverters._
+import com.fasterxml.jackson.databind.JsonNode
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
@@ -55,11 +56,17 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     eventNode.put("app", appName)
     eventNode.put("hostname", InetAddress.getLocalHost.getHostName)
     eventNode.put("timestamp", dateFormat.format(event.getTimeStamp))
+
     val message = event.getFormattedMessage
-    if (message.startsWith("json:")) {
-      val messageNode = mapper.readTree(message.drop(5))
-      eventNode.put("message", messageNode)
-    } else
+    if (message.startsWith("json:"))
+      try {
+        val messageNode: JsonNode = mapper.readTree(message.drop(5))
+        eventNode.put("message", messageNode)
+      } catch {
+        case e: Exception =>
+          eventNode.put("message", message)
+      }
+    else
       eventNode.put("message", message)
 
     Option(event.getThrowableProxy).map(p => eventNode.put("exception", ThrowableProxyUtil.asString(p)))
