@@ -126,13 +126,13 @@ object JourneyLog {
     request: TraderServicesCreateCaseRequest,
     response: TraderServicesCaseResponse
   ): Unit =
-    Logger(getClass).info(s"json:${Json.stringify(Json.toJson(CreateCaseLog(request, response)))}")
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(request, response)))}")
 
   final def logUpdateCase(
     userId: Option[String],
     request: TraderServicesUpdateCaseRequest,
     response: TraderServicesCaseResponse
   ): Unit =
-    Logger(getClass).info(s"json:${Json.stringify(Json.toJson(UpdateCaseLog(request, response)))}")
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(request, response)))}")
 
 }

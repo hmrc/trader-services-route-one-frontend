@@ -30,6 +30,7 @@ import com.typesafe.config.ConfigFactory
 import scala.util.{Success, Try}
 import scala.collection.JavaConverters._
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
@@ -57,17 +58,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     eventNode.put("hostname", InetAddress.getLocalHost.getHostName)
     eventNode.put("timestamp", dateFormat.format(event.getTimeStamp))
 
-    val message = event.getFormattedMessage
-    if (message.startsWith("json:"))
-      try {
-        val messageNode: JsonNode = mapper.readTree(message.drop(5))
-        eventNode.put("message", messageNode)
-      } catch {
-        case e: Exception =>
-          eventNode.put("message", message)
-      }
-    else
-      eventNode.put("message", message)
+    decodeMessage(eventNode, event.getFormattedMessage)
 
     Option(event.getThrowableProxy).map(p => eventNode.put("exception", ThrowableProxyUtil.asString(p)))
 
@@ -82,6 +73,18 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
     s"${mapper.writeValueAsString(eventNode)}$LINE_SEPARATOR".getBytes(StandardCharsets.UTF_8)
   }
+
+  def decodeMessage(eventNode: ObjectNode, message: String): Unit =
+    if (message.startsWith("json{"))
+      try {
+        val messageNode: JsonNode = mapper.readTree(message.drop(4))
+        eventNode.put("jsonMessage", messageNode)
+      } catch {
+        case e: Exception =>
+          eventNode.put("message", message)
+      }
+    else
+      eventNode.put("message", message)
 
   override def footerBytes(): Array[Byte] =
     LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8)
