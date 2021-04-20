@@ -49,16 +49,17 @@ class JsonEncoderSpec extends UnitSpec with AsJavaConverters {
     "decode json message into an object node" in {
       val node = new ObjectNode(jnf)
       encoder.decodeMessage(node, """json{"foo":"bar"}""")
-      node.get("jsonMessage") shouldBe new ObjectNode(
+      node.get("route1") shouldBe new ObjectNode(
         jnf,
         mapAsJavaMap(Map("foo" -> new TextNode("bar")))
       )
+      node.get("message") shouldBe new TextNode("""{"foo":"bar"}""")
     }
 
     "fallback to decode json message into a text node" in {
       val node = new ObjectNode(jnf)
       encoder.decodeMessage(node, """json{"foo":"bar}""")
-      node.get("message") shouldBe new TextNode("""json{"foo":"bar}""")
+      node.get("message") shouldBe new TextNode("""{"foo":"bar}""")
     }
 
     "encode event without json message" in {
@@ -66,7 +67,7 @@ class JsonEncoderSpec extends UnitSpec with AsJavaConverters {
     }
 
     "encode event with json message" in {
-      assertLog("""json{"foo":"bar"}""", """"jsonMessage":{"foo":"bar"}""")
+      assertLog("""json{"foo":"bar"}""", """"route1":{"foo":"bar"}""")
     }
 
     def assertLog(message: String, expected: String) = {

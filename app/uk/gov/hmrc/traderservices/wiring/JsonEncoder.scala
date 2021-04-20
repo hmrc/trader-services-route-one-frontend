@@ -31,6 +31,7 @@ import scala.util.{Success, Try}
 import scala.collection.JavaConverters._
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import play.api.Logger
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
@@ -75,15 +76,16 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
   }
 
   def decodeMessage(eventNode: ObjectNode, message: String): Unit =
-    if (message.startsWith("json{"))
+    if (message.startsWith("json{")) {
+      eventNode.put("message", message.drop(4))
       try {
         val messageNode: JsonNode = mapper.readTree(message.drop(4))
-        eventNode.put("jsonMessage", messageNode)
+        eventNode.put("route1", messageNode)
       } catch {
         case e: Exception =>
-          eventNode.put("message", message)
+          Logger(getClass).error(e.getMessage())
       }
-    else
+    } else
       eventNode.put("message", message)
 
   override def footerBytes(): Array[Byte] =
