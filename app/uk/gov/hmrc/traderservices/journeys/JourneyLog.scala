@@ -40,7 +40,9 @@ object JourneyLog {
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
-    userId: Option[String] = None
+    userId: Option[String] = None,
+    fileMimeTypes: Option[Seq[String]] = None,
+    totalFilesSize: Option[Int] = None
   ) extends CreateCaseLog
 
   case class ImportCreateCaseLog(
@@ -56,7 +58,9 @@ object JourneyLog {
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
-    userId: Option[String] = None
+    userId: Option[String] = None,
+    fileMimeTypes: Option[Seq[String]] = None,
+    totalFilesSize: Option[Int] = None
   ) extends CreateCaseLog
 
   object CreateCaseLog {
@@ -78,7 +82,15 @@ object JourneyLog {
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
             uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
             errorCode = response.error.map(_.errorCode),
-            userId = userId
+            userId = userId,
+            fileMimeTypes = {
+              val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+              if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+            },
+            totalFilesSize = {
+              val total = request.uploadedFiles.flatMap(_.fileSize).sum
+              if (total > 0) Some(total) else None
+            }
           )
 
         case q: ImportQuestions =>
@@ -94,7 +106,15 @@ object JourneyLog {
             uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
             uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
             errorCode = response.error.map(_.errorCode),
-            userId = userId
+            userId = userId,
+            fileMimeTypes = {
+              val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+              if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+            },
+            totalFilesSize = {
+              val total = request.uploadedFiles.flatMap(_.fileSize).sum
+              if (total > 0) Some(total) else None
+            }
           )
       }
 
@@ -114,7 +134,9 @@ object JourneyLog {
     uploadsSuccess: Option[Int] = None,
     uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
-    userId: Option[String] = None
+    userId: Option[String] = None,
+    fileMimeTypes: Option[Seq[String]] = None,
+    totalFilesSize: Option[Int] = None
   )
 
   object UpdateCaseLog {
@@ -129,7 +151,15 @@ object JourneyLog {
         uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
         uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
         errorCode = response.error.map(_.errorCode),
-        userId = userId
+        userId = userId,
+        fileMimeTypes = {
+          val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+          if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+        },
+        totalFilesSize = {
+          val total = request.uploadedFiles.flatMap(_.fileSize).sum
+          if (total > 0) Some(total) else None
+        }
       )
 
     implicit val formatUpdateCaseLog = Json.format[UpdateCaseLog]
