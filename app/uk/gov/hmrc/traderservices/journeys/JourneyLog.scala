@@ -42,6 +42,7 @@ object JourneyLog {
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
+    numberOfFiles: Option[Int] = None,
     totalFilesSize: Option[Int] = None
   ) extends CreateCaseLog
 
@@ -60,6 +61,7 @@ object JourneyLog {
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
+    numberOfFiles: Option[Int] = None,
     totalFilesSize: Option[Int] = None
   ) extends CreateCaseLog
 
@@ -86,6 +88,10 @@ object JourneyLog {
             fileMimeTypes = {
               val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
               if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+            },
+            numberOfFiles = {
+              val count = request.uploadedFiles.size
+              if (count > 0) Some(count) else None
             },
             totalFilesSize = {
               val total = request.uploadedFiles.flatMap(_.fileSize).sum
@@ -118,6 +124,64 @@ object JourneyLog {
           )
       }
 
+    def apply(
+      userId: Option[String],
+      request: TraderServicesCreateCaseRequest,
+      exception: Throwable
+    ): CreateCaseLog =
+      request.questionsAnswers match {
+        case q: ExportQuestions =>
+          ExportCreateCaseLog(
+            success = false,
+            `type` = "export",
+            request = q.requestType,
+            route = q.routeType,
+            transport = q.freightType,
+            hasPriority = q.hasPriorityGoods,
+            priorityGoods = q.priorityGoods,
+            errorCode = Some(exception.getMessage()),
+            userId = userId,
+            fileMimeTypes = {
+              val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+              if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+            },
+            numberOfFiles = {
+              val count = request.uploadedFiles.size
+              if (count > 0) Some(count) else None
+            },
+            totalFilesSize = {
+              val total = request.uploadedFiles.flatMap(_.fileSize).sum
+              if (total > 0) Some(total) else None
+            }
+          )
+
+        case q: ImportQuestions =>
+          ImportCreateCaseLog(
+            success = false,
+            `type` = "import",
+            request = q.requestType,
+            route = q.routeType,
+            hasPriority = q.hasPriorityGoods,
+            priorityGoods = q.priorityGoods,
+            transport = q.freightType,
+            hasALVS = q.hasALVS,
+            errorCode = Some(exception.getMessage()),
+            userId = userId,
+            fileMimeTypes = {
+              val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+              if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+            },
+            numberOfFiles = {
+              val count = request.uploadedFiles.size
+              if (count > 0) Some(count) else None
+            },
+            totalFilesSize = {
+              val total = request.uploadedFiles.flatMap(_.fileSize).sum
+              if (total > 0) Some(total) else None
+            }
+          )
+      }
+
     val formatExportCreateCaseLog = Json.format[ExportCreateCaseLog]
     val formatImportCreateCaseLog = Json.format[ImportCreateCaseLog]
 
@@ -136,6 +200,7 @@ object JourneyLog {
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
+    numberOfFiles: Option[Int] = None,
     totalFilesSize: Option[Int] = None
   )
 
@@ -162,6 +227,26 @@ object JourneyLog {
         }
       )
 
+    def apply(
+      userId: Option[String],
+      request: TraderServicesUpdateCaseRequest,
+      exception: Throwable
+    ): UpdateCaseLog =
+      UpdateCaseLog(
+        success = false,
+        `type` = request.typeOfAmendment,
+        errorCode = Some(exception.getMessage()),
+        userId = userId,
+        fileMimeTypes = {
+          val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
+          if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
+        },
+        totalFilesSize = {
+          val total = request.uploadedFiles.flatMap(_.fileSize).sum
+          if (total > 0) Some(total) else None
+        }
+      )
+
     implicit val formatUpdateCaseLog = Json.format[UpdateCaseLog]
   }
 
@@ -172,11 +257,25 @@ object JourneyLog {
   ): Unit =
     Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(userId, request, response)))}")
 
+  final def logCreateCase(
+    userId: Option[String],
+    request: TraderServicesCreateCaseRequest,
+    exception: Throwable
+  ): Unit =
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(userId, request, exception)))}")
+
   final def logUpdateCase(
     userId: Option[String],
     request: TraderServicesUpdateCaseRequest,
     response: TraderServicesCaseResponse
   ): Unit =
     Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(userId, request, response)))}")
+
+  final def logUpdateCase(
+    userId: Option[String],
+    request: TraderServicesUpdateCaseRequest,
+    exception: Throwable
+  ): Unit =
+    Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(userId, request, exception)))}")
 
 }

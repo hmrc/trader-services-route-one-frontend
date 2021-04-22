@@ -24,6 +24,8 @@ import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseRespon
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import play.api.Logger
+import scala.util.Success
+import scala.util.Failure
 
 object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -812,33 +814,39 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     )(uidAndEori: (Option[String], Option[String]))(implicit ec: ExecutionContext) = {
 
       def invokeCreateCaseApi(request: TraderServicesCreateCaseRequest) =
-        createCaseApi(request).flatMap { response =>
-          JourneyLog.logCreateCase(uidAndEori._1, request, response)
-          if (response.result.isDefined) {
-            val createCaseResult = response.result.get
-            goto(
-              CreateCaseConfirmation(
-                request.entryDetails,
-                request.questionsAnswers,
-                request.uploadedFiles,
-                createCaseResult,
-                CaseSLA.calculateFrom(
-                  createCaseResult.generatedAt.asLondonClockTime,
-                  request.questionsAnswers
-                )
-              )
-            )
-          } else
-            response.error match {
-              case Some(ApiError("409", Some(caseReferenceId))) =>
-                goto(CaseAlreadyExists(caseReferenceId))
+        createCaseApi(request)
+          .transformWith {
+            case Failure(exception) =>
+              JourneyLog.logCreateCase(uidAndEori._1, request, exception)
+              Future.failed(exception)
 
-              case _ =>
-                val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
-                  response.error.map(_.errorMessage).getOrElse("")
-                fail(new RuntimeException(message))
-            }
-        }
+            case Success(response) =>
+              JourneyLog.logCreateCase(uidAndEori._1, request, response)
+              if (response.result.isDefined) {
+                val createCaseResult = response.result.get
+                goto(
+                  CreateCaseConfirmation(
+                    request.entryDetails,
+                    request.questionsAnswers,
+                    request.uploadedFiles,
+                    createCaseResult,
+                    CaseSLA.calculateFrom(
+                      createCaseResult.generatedAt.asLondonClockTime,
+                      request.questionsAnswers
+                    )
+                  )
+                )
+              } else
+                response.error match {
+                  case Some(ApiError("409", Some(caseReferenceId))) =>
+                    goto(CaseAlreadyExists(caseReferenceId))
+
+                  case _ =>
+                    val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                      response.error.map(_.errorMessage).getOrElse("")
+                    fail(new RuntimeException(message))
+                }
+          }
 
       Transition {
         case state: ExportQuestionsSummary =>
