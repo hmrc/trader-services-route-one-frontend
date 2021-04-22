@@ -20,6 +20,8 @@ import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.models._
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Failure
+import scala.util.Success
 
 object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
@@ -243,30 +245,35 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
             uidAndEori._2
           )
         updateCaseApi(request)
-          .flatMap { response =>
-            JourneyLog.logUpdateCase(uidAndEori._1, request, response)
-            if (response.result.isDefined)
-              if (response.result.get.caseId == caseReferenceNumber)
-                goto(
-                  AmendCaseConfirmation(
-                    request.uploadedFiles,
-                    model,
-                    response.result.get
-                  )
-                )
-              else
-                fail(
-                  TraderServicesAmendApiError(
-                    new RuntimeException(
-                      s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
+          .transformWith {
+            case Failure(exception) =>
+              JourneyLog.logUpdateCase(uidAndEori._1, request, exception)
+              Future.failed(exception)
+
+            case Success(response) =>
+              JourneyLog.logUpdateCase(uidAndEori._1, request, response)
+              if (response.result.isDefined)
+                if (response.result.get.caseId == caseReferenceNumber)
+                  goto(
+                    AmendCaseConfirmation(
+                      request.uploadedFiles,
+                      model,
+                      response.result.get
                     )
                   )
-                )
-            else {
-              val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
-                response.error.map(_.errorMessage).getOrElse("")
-              fail(TraderServicesAmendApiError(new RuntimeException(message)))
-            }
+                else
+                  fail(
+                    TraderServicesAmendApiError(
+                      new RuntimeException(
+                        s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
+                      )
+                    )
+                  )
+              else {
+                val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
+                  response.error.map(_.errorMessage).getOrElse("")
+                fail(TraderServicesAmendApiError(new RuntimeException(message)))
+              }
           }
       }
 
