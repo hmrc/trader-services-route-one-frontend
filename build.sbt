@@ -51,12 +51,6 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.traderservices.views.ViewHelpers._"
     ),
     PlayKeys.playRunHooks += Webpack(javaScriptDirectory.value),
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.bintrayRepo("hmrc", "release-candidates"),
-      Resolver.typesafeRepo("releases"),
-      Resolver.jcenterRepo
-    ),
     libraryDependencies ++= compileDeps ++ testDeps("test") ++ testDeps("it"),
     publishingSettings,
     javaScriptSettings,
