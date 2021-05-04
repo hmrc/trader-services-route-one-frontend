@@ -241,6 +241,10 @@ object JourneyLog {
           val filesMimeTypes = request.uploadedFiles.map(_.fileMimeType)
           if (filesMimeTypes.isEmpty) None else Some(filesMimeTypes)
         },
+        numberOfFiles = {
+          val count = request.uploadedFiles.size
+          if (count > 0) Some(count) else None
+        },
         totalFilesSize = {
           val total = request.uploadedFiles.flatMap(_.fileSize).sum
           if (total > 0) Some(total) else None
