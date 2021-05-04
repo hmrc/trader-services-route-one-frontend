@@ -1001,9 +1001,10 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case CaseAlreadyExists(_) =>
+      case CaseAlreadyExists(caseReferenceId) =>
         Ok(
           views.caseAlreadyExistsView(
+            caseReferenceId,
             routes.AmendCaseJourneyController.showStart()
           )
         )
