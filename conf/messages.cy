@@ -368,10 +368,13 @@ view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
 view.case-confirmation.button.print=Argraffu’ch derbynneb
 view.case-confirmation.button.download-html=Cadw’ch derbynneb (PDF)
 view.case-confirmation.button.download-pdf=Cadw’ch derbynneb (HTML)
+
 view.case-already-exists.title=Mae’r achos hwn eisoes yn bodoli
 view.case-already-exists.heading=Mae’r achos hwn eisoes yn bodoli
-view.case-already-exists.description.1=Nid ydym wedi cadw eich atebion na’ch dogfennau oherwydd ein bod eisoes wedi cael achos gyda’r manylion hyn.
+view.case-already-exists.description.1=Thank you, we’ve received case {0}. You’ll hear from us through CHIEF or your declaration software. 
 view.case-already-exists.description.2=Gallwch <a class="govuk-link" href="{0}">ychwanegu rhagor o wybodaeth neu ddogfennau at yr achos sydd ohoni</a>. Bydd angen i chi roi cyfeirnod eich achos.
+view.case-already-exists.description.3=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+
 view.case-reference-number.title=Beth yw cyfeirnod yr achos?
 view.case-reference-number.heading=Beth yw cyfeirnod yr achos?
 view.case-reference-number.hint=Er enghraifft, PC12010081330XGBNZJO04
