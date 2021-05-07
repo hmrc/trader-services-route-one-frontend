@@ -16,21 +16,21 @@ lazy val scoverageSettings = {
 }
 
 lazy val compileDeps = Seq(
-  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-27" % "4.1.0",
-  "uk.gov.hmrc"                  %% "auth-client"                % "4.0.0-play-27",
+  "uk.gov.hmrc"                  %% "bootstrap-frontend-play-27" % "5.2.0",
+  "uk.gov.hmrc"                  %% "auth-client"                % "5.6.0-play-27",
   "uk.gov.hmrc"                  %% "play-fsm"                   % "0.83.0-play-27",
-  "uk.gov.hmrc"                  %% "domain"                     % "5.10.0-play-27",
-  "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-27"         % "0.47.0",
-  "uk.gov.hmrc"                  %% "json-encryption"            % "4.8.0-play-27",
+  "uk.gov.hmrc"                  %% "domain"                     % "5.11.0-play-27",
+  "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-27"         % "0.50.0",
+  "uk.gov.hmrc"                  %% "json-encryption"            % "4.10.0-play-27",
   "uk.gov.hmrc"                  %% "play-frontend-govuk"        % "0.65.0-play-27",
   "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "0.49.0-play-27",
-  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.19",
+  "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.22",
   "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
 )
 
 def testDeps(scope: String) =
   Seq(
-    "org.scalatest"          %% "scalatest"          % "3.2.6"  % scope,
+    "org.scalatest"          %% "scalatest"          % "3.2.8"  % scope,
     "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3"  % scope,
     "com.github.tomakehurst"  % "wiremock-jre8"      % "2.27.2" % scope,
     "com.vladsch.flexmark"    % "flexmark-all"       % "0.36.8" % scope
