@@ -378,7 +378,7 @@ class CreateCaseJourneyController @Inject() (
   final def successRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
-      case None    => controller.showWaitingForFileVerification()
+      case None    => controller.showWaitingForFileVerification
     })
 
   final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
@@ -387,7 +387,7 @@ class CreateCaseJourneyController @Inject() (
   final def errorRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
-      case None    => controller.markFileUploadAsRejected()
+      case None    => controller.markFileUploadAsRejected
     })
 
   final def upscanRequest(implicit rh: RequestHeader): String => UpscanInitiateRequest =
@@ -582,94 +582,94 @@ class CreateCaseJourneyController @Inject() (
   final override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
       case Start =>
-        controller.showStart()
+        controller.showStart
 
       case _: ChooseNewOrExistingCase =>
-        controller.showChooseNewOrExistingCase()
+        controller.showChooseNewOrExistingCase
 
       case TurnToAmendCaseJourney(continue) =>
         if (continue)
-          routes.AmendCaseJourneyController.showEnterCaseReferenceNumber()
+          routes.AmendCaseJourneyController.showEnterCaseReferenceNumber
         else
-          routes.AmendCaseJourneyController.showStart()
+          routes.AmendCaseJourneyController.showStart
 
       case _: EnterEntryDetails =>
-        controller.showEnterEntryDetails()
+        controller.showEnterEntryDetails
 
       case _: AnswerExportQuestionsRequestType =>
-        controller.showAnswerExportQuestionsRequestType()
+        controller.showAnswerExportQuestionsRequestType
 
       case _: AnswerExportQuestionsRouteType =>
-        controller.showAnswerExportQuestionsRouteType()
+        controller.showAnswerExportQuestionsRouteType
 
       case _: AnswerExportQuestionsHasPriorityGoods =>
-        controller.showAnswerExportQuestionsHasPriorityGoods()
+        controller.showAnswerExportQuestionsHasPriorityGoods
 
       case _: AnswerExportQuestionsWhichPriorityGoods =>
-        controller.showAnswerExportQuestionsWhichPriorityGoods()
+        controller.showAnswerExportQuestionsWhichPriorityGoods
 
       case _: AnswerExportQuestionsFreightType =>
-        controller.showAnswerExportQuestionsFreightType()
+        controller.showAnswerExportQuestionsFreightType
 
       case _: AnswerExportQuestionsMandatoryVesselInfo =>
-        controller.showAnswerExportQuestionsMandatoryVesselInfo()
+        controller.showAnswerExportQuestionsMandatoryVesselInfo
 
       case _: AnswerExportQuestionsOptionalVesselInfo =>
-        controller.showAnswerExportQuestionsOptionalVesselInfo()
+        controller.showAnswerExportQuestionsOptionalVesselInfo
 
       case _: AnswerExportQuestionsContactInfo =>
-        controller.showAnswerExportQuestionsContactInfo()
+        controller.showAnswerExportQuestionsContactInfo
 
       case _: ExportQuestionsSummary =>
-        controller.showExportQuestionsSummary()
+        controller.showExportQuestionsSummary
 
       case _: AnswerImportQuestionsRequestType =>
-        controller.showAnswerImportQuestionsRequestType()
+        controller.showAnswerImportQuestionsRequestType
 
       case _: AnswerImportQuestionsRouteType =>
-        controller.showAnswerImportQuestionsRouteType()
+        controller.showAnswerImportQuestionsRouteType
 
       case _: AnswerImportQuestionsHasPriorityGoods =>
-        controller.showAnswerImportQuestionsHasPriorityGoods()
+        controller.showAnswerImportQuestionsHasPriorityGoods
 
       case _: AnswerImportQuestionsWhichPriorityGoods =>
-        controller.showAnswerImportQuestionsWhichPriorityGoods()
+        controller.showAnswerImportQuestionsWhichPriorityGoods
 
       case _: AnswerImportQuestionsALVS =>
-        controller.showAnswerImportQuestionsALVS()
+        controller.showAnswerImportQuestionsALVS
 
       case _: AnswerImportQuestionsFreightType =>
-        controller.showAnswerImportQuestionsFreightType()
+        controller.showAnswerImportQuestionsFreightType
 
       case _: AnswerImportQuestionsMandatoryVesselInfo =>
-        controller.showAnswerImportQuestionsMandatoryVesselInfo()
+        controller.showAnswerImportQuestionsMandatoryVesselInfo
 
       case _: AnswerImportQuestionsOptionalVesselInfo =>
-        controller.showAnswerImportQuestionsOptionalVesselInfo()
+        controller.showAnswerImportQuestionsOptionalVesselInfo
 
       case _: AnswerImportQuestionsContactInfo =>
-        controller.showAnswerImportQuestionsContactInfo()
+        controller.showAnswerImportQuestionsContactInfo
 
       case _: ImportQuestionsSummary =>
-        controller.showImportQuestionsSummary()
+        controller.showImportQuestionsSummary
 
       case _: FileUploadState.UploadMultipleFiles =>
-        controller.showUploadMultipleFiles()
+        controller.showUploadMultipleFiles
 
       case _: FileUploadState.UploadFile =>
-        controller.showFileUpload()
+        controller.showFileUpload
 
       case _: FileUploadState.WaitingForFileVerification =>
-        controller.showWaitingForFileVerification()
+        controller.showWaitingForFileVerification
 
       case _: FileUploadState.FileUploaded =>
-        controller.showFileUploaded()
+        controller.showFileUploaded
 
       case _: CreateCaseConfirmation =>
-        controller.showCreateCaseConfirmation()
+        controller.showCreateCaseConfirmation
 
       case _: CaseAlreadyExists =>
-        controller.showCaseAlreadyExists()
+        controller.showCaseAlreadyExists
 
       case _ =>
         workInProgresDeadEndCall
@@ -688,29 +688,29 @@ class CreateCaseJourneyController @Inject() (
     state match {
 
       case Start =>
-        Redirect(controller.showChooseNewOrExistingCase())
+        Redirect(controller.showChooseNewOrExistingCase)
 
       case ChooseNewOrExistingCase(newOrExistingCaseOpt, _, _, _, _, _) =>
         Ok(
           views.chooseNewOrExistingCaseView(
             formWithErrors.or(NewOrExistingCaseForm, newOrExistingCaseOpt),
-            controller.submitNewOrExistingCaseChoice(),
+            controller.submitNewOrExistingCaseChoice,
             routes.PrivateBetaStartPageController.showPrivateBetaStart
           )
         )
 
       case TurnToAmendCaseJourney(continue) =>
         if (continue)
-          Redirect(routes.AmendCaseJourneyController.showEnterCaseReferenceNumber())
+          Redirect(routes.AmendCaseJourneyController.showEnterCaseReferenceNumber)
         else
-          Redirect(routes.AmendCaseJourneyController.showStart())
+          Redirect(routes.AmendCaseJourneyController.showStart)
 
       case EnterEntryDetails(entryDetailsOpt, _, _, _) =>
         Ok(
           views.entryDetailsEntryView(
             formWithErrors.or(EntryDetailsForm, entryDetailsOpt),
-            controller.submitEntryDetails(),
-            controller.showChooseNewOrExistingCase()
+            controller.submitEntryDetails,
+            controller.showChooseNewOrExistingCase
           )
         )
 
@@ -718,8 +718,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsRequestTypeView(
             formWithErrors.or(ExportRequestTypeForm, model.exportQuestionsAnswers.requestType),
-            controller.submitExportQuestionsRequestTypeAnswer(),
-            controller.showEnterEntryDetails()
+            controller.submitExportQuestionsRequestTypeAnswer,
+            controller.showEnterEntryDetails
           )
         )
 
@@ -727,8 +727,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsRouteTypeView(
             formWithErrors.or(ExportRouteTypeForm, model.exportQuestionsAnswers.routeType),
-            controller.submitExportQuestionsRouteTypeAnswer(),
-            controller.showAnswerExportQuestionsRequestType()
+            controller.submitExportQuestionsRouteTypeAnswer,
+            controller.showAnswerExportQuestionsRequestType
           )
         )
 
@@ -736,8 +736,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsHasPriorityGoodsView(
             formWithErrors.or(ExportHasPriorityGoodsForm, model.exportQuestionsAnswers.hasPriorityGoods),
-            controller.submitExportQuestionsHasPriorityGoodsAnswer(),
-            controller.showAnswerExportQuestionsRouteType()
+            controller.submitExportQuestionsHasPriorityGoodsAnswer,
+            controller.showAnswerExportQuestionsRouteType
           )
         )
 
@@ -745,8 +745,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsWhichPriorityGoodsView(
             formWithErrors.or(ExportPriorityGoodsForm, model.exportQuestionsAnswers.priorityGoods),
-            controller.submitExportQuestionsWhichPriorityGoodsAnswer(),
-            controller.showAnswerExportQuestionsHasPriorityGoods()
+            controller.submitExportQuestionsWhichPriorityGoodsAnswer,
+            controller.showAnswerExportQuestionsHasPriorityGoods
           )
         )
 
@@ -754,10 +754,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsFreightTypeView(
             formWithErrors.or(ExportFreightTypeForm, model.exportQuestionsAnswers.freightType),
-            controller.submitExportQuestionsFreightTypeAnswer(),
+            controller.submitExportQuestionsFreightTypeAnswer,
             if (model.exportQuestionsAnswers.priorityGoods.isDefined)
-              controller.showAnswerExportQuestionsWhichPriorityGoods()
-            else controller.showAnswerExportQuestionsHasPriorityGoods()
+              controller.showAnswerExportQuestionsWhichPriorityGoods
+            else controller.showAnswerExportQuestionsHasPriorityGoods
           )
         )
 
@@ -769,8 +769,8 @@ class CreateCaseJourneyController @Inject() (
                 mandatoryExportVesselDetailsForm(extractArrivalDate(state)),
                 model.exportQuestionsAnswers.vesselDetails
               ),
-            controller.submitExportQuestionsMandatoryVesselInfoAnswer(),
-            controller.showAnswerExportQuestionsFreightType()
+            controller.submitExportQuestionsMandatoryVesselInfoAnswer,
+            controller.showAnswerExportQuestionsFreightType
           )
         )
 
@@ -782,8 +782,8 @@ class CreateCaseJourneyController @Inject() (
                 optionalExportVesselDetailsForm(extractArrivalDate(state)),
                 model.exportQuestionsAnswers.vesselDetails
               ),
-            controller.submitExportQuestionsOptionalVesselInfoAnswer(),
-            controller.showAnswerExportQuestionsFreightType()
+            controller.submitExportQuestionsOptionalVesselInfoAnswer,
+            controller.showAnswerExportQuestionsFreightType
           )
         )
 
@@ -791,10 +791,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.exportQuestionsContactInfoView(
             formWithErrors.or(ExportContactForm, model.exportQuestionsAnswers.contactInfo),
-            controller.submitExportQuestionsContactInfoAnswer(),
+            controller.submitExportQuestionsContactInfoAnswer,
             if (Rules.isVesselDetailsAnswerMandatory(model.exportQuestionsAnswers))
-              controller.showAnswerExportQuestionsMandatoryVesselInfo()
-            else controller.showAnswerExportQuestionsOptionalVesselInfo()
+              controller.showAnswerExportQuestionsMandatoryVesselInfo
+            else controller.showAnswerExportQuestionsOptionalVesselInfo
           )
         )
 
@@ -814,8 +814,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsRequestTypeView(
             formWithErrors.or(ImportRequestTypeForm, model.importQuestionsAnswers.requestType),
-            controller.submitImportQuestionsRequestTypeAnswer(),
-            controller.showEnterEntryDetails()
+            controller.submitImportQuestionsRequestTypeAnswer,
+            controller.showEnterEntryDetails
           )
         )
 
@@ -823,8 +823,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsRouteTypeView(
             formWithErrors.or(ImportRouteTypeForm, model.importQuestionsAnswers.routeType),
-            controller.submitImportQuestionsRouteTypeAnswer(),
-            controller.showAnswerImportQuestionsRequestType()
+            controller.submitImportQuestionsRouteTypeAnswer,
+            controller.showAnswerImportQuestionsRequestType
           )
         )
 
@@ -832,8 +832,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsHasPriorityGoodsView(
             formWithErrors.or(ImportHasPriorityGoodsForm, model.importQuestionsAnswers.hasPriorityGoods),
-            controller.submitImportQuestionsHasPriorityGoodsAnswer(),
-            controller.showAnswerImportQuestionsRouteType()
+            controller.submitImportQuestionsHasPriorityGoodsAnswer,
+            controller.showAnswerImportQuestionsRouteType
           )
         )
 
@@ -841,8 +841,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsWhichPriorityGoodsView(
             formWithErrors.or(ImportPriorityGoodsForm, model.importQuestionsAnswers.priorityGoods),
-            controller.submitImportQuestionsWhichPriorityGoodsAnswer(),
-            controller.showAnswerImportQuestionsHasPriorityGoods()
+            controller.submitImportQuestionsWhichPriorityGoodsAnswer,
+            controller.showAnswerImportQuestionsHasPriorityGoods
           )
         )
 
@@ -850,10 +850,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsALVSView(
             formWithErrors.or(ImportHasALVSForm, model.importQuestionsAnswers.hasALVS),
-            controller.submitImportQuestionsALVSAnswer(),
+            controller.submitImportQuestionsALVSAnswer,
             if (model.importQuestionsAnswers.priorityGoods.isDefined)
-              controller.showAnswerImportQuestionsWhichPriorityGoods()
-            else controller.showAnswerImportQuestionsHasPriorityGoods()
+              controller.showAnswerImportQuestionsWhichPriorityGoods
+            else controller.showAnswerImportQuestionsHasPriorityGoods
           )
         )
 
@@ -861,8 +861,8 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsFreightTypeView(
             formWithErrors.or(ImportFreightTypeForm, model.importQuestionsAnswers.freightType),
-            controller.submitImportQuestionsFreightTypeAnswer(),
-            controller.showAnswerImportQuestionsALVS()
+            controller.submitImportQuestionsFreightTypeAnswer,
+            controller.showAnswerImportQuestionsALVS
           )
         )
 
@@ -874,8 +874,8 @@ class CreateCaseJourneyController @Inject() (
                 mandatoryImportVesselDetailsForm(extractArrivalDate(state)),
                 model.importQuestionsAnswers.vesselDetails
               ),
-            controller.submitImportQuestionsMandatoryVesselInfoAnswer(),
-            controller.showAnswerImportQuestionsFreightType()
+            controller.submitImportQuestionsMandatoryVesselInfoAnswer,
+            controller.showAnswerImportQuestionsFreightType
           )
         )
 
@@ -887,8 +887,8 @@ class CreateCaseJourneyController @Inject() (
                 optionalImportVesselDetailsForm(extractArrivalDate(state)),
                 model.importQuestionsAnswers.vesselDetails
               ),
-            controller.submitImportQuestionsOptionalVesselInfoAnswer(),
-            controller.showAnswerImportQuestionsFreightType()
+            controller.submitImportQuestionsOptionalVesselInfoAnswer,
+            controller.showAnswerImportQuestionsFreightType
           )
         )
 
@@ -896,10 +896,10 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.importQuestionsContactInfoView(
             formWithErrors.or(ImportContactForm, model.importQuestionsAnswers.contactInfo),
-            controller.submitImportQuestionsContactInfoAnswer(),
+            controller.submitImportQuestionsContactInfoAnswer,
             if (Rules.isVesselDetailsAnswerMandatory(model.importQuestionsAnswers))
-              controller.showAnswerImportQuestionsMandatoryVesselInfo()
-            else controller.showAnswerImportQuestionsOptionalVesselInfo()
+              controller.showAnswerImportQuestionsMandatoryVesselInfo
+            else controller.showAnswerImportQuestionsOptionalVesselInfo
           )
         )
 
@@ -943,7 +943,7 @@ class CreateCaseJourneyController @Inject() (
             checkStatusAction = controller.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty) backLinkFromFileUpload(model.questionsAnswers)
-              else controller.showFileUploaded()
+              else controller.showFileUploaded
           )
         )
 
@@ -1005,7 +1005,7 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.caseAlreadyExistsView(
             caseReferenceId,
-            routes.AmendCaseJourneyController.showStart()
+            routes.AmendCaseJourneyController.showStart
           )
         )
 
@@ -1015,14 +1015,14 @@ class CreateCaseJourneyController @Inject() (
 
   private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
-      case _: ExportQuestions => controller.showExportQuestionsSummary()
-      case _: ImportQuestions => controller.showImportQuestionsSummary()
+      case _: ExportQuestions => controller.showExportQuestionsSummary
+      case _: ImportQuestions => controller.showImportQuestionsSummary
     }
 
   private def backLinkFromFileUpload(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
-      case _: ExportQuestions => controller.showAnswerExportQuestionsContactInfo()
-      case _: ImportQuestions => controller.showAnswerImportQuestionsContactInfo()
+      case _: ExportQuestions => controller.showAnswerExportQuestionsContactInfo
+      case _: ImportQuestions => controller.showAnswerImportQuestionsContactInfo
     }
 
   private def renderUploadRequestJson(

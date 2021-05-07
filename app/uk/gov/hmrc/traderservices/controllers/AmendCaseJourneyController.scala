@@ -178,7 +178,7 @@ class AmendCaseJourneyController @Inject() (
   final def successRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
-      case None    => controller.showWaitingForFileVerification()
+      case None    => controller.showWaitingForFileVerification
     })
 
   final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
@@ -187,7 +187,7 @@ class AmendCaseJourneyController @Inject() (
   final def errorRedirect(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
       case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
-      case None    => controller.markFileUploadAsRejected()
+      case None    => controller.markFileUploadAsRejected
     })
 
   final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
@@ -374,34 +374,34 @@ class AmendCaseJourneyController @Inject() (
   final override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
       case Start =>
-        controller.showStart()
+        controller.showStart
 
       case _: EnterCaseReferenceNumber =>
-        controller.showEnterCaseReferenceNumber()
+        controller.showEnterCaseReferenceNumber
 
       case _: SelectTypeOfAmendment =>
-        controller.showSelectTypeOfAmendment()
+        controller.showSelectTypeOfAmendment
 
       case _: EnterResponseText =>
-        controller.showEnterResponseText()
+        controller.showEnterResponseText
 
       case _: FileUploadState.UploadMultipleFiles =>
-        controller.showUploadMultipleFiles()
+        controller.showUploadMultipleFiles
 
       case _: FileUploadState.UploadFile =>
-        controller.showFileUpload()
+        controller.showFileUpload
 
       case _: FileUploadState.WaitingForFileVerification =>
-        controller.showWaitingForFileVerification()
+        controller.showWaitingForFileVerification
 
       case _: FileUploadState.FileUploaded =>
-        controller.showFileUploaded()
+        controller.showFileUploaded
 
       case _: AmendCaseSummary =>
-        controller.showAmendCaseSummary()
+        controller.showAmendCaseSummary
 
       case _: AmendCaseConfirmation =>
-        controller.showAmendCaseConfirmation()
+        controller.showAmendCaseConfirmation
 
       case _ =>
         workInProgresDeadEndCall
@@ -419,14 +419,14 @@ class AmendCaseJourneyController @Inject() (
   ): Result =
     state match {
       case Start =>
-        Redirect(controller.showEnterCaseReferenceNumber())
+        Redirect(controller.showEnterCaseReferenceNumber)
 
       case EnterCaseReferenceNumber(model) =>
         Ok(
           views.enterCaseReferenceNumberView(
             formWithErrors.or(EnterCaseReferenceNumberForm, model.caseReferenceNumber),
-            controller.submitCaseReferenceNumber(),
-            routes.CreateCaseJourneyController.showChooseNewOrExistingCase()
+            controller.submitCaseReferenceNumber,
+            routes.CreateCaseJourneyController.showChooseNewOrExistingCase
           )
         )
 
@@ -434,8 +434,8 @@ class AmendCaseJourneyController @Inject() (
         Ok(
           views.selectTypeOfAmendmentView(
             formWithErrors.or(TypeOfAmendmentForm, model.typeOfAmendment),
-            controller.submitTypeOfAmendment(),
-            controller.showEnterCaseReferenceNumber()
+            controller.submitTypeOfAmendment,
+            controller.showEnterCaseReferenceNumber
           )
         )
 
@@ -443,8 +443,8 @@ class AmendCaseJourneyController @Inject() (
         Ok(
           views.enterResponseTextView(
             formWithErrors.or(ResponseTextForm, model.responseText),
-            controller.submitResponseText(),
-            controller.showSelectTypeOfAmendment()
+            controller.submitResponseText,
+            controller.showSelectTypeOfAmendment
           )
         )
 
@@ -476,7 +476,7 @@ class AmendCaseJourneyController @Inject() (
             checkStatusAction = controller.checkFileVerificationStatus(reference),
             backLink =
               if (fileUploads.isEmpty) backLinkFromFileUpload(model)
-              else controller.showFileUploaded()
+              else controller.showFileUploaded
           )
         )
 
@@ -504,7 +504,7 @@ class AmendCaseJourneyController @Inject() (
           else
             views.fileUploadedSummaryView(
               fileUploads,
-              controller.showAmendCaseSummary(),
+              controller.showAmendCaseSummary,
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
               backLinkFromFileUpload(model)
@@ -531,7 +531,7 @@ class AmendCaseJourneyController @Inject() (
             controller.downloadAmendCaseConfirmationReceiptAsPdf(
               s"Document_receipt_$caseReferenceNumber.pdf"
             ),
-            routes.CreateCaseJourneyController.showStart()
+            routes.CreateCaseJourneyController.showStart
           )
         )
 
@@ -542,7 +542,7 @@ class AmendCaseJourneyController @Inject() (
   private def backLinkFromSummary(model: AmendCaseModel)(implicit rh: RequestHeader): Call =
     model.typeOfAmendment match {
       case Some(TypeOfAmendment.WriteResponse) =>
-        controller.showEnterResponseText()
+        controller.showEnterResponseText
       case _ =>
         if (preferUploadMultipleFiles)
           controller.showUploadMultipleFiles
@@ -553,9 +553,9 @@ class AmendCaseJourneyController @Inject() (
   private def backLinkFromFileUpload(model: AmendCaseModel): Call =
     model.typeOfAmendment match {
       case Some(TypeOfAmendment.WriteResponse) | Some(TypeOfAmendment.WriteResponseAndUploadDocuments) =>
-        controller.showEnterResponseText()
+        controller.showEnterResponseText
       case _ =>
-        controller.showSelectTypeOfAmendment()
+        controller.showSelectTypeOfAmendment
     }
 
   private def renderUploadRequestJson(

@@ -131,7 +131,7 @@ class ImportQuestionsViewContext
           .map(key => messages(s"form.import-questions.requestType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.import-questions.requestType"),
-        action = (CreateCaseJourneyController.showAnswerImportQuestionsRequestType(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsRequestType, "site.change")
       )
     )
 
@@ -144,7 +144,7 @@ class ImportQuestionsViewContext
             .map(key => messages(s"form.import-questions.routeType.$key"))
             .getOrElse("-"),
           visuallyHiddenText = Some("summary.import-questions.routeType"),
-          action = (CreateCaseJourneyController.showAnswerImportQuestionsRouteType(), "site.change")
+          action = (CreateCaseJourneyController.showAnswerImportQuestionsRouteType, "site.change")
         )
       )
 
@@ -156,7 +156,7 @@ class ImportQuestionsViewContext
             messages(s"form.import-questions.hasPriorityGoods.yes")
           else messages(s"form.import-questions.hasPriorityGoods.no"),
         visuallyHiddenText = Some("summary.import-questions.hasPriorityGoods"),
-        action = (CreateCaseJourneyController.showAnswerImportQuestionsHasPriorityGoods(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsHasPriorityGoods, "site.change")
       )
     )
 
@@ -170,7 +170,7 @@ class ImportQuestionsViewContext
               .map(key => messages(s"form.import-questions.priorityGoods.$key"))
               .getOrElse("-"),
             visuallyHiddenText = Some("summary.import-questions.whichPriorityGoods"),
-            action = (CreateCaseJourneyController.showAnswerImportQuestionsWhichPriorityGoods(), "site.change")
+            action = (CreateCaseJourneyController.showAnswerImportQuestionsWhichPriorityGoods, "site.change")
           )
         )
       else Seq.empty
@@ -183,7 +183,7 @@ class ImportQuestionsViewContext
             messages(s"form.import-questions.hasALVS.yes")
           else messages(s"form.import-questions.hasALVS.no"),
         visuallyHiddenText = Some("summary.import-questions.hasALVS"),
-        action = (CreateCaseJourneyController.showAnswerImportQuestionsALVS(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsALVS, "site.change")
       )
     )
 
@@ -195,7 +195,7 @@ class ImportQuestionsViewContext
           .map(key => messages(s"form.import-questions.freightType.$key"))
           .getOrElse("-"),
         visuallyHiddenText = Some("summary.import-questions.freightType"),
-        action = (CreateCaseJourneyController.showAnswerImportQuestionsFreightType(), "site.change")
+        action = (CreateCaseJourneyController.showAnswerImportQuestionsFreightType, "site.change")
       )
     )
 
