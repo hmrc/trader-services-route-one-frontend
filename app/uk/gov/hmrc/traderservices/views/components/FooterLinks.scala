@@ -54,7 +54,7 @@ object FooterLinks {
   def accessibilityStatement(implicit messages: Messages, request: Request[_]) =
     FooterItem(
       Some(messages("footer.accessibilityStatement")),
-      Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage().url)
+      Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage.url)
     )
 
   def items(implicit messages: Messages, request: Request[_]) =
