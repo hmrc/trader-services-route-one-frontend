@@ -15,10 +15,10 @@
  *@
 
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
-@import uk.gov.hmrc.traderservices.views.components.FooterLinks
 @import uk.gov.hmrc.traderservices.controllers.routes
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.helper.CSPNonce
 
 @this(
@@ -32,7 +32,8 @@ link: components.link,
 researchBanner: components.researchBanner,
 appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig,
 hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet
+hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
+hmrcStandardFooter: HmrcStandardFooter
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
@@ -99,5 +100,5 @@ beforeContentBlock = Some(beforeContentBlock),
 bodyEndBlock = None,
 scriptsBlock = Some(scripts),
 headerBlock = Some(siteHeader(timeout)),
-footerItems = FooterLinks.items
+footerBlock = Some(hmrcStandardFooter(accessibilityStatementUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage.url)))
 )(content)
