@@ -35,7 +35,8 @@
         hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
         hmrcStandardHeader: HmrcStandardHeader,
         hmrcStandardFooter: HmrcStandardFooter,
-        standardBetaBanner:StandardBetaBanner
+        standardBetaBanner:StandardBetaBanner,
+        languageSelection: components.languageSelection
 )
 
 @(
@@ -87,6 +88,10 @@
 }
 
 @beforeContentBlock = {
+  @languageSelection(
+    appConfig.languageMap,
+    appConfig.routeToSwitchLanguage
+  )
   @if(backLink.isDefined) {
     @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
   }
