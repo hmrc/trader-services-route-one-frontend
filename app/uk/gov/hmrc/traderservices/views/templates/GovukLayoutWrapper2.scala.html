@@ -14,26 +14,28 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
 @import uk.gov.hmrc.traderservices.controllers.routes
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.helper.CSPNonce
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.traderservices.controllers.routes.SignOutController
+@import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
+@import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
 
 @this(
         govukLayout2: GovukLayout2,
-        govukPhaseBanner: GovukPhaseBanner,
         govukBackLink: GovukBackLink,
-        siteHeader: components.siteHeader,
-        phaseBanner: components.phaseBanner,
-        languageSelection: components.languageSelection,
-        link: components.link,
-        researchBanner: components.researchBanner,
-        appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig,
+        appConfig: AppConfig,
         hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
         hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
-        hmrcStandardFooter: HmrcStandardFooter
+        hmrcStandardHeader: HmrcStandardHeader,
+        hmrcStandardFooter: HmrcStandardFooter,
+        standardBetaBanner:StandardBetaBanner
 )
 
 @(
@@ -85,15 +87,6 @@
 }
 
 @beforeContentBlock = {
-
-  @researchBanner()
-  @phaseBanner("beta")
-
-  @languageSelection(
-    appConfig.languageMap,
-    appConfig.routeToSwitchLanguage
-  )
-
   @if(backLink.isDefined) {
     @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
   }
@@ -116,7 +109,13 @@
   beforeContentBlock = Some(beforeContentBlock),
   bodyEndBlock = None,
   scriptsBlock = Some(scripts),
-  headerBlock = Some(siteHeader(timeout)),
+  headerBlock = Some(hmrcStandardHeader(
+    serviceUrl = Some(CreateCaseJourneyController.showStart.url),
+    signOutUrl = if(timeout) Some(SignOutController.signOut().url) else None,
+    phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
+    userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
+    displayHmrcBanner = false
+  )),
   footerBlock = Some(hmrcStandardFooter(accessibilityStatementUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage.url))),
   mainClasses = mainClasses,
   mainContentClasses = mainContentClasses
