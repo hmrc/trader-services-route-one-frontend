@@ -84,6 +84,9 @@ trait AppConfig {
 
   val uploadMultipleFilesFeature: Boolean
   val requireEnrolmentFeature: Boolean
+
+  val workingHourStart: Int
+  val workingHourEnd: Int
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -145,4 +148,7 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val uploadMultipleFilesFeature: Boolean = config.getBoolean("features.uploadMultipleFiles")
   override val requireEnrolmentFeature: Boolean = config.getBoolean("features.requireEnrolment")
+
+  override val workingHourStart: Int = config.getInt("features.workingHours.start")
+  override val workingHourEnd: Int = config.getInt("features.workingHours.end")
 }

@@ -30,7 +30,9 @@ abstract class BaseISpec
         "auditing.consumer.baseUri.host"       -> wireMockHost,
         "auditing.consumer.baseUri.port"       -> wireMockPort,
         "play.filters.csrf.method.whiteList.0" -> "POST",
-        "play.filters.csrf.method.whiteList.1" -> "GET"
+        "play.filters.csrf.method.whiteList.1" -> "GET",
+        "features.workingHours.start"          -> 0,
+        "features.workingHours.end"            -> 24
       )
       .overrides(
         bind[AppConfig]

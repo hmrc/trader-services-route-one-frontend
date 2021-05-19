@@ -41,4 +41,7 @@ case class TestAppConfig(
 
   override val timeout: Int = 10
   override val countdown: Int = 2
+
+  override val workingHourEnd: Int = 8
+  override val workingHourStart: Int = 16
 }
