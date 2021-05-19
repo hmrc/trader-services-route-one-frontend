@@ -83,6 +83,9 @@ internal.error.500.title=Sorry, there is a problem with the service
 internal.error.500.heading=Sorry, there is a problem with the service
 internal.error.500.line1=Try again later.
 
+internal.ooh.error.500.line1=Try again. If the issue persists, please email your documents to <a href="mailto:nch@hmrc.gov.uk" class="govuk-link">nch@hmrc.gov.uk</a> instead. 
+internal.ooh.error.500.line2=If you’ve entered any information, we have not saved your answers. 
+
 external.update.error.500.title=Sorry, something has gone wrong
 external.update.error.500.heading=Sorry, something has gone wrong
 external.update.error.500.line1=You may have entered some incorrect details.
