@@ -48,7 +48,15 @@ case class FileUploads(
   def toUploadedFiles: Seq[UploadedFile] =
     files.collect {
       case f: FileUpload.Accepted =>
-        UploadedFile(f.reference, f.url, f.uploadTimestamp, f.checksum, f.fileName, f.fileMimeType, f.fileSize)
+        UploadedFile(
+          f.reference,
+          f.url,
+          f.uploadTimestamp,
+          f.checksum,
+          FileUpload.trimFileName(f.fileName),
+          f.fileMimeType,
+          f.fileSize
+        )
     }
 
   def +(file: FileUpload): FileUploads = copy(files = files :+ file)
@@ -105,6 +113,21 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
       case isWindowPathHaving(name) => name
       case name                     => name
     }
+
+  final val MAX_FILENAME_LENGTH = 93
+
+  final def trimFileName(filename: String): String =
+    if (filename.length() > MAX_FILENAME_LENGTH) {
+      val (name, extension) = {
+        val i = filename.lastIndexOf(".")
+        if (i >= 0 && i < filename.length()) (filename.substring(0, i), filename.substring(i))
+        else (filename, "")
+      }
+      val nameFiltered = name.filter(Character.isLetterOrDigit)
+      (if (nameFiltered.nonEmpty) nameFiltered else name)
+        .take(MAX_FILENAME_LENGTH - extension.length()) + extension
+    } else
+      filename
 
   /**
     * Status when file upload attributes has been requested from upscan-initiate
