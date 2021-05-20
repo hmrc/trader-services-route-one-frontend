@@ -114,7 +114,7 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
       case name                     => name
     }
 
-  final val MAX_FILENAME_LENGTH = 94
+  final val MAX_FILENAME_LENGTH = 93
 
   final def trimFileName(filename: String): String =
     if (filename.length() > MAX_FILENAME_LENGTH) {

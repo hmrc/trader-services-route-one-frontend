@@ -186,31 +186,33 @@ class FileUploadsSpec extends UnitSpec {
     }
 
     "trim the file name" in {
+      val MAX = FileUpload.MAX_FILENAME_LENGTH
+
       FileUpload.trimFileName("") shouldBe ""
       FileUpload.trimFileName("a") shouldBe "a"
       FileUpload.trimFileName("a.a") shouldBe "a.a"
-      FileUpload.trimFileName("a" * 94) shouldBe "a" * 94
-      FileUpload.trimFileName("a" * 95) shouldBe "a" * 94
-      FileUpload.trimFileName("a" * 89 + ".ext") shouldBe "a" * 89 + ".ext"
-      FileUpload.trimFileName("a" * 90 + ".ext") shouldBe "a" * 90 + ".ext"
-      FileUpload.trimFileName("a" * 95 + ".ext") shouldBe "a" * 90 + ".ext"
-      FileUpload.trimFileName("a" * 92 + ".") shouldBe "a" * 92 + "."
-      FileUpload.trimFileName("a" * 93 + ".") shouldBe "a" * 93 + "."
-      FileUpload.trimFileName("a" * 94 + ".") shouldBe "a" * 93 + "."
-      FileUpload.trimFileName("-" * 94) shouldBe "-" * 94
-      FileUpload.trimFileName("-" * 89 + ".ext") shouldBe "-" * 89 + ".ext"
-      FileUpload.trimFileName("-" * 90 + ".ext") shouldBe "-" * 90 + ".ext"
-      FileUpload.trimFileName("-" * 95 + ".ext") shouldBe "-" * 90 + ".ext"
+      FileUpload.trimFileName("a" * MAX) shouldBe "a" * MAX
+      FileUpload.trimFileName("a" * (MAX + 1)) shouldBe "a" * MAX
+      FileUpload.trimFileName("a" * (MAX - 5) + ".ext") shouldBe "a" * (MAX - 5) + ".ext"
+      FileUpload.trimFileName("a" * (MAX - 4) + ".ext") shouldBe "a" * (MAX - 4) + ".ext"
+      FileUpload.trimFileName("a" * (MAX + 1) + ".ext") shouldBe "a" * (MAX - 4) + ".ext"
+      FileUpload.trimFileName("a" * (MAX - 2) + ".") shouldBe "a" * (MAX - 2) + "."
+      FileUpload.trimFileName("a" * (MAX - 1) + ".") shouldBe "a" * (MAX - 1) + "."
+      FileUpload.trimFileName("a" * MAX + ".") shouldBe "a" * (MAX - 1) + "."
+      FileUpload.trimFileName("-" * MAX) shouldBe "-" * MAX
+      FileUpload.trimFileName("-" * (MAX - 5) + ".ext") shouldBe "-" * (MAX - 5) + ".ext"
+      FileUpload.trimFileName("-" * (MAX - 4) + ".ext") shouldBe "-" * (MAX - 4) + ".ext"
+      FileUpload.trimFileName("-" * (MAX + 1) + ".ext") shouldBe "-" * (MAX - 4) + ".ext"
 
       FileUpload.trimFileName(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra fusce."
-      ) shouldBe "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra fusce."
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra usce."
+      ) shouldBe "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra usce."
       FileUpload.trimFileName(
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum cursus, erat sed fringilla lacinia, sem nulla vulputate mauris, at tincidunt eros.ext"
-      ) shouldBe "LoremipsumdolorsitametconsecteturadipiscingelitVestibulumcursuseratsedfringillalaciniasemn.ext"
+      ) shouldBe "LoremipsumdolorsitametconsecteturadipiscingelitVestibulumcursuseratsedfringillalaciniasem.ext"
       FileUpload.trimFileName(
         "123orem_ipsum_dolor_sit_amet-----consec9999999999tetur-adipiscing elit_Vestibulum***12cursus,!!![erat]+sed+fringilla (lacinia), sem/nulla/vulputate /_mauris,~at&tincidunt@eros.ext"
-      ) shouldBe "123oremipsumdolorsitametconsec9999999999teturadipiscingelitVestibulum12cursuseratsedfringi.ext"
+      ) shouldBe "123oremipsumdolorsitametconsec9999999999teturadipiscingelitVestibulum12cursuseratsedfring.ext"
 
     }
   }
