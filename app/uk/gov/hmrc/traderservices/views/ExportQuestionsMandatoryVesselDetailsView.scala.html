@@ -32,11 +32,11 @@
 
   @forms.errorSummary(form.errors)
 
+  @html.h1(messages("view.export-questions.vessel-details.heading"), classes="govuk-heading-l")
+
   @forms.formWithCSRF(action = postAction) {
 
-    @forms.fieldset(
-      legend = messages("view.export-questions.vessel-details.heading")
-    ) {
+ 
       @forms.inputText(
         form = form,
         id = "vesselName",
@@ -71,7 +71,7 @@
         showSelectPeriod = false,
         hintText = Some("form.export-questions.vessel-details.timeOfDeparture.hint")
       )
-    }
+    
 
     @html.button("form.export-questions.continue")
   }

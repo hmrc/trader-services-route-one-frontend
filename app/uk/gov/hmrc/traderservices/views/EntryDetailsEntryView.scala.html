@@ -32,11 +32,11 @@
 
   @forms.errorSummary(form.errors)
 
+  @html.h1(messages("view.entry-details.heading"), classes="govuk-heading-l")
+
   @forms.formWithCSRF(action = postAction) {
 
-    @forms.fieldset(
-      legend = messages("view.entry-details.heading")
-    ) {
+   
       @forms.inputText(
         form = form,
         id = "epu",
@@ -74,7 +74,6 @@
         attributesMonth = Map("aria-label" -> "Month of entry date"),
         attributesYear = Map("aria-label" -> "Year of entry date")
       )
-    }
 
     @html.button("form.entry-details.continue")
   }
