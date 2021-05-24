@@ -17,26 +17,36 @@
 package uk.gov.hmrc.traderservices.wiring
 
 import com.google.inject.name.Named
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.Configuration
+import play.api.Environment
+import play.api.Mode
+import play.api.i18n.MessagesApi
+import play.api.mvc.Request
+import play.api.mvc.RequestHeader
+import play.api.mvc.Result
 import play.api.mvc.Results._
-import play.api.mvc.{Request, RequestHeader, Result}
-import play.api.{Configuration, Environment, Mode}
-import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
-import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
-import uk.gov.hmrc.play.HeaderCarrierConverter
+import uk.gov.hmrc.auth.core.InsufficientEnrolments
+import uk.gov.hmrc.auth.core.NoActiveSession
+import uk.gov.hmrc.http.JsValidationException
+import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
+import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
+import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
-import uk.gov.hmrc.traderservices.connectors.{TraderServicesAmendApiError, TraderServicesApiError}
-import uk.gov.hmrc.traderservices.views.html.{AmendCaseErrorView, InternalErrorOutOfHoursView, InternalErrorView, PageNotFoundErrorView}
-import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
+import uk.gov.hmrc.traderservices.connectors.TraderServicesAmendApiError
 import uk.gov.hmrc.traderservices.models.DateTimeHelper
+import uk.gov.hmrc.traderservices.views.html.AmendCaseErrorView
+import uk.gov.hmrc.traderservices.views.html.ErrorOutOfHoursView
+import uk.gov.hmrc.traderservices.views.html.ErrorView
+import uk.gov.hmrc.traderservices.views.html.PageNotFoundErrorView
+import uk.gov.hmrc.traderservices.views.html.templates.ErrorTemplate
+import uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
-import java.time.ZonedDateTime
-import java.time.ZoneId
+import javax.inject.Inject
+import javax.inject.Singleton
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
 @Singleton
 class ErrorHandler @Inject() (
@@ -48,8 +58,8 @@ class ErrorHandler @Inject() (
   html: uk.gov.hmrc.traderservices.views.components.html,
   pageNotFoundErrorView: PageNotFoundErrorView,
   amendCaseErrorView: AmendCaseErrorView,
-  internalErrorView: InternalErrorView,
-  internalErrorOutOfHoursView: InternalErrorOutOfHoursView
+  errorView: ErrorView,
+  errorOutOfHoursView: ErrorOutOfHoursView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
 
@@ -68,7 +78,6 @@ class ErrorHandler @Inject() (
     exception match {
       case _: NoActiveSession             => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments      => Forbidden
-      case _: TraderServicesApiError      => Ok(externalErrorTemplate())
       case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
       case _ =>
         Ok(
@@ -79,9 +88,9 @@ class ErrorHandler @Inject() (
               appConfig.workingHourEnd
             )
           )
-            internalErrorView()
+            errorView()
           else
-            internalErrorOutOfHoursView()
+            errorOutOfHoursView()
         )
     }
   }
@@ -92,13 +101,6 @@ class ErrorHandler @Inject() (
     new ErrorTemplate(govUkWrapper, html)(pageTitle, heading, message)
 
   override def notFoundTemplate(implicit request: Request[_]) = pageNotFoundErrorView()
-
-  def externalErrorTemplate()(implicit request: Request[_]) =
-    new ErrorTemplate(govUkWrapper, html)(
-      Messages("external.error.500.title"),
-      Messages("external.error.500.heading"),
-      Messages("external.error.500.message")
-    )
 
   def externalAmendErrorTemplate()(implicit request: Request[_]) = amendCaseErrorView()
 }
@@ -134,7 +136,7 @@ trait ErrorAuditing extends HttpAuditEvent {
     }
     auditConnector.sendEvent(
       dataEvent(eventType, transactionName, request, Map(TransactionFailureReason -> ex.getMessage))(
-        HeaderCarrierConverter.fromHeadersAndSession(request.headers, Try(request.session).toOption)
+        HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       )
     )
   }
@@ -147,13 +149,13 @@ trait ErrorAuditing extends HttpAuditEvent {
       case NOT_FOUND =>
         auditConnector.sendEvent(
           dataEvent(ResourceNotFound, notFoundError, request, Map(TransactionFailureReason -> message))(
-            HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
           )
         )
       case BAD_REQUEST =>
         auditConnector.sendEvent(
           dataEvent(ServerValidationError, badRequestError, request, Map(TransactionFailureReason -> message))(
-            HeaderCarrierConverter.fromHeadersAndSession(request.headers, Some(request.session))
+            HeaderCarrierConverter.fromRequestAndSession(request, request.session)
           )
         )
       case _ =>
