@@ -25,14 +25,12 @@
 @()(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
-  pageTitle("internal.error.500.title")
+  pageTitle("global.error.500.title")
 ) {
 
-  @html.h1(messages("internal.error.500.heading"))
+  @html.h1(messages("global.error.500.heading"))
 
-  @html.p { @messages("internal.error.500.line1") }
-  
-  @html.p { @messages("global.error.500.line1") }
-  @html.p { @Html(messages("global.error.500.line2", appConfig.reportProblemUrl)) }
+  @html.p { @Html(messages("global.ooh.error.500.line1")) }
+  @html.p { @messages("global.ooh.error.500.line2") }
 
 }

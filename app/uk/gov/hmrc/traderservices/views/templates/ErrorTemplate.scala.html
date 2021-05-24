@@ -28,9 +28,6 @@ AppConfig)
 
   @html.h1(messages(heading))
 
-  <p class="govuk-body">@messages(message)</p>
-
-  @html.p { @messages("global.error.500.line1") }
-  @html.p { @Html(messages("global.error.500.line2", appConfig.reportProblemUrl)) }
+  @html.p { @messages(message) }
 
 }
