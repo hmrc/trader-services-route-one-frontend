@@ -32,11 +32,10 @@
 
   @forms.errorSummary(form.errors)
 
+  @html.h1(messages("view.import-questions.vessel-details.heading"), classes="govuk-heading-l")
+
   @forms.formWithCSRF(action = postAction) {
 
-    @forms.fieldset(
-      legend = messages("view.import-questions.vessel-details.heading")
-    ) {
       @forms.inputText(
         form = form,
         id = "vesselName",
@@ -71,7 +70,6 @@
         showSelectPeriod = false,
         hintText = Some("form.import-questions.vessel-details.timeOfArrivalOptional.hint")
       )
-    }
 
     @html.button("form.import-questions.continue")
   }
