@@ -34,11 +34,10 @@
 
     @forms.errorSummary(form.errors)
 
+    @html.h1(messages("view.export-questions.contactInfo.heading"), classes="govuk-heading-l")
+
     @forms.formWithCSRF(action = postAction) {
 
-        @forms.fieldset(
-            legend = messages("view.export-questions.contactInfo.heading")
-        ) {
             @html.p {
                 @messages("view.export-questions.contactInfo.description")
             }
@@ -78,7 +77,7 @@
                 classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "tel")
             )
-        }
+    
         @html.button("form.export-questions.continue")
 
     }
