@@ -37,8 +37,6 @@ object JourneyLog {
     transport: Option[ExportFreightType],
     hasPriority: Option[Boolean],
     priorityGoods: Option[ExportPriorityGoods],
-    uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
@@ -56,8 +54,6 @@ object JourneyLog {
     hasPriority: Option[Boolean],
     priorityGoods: Option[ImportPriorityGoods],
     hasALVS: Option[Boolean],
-    uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
@@ -81,8 +77,6 @@ object JourneyLog {
             transport = q.freightType,
             hasPriority = q.hasPriorityGoods,
             priorityGoods = q.priorityGoods,
-            uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
             errorCode = response.error.map(_.errorCode),
             userId = userId,
             fileMimeTypes = {
@@ -109,8 +103,6 @@ object JourneyLog {
             priorityGoods = q.priorityGoods,
             transport = q.freightType,
             hasALVS = q.hasALVS,
-            uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-            uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
             errorCode = response.error.map(_.errorCode),
             userId = userId,
             fileMimeTypes = {
@@ -199,8 +191,6 @@ object JourneyLog {
     success: Boolean,
     action: String = "update",
     `type`: TypeOfAmendment,
-    uploadsSuccess: Option[Int] = None,
-    uploadsFailure: Option[Int] = None,
     errorCode: Option[String] = None,
     userId: Option[String] = None,
     fileMimeTypes: Option[Seq[String]] = None,
@@ -217,8 +207,6 @@ object JourneyLog {
       UpdateCaseLog(
         response.isSuccess,
         `type` = request.typeOfAmendment,
-        uploadsSuccess = response.result.map(_.fileTransferResults.count(_.success)),
-        uploadsFailure = response.result.map(_.fileTransferResults.count(f => !f.success)),
         errorCode = response.error.map(_.errorCode),
         userId = userId,
         fileMimeTypes = {
