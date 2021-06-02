@@ -66,9 +66,25 @@
   background-color: #1d70b8;
   box-sizing: border-box;
   width: 0;
+  min-width: 4rem;
   height: 23px;
   height: 1.4375rem;
   padding: 4px 0 3px;
+  border: 2px solid #fff; 
+}
+    /* IE 11 */
+@media (-ms-high-contrast: active) {
+  .multi-file-upload__progress-bar  {
+    -ms-high-contrast-adjust: none;
+    background-color: highlight;
+ }
+}
+/* Edge 18+ */
+@media (forced-colors: active) {
+  .multi-file-upload__progress-bar  {
+    -ms-high-contrast-adjust: none;
+    background-color: highlight; 
+  }
 }
 
 .multi-file-upload__uploaded-tag {
@@ -131,6 +147,7 @@
 
   .multi-file-upload__progress {
     display: inline-block;
+    
   }
 }
 
