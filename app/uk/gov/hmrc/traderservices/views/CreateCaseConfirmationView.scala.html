@@ -97,7 +97,7 @@
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
       <li class="action-buttons__item">
-        <button class="print-page action-buttons__button action-buttons__button--print">
+        <button class="print-page action-buttons__button action-buttons__button--print" id="print-page">
           @messages("view.case-confirmation.button.print")
         </button>
       </li>
@@ -108,6 +108,11 @@
       </li>
     </ul>
   </div>
+  <noscript>
+    <style type="text/css">
+       #print-page{display: none;}
+    </style>
+   </noscript>
 
   <div class="govuk-grid-column-two-thirds">
     @partials.createCaseReceipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt)(messages)
