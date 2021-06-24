@@ -152,6 +152,70 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
+      "go to ExportQuestionsSummary when going back and answers completed" in {
+        val thisState = EnterEntryDetails(
+          entryDetailsOpt = Some(exportEntryDetails),
+          exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
+          fileUploadsOpt = Some(nonEmptyFileUploads)
+        )
+        val summaryState = ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
+      }
+
+      "stay when going back and export answers incomplete" in {
+        val thisState = EnterEntryDetails(
+          entryDetailsOpt = Some(exportEntryDetails),
+          exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
+          fileUploadsOpt = None
+        )
+        val summaryState = ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+      }
+
+      "go to ImportQuestionsSummary when going back and answers completed" in {
+        val thisState = EnterEntryDetails(
+          entryDetailsOpt = Some(importEntryDetails),
+          importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+          fileUploadsOpt = Some(nonEmptyFileUploads)
+        )
+        val summaryState = ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
+      }
+
+      "stay when going back and import answers incomplete" in {
+        val thisState = EnterEntryDetails(
+          entryDetailsOpt = Some(importEntryDetails),
+          importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
+          fileUploadsOpt = None
+        )
+        val summaryState = ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+      }
+
       "go to AnswerImportQuestionsRequestType when submitted declaration details for import" in {
         given(EnterEntryDetails(None)) when submittedEntryDetails(
           importEntryDetails
@@ -234,6 +298,43 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
+      }
+
+      "go to ExportQuestionsSummary when going back and answers completed" in {
+        val thisState = AnswerExportQuestionsRequestType(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        val summaryState = ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
+      }
+
+      "stay when going back and export answers incomplete" in {
+        val thisState = AnswerExportQuestionsRequestType(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(requestType = None),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        val summaryState = ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
       }
 
     }
@@ -1019,6 +1120,42 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
+      }
+
+      "go to ImportQuestionsSummary when going back and answers completed" in {
+        val thisState = AnswerImportQuestionsRequestType(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        val summaryState = ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
+      }
+
+      "stay when going back and import answers incomplete" in {
+        val thisState = AnswerImportQuestionsRequestType(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(requestType = None),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        val summaryState = ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New)),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
       }
 
     }

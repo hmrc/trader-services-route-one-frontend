@@ -74,6 +74,32 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         )
       }
+
+      "go to AmendCaseSummary when going back and answers completed" in {
+        val model = AmendCaseModel(
+          responseText = Some("foo"),
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
+        given(
+          EnterCaseReferenceNumber(model)
+        ).withBreadcrumbs() when toAmendSummary should thenGo(
+          AmendCaseSummary(model)
+        )
+      }
+
+      "stay when going back and answers incomplete" in {
+        val model = AmendCaseModel(
+          responseText = None,
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
+        given(
+          EnterCaseReferenceNumber(model)
+        ).withBreadcrumbs() when toAmendSummary should thenGo(
+          EnterCaseReferenceNumber(model)
+        )
+      }
     }
 
     "at state SelectTypeOfAmendment" should {
