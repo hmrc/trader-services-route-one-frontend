@@ -3,6 +3,10 @@ site.back=Yn ôl
 site.review=Adolygu
 site.delete=Dileu
 site.edit=Newid
+site.hidden-delete=Dileu {0}
+site.hidden-edit=Newid {0}
+site.notProvided=Heb ei ddarparu
+site.logOut=allgofnodi
 site.no=Na
 site.yes=Iawn
 site.continue=Yn eich blaen
@@ -34,7 +38,12 @@ site.Oct=Hydref
 site.Nov=Tachwedd
 site.Dec=Rhagfyr
 site.datetime.preposition=am
+site.today=heddiw
+site.tomorrow=yfory
 error.summary.heading=Mae problem wedi codi
+error.prefix=Gwall:
+
+button.submit=Cyflwyno
 button.continue=Yn eich blaen
 
 global.error.404.title=Heb ddod o hyd i’r dudalen
@@ -43,18 +52,22 @@ global.error.404.line1=Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod y
 global.error.404.line2=Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
 global.error.404.line3=<a class="govuk-link" href="{0}">Anfon eich dogfennau i’w gwirio gan y tollau</a>
 
-global.error.500.title=Sorry, there is a problem with the service
-global.error.500.heading=Sorry, there is a problem with the service
-global.error.500.line1=Try again. If the issue persists and you need help, you can <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">report the problem (opens in a new window or tab)</a>. We will respond to you within two working days. 
-global.error.500.line2=If you’ve entered any information, we have not saved your answers.
+global.error.500.title=Mae’n ddrwg gennym, mae problem gyda’r gwasanaeth
+global.error.500.heading=Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth
+global.error.500.line1=Rhowch gynnig arall arni. Os yw’r broblem yn parhau a bod angen help arnoch, gallwch <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">roi gwybod am y broblem (yn agor ffenestr neu dab newydd)</a>. Byddwn yn eich ateb cyn pen dau ddiwrnod gwaith.
+global.error.500.line2=Os ydych wedi nodi unrhyw wybodaeth, nid ydym wedi cadw’ch atebion.
 
-global.ooh.error.500.line1=Try again. If the issue persists, please email your documents to <a href="mailto:nch@hmrc.gov.uk" class="govuk-link">nch@hmrc.gov.uk</a> instead. 
-global.ooh.error.500.line2=If you’ve entered any information, we have not saved your answers.
+global.ooh.error.500.line1=Rhowch gynnig arall arni. Os yw’r broblem yn parhau, anfonwch eich dogfennau drwy e-bost i nch@hmrc.gov.uk yn lle hynny.
+global.ooh.error.500.line2=Os ydych wedi nodi unrhyw wybodaeth, nid ydym wedi cadw’ch atebion.
 
-external.update.error.500.title=Sorry, something has gone wrong
-external.update.error.500.heading=Sorry, something has gone wrong
-external.update.error.500.line1=You may have entered some incorrect details.
-external.update.error.500.line2=Try to <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">enter your case reference number</a> again.
+external.update.error.500.title=Mae’n ddrwg gennym, mae rhywbeth wedi mynd o’i le
+external.update.error.500.heading=Mae’n ddrwg gennym, mae rhywbeth wedi mynd o’i le
+external.update.error.500.line1=Mae’n bosibl eich bod wedi nodi manylion anghywir
+external.update.error.500.line2=Rhowch gynnig arall ar <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">nodi cyfeirnod eich achos</a>.
+
+a11yStatement.title = Datganiad hygyrchedd ar gyfer Anfon dogfennau i’w gwirio gan y tollau - Anfon dogfennau i’w gwirio gan y tollau
+a11yStatement.heading = Datganiad hygyrchedd ar gyfer Anfon dogfennau i’w gwirio gan y tollau - Anfon dogfennau i’w gwirio gan y tollau
+a11yStatement.temp.p1=Mae’r datganiad hygyrchedd hwn wrthi’n cael ei baratoi, gan ein bod yn dal i fod yn brysur gyda’n profion hygyrchedd. Os oes gennych unrhyw ymholiadau ynglŷn â hygyrchedd, gallwch gysylltu â’r tim Atebion Prosesu Tollau <a href="mailto:betatesting@hmrc.gov.uk?subject=Accessibility query for Send documents for a customs check" class="govuk-link">betatesting@hmrc.gov.uk</a>.
 
 feedback.before=Gwasanaeth newydd yn hwn – bydd eich
 feedback.link=adborth
@@ -79,6 +92,7 @@ view.new-or-existing-case.continue=Yn eich blaen
 view.entry-details.title=Beth yw manylion eich datganiad?
 view.entry-details.heading=Beth yw manylion eich datganiad?
 form.entry-details.epu=Rhif yr Uned Prosesu Cofnodion (EPU)
+form.entry-details.epu.hint=Mae hwn yn cynnwys 3 rhif, er enghraifft 121
 form.entry-details.entryNumber=Rhif y cofnod
 form.entry-details.entryDate=Dyddiad y cofnod
 form.entry-details.entryDate.hint=Er enghraifft, {0}
@@ -86,6 +100,7 @@ form.entry-details.continue=Yn eich blaen
 error.epu.required=Nodwch rif EPU
 error.epu.invalid-length=Mae’n rhaid i’r rhif EPU fod yn 3 o gymeriadau
 error.epu.invalid-only-digits=Mae’n rhaid i’r rhif EPU gynnwys rhifau yn unig
+error.epu.invalid-number=Mae’n rhaid i’r rhif EPU fod rhwng 001 a 669
 error.entryNumber.required=Nodwch rif cofnod
 error.entryNumber.invalid-length=Mae’n rhaid i rif y cofnod fod yn 7 o gymeriadau
 error.entryNumber.invalid-only-digits-and-letters=Mae’n rhaid i rif y cofnod gynnwys rhifau a llythrennau yn unig
@@ -168,7 +183,7 @@ form.export-questions.requestType.C1603=C1603 – Rhoi gwybod yn ôl-weithredol 
 form.export-questions.requestType.cancellationConditional=Ni fydd hyn yn canslo’ch CHIEF gofnod
 form.export-questions.requestType.withdrawalConditional=Ni fydd hyn yn tynnu eich CHIEF gofnod yn ôl
 form.export-questions.routeType.Route1=Llwybr 1
-form.export-questions.routeType.Route1Cap=Llwybr 1 CAP
+form.export-questions.routeType.Route1Cap=Llwybr 1 CAP (Polisi Amaethyddol Cyffredin)
 form.export-questions.routeType.Route2=Llwybr 2
 form.export-questions.routeType.Route3=Llwybr 3
 form.export-questions.routeType.Route6=Llwybr 6
@@ -206,11 +221,13 @@ error.vesselName.invalid-characters=Mae’n rhaid i’r enw gynnwys y llythrenna
 error.vesselName.invalid-length=Mae’n rhaid i’r enw fod yn 128 o gymeriadau neu lai
 error.timeOfDeparture.hour.invalid-value=Mae’n rhaid i’r oriau fod rhwng 0 a 23
 error.timeOfDeparture.minutes.invalid-value=Mae’n rhaid i’r munudau fod rhwng 00 a 59
+error.timeOfDeparture.hour.invalid-digits=Mae’n rhaid i’r awr ymadael gynnwys rhifau yn unig
+error.timeOfDeparture.minutes.invalid-digits=Mae’n rhaid i’r munudau ymadael gynnwys rhifau yn unig
 form.import-questions.requestType.New=Cais newydd
 form.import-questions.requestType.Cancellation=Cais i ganslo
 form.import-questions.requestType.ALVS=System Gwirio Trwyddedau Awtomatig (ALVS)
 form.import-questions.routeType.Route1=Llwybr 1
-form.import-questions.routeType.Route1Cap=Llwybr 1 CAP
+form.import-questions.routeType.Route1Cap=Llwybr 1 CAP (Polisi Amaethyddol Cyffredin)
 form.import-questions.routeType.Route2=Llwybr 2
 form.import-questions.routeType.Route3=Llwybr 3
 form.import-questions.routeType.Route6=Llwybr 6
@@ -250,6 +267,7 @@ error.contactName.invalid-length-short=Mae’n rhaid i’r enw llawn fod yn 2 o 
 error.contactName.invalid-length-long=Mae’n rhaid i’r enw llawn fod yn 128 o gymeriadau neu lai
 error.contactNumber=Nodwch rif ffôn yn y fformat cywir
 error.contactNumber.invalid-length=Nodwch rif ffôn 11 digid, megis 01632 960 001 neu 07700 900 982
+error.contactEmail.invalid-length=Mae’n rhaid i’r cyfeiriad e-bost fod yn 128 o gymeriadau neu lai
 error.contactEmail=Nodwch gyfeiriad e-bost yn y fformat cywir, megis enw@enghraifft.com
 error.contactEmail.required=Nodwch gyfeiriad e-bost
 error.contactName.required=Nodwch eich enw llawn
@@ -271,6 +289,26 @@ error.timeOfArrival.hour.invalid-digits=Mae’n rhaid i’r awr cyrraedd gynnwys
 error.timeOfArrival.minutes.invalid-digits=Mae’n rhaid i’r munudau cyrraedd gynnwys rhifau yn unig
 error.timeOfArrival.hour.invalid-value=Mae’n rhaid i’r oriau fod rhwng 0 a 23
 error.timeOfArrival.minutes.invalid-value=Mae’n rhaid i’r munudau fod rhwng 00 a 59
+
+error.dateOfDeparture.all.required=Nodwch y dyddiad ymadael
+error.dateOfDeparture.year.required=Mae’n rhaid i’r dyddiad ymadael gynnwys blwyddyn
+error.dateOfDeparture.month.required=Mae’n rhaid i’r dyddiad ymadael gynnwys mis
+error.dateOfDeparture.day.required=Mae’n rhaid i’r dyddiad ymadael gynnwys diwrnod
+error.dateOfDeparture.all.invalid-value=Mae’n rhaid i’r dyddiad ymadael fod yn ddyddiad go iawn
+error.dateOfDeparture.year.invalid-value=Mae’n rhaid i’r dyddiad ymadael fod yn ddyddiad go iawn
+error.dateOfDeparture.month.invalid-value=Mae’n rhaid i’r dyddiad ymadael fod yn ddyddiad go iawn
+error.dateOfDeparture.day.invalid-value=Mae’n rhaid i’r dyddiad ymadael fod yn ddyddiad go iawn
+error.dateOfDeparture.year.invalid-digits=Mae’n rhaid i’r flwyddyn ymadael gynnwys rhifau yn unig
+error.dateOfDeparture.month.invalid-digits=Mae’n rhaid i’r mis ymadael gynnwys rhifau yn unig
+error.dateOfDeparture.day.invalid-digits=Mae’n rhaid i’r diwrnod ymadael gynnwys rhifau yn unig
+error.dateOfDeparture.all.invalid-value-range=Mae’n rhaid i’r dyddiad ymadael fod rhwng {0} a {1}
+error.dateOfDeparture.all.invalid-value-before-entry-date=Mae’n rhaid i’r dyddiad ymadael fod rhwng {0} (dyddiad mynediad) a {1}
+error.timeOfDeparture.all.required=Nodwch yr amser ymadael amcangyfrifedig
+error.timeOfDeparture.hour.required=Mae’n rhaid i’r amser ymadael gynnwys awr
+error.timeOfDeparture.minutes.required=Mae’n rhaid i’r amser ymadael gynnwys munudau
+error.dateOfArrival.all.invalid-value-range=Mae’n rhaid i’r dyddiad cyrraedd fod rhwng {0} a {1}
+error.dateOfArrival.all.invalid-value-before-entry-date=Mae’n rhaid i’r dyddiad cyrraedd fod rhwng {0} (dyddiad mynediad) a {1}
+
 summary.entry-information.epu=Rhif EPU
 summary.entry-information.entryNumber=Rhif y cofnod
 summary.entry-information.entryDate=Dyddiad y cofnod
@@ -300,6 +338,7 @@ view.upload-multiple-files.title=Uwchlwytho’ch dogfennau
 view.upload-multiple-files.uploadMoreFilesThanLimit=Gallwch uwchlwytho hyd at 10 ffeil. Er mwyn uwchlwytho rhagor, mae’n rhaid i chi gyflwyno’r ffeiliau hyn yn gyntaf, ac wedyn defnyddio’r gwasanaeth eto.
 view.upload-multiple-files.document=Dogfen
 view.upload-multiple-files.remove=Tynnu
+view.upload-multiple-files.removing=Tynnu...
 view.upload-multiple-files.pending=Ar y gweill
 view.upload-multiple-files.uploaded=Barod i gyflwyno
 view.upload-multiple-files.documentUploaded=Mae dogfen {0} wedi’i huwchlwytho
@@ -311,6 +350,7 @@ view.upload-multiple-files.line2=Mae’n rhaid i bob dogfen fod yn llai na 6MB.
 view.upload-multiple-files.c1601=Ar gyfer yr allforyn hwn, mae’n rhaid i chi uwchlwytho ffurflen C1601 – Cyflwyno nwyddau i’w hallforio (cyraeddiadau). Gallwch gynnwys dogfennau ategol eraill hefyd.
 view.upload-multiple-files.c1602=Ar gyfer yr allforyn hwn, mae’n rhaid i chi uwchlwytho ffurflen C1602 – Rhoi gwybod am nwyddau sy’n gadael (ymadawiadau). Gallwch gynnwys dogfennau ategol eraill hefyd.
 view.upload-multiple-files.c1603=Ar gyfer yr allforyn hwn, mae’n rhaid i chi uwchlwytho ffurflen C1603 – Rhoi gwybod yn ôl-weithredol am gyrhaeddiad. Gallwch gynnwys dogfennau ategol eraill hefyd.
+view.upload-multiple-files.addAnother=Ychwanegu dogfen arall
 view.upload-file.first.title=Uwchlwythwch eich dogfen gyntaf
 view.upload-file.first.heading=Uwchlwythwch eich dogfen gyntaf
 view.upload-file.first.fileLabel=Dewiswch y ffeil gyntaf i’w huwchlwytho
@@ -318,14 +358,15 @@ view.upload-file.next.fileLabel=Dewiswch y ffeil i’w huwchlwytho
 view.upload-file.next.title=Uwchlwytho dogfen arall
 view.upload-file.next.heading=Uwchlwytho dogfen arall
 view.upload-file.waiting=Mae’ch dogfen wrthi’n cael ei huwchlwytho. Cewch eich ailgyfeirio ar ôl i’r ffeil gael ei phrosesu.
+view.upload-file.line1=Gallwch uwchlwytho hyd at 10 dogfen ar wahân.
 view.upload-file.line2=Mae’n rhaid i bob dogfen fod yn llai na 6MB.
 view.upload-file.help.linkText=Mathau o ffeiliau y gallwch eu huwchlwytho
 view.upload-file.help.line1=Caniateir y mathau hyn o ffeiliau:
 view.upload-file.help.fileFormat1=delwedd (.jpg, .jpeg, .png neu .tiff)
 view.upload-file.help.fileFormat2=PDF (.pdf)
 view.upload-file.help.fileFormat3=e-bost (.txt neu .msg)
-view.upload-file.help.fileFormat4=Microsoft (Word, Excel or PowerPoint)
-view.upload-file.help.fileFormat5=Open Document Format (ODF)
+view.upload-file.help.fileFormat4=Microsoft (Word, Excel neu PowerPoint)
+view.upload-file.help.fileFormat5=Fformat Dogfen Agored (ODF)
 view.upload-file.help.line4=Ni allwch uwchlwytho ffeiliau zip na dogfennau sydd wedi’u diogelu gan gyfrinair.
 view.file-uploaded.singular.title=Rydych wedi uwchlwytho {0} o ddogfennau
 view.file-uploaded.singular.heading=Rydych wedi uwchlwytho {0} o ddogfennau
@@ -343,9 +384,12 @@ form.upload-multiple-files.continue=Yn eich blaen
 error.file-upload.required=Dewiswch ffeil
 error.file-upload.invalid-size-small=Mae’r ffeil dan sylw yn wag
 error.file-upload.invalid-size-large=Mae’n rhaid i’r ffeil dan sylw fod yn llai na {0}MB
-error.file-upload.invalid-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf .jpg, .png, .tiff, .pdf, .txt, .msg, Open Document Format (ODF) neu Microsoft Office
+error.file-upload.invalid-type=Mae’n rhaid i’r ffeil dan sylw fod ar ffurf .jpg, .png, .tiff, .pdf, .txt, .msg, Fformat Dogfen Agored (ODF), neu Microsoft Office
 error.file-upload.quarantine=Mae feirws yn y ffeil dan sylw – uwchlwythwch un wahanol
 error.file-upload.unknown=Nid oedd modd uwchlwytho’r ffeil dan sylw
+error.file-upload.remove.try-again=Nid oedd modd tynnu’r ffeil dan sylw – rhowch gynnig arall arni
+error.file-upload.duplicate=Mae’r ffeil dan sylw eisoes wedi’i uwchlwytho
+error.file-upload.try-again=Nid oedd modd uwchlwytho’r ffeil dan sylw  - rhowch gynnig arall arni
 error.uploadAnotherFile.required=Dewiswch ‘Iawn’ os hoffech uwchlwytho dogfen arall
 view.create-case-confirmation.title=Rydych wedi cyflwyno’ch dogfennau
 view.create-case-confirmation.heading=Rydych wedi cyflwyno’ch dogfennau
@@ -360,18 +404,21 @@ view.create-case-confirmation.save.description2=Cadwch gyfeirnod eich achos ar g
 view.create-case-confirmation.next.heading=Y camau nesaf
 view.create-case-confirmation.next.description.sla1=Dylai’r gwaith o wirio’ch dogfennau gael ei gwblhau erbyn {0}. Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.create-case-confirmation.next.description.sla2=Os nad ydych wedi clywed gennym erbyn yr amser hwn, gallwch <a class="govuk-link" href="http://www.gov.uk/government/organisations/hm-revenue-customs/contact/national-clearance-hub">gysylltu â ni ynghylch cynnydd eich cais</a>.
+view.create-case-confirmation.next.description.nosla=Pan fydd eich dull o drafnidiaeth yn cyrraedd, byddwn yn dechrau’r gwaith o wirio’r dogfennau. Unwaith y bydd ein gwiriadau wedi’u cwblhau, byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.create-case-confirmation.next.description2=Os oes angen, gallwch <a class="govuk-link" href="{0}">anfon dogfennau am wiriad arall gan y tollau</a>.
+view.create-case-confirmation.next.cancellation=Bydd rhaid i chi nawr ganslo’r cofnod hwn yn y system CHIEF.
+view.create-case-confirmation.next.withdrawal=Bydd rhaid i chi nawr dynnu’r cofnod hwn yn ôl yn y system CHIEF.
 view.create-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.create-case-confirmation.print-receipts.heading=Argraffu neu gadw’ch derbynneb ar gyfer eich cofnodion
 view.create-case-confirmation.print-receipts.description=Bydd angen cyfeirnod eich achos arnoch os bydd angen i chi roi rhagor o wybodaeth.
 view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
 view.case-confirmation.button.print=Argraffu’ch derbynneb
-view.case-confirmation.button.download-html=Cadw’ch derbynneb (PDF)
-view.case-confirmation.button.download-pdf=Cadw’ch derbynneb (HTML)
-
-view.case-already-exists.title=Mae’r achos hwn eisoes yn bodoli
-view.case-already-exists.heading=Mae’r achos hwn eisoes yn bodoli
-view.case-already-exists.description.1=Thank you, we’ve received case {0}. You’ll hear from us through CHIEF or your declaration software. 
+view.case-confirmation.button.download-html=Cadw’ch derbynneb (HTML)
+view.create-case-confirmation.sendAnother.heading=Angen anfon dogfennau ar gyfer achos arall?
+view.create-case-confirmation.sendAnother.button=Anfon dogfennau ar gyfer gwiriad arall gan y tollau
+view.case-already-exists.title=Mae’r achos hwn wedi dod i law
+view.case-already-exists.heading=Mae’r achos hwn wedi dod i law
+view.case-already-exists.description.1=Diolch, mae achos {0} wedi dod i law. Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.case-already-exists.description.2=Gallwch <a class="govuk-link" href="{0}">ychwanegu rhagor o wybodaeth neu ddogfennau at yr achos sydd ohoni</a>. Bydd angen i chi roi cyfeirnod eich achos.
 view.case-already-exists.description.3=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 
@@ -413,6 +460,9 @@ view.amend-case-confirmation.info.heading=Os oes angen mwy o wybodaeth arnom
 view.amend-case-confirmation.info.description=Byddwn yn cysylltu â chi drwy’r system CHIEF neu drwy’ch meddalwedd datgan os oes angen arnom ragor o ddogfennau gennych chi.
 view.amend-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.amend-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
+view.amend-case-confirmation.sendAnother.heading=Angen anfon dogfennau ar gyfer achos arall?
+view.amend-case-confirmation.sendAnother.button=Anfon dogfennau ar gyfer gwiriad arall gan y tollau
+
 view.amend-case.summary.title=Adolygu manylion eich achos
 view.amend-case.summary.declaration.details.heading=Gwybodaeth am y datganiad
 view.amend-case.summary.caseReferenceNumber=Cyfeirnod yr achos
@@ -433,7 +483,7 @@ view.beta.paragraph1=Gallwch ddefnyddio’r gwasanaeth hwn i uwchlwytho dogfenna
 view.beta.paragraph2=Mae ond angen i chi anfon dogfennau i CThEM os yw statws eich datganiad yn dangos bod rhaid anfon dogfennau.
 view.beta.paragraph3=Mae llwybrau clirio’r tollau’n cynnwys:
 view.beta.routes.route1=Llwybr 1: gwiriad llawn o’r dogfennau
-view.beta.routes.route1cap=Llwybr 1 CAP (Common Agricultural Policy)
+view.beta.routes.route1cap=Llwybr 1 CAP (Polisi Amaethyddol Cyffredin)
 view.beta.routes.route2=Llwybr 2: archwiliad corfforol o’ch nwyddau a’ch dogfennau
 view.beta.routes.route3=Llwybr 3: gall eich nwyddau gael eu clirio, ond rhaid i chi gyflwyno’ch dogfennau cyn pen 24 awr
 view.beta.routes.route6=Llwybr 6: cliriad ar unwaith lle nad oes angen i chi gyflwyno unrhyw ddogfennau
@@ -453,8 +503,8 @@ view.beta.howToUpload.paragraph2=Caniateir y mathau hyn o ffeiliau:
 view.beta.howToUpload.fileTypes1=delwedd (.jpg, .jpeg, .png neu .tiff)
 view.beta.howToUpload.fileTypes2=PDF (.pdf)
 view.beta.howToUpload.fileTypes3=e-bost (.txt neu .msg)
-view.beta.howToUpload.fileTypes4=Microsoft (Word, Excel or PowerPoint)
-view.beta.howToUpload.fileTypes5=Open Document Format (ODF)
+view.beta.howToUpload.fileTypes4=Microsoft (Word, Excel neu PowerPoint)
+view.beta.howToUpload.fileTypes5=Fformat Dogfen Agored (ODF)
 view.beta.howToUpload.paragraph3=Ni allwch uwchlwytho ffeiliau zip na dogfennau sydd wedi’u diogelu gan gyfrinair.
 view.beta.howToUpload.paragraph4=Os ydych eisoes wedi anfon eich dogfennau i’w clirio ac mae angen i chi ychwanegu gwybodaeth ychwanegol, mae’n rhaid bod gennych gyfeirnod yr achos. Byddwch wedi cael y rhif hwn pan gafodd yr achos ei greu gyntaf.
 view.beta.beforeYouStart=Cyn i chi ddechrau
@@ -472,6 +522,8 @@ receipt.entryNumber=Rhif y cofnod
 receipt.entryDate=Dyddiad y cofnod
 receipt.documents=Dogfennau rydych wedi’u cyflwyno
 receipt.fileNames=Enwau’r ffeiliau
+receipt.additionalInformation=Gwybodaeth ychwanegol
+receipt.message=Neges
 error.browser.title.prefix=Gwall:
 error.summary.title=Mae problem wedi codi
 date.day=Diwrnod
@@ -483,4 +535,6 @@ view.timedout.title=Er eich diogelwch, gwnaethom eich allgofnodi
 view.timedout.heading=Er eich diogelwch, gwnaethom eich allgofnodi
 view.timedout.description=Ni wnaethom gadw’ch atebion.
 view.timedout.signIn=Mewngofnodi
-
+time.period=am neu pm
+time.period.am=am
+time.period.pm=pm

@@ -127,7 +127,7 @@ context: UploadFileViewContext
   >
     <ul class="multi-file-upload__item-list"></ul>
 
-    <button type="button" class="multi-file-upload__add-another govuk-button govuk-button--secondary">Add another document</button>
+    <button type="button" class="multi-file-upload__add-another govuk-button govuk-button--secondary">@messages("view.upload-multiple-files.addAnother")</button>
 
     @html.p(
       content = Html(messages("view.upload-multiple-files.uploadMoreFilesThanLimit")),
