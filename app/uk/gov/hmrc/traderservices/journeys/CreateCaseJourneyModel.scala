@@ -805,6 +805,37 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               else
                 goto(state)
           }
+
+        case state: EnterEntryDetails =>
+          goto(state.entryDetailsOpt match {
+            case None => state
+            case Some(entryDetails) =>
+              state.exportQuestionsAnswersOpt
+                .map { answers =>
+                  val model = ExportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
+                  if (Rules.isComplete(model)) ExportQuestionsSummary(model) else state
+                }
+                .orElse(
+                  state.importQuestionsAnswersOpt.map { answers =>
+                    val model = ImportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
+                    if (Rules.isComplete(model)) ImportQuestionsSummary(model) else state
+                  }
+                )
+                .getOrElse(state)
+          })
+
+        case state: ImportQuestionsState =>
+          if (Rules.isComplete(state.model))
+            goto(ImportQuestionsSummary(state.model))
+          else
+            goto(state)
+
+        case state: ExportQuestionsState =>
+          if (Rules.isComplete(state.model))
+            goto(ExportQuestionsSummary(state.model))
+          else
+            goto(state)
+
       }
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]

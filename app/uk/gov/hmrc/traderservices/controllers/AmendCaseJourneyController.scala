@@ -426,7 +426,7 @@ class AmendCaseJourneyController @Inject() (
           views.enterCaseReferenceNumberView(
             formWithErrors.or(EnterCaseReferenceNumberForm, model.caseReferenceNumber),
             controller.submitCaseReferenceNumber,
-            routes.CreateCaseJourneyController.showChooseNewOrExistingCase
+            backLink(breadcrumbs, routes.CreateCaseJourneyController.showChooseNewOrExistingCase)
           )
         )
 
@@ -435,7 +435,7 @@ class AmendCaseJourneyController @Inject() (
           views.selectTypeOfAmendmentView(
             formWithErrors.or(TypeOfAmendmentForm, model.typeOfAmendment),
             controller.submitTypeOfAmendment,
-            controller.showEnterCaseReferenceNumber
+            backLink(breadcrumbs, controller.showEnterCaseReferenceNumber)
           )
         )
 
@@ -444,7 +444,7 @@ class AmendCaseJourneyController @Inject() (
           views.enterResponseTextView(
             formWithErrors.or(ResponseTextForm, model.responseText),
             controller.submitResponseText,
-            controller.showSelectTypeOfAmendment
+            backLink(breadcrumbs, controller.showSelectTypeOfAmendment)
           )
         )
 
@@ -460,7 +460,7 @@ class AmendCaseJourneyController @Inject() (
             markFileRejected = controller.markFileUploadAsRejectedAsync,
             None,
             continueAction = controller.showAmendCaseSummary,
-            backLink = backLinkFromFileUpload(model)
+            backLink = backLink(breadcrumbs, backLinkFromFileUpload(model))
           )
         )
 
@@ -474,9 +474,11 @@ class AmendCaseJourneyController @Inject() (
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),
-            backLink =
+            backLink = backLink(
+              breadcrumbs,
               if (fileUploads.isEmpty) backLinkFromFileUpload(model)
               else controller.showFileUploaded
+            )
           )
         )
 
@@ -486,7 +488,7 @@ class AmendCaseJourneyController @Inject() (
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),
-            backLink = controller.showFileUpload
+            backLink = backLink(breadcrumbs, controller.showFileUpload)
           )
         )
 
@@ -499,7 +501,7 @@ class AmendCaseJourneyController @Inject() (
               controller.submitUploadAnotherFileChoice,
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkFromFileUpload(model)
+              backLink(breadcrumbs, backLinkFromFileUpload(model))
             )
           else
             views.fileUploadedSummaryView(
@@ -507,7 +509,7 @@ class AmendCaseJourneyController @Inject() (
               controller.showAmendCaseSummary,
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkFromFileUpload(model)
+              backLink(breadcrumbs, backLinkFromFileUpload(model))
             )
         )
 
@@ -538,6 +540,11 @@ class AmendCaseJourneyController @Inject() (
       case _ => NotImplemented
 
     }
+
+  private def backLink(breadcrumbs: List[State], previousPage: Call): Call =
+    if (breadcrumbs.headOption.exists(helpers.is[AmendCaseSummary]))
+      controller.showAmendCaseSummary
+    else previousPage
 
   private def backLinkFromSummary(model: AmendCaseModel)(implicit rh: RequestHeader): Call =
     model.typeOfAmendment match {

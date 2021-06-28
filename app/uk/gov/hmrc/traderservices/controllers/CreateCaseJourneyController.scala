@@ -710,7 +710,7 @@ class CreateCaseJourneyController @Inject() (
           views.entryDetailsEntryView(
             formWithErrors.or(EntryDetailsForm, entryDetailsOpt),
             controller.submitEntryDetails,
-            controller.showChooseNewOrExistingCase
+            backLink(breadcrumbs, controller.showChooseNewOrExistingCase)
           )
         )
 
@@ -719,7 +719,7 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsRequestTypeView(
             formWithErrors.or(ExportRequestTypeForm, model.exportQuestionsAnswers.requestType),
             controller.submitExportQuestionsRequestTypeAnswer,
-            controller.showEnterEntryDetails
+            backLink(breadcrumbs, controller.showEnterEntryDetails)
           )
         )
 
@@ -728,7 +728,7 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsRouteTypeView(
             formWithErrors.or(ExportRouteTypeForm, model.exportQuestionsAnswers.routeType),
             controller.submitExportQuestionsRouteTypeAnswer,
-            controller.showAnswerExportQuestionsRequestType
+            backLink(breadcrumbs, controller.showAnswerExportQuestionsRequestType)
           )
         )
 
@@ -737,7 +737,7 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsHasPriorityGoodsView(
             formWithErrors.or(ExportHasPriorityGoodsForm, model.exportQuestionsAnswers.hasPriorityGoods),
             controller.submitExportQuestionsHasPriorityGoodsAnswer,
-            controller.showAnswerExportQuestionsRouteType
+            backLink(breadcrumbs, controller.showAnswerExportQuestionsRouteType)
           )
         )
 
@@ -746,7 +746,7 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsWhichPriorityGoodsView(
             formWithErrors.or(ExportPriorityGoodsForm, model.exportQuestionsAnswers.priorityGoods),
             controller.submitExportQuestionsWhichPriorityGoodsAnswer,
-            controller.showAnswerExportQuestionsHasPriorityGoods
+            backLink(breadcrumbs, controller.showAnswerExportQuestionsHasPriorityGoods)
           )
         )
 
@@ -755,9 +755,12 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsFreightTypeView(
             formWithErrors.or(ExportFreightTypeForm, model.exportQuestionsAnswers.freightType),
             controller.submitExportQuestionsFreightTypeAnswer,
-            if (model.exportQuestionsAnswers.priorityGoods.isDefined)
-              controller.showAnswerExportQuestionsWhichPriorityGoods
-            else controller.showAnswerExportQuestionsHasPriorityGoods
+            backLink(
+              breadcrumbs,
+              if (model.exportQuestionsAnswers.priorityGoods.isDefined)
+                controller.showAnswerExportQuestionsWhichPriorityGoods
+              else controller.showAnswerExportQuestionsHasPriorityGoods
+            )
           )
         )
 
@@ -770,7 +773,7 @@ class CreateCaseJourneyController @Inject() (
                 model.exportQuestionsAnswers.vesselDetails
               ),
             controller.submitExportQuestionsMandatoryVesselInfoAnswer,
-            controller.showAnswerExportQuestionsFreightType
+            backLink(breadcrumbs, controller.showAnswerExportQuestionsFreightType)
           )
         )
 
@@ -783,7 +786,7 @@ class CreateCaseJourneyController @Inject() (
                 model.exportQuestionsAnswers.vesselDetails
               ),
             controller.submitExportQuestionsOptionalVesselInfoAnswer,
-            controller.showAnswerExportQuestionsFreightType
+            backLink(breadcrumbs, controller.showAnswerExportQuestionsFreightType)
           )
         )
 
@@ -792,9 +795,12 @@ class CreateCaseJourneyController @Inject() (
           views.exportQuestionsContactInfoView(
             formWithErrors.or(ExportContactForm, model.exportQuestionsAnswers.contactInfo),
             controller.submitExportQuestionsContactInfoAnswer,
-            if (Rules.isVesselDetailsAnswerMandatory(model.exportQuestionsAnswers))
-              controller.showAnswerExportQuestionsMandatoryVesselInfo
-            else controller.showAnswerExportQuestionsOptionalVesselInfo
+            backLink(
+              breadcrumbs,
+              if (Rules.isVesselDetailsAnswerMandatory(model.exportQuestionsAnswers))
+                controller.showAnswerExportQuestionsMandatoryVesselInfo
+              else controller.showAnswerExportQuestionsOptionalVesselInfo
+            )
           )
         )
 
@@ -805,8 +811,11 @@ class CreateCaseJourneyController @Inject() (
             model.exportQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
-            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
-            else controller.showFileUploaded
+            backLink(
+              breadcrumbs,
+              if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
+              else controller.showFileUploaded
+            )
           )
         )
 
@@ -815,7 +824,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsRequestTypeView(
             formWithErrors.or(ImportRequestTypeForm, model.importQuestionsAnswers.requestType),
             controller.submitImportQuestionsRequestTypeAnswer,
-            controller.showEnterEntryDetails
+            backLink(breadcrumbs, controller.showEnterEntryDetails)
           )
         )
 
@@ -824,7 +833,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsRouteTypeView(
             formWithErrors.or(ImportRouteTypeForm, model.importQuestionsAnswers.routeType),
             controller.submitImportQuestionsRouteTypeAnswer,
-            controller.showAnswerImportQuestionsRequestType
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsRequestType)
           )
         )
 
@@ -833,7 +842,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsHasPriorityGoodsView(
             formWithErrors.or(ImportHasPriorityGoodsForm, model.importQuestionsAnswers.hasPriorityGoods),
             controller.submitImportQuestionsHasPriorityGoodsAnswer,
-            controller.showAnswerImportQuestionsRouteType
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsRouteType)
           )
         )
 
@@ -842,7 +851,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsWhichPriorityGoodsView(
             formWithErrors.or(ImportPriorityGoodsForm, model.importQuestionsAnswers.priorityGoods),
             controller.submitImportQuestionsWhichPriorityGoodsAnswer,
-            controller.showAnswerImportQuestionsHasPriorityGoods
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsHasPriorityGoods)
           )
         )
 
@@ -851,9 +860,12 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsALVSView(
             formWithErrors.or(ImportHasALVSForm, model.importQuestionsAnswers.hasALVS),
             controller.submitImportQuestionsALVSAnswer,
-            if (model.importQuestionsAnswers.priorityGoods.isDefined)
-              controller.showAnswerImportQuestionsWhichPriorityGoods
-            else controller.showAnswerImportQuestionsHasPriorityGoods
+            backLink(
+              breadcrumbs,
+              if (model.importQuestionsAnswers.priorityGoods.isDefined)
+                controller.showAnswerImportQuestionsWhichPriorityGoods
+              else controller.showAnswerImportQuestionsHasPriorityGoods
+            )
           )
         )
 
@@ -862,7 +874,7 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsFreightTypeView(
             formWithErrors.or(ImportFreightTypeForm, model.importQuestionsAnswers.freightType),
             controller.submitImportQuestionsFreightTypeAnswer,
-            controller.showAnswerImportQuestionsALVS
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsALVS)
           )
         )
 
@@ -875,7 +887,7 @@ class CreateCaseJourneyController @Inject() (
                 model.importQuestionsAnswers.vesselDetails
               ),
             controller.submitImportQuestionsMandatoryVesselInfoAnswer,
-            controller.showAnswerImportQuestionsFreightType
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsFreightType)
           )
         )
 
@@ -888,7 +900,7 @@ class CreateCaseJourneyController @Inject() (
                 model.importQuestionsAnswers.vesselDetails
               ),
             controller.submitImportQuestionsOptionalVesselInfoAnswer,
-            controller.showAnswerImportQuestionsFreightType
+            backLink(breadcrumbs, controller.showAnswerImportQuestionsFreightType)
           )
         )
 
@@ -897,9 +909,12 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsContactInfoView(
             formWithErrors.or(ImportContactForm, model.importQuestionsAnswers.contactInfo),
             controller.submitImportQuestionsContactInfoAnswer,
-            if (Rules.isVesselDetailsAnswerMandatory(model.importQuestionsAnswers))
-              controller.showAnswerImportQuestionsMandatoryVesselInfo
-            else controller.showAnswerImportQuestionsOptionalVesselInfo
+            backLink(
+              breadcrumbs,
+              if (Rules.isVesselDetailsAnswerMandatory(model.importQuestionsAnswers))
+                controller.showAnswerImportQuestionsMandatoryVesselInfo
+              else controller.showAnswerImportQuestionsOptionalVesselInfo
+            )
           )
         )
 
@@ -910,8 +925,11 @@ class CreateCaseJourneyController @Inject() (
             model.importQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
-            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
-            else controller.showFileUploaded
+            backLink(
+              breadcrumbs,
+              if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
+              else controller.showFileUploaded
+            )
           )
         )
 
@@ -927,7 +945,7 @@ class CreateCaseJourneyController @Inject() (
             markFileRejected = controller.markFileUploadAsRejectedAsync,
             exportRequestType = extractRequestType(state),
             continueAction = linkToSummary(model.questionsAnswers),
-            backLink = backLinkFromFileUpload(model.questionsAnswers)
+            backLink = backLink(breadcrumbs, backLinkFromFileUpload(model.questionsAnswers))
           )
         )
 
@@ -941,9 +959,11 @@ class CreateCaseJourneyController @Inject() (
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),
-            backLink =
+            backLink = backLink(
+              breadcrumbs,
               if (fileUploads.isEmpty) backLinkFromFileUpload(model.questionsAnswers)
               else controller.showFileUploaded
+            )
           )
         )
 
@@ -953,7 +973,7 @@ class CreateCaseJourneyController @Inject() (
             successAction = controller.showFileUploaded,
             failureAction = controller.showFileUpload,
             checkStatusAction = controller.checkFileVerificationStatus(reference),
-            backLink = controller.showFileUpload
+            backLink = backLink(breadcrumbs, controller.showFileUpload)
           )
         )
 
@@ -966,7 +986,7 @@ class CreateCaseJourneyController @Inject() (
               controller.submitUploadAnotherFileChoice,
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkFromFileUpload(model.questionsAnswers)
+              backLink(breadcrumbs, backLinkFromFileUpload(model.questionsAnswers))
             )
           else
             views.fileUploadedSummaryView(
@@ -974,7 +994,7 @@ class CreateCaseJourneyController @Inject() (
               linkToSummary(model.questionsAnswers),
               controller.previewFileUploadByReference,
               controller.removeFileUploadByReference,
-              backLinkFromFileUpload(model.questionsAnswers)
+              backLink(breadcrumbs, backLinkFromFileUpload(model.questionsAnswers))
             )
         )
 
@@ -1012,6 +1032,13 @@ class CreateCaseJourneyController @Inject() (
       case _ => NotImplemented
 
     }
+
+  private def backLink(breadcrumbs: List[State], previousPage: Call): Call =
+    if (breadcrumbs.headOption.exists(helpers.is[ImportQuestionsSummary]))
+      controller.showImportQuestionsSummary
+    else if (breadcrumbs.headOption.exists(helpers.is[ExportQuestionsSummary]))
+      controller.showExportQuestionsSummary
+    else previousPage
 
   private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
