@@ -479,7 +479,7 @@ view.upload-multiple-files.line2=Each document must be smaller than 6MB.
 view.upload-multiple-files.c1601=For this export, you must upload form C1601 - Presentation of goods for export (arrival). You can include other supporting documents too.
 view.upload-multiple-files.c1602=For this export, you must upload form C1602 - Notification of exit of goods (departure). You can include other supporting documents too.
 view.upload-multiple-files.c1603=For this export, you must upload form C1603 - Notification of retrospective arrival. You can include other supporting documents too.
-
+view.upload-multiple-files.addAnother=Add another document
 view.upload-file.first.title=Upload your first document
 view.upload-file.first.heading=Upload your first document
 view.upload-file.first.fileLabel=Select the first file to upload
@@ -551,7 +551,6 @@ view.create-case-confirmation.feedback=Give feedback on this service
 
 view.case-confirmation.button.print=Print your receipt
 view.case-confirmation.button.download-html=Save your receipt (HTML)
-view.case-confirmation.button.download-pdf=Save your receipt (PDF)
 
 view.create-case-confirmation.button.print=Print your receipt
 view.create-case-confirmation.button.download-html=Save your receipt (HTML)
@@ -613,7 +612,7 @@ view.amend-case-confirmation.sendAnother.heading=Need to send documents for anot
 view.amend-case-confirmation.sendAnother.button=Send documents for another customs check
 
 view.amend-case.summary.title=Review your case details
-view.amend-case.summary.declaration.details.heading=Declaration information
+view.amend-case.summary.declaration.details.heading=Entry information
 view.amend-case.summary.caseReferenceNumber=Case reference number
 view.amend-case.summary.additionalInfo.heading=Additional information
 view.amend-case.summary.additionalInfo.type=Information type
