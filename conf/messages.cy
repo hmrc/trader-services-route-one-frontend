@@ -57,7 +57,7 @@ global.error.500.heading=Mae’n ddrwg gennym – mae problem gyda’r gwasanaet
 global.error.500.line1=Rhowch gynnig arall arni. Os yw’r broblem yn parhau a bod angen help arnoch, gallwch <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">roi gwybod am y broblem (yn agor ffenestr neu dab newydd)</a>. Byddwn yn eich ateb cyn pen dau ddiwrnod gwaith.
 global.error.500.line2=Os ydych wedi nodi unrhyw wybodaeth, nid ydym wedi cadw’ch atebion.
 
-global.ooh.error.500.line1=Rhowch gynnig arall arni. Os yw’r broblem yn parhau, anfonwch eich dogfennau drwy e-bost i nch@hmrc.gov.uk yn lle hynny.
+global.ooh.error.500.line1=Rhowch gynnig arall arni. Os yw’r broblem yn parhau, anfonwch eich dogfennau drwy e-bost i <a href="mailto:nch@hmrc.gov.uk" class="govuk-link">nch@hmrc.gov.uk</a> yn lle hynny.
 global.ooh.error.500.line2=Os ydych wedi nodi unrhyw wybodaeth, nid ydym wedi cadw’ch atebion.
 
 external.update.error.500.title=Mae’n ddrwg gennym, mae rhywbeth wedi mynd o’i le

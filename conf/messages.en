@@ -612,7 +612,7 @@ view.amend-case-confirmation.sendAnother.heading=Need to send documents for anot
 view.amend-case-confirmation.sendAnother.button=Send documents for another customs check
 
 view.amend-case.summary.title=Review your case details
-view.amend-case.summary.declaration.details.heading=Declaration information
+view.amend-case.summary.declaration.details.heading=Entry information
 view.amend-case.summary.caseReferenceNumber=Case reference number
 view.amend-case.summary.additionalInfo.heading=Additional information
 view.amend-case.summary.additionalInfo.type=Information type
