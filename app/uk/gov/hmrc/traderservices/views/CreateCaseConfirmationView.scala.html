@@ -86,13 +86,23 @@
         messageKey = "view.create-case-confirmation.feedback"
       )
     }
-
-    @html.h2("view.create-case-confirmation.print-receipts.heading")
-
+    <div id="confirmation-heading">
+      @html.h2("view.create-case-confirmation.print-receipts.heading")
+     </div>
+     <div >
+       <noscript>
+         @html.h2("view.amend-case-confirmation.info.no-javascript.heading")
+         <style type="text/css">
+           #confirmation-heading{display: none;}
+         </style>
+       </noscript>
+     </div>
+     
     @html.p {
       @messages("view.create-case-confirmation.print-receipts.description")
     }
   </div>
+
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">

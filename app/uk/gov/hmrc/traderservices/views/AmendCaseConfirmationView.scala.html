@@ -61,10 +61,19 @@
         messageKey = "view.amend-case-confirmation.feedback"
       )
     }
-
-    @html.h2("view.amend-case-confirmation.info.heading", classes = "govuk-heading-m")
+  <div id="confirmation-heading">
+   @html.h2("view.amend-case-confirmation.info.heading", classes = "govuk-heading-m")
   </div>
-
+  <div >
+    <noscript>
+      @html.h2("view.amend-case-confirmation.info.no-javascript.heading", classes = "govuk-heading-m")
+      <style type="text/css">
+        #confirmation-heading{display: none;}
+      </style>
+    </noscript>
+  </div>
+  </div>
+  
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
       <li class="action-buttons__item" id="print-receipt">
