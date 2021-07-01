@@ -241,6 +241,11 @@ class CreateCaseJourneyController @Inject() (
       .show[State.ExportQuestionsSummary]
       .orApply(Transitions.toSummary)
 
+  // GET /new/export/missing-information
+  final val showExportQuestionsMissingInformationError: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.ExportQuestionsMissingInformationError]
+
   // ----------------------- IMPORT QUESTIONS -----------------------
 
   // GET /new/import/request-type
@@ -360,6 +365,11 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .show[State.ImportQuestionsSummary]
       .orApply(Transitions.toSummary)
+
+  // GET /new/import/missing-information
+  final val showImportQuestionsMissingInformationError: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.ImportQuestionsMissingInformationError]
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -624,7 +634,7 @@ class CreateCaseJourneyController @Inject() (
         controller.showExportQuestionsSummary
 
       case _: ExportQuestionsMissingInformationError =>
-        workInProgresDeadEndCall
+        controller.showExportQuestionsMissingInformationError
 
       case _: AnswerImportQuestionsRequestType =>
         controller.showAnswerImportQuestionsRequestType
@@ -657,7 +667,7 @@ class CreateCaseJourneyController @Inject() (
         controller.showImportQuestionsSummary
 
       case _: ImportQuestionsMissingInformationError =>
-        workInProgresDeadEndCall
+        controller.showImportQuestionsMissingInformationError
 
       case _: FileUploadState.UploadMultipleFiles =>
         controller.showUploadMultipleFiles
@@ -812,7 +822,7 @@ class CreateCaseJourneyController @Inject() (
         )
 
       case ExportQuestionsMissingInformationError(model) =>
-        NotImplemented
+        Ok(views.missingInformationErrorView(controller.showEnterEntryDetails, backLinkFor(breadcrumbs)))
 
       case AnswerImportQuestionsRequestType(model) =>
         Ok(
@@ -915,7 +925,7 @@ class CreateCaseJourneyController @Inject() (
         )
 
       case ImportQuestionsMissingInformationError(model) =>
-        NotImplemented
+        Ok(views.missingInformationErrorView(controller.showEnterEntryDetails, backLinkFor(breadcrumbs)))
 
       case FileUploadState.UploadMultipleFiles(model, fileUploads) =>
         Ok(

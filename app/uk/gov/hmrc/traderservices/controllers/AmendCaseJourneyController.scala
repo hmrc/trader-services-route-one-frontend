@@ -161,6 +161,11 @@ class AmendCaseJourneyController @Inject() (
       .show[State.AmendCaseSummary]
       .orApply(Transitions.toAmendSummary)
 
+  // GET /new/export/missing-information
+  final val showAmendCaseMissingInformationError: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AmendCaseMissingInformationError]
+
   // ----------------------- FILES UPLOAD -----------------------
 
   /** Initial time to wait for callback arrival. */
@@ -404,7 +409,7 @@ class AmendCaseJourneyController @Inject() (
         controller.showAmendCaseConfirmation
 
       case _: AmendCaseMissingInformationError =>
-        workInProgresDeadEndCall
+        controller.showAmendCaseMissingInformationError
 
       case _ =>
         workInProgresDeadEndCall
@@ -518,7 +523,12 @@ class AmendCaseJourneyController @Inject() (
         )
 
       case AmendCaseMissingInformationError(model) =>
-        NotImplemented
+        Ok(
+          views.missingInformationErrorView(
+            controller.showEnterCaseReferenceNumber,
+            backLinkFor(breadcrumbs)
+          )
+        )
 
       case AmendCaseConfirmation(
             uploadedFiles,
