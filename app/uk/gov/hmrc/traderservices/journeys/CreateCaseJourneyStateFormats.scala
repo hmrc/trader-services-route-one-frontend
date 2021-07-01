@@ -38,6 +38,7 @@ object CreateCaseJourneyStateFormats
   val answerExportQuestionsOptionalVesselInfoFormat = Json.format[AnswerExportQuestionsOptionalVesselInfo]
   val answerExportQuestionsContactInfoFormat = Json.format[AnswerExportQuestionsContactInfo]
   val exportQuestionsSummaryFormat = Json.format[ExportQuestionsSummary]
+  val exportQuestionsMissingInformationErrorFormat = Json.format[ExportQuestionsMissingInformationError]
   val answerImportQuestionsRequestTypeFormat = Json.format[AnswerImportQuestionsRequestType]
   val answerImportQuestionsRouteTypeFormat = Json.format[AnswerImportQuestionsRouteType]
   val answerImportQuestionsHasPriorityGoodsFormat = Json.format[AnswerImportQuestionsHasPriorityGoods]
@@ -48,6 +49,7 @@ object CreateCaseJourneyStateFormats
   val answerImportQuestionsMandatoryVesselInfoFormat = Json.format[AnswerImportQuestionsMandatoryVesselInfo]
   val answerImportQuestionsContactInfoFormat = Json.format[AnswerImportQuestionsContactInfo]
   val importQuestionsSummaryFormat = Json.format[ImportQuestionsSummary]
+  val importQuestionsMissingInformationErrorFormat = Json.format[ImportQuestionsMissingInformationError]
   val createCaseConfirmationFormat = Json.format[CreateCaseConfirmation]
   val caseAlreadyExistsFormat = Json.format[CaseAlreadyExists]
 
@@ -66,6 +68,7 @@ object CreateCaseJourneyStateFormats
     case s: AnswerExportQuestionsOptionalVesselInfo  => answerExportQuestionsOptionalVesselInfoFormat.writes(s)
     case s: AnswerExportQuestionsContactInfo         => answerExportQuestionsContactInfoFormat.writes(s)
     case s: ExportQuestionsSummary                   => exportQuestionsSummaryFormat.writes(s)
+    case s: ExportQuestionsMissingInformationError   => exportQuestionsMissingInformationErrorFormat.writes(s)
     case s: AnswerImportQuestionsRequestType         => answerImportQuestionsRequestTypeFormat.writes(s)
     case s: AnswerImportQuestionsRouteType           => answerImportQuestionsRouteTypeFormat.writes(s)
     case s: AnswerImportQuestionsHasPriorityGoods    => answerImportQuestionsHasPriorityGoodsFormat.writes(s)
@@ -76,6 +79,7 @@ object CreateCaseJourneyStateFormats
     case s: AnswerImportQuestionsMandatoryVesselInfo => answerImportQuestionsMandatoryVesselInfoFormat.writes(s)
     case s: AnswerImportQuestionsContactInfo         => answerImportQuestionsContactInfoFormat.writes(s)
     case s: ImportQuestionsSummary                   => importQuestionsSummaryFormat.writes(s)
+    case s: ImportQuestionsMissingInformationError   => importQuestionsMissingInformationErrorFormat.writes(s)
     case s: UploadFile                               => uploadFileFormat.writes(s)
     case s: FileUploaded                             => fileUploadedFormat.writes(s)
     case s: WaitingForFileVerification               => waitingForFileVerificationFormat.writes(s)
@@ -100,6 +104,7 @@ object CreateCaseJourneyStateFormats
       case "AnswerExportQuestionsOptionalVesselInfo" => answerExportQuestionsOptionalVesselInfoFormat.reads(properties)
       case "AnswerExportQuestionsContactInfo"        => answerExportQuestionsContactInfoFormat.reads(properties)
       case "ExportQuestionsSummary"                  => exportQuestionsSummaryFormat.reads(properties)
+      case "ExportQuestionsMissingInformationError"  => exportQuestionsMissingInformationErrorFormat.reads(properties)
       case "AnswerImportQuestionsRequestType"        => answerImportQuestionsRequestTypeFormat.reads(properties)
       case "AnswerImportQuestionsRouteType"          => answerImportQuestionsRouteTypeFormat.reads(properties)
       case "AnswerImportQuestionsHasPriorityGoods"   => answerImportQuestionsHasPriorityGoodsFormat.reads(properties)
@@ -109,15 +114,16 @@ object CreateCaseJourneyStateFormats
       case "AnswerImportQuestionsOptionalVesselInfo" => answerImportQuestionsOptionalVesselInfoFormat.reads(properties)
       case "AnswerImportQuestionsMandatoryVesselInfo" =>
         answerImportQuestionsMandatoryVesselInfoFormat.reads(properties)
-      case "AnswerImportQuestionsContactInfo" => answerImportQuestionsContactInfoFormat.reads(properties)
-      case "ImportQuestionsSummary"           => importQuestionsSummaryFormat.reads(properties)
-      case "UploadFile"                       => uploadFileFormat.reads(properties)
-      case "FileUploaded"                     => fileUploadedFormat.reads(properties)
-      case "WaitingForFileVerification"       => waitingForFileVerificationFormat.reads(properties)
-      case "UploadMultipleFiles"              => uploadMultipleFilesFormat.reads(properties)
-      case "CreateCaseConfirmation"           => createCaseConfirmationFormat.reads(properties)
-      case "CaseAlreadyExists"                => caseAlreadyExistsFormat.reads(properties)
-      case "WorkInProgressDeadEnd"            => JsSuccess(WorkInProgressDeadEnd)
-      case _                                  => JsError(s"Unknown state name $stateName")
+      case "AnswerImportQuestionsContactInfo"       => answerImportQuestionsContactInfoFormat.reads(properties)
+      case "ImportQuestionsSummary"                 => importQuestionsSummaryFormat.reads(properties)
+      case "ImportQuestionsMissingInformationError" => importQuestionsMissingInformationErrorFormat.reads(properties)
+      case "UploadFile"                             => uploadFileFormat.reads(properties)
+      case "FileUploaded"                           => fileUploadedFormat.reads(properties)
+      case "WaitingForFileVerification"             => waitingForFileVerificationFormat.reads(properties)
+      case "UploadMultipleFiles"                    => uploadMultipleFilesFormat.reads(properties)
+      case "CreateCaseConfirmation"                 => createCaseConfirmationFormat.reads(properties)
+      case "CaseAlreadyExists"                      => caseAlreadyExistsFormat.reads(properties)
+      case "WorkInProgressDeadEnd"                  => JsSuccess(WorkInProgressDeadEnd)
+      case _                                        => JsError(s"Unknown state name $stateName")
     }
 }

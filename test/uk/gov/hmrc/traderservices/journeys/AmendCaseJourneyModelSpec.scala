@@ -88,7 +88,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "stay when going back and answers incomplete" in {
+      "go to AmendCaseSummary when going back and answers incomplete" in {
         val model = AmendCaseModel(
           responseText = None,
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -97,7 +97,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         given(
           EnterCaseReferenceNumber(model)
         ).withBreadcrumbs() when toAmendSummary should thenGo(
-          EnterCaseReferenceNumber(model)
+          AmendCaseSummary(model)
         )
       }
     }
@@ -378,13 +378,20 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "stay when empty file uploads, and transition toAmendSummary" in {
-        val state = UploadMultipleFiles(
-          fullAmendCaseStateModel
-            .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)),
-          FileUploads()
+      "go to AmendCaseSummary when empty file uploads and toAmendSummary transition" in {
+        given(
+          UploadMultipleFiles(
+            fullAmendCaseStateModel
+              .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)),
+            FileUploads()
+          )
+        ) when toAmendSummary should thenGo(
+          AmendCaseSummary(
+            fullAmendCaseStateModel
+              .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments))
+              .copy(fileUploads = Some(FileUploads()))
+          )
         )
-        given(state) when toAmendSummary should thenGo(state)
       }
 
       "stay when toUploadMultipleFiles transition" in {
@@ -2114,7 +2121,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
       }
-      "goto AmendConfirmation when in AmendSummary mode and only files are uploaded" in {
+      "goto AmendConfirmation when amendCase and only files are uploaded" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
             TraderServicesCaseResponse(
@@ -2141,6 +2148,30 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
       }
+
+      "goto AmendCaseMissingInformationError when amendCase and some information missing" in {
+        val updateCaseApi: UpdateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("PC12010081330XGBNZJO04", generatedAt))
+            )
+          )
+        }
+        val model = AmendCaseModel(
+          responseText = None,
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
+          fileUploads = None
+        )
+        given(
+          AmendCaseSummary(model)
+        ) when amendCase(updateCaseApi)(uidAndEori) should
+          thenGo(
+            AmendCaseMissingInformationError(model)
+          )
+      }
+
       "fail when submitted response text in AmendCaseSummary mode and UpdateCase API returned an error" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(TraderServicesCaseResponse(correlationId = "", error = Some(ApiError("", Some("")))))

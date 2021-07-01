@@ -56,6 +56,18 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
         )
       )
+      validateJsonFormat(
+        """{"state":"AmendCaseSummary","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
+        State.AmendCaseSummary(
+          AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
+        )
+      )
+      validateJsonFormat(
+        """{"state":"AmendCaseMissingInformationError","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
+        State.AmendCaseMissingInformationError(
+          AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
+        )
+      )
       val text = Random.alphanumeric.take(1000).mkString
       validateJsonFormat(
         s"""{"state":"AmendCaseConfirmation","properties":{

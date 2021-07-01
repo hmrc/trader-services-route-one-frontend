@@ -221,6 +221,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         model.fileUploadsOpt
     }
 
+    final case class ExportQuestionsMissingInformationError(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState with IsError
+
     // IMPORT QUESTIONS STATES
 
     final case class AnswerImportQuestionsRequestType(
@@ -276,6 +280,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
     }
+
+    final case class ImportQuestionsMissingInformationError(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState with IsError
 
     // END-OF-JOURNEY STATES
 
@@ -880,6 +888,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           invokeCreateCaseApi(createCaseRequest)
 
+        case state: ExportQuestionsSummary =>
+          goto(ExportQuestionsMissingInformationError(state.model))
+
         case state: ImportQuestionsSummary if Rules.isComplete(state.model) =>
           val uploadedFiles =
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
@@ -891,6 +902,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               uidAndEori._2
             )
           invokeCreateCaseApi(createCaseRequest)
+
+        case state: ImportQuestionsSummary =>
+          goto(ImportQuestionsMissingInformationError(state.model))
       }
     }
   }

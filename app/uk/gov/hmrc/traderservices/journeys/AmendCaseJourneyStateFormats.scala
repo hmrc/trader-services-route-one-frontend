@@ -31,20 +31,22 @@ object AmendCaseJourneyStateFormats
   val enterResponseTextFormat = Json.format[EnterResponseText]
   val amendCaseConfirmationFormat = Json.format[AmendCaseConfirmation]
   val amendCaseSummaryFormat = Json.format[AmendCaseSummary]
+  val amendCaseMissingInformationErrorFormat = Json.format[AmendCaseMissingInformationError]
 
   override val fileUploadHostDataFormat: Format[AmendCaseModel] =
     AmendCaseModel.formats
 
   override val serializeStateProperties: PartialFunction[State, JsValue] = {
-    case s: EnterCaseReferenceNumber   => enterCaseReferenceNumberFormat.writes(s)
-    case s: SelectTypeOfAmendment      => selectTypeOfAmendmentFormat.writes(s)
-    case s: EnterResponseText          => enterResponseTextFormat.writes(s)
-    case s: UploadFile                 => uploadFileFormat.writes(s)
-    case s: FileUploaded               => fileUploadedFormat.writes(s)
-    case s: WaitingForFileVerification => waitingForFileVerificationFormat.writes(s)
-    case s: AmendCaseSummary           => amendCaseSummaryFormat.writes(s)
-    case s: UploadMultipleFiles        => uploadMultipleFilesFormat.writes(s)
-    case s: AmendCaseConfirmation      => amendCaseConfirmationFormat.writes(s)
+    case s: EnterCaseReferenceNumber         => enterCaseReferenceNumberFormat.writes(s)
+    case s: SelectTypeOfAmendment            => selectTypeOfAmendmentFormat.writes(s)
+    case s: EnterResponseText                => enterResponseTextFormat.writes(s)
+    case s: UploadFile                       => uploadFileFormat.writes(s)
+    case s: FileUploaded                     => fileUploadedFormat.writes(s)
+    case s: WaitingForFileVerification       => waitingForFileVerificationFormat.writes(s)
+    case s: AmendCaseSummary                 => amendCaseSummaryFormat.writes(s)
+    case s: AmendCaseMissingInformationError => amendCaseMissingInformationErrorFormat.writes(s)
+    case s: UploadMultipleFiles              => uploadMultipleFilesFormat.writes(s)
+    case s: AmendCaseConfirmation            => amendCaseConfirmationFormat.writes(s)
   }
 
   override def deserializeState(stateName: String, properties: JsValue): JsResult[State] =
@@ -59,6 +61,8 @@ object AmendCaseJourneyStateFormats
         waitingForFileVerificationFormat.reads(properties)
       case "AmendCaseSummary" =>
         amendCaseSummaryFormat.reads(properties)
+      case "AmendCaseMissingInformationError" =>
+        amendCaseMissingInformationErrorFormat.reads(properties)
       case "UploadMultipleFiles" =>
         uploadMultipleFilesFormat.reads(properties)
       case "AmendCaseConfirmation" => amendCaseConfirmationFormat.reads(properties)
