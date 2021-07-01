@@ -788,10 +788,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                 exportQuestionsAnswers = exportQuestionsAnswers,
                 fileUploadsOpt = Some(state.fileUploads)
               )
-              if (Rules.isComplete(updatedModel))
-                goto(ExportQuestionsSummary(updatedModel))
-              else
-                goto(state)
+              goto(ExportQuestionsSummary(updatedModel))
 
             case importQuestionsAnswers: ImportQuestions =>
               val updatedModel =
@@ -800,10 +797,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                   importQuestionsAnswers = importQuestionsAnswers,
                   fileUploadsOpt = Some(state.fileUploads)
                 )
-              if (Rules.isComplete(updatedModel))
-                goto(ImportQuestionsSummary(updatedModel))
-              else
-                goto(state)
+              goto(ImportQuestionsSummary(updatedModel))
           }
 
         case state: EnterEntryDetails =>
@@ -813,28 +807,22 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               state.exportQuestionsAnswersOpt
                 .map { answers =>
                   val model = ExportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
-                  if (Rules.isComplete(model)) ExportQuestionsSummary(model) else state
+                  ExportQuestionsSummary(model)
                 }
                 .orElse(
                   state.importQuestionsAnswersOpt.map { answers =>
                     val model = ImportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
-                    if (Rules.isComplete(model)) ImportQuestionsSummary(model) else state
+                    ImportQuestionsSummary(model)
                   }
                 )
                 .getOrElse(state)
           })
 
         case state: ImportQuestionsState =>
-          if (Rules.isComplete(state.model))
-            goto(ImportQuestionsSummary(state.model))
-          else
-            goto(state)
+          goto(ImportQuestionsSummary(state.model))
 
         case state: ExportQuestionsState =>
-          if (Rules.isComplete(state.model))
-            goto(ExportQuestionsSummary(state.model))
-          else
-            goto(state)
+          goto(ExportQuestionsSummary(state.model))
 
       }
 
@@ -880,7 +868,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
 
       Transition {
-        case state: ExportQuestionsSummary =>
+        case state: ExportQuestionsSummary if Rules.isComplete(state.model) =>
           val uploadedFiles =
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
@@ -892,7 +880,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           invokeCreateCaseApi(createCaseRequest)
 
-        case state: ImportQuestionsSummary =>
+        case state: ImportQuestionsSummary if Rules.isComplete(state.model) =>
           val uploadedFiles =
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
