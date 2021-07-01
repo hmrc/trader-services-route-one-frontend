@@ -1033,12 +1033,13 @@ class CreateCaseJourneyController @Inject() (
 
     }
 
-  private def backLink(breadcrumbs: List[State], previousPage: Call): Call =
-    if (breadcrumbs.headOption.exists(helpers.is[ImportQuestionsSummary]))
-      controller.showImportQuestionsSummary
-    else if (breadcrumbs.headOption.exists(helpers.is[ExportQuestionsSummary]))
-      controller.showExportQuestionsSummary
-    else previousPage
+  private def backLink(breadcrumbs: List[State], previousPage: Call)(implicit request: Request[_]): Call =
+    backLinkFor(breadcrumbs)
+  // if (breadcrumbs.headOption.exists(helpers.is[ImportQuestionsSummary]))
+  //   controller.showImportQuestionsSummary
+  // else if (breadcrumbs.headOption.exists(helpers.is[ExportQuestionsSummary]))
+  //   controller.showExportQuestionsSummary
+  // else previousPage
 
   private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {

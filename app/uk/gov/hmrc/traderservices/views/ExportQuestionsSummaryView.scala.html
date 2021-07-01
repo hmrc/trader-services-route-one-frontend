@@ -29,7 +29,7 @@
 
 @govukLayout(
   pageTitle("view.export-questions.summary.title"),
-  backLink = None) {
+  backLink = Some(backLink.url)) {
 
   @html.h1(messages("view.export-questions.summary.heading"))
 

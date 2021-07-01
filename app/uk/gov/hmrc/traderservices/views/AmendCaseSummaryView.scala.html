@@ -30,7 +30,7 @@
 
 @govukLayout(
     pageTitle("view.amend-case.summary.title"),
-    backLink = None) {
+    backLink = Some(backLink.url)) {
 
     @html.h1(messages("view.amend-case.summary.title"))
 
