@@ -245,6 +245,7 @@ class CreateCaseJourneyController @Inject() (
   final val showExportQuestionsMissingInformationError: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ExportQuestionsMissingInformationError]
+      .orApply(Transitions.backToExportQuestionsMissingInformationError)
 
   // ----------------------- IMPORT QUESTIONS -----------------------
 
@@ -370,6 +371,7 @@ class CreateCaseJourneyController @Inject() (
   final val showImportQuestionsMissingInformationError: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.ImportQuestionsMissingInformationError]
+      .orApply(Transitions.backToImportQuestionsMissingInformationError)
 
   // ----------------------- FILES UPLOAD -----------------------
 

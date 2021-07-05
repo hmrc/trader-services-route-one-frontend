@@ -60,7 +60,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class AmendCaseSummary(model: AmendCaseModel) extends AmendCaseState
 
-    final case class AmendCaseMissingInformationError(model: AmendCaseModel) extends AmendCaseState with IsError
+    final case class AmendCaseMissingInformationError(model: AmendCaseModel) extends AmendCaseState
 
     final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
 
@@ -224,6 +224,12 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
         case current: AmendCaseState =>
           goto(AmendCaseSummary(current.model))
+      }
+
+    final val backToAmendCaseMissingInformationError =
+      Transition {
+        case s: AmendCaseState =>
+          goto(AmendCaseMissingInformationError(s.model))
       }
 
     final def amendCase(

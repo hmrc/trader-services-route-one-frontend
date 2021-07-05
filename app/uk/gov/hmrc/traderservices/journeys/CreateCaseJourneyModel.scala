@@ -23,7 +23,6 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
-import play.api.Logger
 import scala.util.Success
 import scala.util.Failure
 
@@ -223,7 +222,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class ExportQuestionsMissingInformationError(
       model: ExportQuestionsStateModel
-    ) extends ExportQuestionsState with IsError
+    ) extends ExportQuestionsState
 
     // IMPORT QUESTIONS STATES
 
@@ -283,7 +282,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class ImportQuestionsMissingInformationError(
       model: ImportQuestionsStateModel
-    ) extends ImportQuestionsState with IsError
+    ) extends ImportQuestionsState
 
     // END-OF-JOURNEY STATES
 
@@ -832,6 +831,30 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         case state: ExportQuestionsState =>
           goto(ExportQuestionsSummary(state.model))
 
+      }
+
+    final val backToImportQuestionsMissingInformationError =
+      Transition {
+        case s: EnterEntryDetails if s.entryDetailsOpt.isDefined && s.importQuestionsAnswersOpt.isDefined =>
+          goto(
+            ImportQuestionsMissingInformationError(
+              ImportQuestionsStateModel(s.entryDetailsOpt.get, s.importQuestionsAnswersOpt.get, s.fileUploadsOpt)
+            )
+          )
+        case s: ImportQuestionsState =>
+          goto(ImportQuestionsMissingInformationError(s.model))
+      }
+
+    final val backToExportQuestionsMissingInformationError =
+      Transition {
+        case s: EnterEntryDetails if s.entryDetailsOpt.isDefined && s.exportQuestionsAnswersOpt.isDefined =>
+          goto(
+            ExportQuestionsMissingInformationError(
+              ExportQuestionsStateModel(s.entryDetailsOpt.get, s.exportQuestionsAnswersOpt.get, s.fileUploadsOpt)
+            )
+          )
+        case s: ExportQuestionsState =>
+          goto(ExportQuestionsMissingInformationError(s.model))
       }
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]

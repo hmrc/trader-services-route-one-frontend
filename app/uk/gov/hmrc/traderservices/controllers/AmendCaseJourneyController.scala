@@ -165,6 +165,7 @@ class AmendCaseJourneyController @Inject() (
   final val showAmendCaseMissingInformationError: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AmendCaseMissingInformationError]
+      .orApply(Transitions.backToAmendCaseMissingInformationError)
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -434,7 +435,9 @@ class AmendCaseJourneyController @Inject() (
           views.enterCaseReferenceNumberView(
             formWithErrors.or(EnterCaseReferenceNumberForm, model.caseReferenceNumber),
             controller.submitCaseReferenceNumber,
-            routes.CreateCaseJourneyController.showChooseNewOrExistingCase
+            if (breadcrumbs.size == 1 && breadcrumbs.head == Start)
+              routes.CreateCaseJourneyController.showChooseNewOrExistingCase
+            else backLinkFor(breadcrumbs)
           )
         )
 
