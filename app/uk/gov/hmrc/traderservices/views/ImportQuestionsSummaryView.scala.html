@@ -25,7 +25,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.summary.title"),
@@ -53,8 +53,7 @@
 
   @html.h2(messages("view.import-questions.summary.files-uploaded.heading")) 
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,
-    CreateCaseJourneyController.showFileUpload))  
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,fileUploadLink))  
 
   @forms.formWithCSRF(action = postAction) {
     @html.button("form.import-questions.summary.continue", disableAfterClick=true)

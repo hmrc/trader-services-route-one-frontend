@@ -817,6 +817,8 @@ class CreateCaseJourneyController @Inject() (
             model.exportQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
+            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
+            else controller.showFileUpload,
             backLinkFor(breadcrumbs)
           )
         )
@@ -920,6 +922,8 @@ class CreateCaseJourneyController @Inject() (
             model.importQuestionsAnswers,
             model.fileUploadsOpt.getOrElse(FileUploads()),
             controller.createCase,
+            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
+            else controller.showFileUpload,
             backLinkFor(breadcrumbs)
           )
         )
