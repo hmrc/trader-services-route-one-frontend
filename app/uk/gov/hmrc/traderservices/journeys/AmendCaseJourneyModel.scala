@@ -98,10 +98,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToSelectTypeOfAmendment =
       Transition {
-        case s: AmendCaseState if s.model.typeOfAmendment.isDefined =>
+        case s: AmendCaseState =>
           goto(SelectTypeOfAmendment(s.model))
 
-        case s: FileUploadState if s.hostData.typeOfAmendment.isDefined =>
+        case s: FileUploadState =>
           goto(SelectTypeOfAmendment(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 
@@ -138,10 +138,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToEnterResponseText =
       Transition {
-        case s: AmendCaseState if s.model.responseText.isDefined =>
+        case s: AmendCaseState =>
           goto(EnterResponseText(s.model))
 
-        case s: FileUploadState if s.hostData.responseText.isDefined =>
+        case s: FileUploadState =>
           goto(EnterResponseText(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 
