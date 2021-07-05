@@ -519,7 +519,13 @@ class AmendCaseJourneyController @Inject() (
 
       case AmendCaseSummary(model) =>
         Ok(
-          views.amendCaseSummaryView(model, controller.amendCase, backLinkFor(breadcrumbs))
+          views.amendCaseSummaryView(
+            model,
+            controller.amendCase,
+            if (preferUploadMultipleFiles) controller.showUploadMultipleFiles
+            else controller.showFileUpload,
+            backLinkFor(breadcrumbs)
+          )
         )
 
       case AmendCaseMissingInformationError(model) =>

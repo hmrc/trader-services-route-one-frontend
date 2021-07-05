@@ -26,7 +26,7 @@
         helper: AmendCaseSummaryHelper
 )
 
-@(model: AmendCaseModel, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(model: AmendCaseModel, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
     pageTitle("view.amend-case.summary.title"),
@@ -42,7 +42,7 @@
 
     @if(model.fileUploads.nonEmpty) {
         @html.h2(messages("view.amend-case.summary.documents.heading"))
-        @html.summaryList(helper.summaryListOfFileUploads(model.fileUploads.get, backLink))
+        @html.summaryList(helper.summaryListOfFileUploads(model.fileUploads.get, fileUploadLink))
     }
     @forms.formWithCSRF(action = postAction) {
         @html.button("form.amend-case.summary.continue", disableAfterClick=true)

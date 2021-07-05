@@ -48,7 +48,7 @@
 
   @html.h2(messages("view.import-questions.summary.contact-details.heading"))
 
-  @html.summaryList(context.summaryListOfContactDetails(importQuestions.contactInfo.get,
+  @html.summaryList(context.summaryListOfImportContactDetails(importQuestions.contactInfo,
     CreateCaseJourneyController.showAnswerImportQuestionsContactInfo))
 
   @html.h2(messages("view.import-questions.summary.files-uploaded.heading")) 
