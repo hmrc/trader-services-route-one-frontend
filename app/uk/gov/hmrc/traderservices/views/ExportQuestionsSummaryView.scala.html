@@ -53,7 +53,8 @@
 
   @html.h2(messages("view.export-questions.summary.files-uploaded.heading")) 
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,backLink))
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,
+    CreateCaseJourneyController.showFileUpload))
 
   @forms.formWithCSRF(action = postAction) {
     @html.button("form.export-questions.summary.continue", disableAfterClick=true)
