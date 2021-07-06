@@ -228,6 +228,39 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           )
         )
       )
+      validateJsonFormat(
+        """{"state":"ExportQuestionsMissingInformationError","properties":{"model":{
+          |"entryDetails":{"epu":"123","entryNumber":"Z00000Z","entryDate":"2020-10-05"},
+          |"exportQuestionsAnswers":{"requestType":"C1601","routeType":"Route2","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
+        State.ExportQuestionsMissingInformationError(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-10-05")),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.C1601),
+              routeType = Some(ExportRouteType.Route2),
+              hasPriorityGoods = Some(true),
+              priorityGoods = Some(ExportPriorityGoods.LiveAnimals),
+              freightType = Some(ExportFreightType.RORO),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                  timeOfArrival = Some(LocalTime.parse("00:00"))
+                )
+              ),
+              contactInfo = Some(
+                ExportContactInfo(
+                  contactName = Some("Full Name"),
+                  contactEmail = "name@somewhere.com",
+                  contactNumber = Some("012345678910")
+                )
+              )
+            )
+          )
+        )
+      )
 
       validateJsonFormat(
         """{"state":"AnswerImportQuestionsRequestType","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},"importQuestionsAnswers":{}}}}""",
@@ -362,6 +395,39 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
           |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
           |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
         State.ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3),
+              hasPriorityGoods = Some(true),
+              priorityGoods = Some(ImportPriorityGoods.LiveAnimals),
+              hasALVS = Some(true),
+              freightType = Some(ImportFreightType.RORO),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(LocalDate.parse("2020-10-19")),
+                  timeOfArrival = Some(LocalTime.parse("00:00"))
+                )
+              ),
+              contactInfo = Some(
+                ImportContactInfo(
+                  contactName = Some("Full Name"),
+                  contactEmail = "name@somewhere.com",
+                  contactNumber = Some("012345678910")
+                )
+              )
+            )
+          )
+        )
+      )
+      validateJsonFormat(
+        """{"state":"ImportQuestionsMissingInformationError","properties":{"model":{"entryDetails":{"epu":"123","entryNumber":"000000Z","entryDate":"2020-10-05"},
+          |"importQuestionsAnswers":{"requestType":"New","routeType":"Route3","hasPriorityGoods":true,"priorityGoods":"LiveAnimals","hasALVS":true,"freightType":"RORO",
+          |"vesselDetails":{"vesselName":"Foo Bar","dateOfArrival":"2020-10-19","timeOfArrival":"00:00:00"},
+          |"contactInfo":{"contactName":"Full Name","contactEmail":"name@somewhere.com","contactNumber":"012345678910"}}}}}""".stripMargin,
+        State.ImportQuestionsMissingInformationError(
           ImportQuestionsStateModel(
             EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-10-05")),
             ImportQuestions(

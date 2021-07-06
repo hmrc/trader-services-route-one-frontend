@@ -168,7 +168,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
-      "stay when going back and export answers incomplete" in {
+      "go to ExportQuestionsSummary when going back and answers incomplete" in {
         val thisState = EnterEntryDetails(
           entryDetailsOpt = Some(exportEntryDetails),
           exportQuestionsAnswersOpt = Some(completeExportQuestionsAnswers),
@@ -178,10 +178,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ExportQuestionsStateModel(
             exportEntryDetails,
             completeExportQuestionsAnswers,
-            Some(nonEmptyFileUploads)
+            None
           )
         )
-        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
       "go to ImportQuestionsSummary when going back and answers completed" in {
@@ -200,7 +200,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
-      "stay when going back and import answers incomplete" in {
+      "go to ImportQuestionsSummary when going back and answers incomplete" in {
         val thisState = EnterEntryDetails(
           entryDetailsOpt = Some(importEntryDetails),
           importQuestionsAnswersOpt = Some(completeImportQuestionsAnswers),
@@ -210,10 +210,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ImportQuestionsStateModel(
             importEntryDetails,
             completeImportQuestionsAnswers,
-            Some(nonEmptyFileUploads)
+            None
           )
         )
-        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
       "go to AnswerImportQuestionsRequestType when submitted declaration details for import" in {
@@ -319,7 +319,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
-      "stay when going back and export answers incomplete" in {
+      "go to ExportQuestionsSummary when going back and answers incomplete" in {
         val thisState = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             exportEntryDetails,
@@ -330,11 +330,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         val summaryState = ExportQuestionsSummary(
           ExportQuestionsStateModel(
             exportEntryDetails,
-            completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New)),
+            completeExportQuestionsAnswers.copy(requestType = None),
             Some(nonEmptyFileUploads)
           )
         )
-        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
     }
@@ -1140,7 +1140,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
-      "stay when going back and import answers incomplete" in {
+      "go to ImportQuestionsSummary when going back and answers incomplete" in {
         val thisState = AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
             importEntryDetails,
@@ -1151,11 +1151,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         val summaryState = ImportQuestionsSummary(
           ImportQuestionsStateModel(
             importEntryDetails,
-            completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New)),
+            completeImportQuestionsAnswers.copy(requestType = None),
             Some(nonEmptyFileUploads)
           )
         )
-        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(thisState)
+        given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
 
     }
@@ -1885,6 +1885,135 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go to CreateCaseConfirmation when createCase and all answers completed" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
+            )
+          )
+        }
+        given(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      Nonce(1),
+                      Timestamp.Any,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf",
+                      Some(4567890)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          CreateCaseConfirmation(
+            exportEntryDetails,
+            completeExportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
+          )
+        )
+      }
+
+      "go to ExportQuestionsMissingInformationError when createCase and some answers missing" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
+            )
+          )
+        }
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          completeExportQuestionsAnswers.copy(requestType = None),
+          Some(
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  Nonce(1),
+                  Timestamp.Any,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf",
+                  Some(4567890)
+                )
+              )
+            )
+          )
+        )
+        given(
+          ExportQuestionsSummary(model)
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          ExportQuestionsMissingInformationError(model)
+        )
+      }
+
+      "go to CaseAlreadyExists when createCase but case already exists" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
+            )
+          )
+        }
+        given(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      Nonce(1),
+                      Timestamp.Any,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf",
+                      Some(4567890)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          CaseAlreadyExists("A1234567890")
+        )
+      }
     }
 
     "at state ImportQuestionsSummary" should {
@@ -1929,6 +2058,135 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go to CreateCaseConfirmation when createCase" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
+            )
+          )
+        }
+        given(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      Nonce(1),
+                      Timestamp.Any,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf",
+                      Some(4567890)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          CreateCaseConfirmation(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
+          )
+        )
+      }
+
+      "go to ImportQuestionsMissingInformationError when createCase and some answers missing" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              result = Some(TraderServicesResult("A1234567890", generatedAt))
+            )
+          )
+        }
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(requestType = None),
+          Some(
+            FileUploads(files =
+              Seq(
+                FileUpload.Accepted(
+                  Nonce(1),
+                  Timestamp.Any,
+                  "foo-bar-ref-1",
+                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf",
+                  Some(4567890)
+                )
+              )
+            )
+          )
+        )
+        given(
+          ImportQuestionsSummary(model)
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          ImportQuestionsMissingInformationError(model)
+        )
+      }
+
+      "go to CaseAlreadyExists when createCase but case already exists" in {
+        val mockCreateCaseApi: CreateCaseApi = { request =>
+          Future.successful(
+            TraderServicesCaseResponse(
+              correlationId = "",
+              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
+            )
+          )
+        }
+        given(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers,
+              Some(
+                FileUploads(files =
+                  Seq(
+                    FileUpload.Accepted(
+                      Nonce(1),
+                      Timestamp.Any,
+                      "foo-bar-ref-1",
+                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                      "test.pdf",
+                      "application/pdf",
+                      Some(4567890)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+          CaseAlreadyExists("A1234567890")
+        )
+      }
     }
 
     "at state UploadMultipleFiles" should {
@@ -1964,22 +2222,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-      }
-
-      "stay when import and empty file uploads, and transition toSummary" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-          FileUploads()
-        )
-        given(state) when toSummary should thenGo(state)
-      }
-
-      "stay when export and empty file uploads, and transition toSummary" in {
-        val state = UploadMultipleFiles(
-          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-          FileUploads()
-        )
-        given(state) when toSummary should thenGo(state)
       }
 
       "stay and filter accepted uploads when export and toUploadMultipleFiles transition" in {
@@ -3870,98 +4112,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(state) when
           waitForFileVerification should
           thenGo(state.copy(acknowledged = true))
-      }
-
-      "go to CreateCaseConfirmation when createCase" in {
-        val mockCreateCaseApi: CreateCaseApi = { request =>
-          Future.successful(
-            TraderServicesCaseResponse(
-              correlationId = "",
-              result = Some(TraderServicesResult("A1234567890", generatedAt))
-            )
-          )
-        }
-        given(
-          ImportQuestionsSummary(
-            ImportQuestionsStateModel(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Some(
-                FileUploads(files =
-                  Seq(
-                    FileUpload.Accepted(
-                      Nonce(1),
-                      Timestamp.Any,
-                      "foo-bar-ref-1",
-                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                      "test.pdf",
-                      "application/pdf",
-                      Some(4567890)
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
-          CreateCaseConfirmation(
-            importEntryDetails,
-            completeImportQuestionsAnswers,
-            Seq(
-              UploadedFile(
-                "foo-bar-ref-1",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-            ),
-            TraderServicesResult("A1234567890", generatedAt),
-            CaseSLA(Some(generatedAt.plusHours(2)))
-          )
-        )
-      }
-
-      "go to CaseAlreadyExists when createCase but case already exists" in {
-        val mockCreateCaseApi: CreateCaseApi = { request =>
-          Future.successful(
-            TraderServicesCaseResponse(
-              correlationId = "",
-              error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
-            )
-          )
-        }
-        given(
-          ImportQuestionsSummary(
-            ImportQuestionsStateModel(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Some(
-                FileUploads(files =
-                  Seq(
-                    FileUpload.Accepted(
-                      Nonce(1),
-                      Timestamp.Any,
-                      "foo-bar-ref-1",
-                      "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                      ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                      "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                      "test.pdf",
-                      "application/pdf",
-                      Some(4567890)
-                    )
-                  )
-                )
-              )
-            )
-          )
-        ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
-          CaseAlreadyExists("A1234567890")
-        )
       }
     }
 

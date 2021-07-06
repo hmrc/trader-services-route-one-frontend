@@ -31,5 +31,6 @@ class AmendCaseViews @Inject() (
   val amendCaseSummaryView: AmendCaseSummaryView,
   val uploadMultipleFilesView: UploadMultipleFilesView,
   val amendCaseConfirmationReceiptView: AmendCaseConfirmationReceiptView,
-  val amendCaseConfirmationView: AmendCaseConfirmationView
+  val amendCaseConfirmationView: AmendCaseConfirmationView,
+  val missingInformationErrorView: MissingInformationErrorView
 )

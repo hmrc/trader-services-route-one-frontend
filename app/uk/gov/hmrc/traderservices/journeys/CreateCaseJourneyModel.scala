@@ -23,7 +23,6 @@ import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
-import play.api.Logger
 import scala.util.Success
 import scala.util.Failure
 
@@ -221,6 +220,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
         model.fileUploadsOpt
     }
 
+    final case class ExportQuestionsMissingInformationError(
+      model: ExportQuestionsStateModel
+    ) extends ExportQuestionsState
+
     // IMPORT QUESTIONS STATES
 
     final case class AnswerImportQuestionsRequestType(
@@ -276,6 +279,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       final def fileUploadsOpt: Option[FileUploads] =
         model.fileUploadsOpt
     }
+
+    final case class ImportQuestionsMissingInformationError(
+      model: ImportQuestionsStateModel
+    ) extends ImportQuestionsState
 
     // END-OF-JOURNEY STATES
 
@@ -414,7 +421,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsRequestType =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.requestType.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsRequestType(s.model))
       }
 
@@ -427,7 +434,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsRouteType =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.routeType.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsRouteType(s.model))
       }
 
@@ -443,7 +450,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsHasPriorityGoods =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.hasPriorityGoods.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsHasPriorityGoods(s.model))
       }
 
@@ -468,7 +475,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsWhichPriorityGoods =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.priorityGoods.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsWhichPriorityGoods(s.model))
       }
 
@@ -484,7 +491,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsFreightType =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.freightType.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsFreightType(s.model))
       }
 
@@ -500,7 +507,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsMandatoryVesselInfo =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.vesselDetails.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
       }
 
@@ -518,7 +525,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.exportQuestionsAnswers) =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.vesselDetails.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
       }
 
@@ -536,7 +543,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsContactInfo =
       Transition {
-        case s: ExportQuestionsState if s.model.exportQuestionsAnswers.contactInfo.isDefined =>
+        case s: ExportQuestionsState =>
           goto(AnswerExportQuestionsContactInfo(s.model))
 
         case s: FileUploadState =>
@@ -598,7 +605,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsRequestType =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.requestType.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsRequestType(s.model))
       }
 
@@ -611,7 +618,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsRouteType =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.routeType.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsRouteType(s.model))
       }
 
@@ -627,7 +634,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsHasPriorityGoods =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.hasPriorityGoods.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsHasPriorityGoods(s.model))
       }
 
@@ -650,7 +657,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsWhichPriorityGoods =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.priorityGoods.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsWhichPriorityGoods(s.model))
       }
 
@@ -666,7 +673,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsALVS =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.hasALVS.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsALVS(s.model))
       }
 
@@ -682,7 +689,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsFreightType =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.freightType.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsFreightType(s.model))
       }
 
@@ -698,7 +705,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsMandatoryVesselInfo =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.vesselDetails.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
       }
 
@@ -720,7 +727,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case s: ImportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.importQuestionsAnswers) =>
           goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.vesselDetails.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsOptionalVesselInfo(s.model))
       }
 
@@ -738,7 +745,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsContactInfo =
       Transition {
-        case s: ImportQuestionsState if s.model.importQuestionsAnswers.contactInfo.isDefined =>
+        case s: ImportQuestionsState =>
           goto(AnswerImportQuestionsContactInfo(s.model))
 
         case s: FileUploadState =>
@@ -788,10 +795,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                 exportQuestionsAnswers = exportQuestionsAnswers,
                 fileUploadsOpt = Some(state.fileUploads)
               )
-              if (Rules.isComplete(updatedModel))
-                goto(ExportQuestionsSummary(updatedModel))
-              else
-                goto(state)
+              goto(ExportQuestionsSummary(updatedModel))
 
             case importQuestionsAnswers: ImportQuestions =>
               val updatedModel =
@@ -800,10 +804,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                   importQuestionsAnswers = importQuestionsAnswers,
                   fileUploadsOpt = Some(state.fileUploads)
                 )
-              if (Rules.isComplete(updatedModel))
-                goto(ImportQuestionsSummary(updatedModel))
-              else
-                goto(state)
+              goto(ImportQuestionsSummary(updatedModel))
           }
 
         case state: EnterEntryDetails =>
@@ -813,29 +814,47 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               state.exportQuestionsAnswersOpt
                 .map { answers =>
                   val model = ExportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
-                  if (Rules.isComplete(model)) ExportQuestionsSummary(model) else state
+                  ExportQuestionsSummary(model)
                 }
                 .orElse(
                   state.importQuestionsAnswersOpt.map { answers =>
                     val model = ImportQuestionsStateModel(entryDetails, answers, state.fileUploadsOpt)
-                    if (Rules.isComplete(model)) ImportQuestionsSummary(model) else state
+                    ImportQuestionsSummary(model)
                   }
                 )
                 .getOrElse(state)
           })
 
         case state: ImportQuestionsState =>
-          if (Rules.isComplete(state.model))
-            goto(ImportQuestionsSummary(state.model))
-          else
-            goto(state)
+          goto(ImportQuestionsSummary(state.model))
 
         case state: ExportQuestionsState =>
-          if (Rules.isComplete(state.model))
-            goto(ExportQuestionsSummary(state.model))
-          else
-            goto(state)
+          goto(ExportQuestionsSummary(state.model))
 
+      }
+
+    final val backToImportQuestionsMissingInformationError =
+      Transition {
+        case s: EnterEntryDetails if s.entryDetailsOpt.isDefined && s.importQuestionsAnswersOpt.isDefined =>
+          goto(
+            ImportQuestionsMissingInformationError(
+              ImportQuestionsStateModel(s.entryDetailsOpt.get, s.importQuestionsAnswersOpt.get, s.fileUploadsOpt)
+            )
+          )
+        case s: ImportQuestionsState =>
+          goto(ImportQuestionsMissingInformationError(s.model))
+      }
+
+    final val backToExportQuestionsMissingInformationError =
+      Transition {
+        case s: EnterEntryDetails if s.entryDetailsOpt.isDefined && s.exportQuestionsAnswersOpt.isDefined =>
+          goto(
+            ExportQuestionsMissingInformationError(
+              ExportQuestionsStateModel(s.entryDetailsOpt.get, s.exportQuestionsAnswersOpt.get, s.fileUploadsOpt)
+            )
+          )
+        case s: ExportQuestionsState =>
+          goto(ExportQuestionsMissingInformationError(s.model))
       }
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
@@ -880,7 +899,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
 
       Transition {
-        case state: ExportQuestionsSummary =>
+        case state: ExportQuestionsSummary if Rules.isComplete(state.model) =>
           val uploadedFiles =
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
@@ -892,7 +911,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
           invokeCreateCaseApi(createCaseRequest)
 
-        case state: ImportQuestionsSummary =>
+        case state: ExportQuestionsSummary =>
+          goto(ExportQuestionsMissingInformationError(state.model))
+
+        case state: ImportQuestionsSummary if Rules.isComplete(state.model) =>
           val uploadedFiles =
             state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
           val createCaseRequest =
@@ -903,6 +925,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               uidAndEori._2
             )
           invokeCreateCaseApi(createCaseRequest)
+
+        case state: ImportQuestionsSummary =>
+          goto(ImportQuestionsMissingInformationError(state.model))
       }
     }
   }

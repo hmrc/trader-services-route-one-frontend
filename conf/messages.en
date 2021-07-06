@@ -624,6 +624,11 @@ view.amend-case.summary.type.documents=Documents
 view.amend-case.summary.type.messageAndDocuments=Message and documents
 form.amend-case.summary.continue=Submit
 
+view.missing-information.title=We’re missing some of your information
+view.missing-information.heading=We’re missing some of your information
+view.missing-information.description=You have not entered all the information that we need to process your customs check. Please complete any missing information.
+view.missing-information.continue=Complete your information
+
 view.beta.title=Send documents for a customs check for declarations made in CHIEF
 view.beta.heading=Send documents for a customs check for declarations made in CHIEF
 view.beta.lede=If you submit declarations using the Customs Handling of Import and Export Freight (CHIEF) and you’re asked to send supporting documents you can send them to HMRC online.

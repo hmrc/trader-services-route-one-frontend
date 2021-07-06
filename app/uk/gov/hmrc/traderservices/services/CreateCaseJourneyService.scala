@@ -35,7 +35,18 @@ trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[
   // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
     _.filterNot(s => s.isInstanceOf[model.IsError] || s.isInstanceOf[model.IsTransient])
-      .take(2) // retain last 3 states as a breadcrumbs
+      .take(10) // retain last 10 states as a breadcrumbs
+
+  override def updateBreadcrumbs(
+    newState: model.State,
+    currentState: model.State,
+    currentBreadcrumbs: Breadcrumbs
+  ): Breadcrumbs =
+    if (newState.getClass == currentState.getClass)
+      currentBreadcrumbs
+    else if (currentBreadcrumbs.nonEmpty && currentBreadcrumbs.head.getClass() == newState.getClass())
+      currentBreadcrumbs.tail
+    else currentState :: breadcrumbsRetentionStrategy(currentBreadcrumbs)
 }
 
 trait CreateCaseJourneyServiceWithHeaderCarrier extends CreateCaseJourneyService[HeaderCarrier]

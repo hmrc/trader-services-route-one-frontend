@@ -49,5 +49,6 @@ class CreateCaseViews @Inject() (
   val uploadMultipleFilesView: UploadMultipleFilesView,
   val createCaseConfirmationView: CreateCaseConfirmationView,
   val createCaseConfirmationReceiptView: CreateCaseConfirmationReceiptView,
-  val caseAlreadyExistsView: CaseAlreadyExistsView
+  val caseAlreadyExistsView: CaseAlreadyExistsView,
+  val missingInformationErrorView: MissingInformationErrorView
 )

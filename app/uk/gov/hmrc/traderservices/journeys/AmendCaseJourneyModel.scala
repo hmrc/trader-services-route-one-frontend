@@ -60,6 +60,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final case class AmendCaseSummary(model: AmendCaseModel) extends AmendCaseState
 
+    final case class AmendCaseMissingInformationError(model: AmendCaseModel) extends AmendCaseState
+
     final case class EnterResponseText(model: AmendCaseModel) extends AmendCaseState
 
     final case class AmendCaseConfirmation(
@@ -96,10 +98,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToSelectTypeOfAmendment =
       Transition {
-        case s: AmendCaseState if s.model.typeOfAmendment.isDefined =>
+        case s: AmendCaseState =>
           goto(SelectTypeOfAmendment(s.model))
 
-        case s: FileUploadState if s.hostData.typeOfAmendment.isDefined =>
+        case s: FileUploadState =>
           goto(SelectTypeOfAmendment(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 
@@ -136,10 +138,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToEnterResponseText =
       Transition {
-        case s: AmendCaseState if s.model.responseText.isDefined =>
+        case s: AmendCaseState =>
           goto(EnterResponseText(s.model))
 
-        case s: FileUploadState if s.hostData.responseText.isDefined =>
+        case s: FileUploadState =>
           goto(EnterResponseText(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 
@@ -218,16 +220,16 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       Transition {
         case current: FileUploadState =>
           val updatedModel = current.hostData.copy(fileUploads = Some(current.fileUploads))
-          if (isComplete(updatedModel))
-            goto(AmendCaseSummary(updatedModel))
-          else
-            goto(current)
+          goto(AmendCaseSummary(updatedModel))
 
         case current: AmendCaseState =>
-          if (isComplete(current.model))
-            goto(AmendCaseSummary(current.model))
-          else
-            goto(current)
+          goto(AmendCaseSummary(current.model))
+      }
+
+    final val backToAmendCaseMissingInformationError =
+      Transition {
+        case s: AmendCaseState =>
+          goto(AmendCaseMissingInformationError(s.model))
       }
 
     final def amendCase(
@@ -278,8 +280,11 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
 
       Transition {
-        case s: AmendCaseSummary =>
+        case s: AmendCaseSummary if isComplete(s.model) =>
           callUpdateCase(s.model)
+
+        case s: AmendCaseSummary =>
+          goto(AmendCaseMissingInformationError(s.model))
       }
     }
   }

@@ -28,6 +28,7 @@ POST       /new/export/transport-information                        @uk.gov.hmrc
 GET        /new/export/contact-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsContactInfo
 POST       /new/export/contact-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsContactInfoAnswer
 GET        /new/export/check-your-answers                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showExportQuestionsSummary
+GET        /new/export/missing-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showExportQuestionsMissingInformationError
 
 GET        /new/import/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsRequestType
 POST       /new/import/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsRequestTypeAnswer
@@ -48,6 +49,7 @@ POST       /new/import/transport-information                        @uk.gov.hmrc
 GET        /new/import/contact-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsContactInfo
 POST       /new/import/contact-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsContactInfoAnswer
 GET        /new/import/check-your-answers                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showImportQuestionsSummary
+GET        /new/import/missing-information                          @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showImportQuestionsMissingInformationError
 
 GET        /new/upload-files                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showUploadMultipleFiles
 + nocsrf
@@ -111,6 +113,7 @@ GET        /add/file-uploaded/:reference/:fileName                  @uk.gov.hmrc
 + nocsrf
 POST       /add/journey/:journeyId/callback-from-upscan/:nonce      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String, nonce: String)
 GET        /add/check-your-answers                                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
+GET        /add/missing-information                                 @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseMissingInformationError
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
 GET        /add/confirmation                                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
 GET        /add/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceipt

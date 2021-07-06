@@ -25,11 +25,11 @@
         context: ImportQuestionsViewContext
 )
 
-@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.summary.title"),
-  backLink = None) {
+  backLink = Some(backLink.url)) {
 
   @html.h1(messages("view.import-questions.summary.heading"))
 
@@ -48,12 +48,12 @@
 
   @html.h2(messages("view.import-questions.summary.contact-details.heading"))
 
-  @html.summaryList(context.summaryListOfContactDetails(importQuestions.contactInfo.get,
+  @html.summaryList(context.summaryListOfImportContactDetails(importQuestions.contactInfo,
     CreateCaseJourneyController.showAnswerImportQuestionsContactInfo))
 
   @html.h2(messages("view.import-questions.summary.files-uploaded.heading")) 
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,backLink))  
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,fileUploadLink))  
 
   @forms.formWithCSRF(action = postAction) {
     @html.button("form.import-questions.summary.continue", disableAfterClick=true)

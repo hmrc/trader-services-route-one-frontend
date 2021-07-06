@@ -28,18 +28,23 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
   def formatNumberForDisplay(phoneNum: String): String =
     phoneNum.patch(5, " ", 0).patch(9, " ", 0)
 
-  def summaryListOfContactDetails(contactDetails: ImportContactInfo, changeCall: Call)(implicit
+  def summaryListOfImportContactDetails(contactDetailsOpt: Option[ImportContactInfo], changeCall: Call)(implicit
     messages: Messages
   ): SummaryList = {
+    val value = contactDetailsOpt match {
+      case Some(contactDetails) =>
+        val contactName =
+          contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
+        val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
+        val contactNumber =
+          contactDetails.contactNumber
+            .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
+            .getOrElse("")
+        contactName + contactEmail + contactNumber
 
-    val contactName = contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
-    val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
-    val contactNumber =
-      contactDetails.contactNumber
-        .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
-        .getOrElse("")
-    val value = contactName + contactEmail + contactNumber
+      case None => "-"
 
+    }
     SummaryList(
       Seq(
         summaryListRow(
@@ -53,18 +58,23 @@ trait ContactDetailsHelper extends SummaryListRowHelper {
     )
   }
 
-  def summaryListOfContactDetails(contactDetails: ExportContactInfo, changeCall: Call)(implicit
+  def summaryListOfExportContactDetails(contactDetailsOpt: Option[ExportContactInfo], changeCall: Call)(implicit
     messages: Messages
   ): SummaryList = {
+    val value = contactDetailsOpt match {
+      case Some(contactDetails) =>
+        val contactName =
+          contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
+        val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
+        val contactNumber =
+          contactDetails.contactNumber
+            .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
+            .getOrElse("")
+        contactName + contactEmail + contactNumber
 
-    val contactName = contactDetails.contactName.map(value => s"<div>${HtmlFormat.escape(value)}</div>").getOrElse("")
-    val contactEmail = s"<div>${HtmlFormat.escape(contactDetails.contactEmail)}</div>"
-    val contactNumber =
-      contactDetails.contactNumber
-        .map(value => s"<div>${HtmlFormat.escape(formatNumberForDisplay(value))}</div>")
-        .getOrElse("")
-    val value = contactName + contactEmail + contactNumber
+      case None => "-"
 
+    }
     SummaryList(
       Seq(
         summaryListRow(

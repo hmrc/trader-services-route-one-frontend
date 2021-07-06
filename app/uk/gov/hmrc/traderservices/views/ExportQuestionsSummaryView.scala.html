@@ -25,11 +25,11 @@
         context: ExportQuestionsViewContext
 )
 
-@(entryDetails: EntryDetails, exportQuestions: ExportQuestions, fileUploads: FileUploads, postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, exportQuestions: ExportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout(
   pageTitle("view.export-questions.summary.title"),
-  backLink = None) {
+  backLink = Some(backLink.url)) {
 
   @html.h1(messages("view.export-questions.summary.heading"))
 
@@ -48,12 +48,12 @@
 
   @html.h2(messages("view.export-questions.summary.contact-details.heading"))
 
-  @html.summaryList(context.summaryListOfContactDetails(exportQuestions.contactInfo.get,
+  @html.summaryList(context.summaryListOfExportContactDetails(exportQuestions.contactInfo,
     CreateCaseJourneyController.showAnswerExportQuestionsContactInfo))
 
   @html.h2(messages("view.export-questions.summary.files-uploaded.heading")) 
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,backLink))
+  @html.summaryList(context.summaryListOfFileUploads(fileUploads,fileUploadLink))
 
   @forms.formWithCSRF(action = postAction) {
     @html.button("form.export-questions.summary.continue", disableAfterClick=true)
