@@ -7,7 +7,6 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 
 .govuk-header,
 .cbanner-govuk-cookie-banner,
-.ssp-research-banner,
 .govuk-phase-banner,
 .hmrc-language-select,
 .govuk-footer,
@@ -27,3 +26,4 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
   size: auto;
   margin: 0;
 }
+@media print{.hmrc-user-research-banner{display: none !important;}}
