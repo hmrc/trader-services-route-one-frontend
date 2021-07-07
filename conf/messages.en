@@ -545,6 +545,7 @@ view.create-case-confirmation.next.cancellation=You will now need to cancel this
 view.create-case-confirmation.next.withdrawal=You will now need to withdraw this entry in CHIEF.
 view.create-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.create-case-confirmation.print-receipts.heading=Print or save your receipt for your records
+view.create-case-confirmation.print-receipts.no-javascript.heading=Save your receipt for your records
 view.create-case-confirmation.print-receipts.description=You’ll need your case reference number if you need to provide more information.
 view.create-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 view.create-case-confirmation.feedback=Give feedback on this service
@@ -605,6 +606,7 @@ view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you’ll hear from us through CHIEF or your declaration software. We’ll let you know if we need any further information from you.
 view.amend-case-confirmation.next.description2=If you need to, you can <a class="govuk-link" href="{0}">send documents for another customs check</a>.
 view.amend-case-confirmation.info.heading=Print or save your receipt for your records
+view.amend-case-confirmation.info.no-javascript.heading=Save your receipt for your records
 view.amend-case-confirmation.info.description=We’ll contact you through CHIEF or your declaration software if we need more documents from you.
 view.amend-case-confirmation.footnote=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">arrival and exit when CHIEF is not available</a>.
 view.amend-case-confirmation.feedback=Give feedback on this service
