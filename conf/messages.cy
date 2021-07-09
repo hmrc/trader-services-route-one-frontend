@@ -539,3 +539,4 @@ view.timedout.signIn=Mewngofnodi
 time.period=am neu pm
 time.period.am=am
 time.period.pm=pm
+skip.link=Ewch yn syth i‘r prif gynnwys
