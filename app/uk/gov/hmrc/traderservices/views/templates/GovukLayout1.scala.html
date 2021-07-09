@@ -15,6 +15,9 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.layouts._
+
+@import uk.gov.hmrc.govukfrontend.controllers.routes
 
 @this(
   govukTemplate: GovukTemplate,
@@ -33,8 +36,8 @@
   footerItems: Seq[FooterItem] = Seq.empty,
   bodyEndBlock: Option[Html] = None,
   scriptsBlock: Option[Html] = None,
-  mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
-  mainContentClasses: String = "govuk-grid-column-two-thirds"
+  assetPath: Option[String] = None,
+  cspNonce: Option[String] = None
 )(contentBlock: Html)(implicit messages: Messages)
 
 @headerDefault = {
@@ -45,9 +48,6 @@
       serviceUrl = Some(messages("service.homePageUrl")),
       containerClasses = None))
   }
-}
-@skipLink = {
-    @govukSkipLink(SkipLink(href = "#main-content", classes = "govuk-skip-link", attributes = Map.empty, content = Text(messages("skip.link"))))
 }
 
 @footerDefault = {
@@ -61,12 +61,16 @@
   @scriptsBlock
 }
 
-@mainContentDefault = {
-  <div class="@mainContentClasses">
-  @contentBlock
-  </div>
+@mainContent = {
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+        @contentBlock
+        </div>
+    </div>
 }
-
+@skipLink = {
+    @govukSkipLink(SkipLink(href = "#main-content", classes = "govuk-skip-link", attributes = Map.empty, content = Text(messages("skip.link"))))
+}
 @govukTemplate(
   htmlLang = Some(messages.lang.code),
   pageTitle = pageTitle,
@@ -74,7 +78,7 @@
   headerBlock = headerDefault,
   beforeContentBlock = beforeContentBlock,
   footerBlock = footerDefault,
-  mainClasses = mainClasses,
+  mainClasses = Some("govuk-main-wrapper--auto-spacing"),
   bodyEndBlock = Some(bodyEndDefault),
-  skipLinkBlock = Some(skipLink)
-)(mainContentDefault)
+  skipLinkBlock = Some(skipLink),
+)(mainContent)
