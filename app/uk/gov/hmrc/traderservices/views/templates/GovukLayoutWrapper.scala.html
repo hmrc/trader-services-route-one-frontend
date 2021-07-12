@@ -60,7 +60,9 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 
 @if(timeout) {
   <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
-  data-language="en"
+  data-language="@messages.lang.language"
+  data-message="@messages("view.timedout.dialog.message")"
+  data-message-suffix="@messages("view.timedout.dialog.message.suffix")"
   data-timeout="@appConfig.timeout"
   data-countdown="@appConfig.countdown"
   data-keep-alive-url="@routes.SessionController.keepAlive"
