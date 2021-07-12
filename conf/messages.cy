@@ -540,3 +540,6 @@ time.period=am neu pm
 time.period.am=am
 time.period.pm=pm
 skip.link=Ewch yn syth i‘r prif gynnwys
+
+view.timedout.dialog.message=Er eich diogelwch, byddwn yn eich allgofnodi cyn pen
+view.timedout.dialog.message.suffix=Ni fyddwn yn cadw’ch atebion.
