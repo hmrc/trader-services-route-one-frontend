@@ -1,18 +1,18 @@
 @*
- * Copyright 2021 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
+* Copyright 2021 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 
 @import uk.gov.hmrc.traderservices.models.EntryDetails
 
@@ -21,46 +21,26 @@
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html
 )
-
 @(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
-  pageTitle("view.write-response-text.title",form),
-  backLink = Some(backLink.url),
-  mainContentClasses = "") {
+    pageTitle("view.write-response-text.title",form),
+    backLink = Some(backLink.url),
+    mainContentClasses = "") {
 
-  <div class="govuk-grid-column-two-thirds">
+    <div class="govuk-grid-column-two-thirds">
 
-    @forms.errorSummary(form.errors)
-
-    @forms.formWithCSRF(action = postAction) {
-
-      <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="1000">
-
-      @forms.textarea(
-        form = form,
-        id = "responseText",
-        name = "responseText",
-        label = "view.write-response-text.heading",
-        isPageHeading = true,
-        isInFieldset = false,
-        classes = Some("govuk-js-character-count"),
-        hint = Some(Html(messages("view.write-response-text.hint"))),
-        rows = 4,
-        countMessageClasses = "",
-        spellcheck = None,
-        describedBy = Some("responseText-info")
-      )
-
-      <div id="responseText-info" class="govuk-hint govuk-character-count__message" aria-live="polite"></div>
-
-      <noscript>
-        <p class="govuk-body govuk-hint">@messages("view.write-response-text.noJs.limit")</p>
-      </noscript>
-
-      </div>
-
-      @html.button("view.write-response-text.continue")
-    }
-  </div>
+        @forms.errorSummary(form.errors)
+        <h1 class="govuk-heading-l">@messages("view.write-response-text.heading")</h1>
+        @forms.formWithCSRF(action = postAction) {
+            @forms.inputCharacterCount(
+                form("responseText"),
+                hint = Some(messages("view.write-response-text.hint")),
+                label ="",
+                maxLength = Some(1000)
+            )
+            @html.button("view.write-response-text.continue")
+        }
+    </div>
 }
+
