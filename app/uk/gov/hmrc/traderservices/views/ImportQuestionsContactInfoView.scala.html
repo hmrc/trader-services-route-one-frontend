@@ -44,17 +44,6 @@
 
             @forms.inputText(
                 form = form,
-                id = "contactName",
-                name = "contactName",
-                label = "form.import-questions.contactName",
-                isPageHeading = false,
-                isInFieldset = true,
-                classes = Some("govuk-input--width-20"),
-                attributes = Map("autocomplete" -> "name")
-            )
-
-            @forms.inputText(
-                form = form,
                 id = "contactEmail",
                 name = "contactEmail",
                 label = "form.import-questions.contactEmail",
@@ -63,6 +52,17 @@
                 isInFieldset = true,
                 classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "email")
+            )
+
+            @forms.inputText(
+                form = form,
+                id = "contactName",
+                name = "contactName",
+                label = "form.import-questions.contactName",
+                isPageHeading = false,
+                isInFieldset = true,
+                classes = Some("govuk-input--width-20"),
+                attributes = Map("autocomplete" -> "name")
             )
 
             @forms.inputText(
