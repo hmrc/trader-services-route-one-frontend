@@ -326,14 +326,12 @@ object FormFieldMappings {
 
   val uploadAnotherFileMapping: Mapping[Boolean] = booleanMapping("uploadAnotherFile", "yes", "no")
 
-  val caseReferenceNumberMapping: Mapping[String] = of[String]
-    .transform(_.trim.split("\\s+").mkString, identity[String])
-    .verifying(
-      first(
-        constraint[String]("caseReferenceNumber", "required", _.nonEmpty),
-        constraint[String]("caseReferenceNumber", "invalid-value", _.length == 22)
-      )
+  val caseReferenceNumberMapping: Mapping[String] = of[String].verifying(
+    first(
+      constraint[String]("caseReferenceNumber", "required", _.nonEmpty),
+      constraint[String]("caseReferenceNumber", "invalid-value", _.length == 22)
     )
+  )
 
   val typeOfAmendmentMapping: Mapping[TypeOfAmendment] = enumMapping[TypeOfAmendment]("typeOfAmendment")
 
