@@ -35,6 +35,8 @@
 
 // Fix to prevent the reference number from overflowing on smaller screens
 .app-reference-number {
+  font-family: Monaco, Consolas, "Courier New", "GDS Transport" !important;
+
   // Using a custom breakpoint value because govuk desktop breakpoint is at 769px and it wasn't enough to fix the issue (DOR-194)
   @include govuk-media-query($until: 1019px) {
     @include govuk-font($size: 24, $weight: 'bold');
