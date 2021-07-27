@@ -569,7 +569,8 @@ view.case-already-exists.description.3=Read more about <a class="govuk-link" hre
 # ----------------------------------------------------------
 view.case-reference-number.title=What’s the case reference number?
 view.case-reference-number.heading=What’s the case reference number?
-view.case-reference-number.hint=For example, PC12010081330XGBNZJO04
+view.case-reference-number.hint=For example, <strong class="app-reference-number"> PC12010081330XGBNZJO04</strong>
+
 view.case-reference-number.continue=Continue
 view.case-reference-number.linkText=Help with case reference 
 view.case-reference-number.help.line1=You would have been given your case reference number when you submitted your first set of documents.
@@ -600,7 +601,7 @@ view.amend-case-confirmation.heading=You’ve submitted your extra information
 view.amend-case-confirmation.reference=Your case reference number:
 view.amend-case-confirmation.date=Case updated on:
 view.amend-case-confirmation.save.heading=Save your case reference number
-view.amend-case-confirmation.save.description=You’ll need to use the same case reference number <strong>{0}</strong> for any further correspondence on this case.
+view.amend-case-confirmation.save.description=You’ll need to use the same case reference number <strong class="app-reference-number">{0}</strong> for any further correspondence on this case.
 view.amend-case-confirmation.save.description2=It is the same case reference number that you were given when the case was first created.
 view.amend-case-confirmation.next.heading=Next steps
 view.amend-case-confirmation.next.description=Once the information checks are complete, you’ll hear from us through CHIEF or your declaration software. We’ll let you know if we need any further information from you.

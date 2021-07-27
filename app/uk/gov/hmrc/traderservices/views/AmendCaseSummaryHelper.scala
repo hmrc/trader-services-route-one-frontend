@@ -33,6 +33,7 @@ class AmendCaseSummaryHelper extends SummaryListRowHelper with FileUploadsHelper
         summaryListRow(
           label = "view.amend-case.summary.caseReferenceNumber",
           value = model.caseReferenceNumber.getOrElse(""),
+          valueClasses = Some("case-reference-number"),
           visuallyHiddenText = Some("view.amend-case.summary.caseReferenceNumber"),
           action = (AmendCaseJourneyController.showEnterCaseReferenceNumber, "site.change")
         )
