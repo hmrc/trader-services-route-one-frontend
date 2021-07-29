@@ -123,7 +123,7 @@
     userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
     displayHmrcBanner = false
   )),
-  footerBlock = Some(hmrcStandardFooter(accessibilityStatementUrl = Some(uk.gov.hmrc.traderservices.controllers.routes.AccessibilityStatementController.showPage.url))),
+    footerBlock = Some(hmrcStandardFooter()),
   mainClasses = mainClasses,
   mainContentClasses = mainContentClasses
 )(content)
