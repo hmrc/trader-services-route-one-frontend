@@ -31,14 +31,27 @@
     <div class="govuk-grid-column-two-thirds">
 
         @forms.errorSummary(form.errors)
-        <h1 class="govuk-heading-l">@messages("view.write-response-text.heading")</h1>
+       
+        <div class="govuk-character-count" data-module="govuk-character-count" data-maxlength="1000">
         @forms.formWithCSRF(action = postAction) {
-            @forms.inputCharacterCount(
-                form("responseText"),
-                hint = Some(messages("view.write-response-text.hint")),
-                label ="",
-                maxLength = Some(1000)
+            @forms.textarea(
+                form = form,
+                id = "value",
+                name = "value",
+                hint = Some(Html(messages("view.write-response-text.hint"))),
+                classes = Some("govuk-js-character-count"),
+                label = messages("view.write-response-text.heading"),
+                isPageHeading = true,
+                isInFieldset = false,
+                rows = 6,
+                countMessageClasses = "",
+                spellcheck = None,
+                describedBy = Some("value-info")  
             )
+            <div id="value-info" class="govuk-hint govuk-character-count__message" aria-live="polite">
+            </div>
+        </div>
+           
             @html.button("view.write-response-text.continue")
         }
     </div>
