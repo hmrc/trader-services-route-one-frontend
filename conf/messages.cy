@@ -65,10 +65,6 @@ external.update.error.500.heading=Mae’n ddrwg gennym, mae rhywbeth wedi mynd o
 external.update.error.500.line1=Mae’n bosibl eich bod wedi nodi manylion anghywir
 external.update.error.500.line2=Rhowch gynnig arall ar <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">nodi cyfeirnod eich achos</a>.
 
-a11yStatement.title = Datganiad hygyrchedd ar gyfer Anfon dogfennau i’w gwirio gan y tollau - Anfon dogfennau i’w gwirio gan y tollau
-a11yStatement.heading = Datganiad hygyrchedd ar gyfer Anfon dogfennau i’w gwirio gan y tollau - Anfon dogfennau i’w gwirio gan y tollau
-a11yStatement.temp.p1=Mae’r datganiad hygyrchedd hwn wrthi’n cael ei baratoi, gan ein bod yn dal i fod yn brysur gyda’n profion hygyrchedd. Os oes gennych unrhyw ymholiadau ynglŷn â hygyrchedd, gallwch gysylltu â’r tim Atebion Prosesu Tollau <a href="mailto:betatesting@hmrc.gov.uk?subject=Accessibility query for Send documents for a customs check" class="govuk-link">betatesting@hmrc.gov.uk</a>.
-
 feedback.before=Gwasanaeth newydd yn hwn – bydd eich
 feedback.link=adborth
 feedback.after=yn ein helpu i’w wella.

@@ -119,8 +119,6 @@ GET        /add/confirmation                                        @uk.gov.hmrc
 GET        /add/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceipt
 GET        /add/confirmation/receipt/pdf/:fileName                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceiptAsPdf(fileName: String)
 
-GET        /accessibility-statement                                 @uk.gov.hmrc.traderservices.controllers.AccessibilityStatementController.showPage
-
 GET        /timedout                                                @uk.gov.hmrc.traderservices.controllers.SessionController.showTimeoutPage
 GET        /keep-alive                                              @uk.gov.hmrc.traderservices.controllers.SessionController.keepAlive
 
