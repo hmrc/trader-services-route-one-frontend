@@ -96,57 +96,6 @@ footer.termsConditions = Terms and conditions
 footer.govukHelp       = Help using GOV.UK
 footer.accessibilityStatement = Accessibility statement
 
-# Accessibility statement
-# -----------------------
-a11yStatement.title = Accessibility statement for Send documents for a customs check
-a11yStatement.heading = Accessibility statement for Send documents for a customs check
-a11yStatement.temp.p1=This accessibility statement is being prepared, as we are still busy with our accessibility testing. If you have any accessibility queries, you can contact the Customs Process Solutions team at <a href="mailto:betatesting@hmrc.gov.uk?subject=Accessibility query for Send documents for a customs check" class="govuk-link">betatesting@hmrc.gov.uk</a>.
-a11yStatement.p1 = This accessibility statement explains how accessible this service is, what to do if you have difficulty using it, and how to report accessibility problems with the service.
-a11yStatement.p2.start = This service is part of the wider GOV.UK website. There is a separate
-a11yStatement.p2.link = accessibility statement
-a11yStatement.p2.end = for the main GOV.UK website.
-a11yStatement.p3 = This page only contains information about the Trader Services service, available at
-a11yStatement.p3.link = www.tax.service.gov.uk/coronavirus-statutory-sick-pay
-a11yStatement.usingThisService.h2 = Using this service
-a11yStatement.usingThisService.p1 = This service will reimburse small and medium employers Statutory Sick Pay that has already been paid to employees who have been off work because of coronavirus (COVID-19)
-a11yStatement.usingThisService.p2 = This service is run by HM Revenue and Customs (HMRC). We want as many people as possible to be able to use this service. This means you should be able to:
-a11yStatement.usingThisService.bullet1 = change colours, contrast levels and fonts
-a11yStatement.usingThisService.bullet2 = zoom in up to 300% without the text spilling off the screen
-a11yStatement.usingThisService.bullet3 = get from the start of the service to the end using just a keyboard
-a11yStatement.usingThisService.bullet4 = get from the start of the service to the end using speech recognition software
-a11yStatement.usingThisService.bullet5 = listen to the service using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
-a11yStatement.usingThisService.p3 = We have also made the text in the service as simple as possible to understand.
-a11yStatement.usingThisService.p4.link = AbilityNet
-a11yStatement.usingThisService.p4 = has advice on making your device easier to use if you have a disability.
-a11yStatement.howAccessible.h2 = How accessible this service is
-a11yStatement.howAccessible.p1 = This service is fully compliant with the
-a11yStatement.howAccessible.p1.link = Web Content Accessibility Guidelines version 2.1 AA standard
-a11yStatement.howAccessible.p2 = There are no known accessibility issues within this service.
-a11yStatement.reporting.h2 = Reporting accessibility problems with this service
-a11yStatement.reporting.p1 = We are always looking to improve the accessibility of this service. If you find any problems that are not listed on this page or think we are not meeting accessibility requirements, report the
-a11yStatement.reporting.p1.link = accessibility problem
-a11yStatement.complaints.h2 = What to do if you are not happy with how we respond to your complaint
-a11yStatement.complaints.p1.start = The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the ‘accessibility regulations’). If you are not happy with how we respond to your complaint,
-a11yStatement.complaints.p1.link1 = contact the Equality Advisory and Support Service (EASS)
-a11yStatement.complaints.p1.middle = or the
-a11yStatement.complaints.p1.link2 = Equality Commission for Northern Ireland (ECNI)
-a11yStatement.complaints.p1.end = if you live in Northern Ireland.
-a11yStatement.contact.h2 = Contacting us by phone or getting a visit from us in person
-a11yStatement.contact.p1 = We provide a text relay service if you are deaf, hearing impaired or have a speech impediment.
-a11yStatement.contact.p2 = We can provide a British Sign Language (BSL) interpreter, or you can arrange a visit from an HMRC advisor to help you complete the service.
-a11yStatement.contact.p3 = Find out how to
-a11yStatement.contact.p3.link = contact us
-a11yStatement.technical.h2 = Technical information about this service’s accessibility
-a11yStatement.technical.p1 = HMRC is committed to making this service accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
-a11yStatement.technical.p2 = This service is fully compliant with the
-a11yStatement.technical.p2.link = Web Content Accessibility Guidelines version 2.1 AA standard
-a11yStatement.testing.h2 = How we tested this service
-a11yStatement.testing.p1 = The service was last tested on 18 May 2020 and was checked for compliance with WCAG 2.1 AA.
-a11yStatement.testing.p2.start = The service was built using parts that were tested by the
-a11yStatement.testing.p2.link = Digital Accessibility Centre
-a11yStatement.testing.p2.end = The full service was tested by HMRC and included disabled users.
-a11yStatement.testing.p3 = This page was prepared on 26 May 2020. It was last updated on 26 May 2020.
-
 # Research Banner Content
 # ----------------------------------------------------------
 researchBanner.heading = Help improve GOV.UK
