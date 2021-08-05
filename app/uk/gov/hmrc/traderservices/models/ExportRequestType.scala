@@ -28,4 +28,7 @@ object ExportRequestType extends EnumerationFormats[ExportRequestType] {
   case object C1603 extends ExportRequestType
 
   val values = Set(New, Cancellation, WithdrawalOrReturn, C1601, C1602, C1603)
+  def isArrivalRequestType(requestType: Option[ExportRequestType]): Boolean =
+    requestType.contains(C1601) || requestType.contains(C1603)
+
 }

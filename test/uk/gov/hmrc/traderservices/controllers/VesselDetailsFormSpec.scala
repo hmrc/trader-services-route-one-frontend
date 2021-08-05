@@ -23,7 +23,7 @@ import uk.gov.hmrc.traderservices.support.FormMatchers
 import java.time.LocalDateTime
 import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
-
+import uk.gov.hmrc.traderservices.models.ExportRequestType._
 class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
   val dateTime = LocalDateTime.now().plusHours(1)
@@ -54,6 +54,16 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
       "timeOfDeparture.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d"
     )
 
+  def exportFormInputForArrival(dateTime: LocalDateTime) =
+    Map(
+      "vesselName"            -> "Foo Bar",
+      "dateOfArrival.year"    -> f"${dateTime.get(ChronoField.YEAR)}",
+      "dateOfArrival.month"   -> f"${dateTime.get(ChronoField.MONTH_OF_YEAR)}%02d",
+      "dateOfArrival.day"     -> f"${dateTime.get(ChronoField.DAY_OF_MONTH)}%02d",
+      "timeOfArrival.hour"    -> f"${dateTime.get(ChronoField.HOUR_OF_DAY)}%02d",
+      "timeOfArrival.minutes" -> f"${dateTime.get(ChronoField.MINUTE_OF_HOUR)}%02d"
+    )
+
   def formOutputFor(dateTime: LocalDateTime) =
     VesselDetails(
       vesselName = Some("Foo Bar"),
@@ -63,6 +73,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
 
   val importFormInput = importFormInputFor(dateTime)
   val exportFormInput = exportFormInputFor(dateTime)
+  val exportArrivalFormInput = exportFormInputForArrival(dateTime)
 
   "MandatoryImportVesselDetailsForm" should {
 
@@ -398,7 +409,10 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind input when dateOfDeparture is after provided entry date" in {
-      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(Some(dateTime.minusDays(1).toLocalDate))
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(
+        Some(dateTime.minusDays(1).toLocalDate),
+        Some(C1602)
+      )
       val input = exportFormInputFor(dateTime)
       val output = formOutputFor(dateTime)
       form.bind(input).value shouldBe Some(output)
@@ -406,7 +420,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind input when dateOfDeparture is equal to provided entry date" in {
-      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(Some(dateTime.toLocalDate))
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(Some(dateTime.toLocalDate), Some(C1602))
       val input = exportFormInputFor(dateTime)
       val output = formOutputFor(dateTime)
       form.bind(input).value shouldBe Some(output)
@@ -414,13 +428,122 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "report an error when dateOfDeparture is before provided entry date" in {
-      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate))
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(
+        Some(dateTime.plusDays(1).toLocalDate),
+        Some(C1602)
+      )
       val input = exportFormInputFor(dateTime)
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError(
           "dateOfDeparture",
           Seq("subfieldFocus=day", "error.dateOfDeparture.all.invalid-value-before-entry-date")
+        )
+      )
+    }
+  }
+  "MandatoryExportVesselDetailsForm for C1601 (Arrival)" should {
+
+    val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(None, Some(C1601))
+
+    "report an error when dateOfArrival is missing" in {
+      val input =
+        exportArrivalFormInput
+          .updated("dateOfArrival.year", "")
+          .updated("dateOfArrival.month", "")
+          .updated("dateOfArrival.day", "")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.required"))
+      )
+    }
+
+    "report an error when dateOfArrival is partially missing" in {
+      val input = exportArrivalFormInput
+        .updated("dateOfArrival.year", "")
+        .updated("dateOfArrival.month", "")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.month.required"))
+      )
+    }
+
+    "report an error when dateOfArrival is invalid" in {
+      val input = exportArrivalFormInput
+        .updated("dateOfArrival.year", "202a")
+        .updated("dateOfArrival.month", "13")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.all.invalid-value"))
+      )
+    }
+
+    "report an error when timeOfArrival is missing" in {
+      val input = exportArrivalFormInput
+        .updated("timeOfArrival.hour", "")
+        .updated("timeOfArrival.minutes", "")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.all.required"))
+      )
+    }
+
+    "report an error when timeOfArrival is invalid" in {
+      val input = exportArrivalFormInput
+        .updated("timeOfArrival.hour", "25")
+        .updated("timeOfArrival.minutes", "60")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value"))
+      )
+    }
+
+    "report an error when dateOfArrival is more than 6 months in the past" in {
+      val input = exportFormInputForArrival(dateTime.minusMonths(6).minusDays(2))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "report an error when dateOfArrival is more than 6 months in the future" in {
+      val input = exportFormInputForArrival(dateTime.plusMonths(6).plusDays(1))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "bind input when dateOfArrival is after provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(
+        Some(dateTime.minusDays(1).toLocalDate),
+        Some(C1601)
+      )
+      val input = exportFormInputForArrival(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe exportArrivalFormInput
+    }
+
+    "bind input when dateOfArrival is equal to provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(Some(dateTime.toLocalDate), Some(C1601))
+      val input = exportFormInputForArrival(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe exportArrivalFormInput
+    }
+
+    "report an error when dateOfArrival is before provided entry date" in {
+      val form = CreateCaseJourneyController.mandatoryExportVesselDetailsForm(
+        Some(dateTime.plusDays(1).toLocalDate),
+        Some(C1601)
+      )
+      val input = exportFormInputForArrival(dateTime)
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError(
+          "dateOfArrival",
+          Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-before-entry-date")
         )
       )
     }
@@ -526,7 +649,10 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind input when dateOfDeparture is after provided entry date" in {
-      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.minusDays(1).toLocalDate))
+      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(
+        Some(dateTime.minusDays(1).toLocalDate),
+        Some(C1602)
+      )
       val input = exportFormInputFor(dateTime)
       val output = formOutputFor(dateTime)
       form.bind(input).value shouldBe Some(output)
@@ -534,7 +660,7 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "bind input when dateOfDeparture is equal to provided entry date" in {
-      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.toLocalDate))
+      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.toLocalDate), Some(C1602))
       val input = exportFormInputFor(dateTime)
       val output = formOutputFor(dateTime)
       form.bind(input).value shouldBe Some(output)
@@ -542,13 +668,126 @@ class VesselDetailsFormSpec extends UnitSpec with FormMatchers {
     }
 
     "report an error when dateOfDeparture is before provided entry date" in {
-      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate))
+      val form =
+        CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate), Some(C1602))
       val input = exportFormInputFor(dateTime)
       form.bind(input).value shouldBe None
       form.bind(input).errors should haveOnlyErrors(
         FormError(
           "dateOfDeparture",
           Seq("subfieldFocus=day", "error.dateOfDeparture.all.invalid-value-before-entry-date")
+        )
+      )
+    }
+  }
+
+  "OptionalExportVesselDetailsForm for C1603 (arrival optional)" should {
+
+    val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(None, Some(C1603))
+
+    "return VesselDetails despite missing dateOfArrival" in {
+      val input =
+        exportArrivalFormInput
+          .updated("dateOfArrival.year", "")
+          .updated("dateOfArrival.month", "")
+          .updated("dateOfArrival.day", "")
+      val output = formOutput.copy(dateOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when dateOfArrival is partially missing" in {
+      val input = exportArrivalFormInput
+        .updated("dateOfArrival.year", "")
+        .updated("dateOfArrival.month", "")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.month.required"))
+      )
+    }
+
+    "report an error when dateOfArrival is invalid" in {
+      val input = exportArrivalFormInput
+        .updated("dateOfArrival.year", "202a")
+        .updated("dateOfArrival.month", "13")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyError(
+        FormError("dateOfArrival", Seq("subfieldFocus=month", "error.dateOfArrival.all.invalid-value"))
+      )
+    }
+
+    "return VesselDetails despite missing timeOfArrival" in {
+      val input = exportArrivalFormInput
+        .updated("timeOfArrival.hour", "")
+        .updated("timeOfArrival.minutes", "")
+      val output = formOutput.copy(timeOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when timeOfArrival is partially missing" in {
+      val input = exportArrivalFormInput
+        .updated("timeOfArrival.hour", "")
+        .updated("timeOfArrival.minutes", "")
+      val output = formOutput.copy(timeOfArrival = None)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe input
+    }
+
+    "report an error when timeOfArrival is invalid" in {
+      val input = exportArrivalFormInput
+        .updated("timeOfArrival.hour", "25")
+        .updated("timeOfArrival.minutes", "60")
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("timeOfArrival", Seq("subfieldFocus=hour", "error.timeOfArrival.hour.invalid-value"))
+      )
+    }
+
+    "report an error when dateOfArrival is more than 6 months in the past" in {
+      val input = exportFormInputForArrival(dateTime.minusMonths(6).minusDays(2))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "report an error when dateOfArrival is more than 6 months in the future" in {
+      val input = exportFormInputForArrival(dateTime.plusMonths(6).plusDays(1))
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError("dateOfArrival", Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-range"))
+      )
+    }
+
+    "bind input when dateOfArrival is after provided entry date" in {
+      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(
+        Some(dateTime.minusDays(1).toLocalDate),
+        Some(C1603)
+      )
+      val input = exportFormInputForArrival(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe exportArrivalFormInput
+    }
+
+    "bind input when dateOfArrival is equal to provided entry date" in {
+      val form = CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.toLocalDate), Some(C1603))
+      val input = exportFormInputForArrival(dateTime)
+      val output = formOutputFor(dateTime)
+      form.bind(input).value shouldBe Some(output)
+      form.fill(output).data shouldBe exportArrivalFormInput
+    }
+
+    "report an error when dateOfArrival is before provided entry date" in {
+      val form =
+        CreateCaseJourneyController.optionalExportVesselDetailsForm(Some(dateTime.plusDays(1).toLocalDate), Some(C1603))
+      val input = exportFormInputForArrival(dateTime)
+      form.bind(input).value shouldBe None
+      form.bind(input).errors should haveOnlyErrors(
+        FormError(
+          "dateOfArrival",
+          Seq("subfieldFocus=day", "error.dateOfArrival.all.invalid-value-before-entry-date")
         )
       )
     }

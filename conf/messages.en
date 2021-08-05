@@ -273,6 +273,15 @@ form.export-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900
 form.export-questions.continue=Continue
 form.export-questions.summary.continue=Submit
 
+form.export-questions.vessel-details.dateOfArrival=Date of arrival
+form.export-questions.vessel-details.timeOfArrival=Estimated time of arrival
+form.export-questions.vessel-details.timeOfArrival.hint=For example, 14:30
+form.export-questions.vessel-details.dateOfArrival.hint=For example, {0}
+
+form.export-questions.vessel-details.dateOfArrivalOptional=Date of arrival (optional)
+form.export-questions.vessel-details.timeOfArrivalOptional=Estimated time of arrival (optional)
+form.export-questions.vessel-details.timeOfArrivalOptional.hint=For example, 14:30
+
 error.exportRequestType.required=Select the type of export request
 error.exportRouteType.required=Select the route
 error.exportHasPriorityGoods.required=Select yes if you’re exporting priority goods
