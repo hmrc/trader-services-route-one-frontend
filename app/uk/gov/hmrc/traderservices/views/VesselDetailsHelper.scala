@@ -49,6 +49,32 @@ trait VesselDetailsHelper extends SummaryListRowHelper with DateTimeFormatHelper
       )
     )
 
+  def summaryListOfExportVesselDetailsForArrivalTypes(vesselDetails: VesselDetails, changeCall: Call)(implicit
+    messages: Messages
+  ): SummaryList =
+    SummaryList(
+      Seq(
+        summaryListRow(
+          label = "summary.vessel-details.vesselName",
+          value = vesselDetails.vesselName.getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.vesselName"),
+          action = (changeCall, "site.change")
+        ),
+        summaryListRow(
+          label = "summary.vessel-details.dateOfArrival",
+          value = vesselDetails.dateOfArrival.map(formatDateForDisplay).getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.dateOfArrival"),
+          action = (changeCall, "site.change")
+        ),
+        summaryListRow(
+          label = "summary.vessel-details.timeOfArrival",
+          value = vesselDetails.timeOfArrival.map(formatTimeForDisplay).getOrElse("-"),
+          visuallyHiddenText = Some("summary.vessel-details.timeOfArrival"),
+          action = (changeCall, "site.change")
+        )
+      )
+    )
+
   def summaryListOfImportVesselDetails(vesselDetails: VesselDetails, changeCall: Call)(implicit
     messages: Messages
   ): SummaryList =

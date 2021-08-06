@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import javax.inject.{Inject, Singleton}
-import play.api.data.Form
+import play.api.data.{Form, Mapping}
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
@@ -30,13 +30,16 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+
 import scala.concurrent.ExecutionContext
 import play.api.libs.json.Json
 import play.mvc.Http.HeaderNames
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
+
 import java.time.LocalDate
 import akka.actor.Scheduler
+
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
@@ -204,7 +207,9 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/export/transport-information-required
   final val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => mandatoryExportVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state =>
+        mandatoryExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state))
+      )
       .apply(Transitions.submittedExportQuestionsMandatoryVesselDetails)
 
   // GET /new/export/transport-information
@@ -216,7 +221,9 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/export/transport-information
   final val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindFormDerivedFromState(state => optionalExportVesselDetailsForm(extractArrivalDate(state)))
+      .bindFormDerivedFromState(state =>
+        optionalExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state))
+      )
       .apply(Transitions.submittedExportQuestionsOptionalVesselDetails)
 
   // GET /new/export/contact-information
@@ -778,27 +785,32 @@ class CreateCaseJourneyController @Inject() (
         )
 
       case AnswerExportQuestionsMandatoryVesselInfo(model) =>
+        val isArrivalRequestType = ExportRequestType.isArrivalRequestType(model.exportQuestionsAnswers.requestType)
         Ok(
           views.exportQuestionsMandatoryVesselDetailsView(
             formWithErrors
               .or(
-                mandatoryExportVesselDetailsForm(extractArrivalDate(state)),
+                mandatoryExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state)),
                 model.exportQuestionsAnswers.vesselDetails
               ),
             controller.submitExportQuestionsMandatoryVesselInfoAnswer,
+            isArrivalRequestType,
             backLinkFor(breadcrumbs)
           )
         )
 
       case AnswerExportQuestionsOptionalVesselInfo(model) =>
+        val isArrivalRequestType = ExportRequestType.isArrivalRequestType(model.exportQuestionsAnswers.requestType)
+
         Ok(
           views.exportQuestionsOptionalVesselDetailsView(
             formWithErrors
               .or(
-                optionalExportVesselDetailsForm(extractArrivalDate(state)),
+                optionalExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state)),
                 model.exportQuestionsAnswers.vesselDetails
               ),
             controller.submitExportQuestionsOptionalVesselInfoAnswer,
+            isArrivalRequestType,
             backLinkFor(breadcrumbs)
           )
         )
@@ -1181,6 +1193,12 @@ class CreateCaseJourneyController @Inject() (
       case _ => Future.successful(BadRequest)
     })
 
+  private val extractExportRequestType: State => Option[ExportRequestType] = {
+    case s: AnswerExportQuestionsMandatoryVesselInfo => s.model.exportQuestionsAnswers.requestType
+    case s: AnswerExportQuestionsOptionalVesselInfo  => s.model.exportQuestionsAnswers.requestType
+    case _                                           => None
+  }
+
   private val extractArrivalDate: State => Option[LocalDate] = {
     case s: State.HasEntryDetails => Some(s.entryDetails.entryDate)
     case _                        => None
@@ -1318,29 +1336,54 @@ object CreateCaseJourneyController {
       )(VesselDetails.apply)(VesselDetails.unapply)
     )
 
-  val MandatoryExportVesselDetailsForm = mandatoryExportVesselDetailsForm(None)
+  val MandatoryExportVesselDetailsForm = mandatoryExportVesselDetailsForm(None, None)
 
-  def mandatoryExportVesselDetailsForm(entryDate: Option[LocalDate]) =
+  def mandatoryExportVesselDetailsForm(entryDate: Option[LocalDate], exportRequestType: Option[ExportRequestType]) = {
+    val isArrivalExportType = ExportRequestType.isArrivalRequestType(exportRequestType)
+    val dateMapping =
+      if (isArrivalExportType)
+        "dateOfArrival" -> mandatoryDateOfArrivalMapping.verifying(dateOfArrivalRangeConstraint(entryDate))
+      else
+        "dateOfDeparture" -> mandatoryDateOfDepartureMapping.verifying(dateOfDepartureRangeConstraint(entryDate))
+    val timeMapping =
+      if (isArrivalExportType)
+        "timeOfArrival" -> mandatoryTimeOfArrivalMapping
+      else
+        "timeOfDeparture" -> mandatoryTimeOfDepartureMapping
+
     Form[VesselDetails](
       mapping(
         "vesselName" -> mandatoryVesselNameMapping,
-        "dateOfDeparture" -> mandatoryDateOfDepartureMapping
-          .verifying(dateOfDepartureRangeConstraint(entryDate)),
-        "timeOfDeparture" -> mandatoryTimeOfDepartureMapping
+        dateMapping,
+        timeMapping
       )(VesselDetails.apply)(VesselDetails.unapply)
     )
+  }
 
-  val OptionalExportVesselDetailsForm = optionalExportVesselDetailsForm(None)
+  val OptionalExportVesselDetailsForm = optionalExportVesselDetailsForm(None, None)
 
-  def optionalExportVesselDetailsForm(entryDate: Option[LocalDate]) =
+  def optionalExportVesselDetailsForm(entryDate: Option[LocalDate], exportRequestType: Option[ExportRequestType]) = {
+    val isArrivalExportType = ExportRequestType.isArrivalRequestType(exportRequestType)
+    val dateMapping =
+      if (isArrivalExportType)
+        "dateOfArrival" -> optionalDateOfArrivalMapping
+          .verifying(dateOfArrivalRangeConstraint(entryDate))
+      else
+        "dateOfDeparture" -> optionalDateOfDepartureMapping
+          .verifying(dateOfDepartureRangeConstraint(entryDate))
+    val timeMapping =
+      if (isArrivalExportType)
+        "timeOfArrival" -> optionalTimeOfArrivalMapping
+      else
+        "timeOfDeparture" -> optionalTimeOfDepartureMapping
     Form[VesselDetails](
       mapping(
         "vesselName" -> optionalVesselNameMapping,
-        "dateOfDeparture" -> optionalDateOfDepartureMapping
-          .verifying(dateOfDepartureRangeConstraint(entryDate)),
-        "timeOfDeparture" -> optionalTimeOfDepartureMapping
+        dateMapping,
+        timeMapping
       )(VesselDetails.apply)(VesselDetails.unapply)
     )
+  }
 
   val UploadAnotherFileChoiceForm = Form[Boolean](
     mapping("uploadAnotherFile" -> uploadAnotherFileMapping)(identity)(Option.apply)

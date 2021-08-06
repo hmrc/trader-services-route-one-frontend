@@ -1,22 +1,22 @@
 @*
- * Copyright 2021 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *@
-
+* Copyright 2021 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
 @import uk.gov.hmrc.traderservices.models.{EntryDetails, VesselDetails, ExportContactInfo, ExportQuestions, FileUploads}
 @import uk.gov.hmrc.traderservices.views.ExportQuestionsViewContext
 @import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
+@import uk.gov.hmrc.traderservices.models.ExportRequestType
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
@@ -26,36 +26,41 @@
 )
 
 @(entryDetails: EntryDetails, exportQuestions: ExportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
-
 @govukLayout(
-  pageTitle("view.export-questions.summary.title"),
-  backLink = Some(backLink.url)) {
+    pageTitle("view.export-questions.summary.title"),
+    backLink = Some(backLink.url)) {
 
-  @html.h1(messages("view.export-questions.summary.heading"))
+    @html.h1(messages("view.export-questions.summary.heading"))
 
-  @html.h2(messages("view.export-questions.summary.entry-information.heading"))
+    @html.h2(messages("view.export-questions.summary.entry-information.heading"))
 
-  @html.summaryList(context.summaryListOfEntryDetails(entryDetails))
+    @html.summaryList(context.summaryListOfEntryDetails(entryDetails))
 
-  @html.h2(messages("view.export-questions.summary.pre-clearance.heading"))
+    @html.h2(messages("view.export-questions.summary.pre-clearance.heading"))
 
-  @html.summaryList(context.summaryListOfExportQuestions(exportQuestions))
+    @html.summaryList(context.summaryListOfExportQuestions(exportQuestions))
 
-  @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
+    @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
 
-  @html.summaryList(context.summaryListOfExportVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
-    context.getChangeCallForVesselDetails(exportQuestions)))
+    @{
+        if(ExportRequestType.isArrivalRequestType(exportQuestions.requestType))
+            html.summaryList(context.summaryListOfExportVesselDetailsForArrivalTypes(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
+                context.getChangeCallForVesselDetails(exportQuestions)))
+        else
+            html.summaryList(context.summaryListOfExportVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
+                context.getChangeCallForVesselDetails(exportQuestions)))
+    }
 
-  @html.h2(messages("view.export-questions.summary.contact-details.heading"))
+    @html.h2(messages("view.export-questions.summary.contact-details.heading"))
 
-  @html.summaryList(context.summaryListOfExportContactDetails(exportQuestions.contactInfo,
-    CreateCaseJourneyController.showAnswerExportQuestionsContactInfo))
+    @html.summaryList(context.summaryListOfExportContactDetails(exportQuestions.contactInfo,
+        CreateCaseJourneyController.showAnswerExportQuestionsContactInfo))
 
-  @html.h2(messages("view.export-questions.summary.files-uploaded.heading")) 
+    @html.h2(messages("view.export-questions.summary.files-uploaded.heading"))
 
-  @html.summaryList(context.summaryListOfFileUploads(fileUploads,fileUploadLink))
+    @html.summaryList(context.summaryListOfFileUploads(fileUploads, fileUploadLink))
 
-  @forms.formWithCSRF(action = postAction) {
-    @html.button("form.export-questions.summary.continue", disableAfterClick=true)
-  }
+    @forms.formWithCSRF(action = postAction) {
+        @html.button("form.export-questions.summary.continue", disableAfterClick = true)
+    }
 }
