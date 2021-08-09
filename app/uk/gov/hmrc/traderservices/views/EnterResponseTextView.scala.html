@@ -5,7 +5,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*     http://www.apache.org/licenses/LICENSE-2.0
+* http://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,34 +13,31 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 *@
-
 @import uk.gov.hmrc.traderservices.models.EntryDetails
 
 @this(
-        govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 @(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@govukLayout2(
-    pageTitle("view.write-response-text.title",form),
-    backLink = Some(backLink.url),
-    mainContentClasses = "") {
 
-    <div class="govuk-grid-column-two-thirds">
-
-        @forms.errorSummary(form.errors)
-        <h1 class="govuk-heading-l">@messages("view.write-response-text.heading")</h1>
-        @forms.formWithCSRF(action = postAction) {
-            @forms.inputCharacterCount(
-                form("responseText"),
-                hint = Some(messages("view.write-response-text.hint")),
-                label ="",
-                maxLength = Some(1000)
-            )
-            @html.button("view.write-response-text.continue")
-        }
-    </div>
+@govukLayout(
+    pageTitle("view.write-response-text.title", form),
+    backLink = Some(backLink.url)) {
+    @forms.errorSummary(form.errors)
+    @forms.formWithCSRF(action = postAction) {
+        @forms.inputCharacterCount(
+            form("responseText"),
+            hint = Some(messages("view.write-response-text.hint")),
+            label = messages("view.write-response-text.heading"),
+            maxLength = Some(1000),
+            labelClasses="govuk-label--l"
+        )
+        @html.button("view.write-response-text.continue")
+    }
 }
+
+
 
