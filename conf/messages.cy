@@ -515,6 +515,7 @@ view.beta.howToUpload.paragraph3=Ni allwch uwchlwytho ffeiliau zip na dogfennau 
 view.beta.howToUpload.paragraph4=Os ydych eisoes wedi anfon eich dogfennau i’w clirio ac mae angen i chi ychwanegu gwybodaeth ychwanegol, mae’n rhaid bod gennych gyfeirnod yr achos. Byddwch wedi cael y rhif hwn pan gafodd yr achos ei greu gyntaf.
 view.beta.beforeYouStart=Cyn i chi ddechrau
 view.beta.beforeYouStart.paragraph1=Bydd angen Dynodydd Defnyddiwr (ID) a chyfrinair ar gyfer Porth y Llywodraeth arnoch. Os nad oes gennych Ddynodydd Defnyddiwr, gallwch greu un pan fyddwch yn anfon eich dogfennau atom i gael eu clirio drwy’r tollau.
+view.beta.beforeYouStart.paragraph2=Bydd angen i chi danysgrifio y tro cyntaf y byddwch yn defnyddio’r gwasanaeth hefyd.
 view.beta.beforeYouStart.startNow=Dechrau nawr
 view.beta.afterSendingDocuments=Ar ôl i chi anfon dogfennau ategol i CThEM
 view.beta.afterSendingDocuments.paragraph1=Ar ôl i chi gwblhau’r gwasanaeth, cewch wybod pryd y dylai’ch nwyddau gael eu clirio. Cewch wybod drwy’ch meddalwedd.
