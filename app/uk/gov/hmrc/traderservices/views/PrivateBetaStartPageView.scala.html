@@ -113,6 +113,7 @@
   @html.h2(messages("view.beta.beforeYouStart"), classes = "govuk-heading-m", optId = Option("before-you-start"))
 
   @html.p { @messages("view.beta.beforeYouStart.paragraph1") }
+  @html.p { @messages("view.beta.beforeYouStart.paragraph2") }
 
   <a href="@{routes.CreateCaseJourneyController.showStart.url}" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
     @messages("view.beta.beforeYouStart.startNow")
