@@ -90,6 +90,7 @@ view.entry-details.heading=Manylion y cofnod
 form.entry-details.epu=Rhif yr Uned Prosesu Cofnodion (EPU)
 form.entry-details.epu.hint=Mae hwn yn cynnwys 3 rhif, er enghraifft 121
 form.entry-details.entryNumber=Rhif y cofnod
+form.entry-details.entryNumber.hint=Er enghraifft, 123456A neu B12345B
 form.entry-details.entryDate=Dyddiad y cofnod
 form.entry-details.entryDate.hint=Er enghraifft, {0}
 form.entry-details.continue=Yn eich blaen

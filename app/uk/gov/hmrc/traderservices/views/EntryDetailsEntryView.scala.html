@@ -26,6 +26,10 @@
 
 @(form: Form[EntryDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@entryNumberHint = {
+@messages("form.entry-details.entryNumber.hint")
+}
+
 @govukLayout(
   pageTitle = pageTitle("view.entry-details.title",form),
   backLink = Some(backLink.url)) {
@@ -56,6 +60,7 @@
         form = form,
         id = "entryNumber",
         name = "entryNumber",
+        hint = Some(entryNumberHint),
         label = "form.entry-details.entryNumber",
         isPageHeading = false,
         isInFieldset = true,
