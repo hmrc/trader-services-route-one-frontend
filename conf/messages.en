@@ -145,6 +145,7 @@ view.entry-details.description=You can find these on your declaration.
 form.entry-details.epu=Entry Processing Unit (EPU) number
 form.entry-details.epu.hint=This is 3 numbers, for example 121
 form.entry-details.entryNumber=Entry number
+form.entry-details.entryNumber.hint=For example, 123456A or B12345B 
 form.entry-details.entryDate=Entry date
 form.entry-details.entryDate.hint=For example, {0}
 form.entry-details.continue=Continue
