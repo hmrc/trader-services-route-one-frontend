@@ -720,7 +720,7 @@ class CreateCaseJourneyController @Inject() (
           views.chooseNewOrExistingCaseView(
             formWithErrors.or(NewOrExistingCaseForm, newOrExistingCaseOpt),
             controller.submitNewOrExistingCaseChoice,
-            routes.PrivateBetaStartPageController.showPrivateBetaStart
+            routes.StartPageController.showGovUkStart
           )
         )
 

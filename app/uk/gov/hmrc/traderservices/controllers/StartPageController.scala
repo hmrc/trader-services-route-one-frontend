@@ -19,23 +19,17 @@ package uk.gov.hmrc.traderservices.controllers
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.traderservices.views.html.PrivateBetaStartPageView
+import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.Future
 
 @Singleton
-class PrivateBetaStartPageController @Inject() (
+class StartPageController @Inject() (
   controllerComponents: MessagesControllerComponents,
-  privateBetaStartPage: PrivateBetaStartPageView
+  config: AppConfig
 ) extends FrontendController(controllerComponents) {
 
-  val showPrivateBetaStart: Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(
-      Ok(
-        privateBetaStartPage(
-          routes.CreateCaseJourneyController.showChooseNewOrExistingCase
-        )
-      )
-    )
+  val showGovUkStart: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Redirect(config.govukStartUrl))
   }
 }

@@ -51,6 +51,7 @@ trait AppConfig {
   val authorisedServiceName: String
   val authorisedIdentifierKey: String
   val subscriptionJourneyUrl: String
+  val govukStartUrl: String
 
   val languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
@@ -151,4 +152,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val workingHourStart: Int = config.getInt("features.workingHours.start")
   override val workingHourEnd: Int = config.getInt("features.workingHours.end")
+
+  override val govukStartUrl: String = config.getString("govuk.start.url")
 }
