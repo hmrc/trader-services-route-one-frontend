@@ -415,7 +415,7 @@ view.create-case-confirmation.next.description.nosla=Pan fydd eich dull o drafni
 view.create-case-confirmation.next.description2=Os oes angen, gallwch <a class="govuk-link" href="{0}">anfon dogfennau am wiriad arall gan y tollau</a>.
 view.create-case-confirmation.next.cancellation=Bydd rhaid i chi nawr ganslo’r cofnod hwn yn y system CHIEF.
 view.create-case-confirmation.next.withdrawal=Bydd rhaid i chi nawr dynnu’r cofnod hwn yn ôl yn y system CHIEF.
-view.create-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+view.create-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/guidance/report-exports-that-arrived-or-left-a-uk-port-that-were-not-declared-in-chief">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.create-case-confirmation.print-receipts.heading=Argraffu neu gadw’ch derbynneb ar gyfer eich cofnodion
 view.create-case-confirmation.print-receipts.description=Bydd angen cyfeirnod eich achos arnoch os bydd angen i chi roi rhagor o wybodaeth.
 view.create-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
@@ -427,7 +427,7 @@ view.case-already-exists.title=Mae’r achos hwn wedi dod i law
 view.case-already-exists.heading=Mae’r achos hwn wedi dod i law
 view.case-already-exists.description.1=Diolch, mae achos {0} wedi dod i law. Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.case-already-exists.description.2=Gallwch <a class="govuk-link" href="{0}">ychwanegu rhagor o wybodaeth neu ddogfennau at yr achos sydd ohoni</a>. Bydd angen i chi roi cyfeirnod eich achos.
-view.case-already-exists.description.3=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+view.case-already-exists.description.3=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/guidance/report-exports-that-arrived-or-left-a-uk-port-that-were-not-declared-in-chief">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 
 view.case-reference-number.title=Beth yw cyfeirnod yr achos?
 view.case-reference-number.heading=Beth yw cyfeirnod yr achos?
@@ -465,7 +465,7 @@ view.amend-case-confirmation.next.description=Unwaith y bydd y gwaith o wirio’
 view.amend-case-confirmation.next.description2=Os oes angen, gallwch <a class="govuk-link" href="{0}">anfon dogfennau am wiriad arall gan y tollau</a>.
 view.amend-case-confirmation.info.heading=Os oes angen mwy o wybodaeth arnom
 view.amend-case-confirmation.info.description=Byddwn yn cysylltu â chi drwy’r system CHIEF neu drwy’ch meddalwedd datgan os oes angen arnom ragor o ddogfennau gennych chi.
-view.amend-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/government/publications/import-and-export-presentation-of-goods-for-export-arrival-c1601">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+view.amend-case-confirmation.footnote=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/guidance/report-exports-that-arrived-or-left-a-uk-port-that-were-not-declared-in-chief">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
 view.amend-case-confirmation.feedback=Rhoi adborth ar y gwasanaeth hwn
 view.amend-case-confirmation.sendAnother.heading=Angen anfon dogfennau ar gyfer achos arall?
 view.amend-case-confirmation.sendAnother.button=Anfon dogfennau ar gyfer gwiriad arall gan y tollau
