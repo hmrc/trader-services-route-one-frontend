@@ -551,3 +551,8 @@ skip.link=Ewch yn syth i‘r prif gynnwys
 
 view.timedout.dialog.message=Er eich diogelwch, byddwn yn eich allgofnodi cyn pen
 view.timedout.dialog.message.suffix=Ni fyddwn yn cadw’ch atebion.
+
+view.missing-information.title=Mae peth o’ch gwybodaeth ar goll
+view.missing-information.heading=Mae peth o’ch gwybodaeth ar goll
+view.missing-information.description=Nid ydych wedi nodi’r holl wybodaeth sydd ei hangen arnom er mwyn prosesu’ch gwiriad tollau. Llenwch unrhyw wybodaeth sydd ar goll.
+view.missing-information.continue=Llenwch eich gwybodaeth
