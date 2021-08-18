@@ -44,4 +44,5 @@ case class TestAppConfig(
 
   override val workingHourEnd: Int = 8
   override val workingHourStart: Int = 16
+  override val govukStartUrl: String = wireMockBaseUrl + "/dummy-start-url"
 }
