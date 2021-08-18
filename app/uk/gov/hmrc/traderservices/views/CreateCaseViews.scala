@@ -50,5 +50,6 @@ class CreateCaseViews @Inject() (
   val createCaseConfirmationView: CreateCaseConfirmationView,
   val createCaseConfirmationReceiptView: CreateCaseConfirmationReceiptView,
   val caseAlreadyExistsView: CaseAlreadyExistsView,
-  val missingInformationErrorView: MissingInformationErrorView
+  val missingInformationErrorView: MissingInformationErrorView,
+  val caseAlreadySubmittedView: CaseAlreadySubmittedView
 )

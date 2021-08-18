@@ -123,6 +123,7 @@ object CreateCaseJourneyStateFormats
       case "UploadMultipleFiles"                    => uploadMultipleFilesFormat.reads(properties)
       case "CreateCaseConfirmation"                 => createCaseConfirmationFormat.reads(properties)
       case "CaseAlreadyExists"                      => caseAlreadyExistsFormat.reads(properties)
+      case "CaseAlreadySubmitted"                   => JsSuccess(CaseAlreadySubmitted)
       case "WorkInProgressDeadEnd"                  => JsSuccess(WorkInProgressDeadEnd)
       case _                                        => JsError(s"Unknown state name $stateName")
     }

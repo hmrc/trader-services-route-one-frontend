@@ -373,6 +373,12 @@ class AmendCaseJourneyController @Inject() (
     whenAuthorisedAsUser.showCurrentState
       .displayAsyncUsing(renderConfirmationReceiptPdf)
 
+  // GET /add/case-already-submitted
+  final val showAmendCaseAlreadySubmitted: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AmendCaseAlreadySubmitted.type]
+      .orRollback
+
   /**
     * Function from the `State` to the `Call` (route),
     * used by play-fsm internally to create redirects.
@@ -411,6 +417,9 @@ class AmendCaseJourneyController @Inject() (
 
       case _: AmendCaseMissingInformationError =>
         controller.showAmendCaseMissingInformationError
+
+      case AmendCaseAlreadySubmitted =>
+        controller.showAmendCaseAlreadySubmitted
 
       case _ =>
         workInProgresDeadEndCall
@@ -554,6 +563,13 @@ class AmendCaseJourneyController @Inject() (
             controller.downloadAmendCaseConfirmationReceiptAsPdf(
               s"Document_receipt_$caseReferenceNumber.pdf"
             ),
+            routes.CreateCaseJourneyController.showStart
+          )
+        )
+
+      case AmendCaseAlreadySubmitted =>
+        Ok(
+          views.caseAlreadySubmittedView(
             routes.CreateCaseJourneyController.showStart
           )
         )

@@ -2181,7 +2181,7 @@ class CreateCaseJourneyISpec
         journey.getState shouldBe state
       }
 
-      "stay at the confirmation page if in CreateCaseConfirmation state" in {
+      "goto CaseAlreadySubmitted if in CreateCaseConfirmation state" in {
 
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
@@ -2207,22 +2207,16 @@ class CreateCaseJourneyISpec
         val result1 = await(request("/new/export/check-your-answers").get)
 
         result1.status shouldBe 200
-        result1.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
-        result1.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
-        result1.body should include(
-          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
-        )
+        result1.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
+        result1.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
         val result2 = await(request("/new/import/check-your-answers").get)
 
         result2.status shouldBe 200
-        result2.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
-        result2.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
-        result2.body should include(
-          s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
-        )
+        result2.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
+        result2.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
-        journey.getState shouldBe state
+        journey.getState shouldBe CaseAlreadySubmitted
       }
     }
 

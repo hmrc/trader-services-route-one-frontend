@@ -298,6 +298,8 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
       caseReferenceId: String
     ) extends EndState
 
+    final case object CaseAlreadySubmitted extends State
+
   }
 
   /**
@@ -787,6 +789,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val toSummary =
       Transition {
+        case state: CreateCaseConfirmation =>
+          goto(CaseAlreadySubmitted)
+
         case state: FileUploadState =>
           state.hostData.questionsAnswers match {
             case exportQuestionsAnswers: ExportQuestions =>

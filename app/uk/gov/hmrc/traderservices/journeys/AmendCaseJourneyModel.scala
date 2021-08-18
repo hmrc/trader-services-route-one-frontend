@@ -69,6 +69,8 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       model: AmendCaseModel,
       result: TraderServicesResult
     ) extends State
+
+    final case object AmendCaseAlreadySubmitted extends State
   }
 
   /** This is where things happen a.k.a bussiness logic of the service. */
@@ -218,6 +220,9 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val toAmendSummary =
       Transition {
+        case state: AmendCaseConfirmation =>
+          goto(AmendCaseAlreadySubmitted)
+
         case current: FileUploadState =>
           val updatedModel = current.hostData.copy(fileUploads = Some(current.fileUploads))
           goto(AmendCaseSummary(updatedModel))

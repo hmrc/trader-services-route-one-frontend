@@ -4138,7 +4138,29 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when start should thenGo(Start)
       }
 
-      "go to clean EnterEntryDetails when going back" in {
+      "go to clean CaseAlreadySubmitted when browser back" in {
+        given(
+          CreateCaseConfirmation(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "foo",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
+          )
+        ) when toSummary should thenGo(CaseAlreadySubmitted)
+      }
+
+      "go to clean EnterEntryDetails when going back to entry details" in {
         given(
           CreateCaseConfirmation(
             importEntryDetails,

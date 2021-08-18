@@ -428,6 +428,10 @@ view.case-already-exists.heading=Mae’r achos hwn wedi dod i law
 view.case-already-exists.description.1=Diolch, mae achos {0} wedi dod i law. Byddwch yn clywed gennym drwy’r system CHIEF neu drwy’ch meddalwedd datgan.
 view.case-already-exists.description.2=Gallwch <a class="govuk-link" href="{0}">ychwanegu rhagor o wybodaeth neu ddogfennau at yr achos sydd ohoni</a>. Bydd angen i chi roi cyfeirnod eich achos.
 view.case-already-exists.description.3=Darllenwch ragor am <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu"> gael eich nwyddau wedi’u clirio gan y Ganolfan Glirio Genedlaethol</a> yn ogystal â <a class="govuk-link" href="https://www.gov.uk/guidance/report-exports-that-arrived-or-left-a-uk-port-that-were-not-declared-in-chief">chyrraedd a gadael pan nad yw’r system CHIEF ar gael</a>.
+view.case-already-submitted.title=Mae’ch gwybodaeth eisoes wedi’i chyflwyno
+view.case-already-submitted.heading=Mae’ch gwybodaeth eisoes wedi’i chyflwyno
+view.case-already-submitted.description=Mae’r wybodaeth ar gyfer eich gwiriad tollau eisoes wedi dod i law.
+view.case-already-submitted.button=Anfon dogfennau ar gyfer gwiriad arall gan y tollau
 
 view.case-reference-number.title=Beth yw cyfeirnod yr achos?
 view.case-reference-number.heading=Beth yw cyfeirnod yr achos?

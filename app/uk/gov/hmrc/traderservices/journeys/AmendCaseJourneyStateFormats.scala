@@ -65,8 +65,9 @@ object AmendCaseJourneyStateFormats
         amendCaseMissingInformationErrorFormat.reads(properties)
       case "UploadMultipleFiles" =>
         uploadMultipleFilesFormat.reads(properties)
-      case "AmendCaseConfirmation" => amendCaseConfirmationFormat.reads(properties)
-      case "WorkInProgressDeadEnd" => JsSuccess(WorkInProgressDeadEnd)
-      case _                       => JsError(s"Unknown state name $stateName")
+      case "AmendCaseConfirmation"     => amendCaseConfirmationFormat.reads(properties)
+      case "AmendCaseAlreadySubmitted" => JsSuccess(AmendCaseAlreadySubmitted)
+      case "WorkInProgressDeadEnd"     => JsSuccess(WorkInProgressDeadEnd)
+      case _                           => JsError(s"Unknown state name $stateName")
     }
 }
