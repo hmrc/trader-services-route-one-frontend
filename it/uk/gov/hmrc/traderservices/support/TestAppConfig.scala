@@ -8,7 +8,8 @@ case class TestAppConfig(
   wireMockBaseUrl: String,
   wireMockPort: Int,
   val uploadMultipleFilesFeature: Boolean,
-  val requireEnrolmentFeature: Boolean
+  val requireEnrolmentFeature: Boolean,
+  val requireOptionalTransportFeature: Boolean
 ) extends AppConfig {
 
   override val appName: String = "trader-services-frontend"

@@ -40,15 +40,17 @@
 
     @html.summaryList(context.summaryListOfExportQuestions(exportQuestions))
 
-    @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
+    @if(exportQuestions.vesselDetails.nonEmpty) {
+        @html.h2(messages("view.export-questions.summary.vessel-details.heading"))
 
-    @{
-        if(ExportRequestType.isArrivalRequestType(exportQuestions.requestType))
-            html.summaryList(context.summaryListOfExportVesselDetailsForArrivalTypes(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
-                context.getChangeCallForVesselDetails(exportQuestions)))
-        else
-            html.summaryList(context.summaryListOfExportVesselDetails(exportQuestions.vesselDetails.getOrElse(VesselDetails()),
-                context.getChangeCallForVesselDetails(exportQuestions)))
+        @{
+            if(ExportRequestType.isArrivalRequestType(exportQuestions.requestType))
+                html.summaryList(context.summaryListOfExportVesselDetailsForArrivalTypes(exportQuestions.vesselDetails.get,
+                    context.getChangeCallForVesselDetails(exportQuestions)))
+            else
+                html.summaryList(context.summaryListOfExportVesselDetails(exportQuestions.vesselDetails.get,
+                    context.getChangeCallForVesselDetails(exportQuestions)))
+        }
     }
 
     @html.h2(messages("view.export-questions.summary.contact-details.heading"))

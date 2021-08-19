@@ -21,6 +21,7 @@ abstract class BaseISpec
 
   val uploadMultipleFilesFeature: Boolean = false
   val requireEnrolmentFeature: Boolean = true
+  val requireOptionalTransportFeature: Boolean = false
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -37,7 +38,13 @@ abstract class BaseISpec
       .overrides(
         bind[AppConfig]
           .toInstance(
-            TestAppConfig(wireMockBaseUrlAsString, wireMockPort, uploadMultipleFilesFeature, requireEnrolmentFeature)
+            TestAppConfig(
+              wireMockBaseUrlAsString,
+              wireMockPort,
+              uploadMultipleFilesFeature,
+              requireEnrolmentFeature,
+              requireOptionalTransportFeature
+            )
           )
       )
 

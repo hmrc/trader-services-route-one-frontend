@@ -36,9 +36,12 @@ import scala.util.Try
 class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
 
   import scala.concurrent.duration._
+
   override implicit val defaultTimeout: FiniteDuration = 60 seconds
+
   // dummy journey context
   case class DummyContext()
+
   implicit val dummyContext: DummyContext = DummyContext()
 
   "CreateCaseJourneyModel" when {
@@ -268,7 +271,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         s"go to AnswerExportQuestionsRouteType when submitted request type ${ExportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportEntryDetails, ExportQuestions()))
-          ) when submittedExportQuestionsAnswerRequestType(
+          ) when submittedExportQuestionsAnswerRequestType(false)(
             requestType
           ) should thenGo(
             AnswerExportQuestionsRouteType(
@@ -286,7 +289,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerRequestType(
+          ) when submittedExportQuestionsAnswerRequestType(true)(
             requestType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -349,7 +352,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ExportQuestions(requestType = Some(ExportRequestType.New))
               )
             )
-          ) when submittedExportQuestionsAnswerRouteType(
+          ) when submittedExportQuestionsAnswerRouteType(false)(
             routeType
           ) should thenGo(
             AnswerExportQuestionsHasPriorityGoods(
@@ -361,7 +364,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ExportQuestionsSummary when submitted route ${ExportRouteType.keyOf(routeType).get} and all answers are complete" in {
+        s"go to ExportQuestionsSummary when submitted route ${ExportRouteType.keyOf(routeType).get} and all answers are complete and optional transport feature enabled" in {
           given(
             AnswerExportQuestionsRouteType(
               ExportQuestionsStateModel(
@@ -370,7 +373,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerRouteType(
+          ) when submittedExportQuestionsAnswerRouteType(true)(
             routeType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -383,7 +386,27 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
       }
-
+      s"go to ExportQuestionsSummary when submitted route type HOLD and all answers are complete" in {
+        given(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers.copy(routeType = Some(ExportRouteType.Hold)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedExportQuestionsAnswerRouteType(false)(
+          ExportRouteType.Route1
+        ) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers.copy(routeType = Some(ExportRouteType.Route1), vesselDetails = None),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )
+      }
     }
 
     "at state AnswerExportQuestionsHasPriorityGoods" should {
@@ -541,7 +564,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       ) {
         s"go to AnswerExportQuestionsOptionalVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
-          .get}" in {
+          .get} and require optional transport feature is turned on" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -553,7 +576,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(true)(
             freightType
           ) should thenGo(
             AnswerExportQuestionsOptionalVesselInfo(
@@ -569,7 +592,36 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
-
+        s"go to AnswerExportQuestionsContactInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
+          .keyOf(requestType)
+          .get} and optional transport feature is turned off" in {
+          given(
+            AnswerExportQuestionsFreightType(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks)
+                )
+              )
+            )
+          ) when submittedExportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            AnswerExportQuestionsContactInfo(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                ExportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ExportRouteType.Route3),
+                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                  freightType = Some(freightType)
+                )
+              )
+            )
+          )
+        }
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
           .get}, and all answers are complete" in {
@@ -581,7 +633,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -613,7 +665,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
@@ -641,7 +693,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -673,7 +725,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             AnswerExportQuestionsMandatoryVesselInfo(
@@ -704,7 +756,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedExportQuestionsAnswerFreightType(
+          ) when submittedExportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             ExportQuestionsSummary(
@@ -1170,7 +1222,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 ImportQuestions(requestType = Some(ImportRequestType.New))
               )
             )
-          ) when submittedImportQuestionsAnswerRouteType(
+          ) when submittedImportQuestionsAnswerRouteType(true)(
             routeType
           ) should thenGo(
             AnswerImportQuestionsHasPriorityGoods(
@@ -1182,7 +1234,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ImportQuestionsSummary when submitted route ${ImportRouteType.keyOf(routeType).get} and all answers are complete" in {
+        s"go to ImportQuestionsSummary when submitted route ${ImportRouteType.keyOf(routeType).get} and all answers are complete and optional transport page is enabled" in {
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
@@ -1191,7 +1243,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerRouteType(
+          ) when submittedImportQuestionsAnswerRouteType(true)(
             routeType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1203,7 +1255,27 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
-
+      }
+      s"go to ImportQuestionsSummary when submitted route type is HOLD and all answers are complete" in {
+        given(
+          AnswerImportQuestionsRouteType(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Hold)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedImportQuestionsAnswerRouteType(false)(
+          ImportRouteType.Route1
+        ) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Route1), vesselDetails = None),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )
       }
     }
 
@@ -1463,7 +1535,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       ) {
         s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
           .keyOf(requestType)
-          .get}" in {
+          .get} and optional transport feature is turned on" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -1475,10 +1547,41 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(
+          ) when submittedImportQuestionsAnswerFreightType(true)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsOptionalVesselInfo(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          )
+        }
+
+        s"go to AnswerImportQuestionsContactInfo when submitted freight type when freightType is ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
+          .keyOf(requestType)
+          .get} and optional transport feature is turned off" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route3),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsContactInfo(
               ImportQuestionsStateModel(
                 importEntryDetails,
                 ImportQuestions(
@@ -1503,7 +1606,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(
+          ) when submittedImportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             ImportQuestionsSummary(
@@ -1536,7 +1639,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 )
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(
+          ) when submittedImportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             AnswerImportQuestionsMandatoryVesselInfo(
@@ -1564,7 +1667,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
                 Some(nonEmptyFileUploads)
               )
             )
-          ) when submittedImportQuestionsAnswerFreightType(
+          ) when submittedImportQuestionsAnswerFreightType(false)(
             freightType
           ) should thenGo(
             ImportQuestionsSummary(
