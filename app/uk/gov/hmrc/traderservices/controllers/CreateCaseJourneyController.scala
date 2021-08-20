@@ -589,9 +589,15 @@ class CreateCaseJourneyController @Inject() (
       .displayAsyncUsing(renderConfirmationReceiptPdf)
 
   // GET /new/case-already-exists
-  final def showCaseAlreadyExists: Action[AnyContent] =
+  final val showCaseAlreadyExists: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.CaseAlreadyExists]
+      .orRollback
+
+  // GET /new/case-already-submitted
+  final val showCaseAlreadySubmitted: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.CaseAlreadySubmitted.type]
       .orRollback
 
   /**
@@ -695,6 +701,9 @@ class CreateCaseJourneyController @Inject() (
 
       case _: CaseAlreadyExists =>
         controller.showCaseAlreadyExists
+
+      case CaseAlreadySubmitted =>
+        controller.showCaseAlreadySubmitted
 
       case _ =>
         workInProgresDeadEndCall
@@ -1034,6 +1043,13 @@ class CreateCaseJourneyController @Inject() (
           views.caseAlreadyExistsView(
             caseReferenceId,
             routes.AmendCaseJourneyController.showStart
+          )
+        )
+
+      case CaseAlreadySubmitted =>
+        Ok(
+          views.caseAlreadySubmittedView(
+            routes.CreateCaseJourneyController.showStart
           )
         )
 

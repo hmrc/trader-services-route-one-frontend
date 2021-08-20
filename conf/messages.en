@@ -524,6 +524,11 @@ view.case-already-exists.description.1=Thank you, we’ve received case {0}. You
 view.case-already-exists.description.2=You can <a class="govuk-link" href="{0}">add more information or documents to the existing case</a>. You’ll need to give your case reference number.
 view.case-already-exists.description.3=Read more about <a class="govuk-link" href="https://www.gov.uk/guidance/national-clearance-hub-for-goods-entering-leaving-or-transiting-the-eu">getting your goods cleared by the National Clearance Hub</a> and <a class="govuk-link" href="https://www.gov.uk/guidance/report-exports-that-arrived-or-left-a-uk-port-that-were-not-declared-in-chief">arrival and exit when CHIEF is not available</a>.
 
+view.case-already-submitted.title=Your information has already been submitted
+view.case-already-submitted.heading=Your information has already been submitted
+view.case-already-submitted.description=We’ve already received the information for your customs check.
+view.case-already-submitted.button=Send documents for another customs check
+
 # Amend journey
 # ----------------------------------------------------------
 view.case-reference-number.title=What’s the case reference number?

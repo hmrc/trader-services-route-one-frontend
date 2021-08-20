@@ -2208,6 +2208,24 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) shouldFailWhen amendCase(updateCaseApi)(uidAndEori)
       }
     }
+
+    "at state AmendConfirmation" should {
+      "goto CaseAlreadySubmitted when browser back" in {
+        val responseText = Random.alphanumeric.take(1000).mkString
+        val model = AmendCaseModel(
+          responseText = Some(responseText),
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
+        given(
+          AmendCaseConfirmation(
+            Seq.empty,
+            model,
+            TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
+          )
+        ) when toAmendSummary should thenGo(AmendCaseAlreadySubmitted)
+      }
+    }
   }
 
   case class given[S <: State: ClassTag](initialState: S)

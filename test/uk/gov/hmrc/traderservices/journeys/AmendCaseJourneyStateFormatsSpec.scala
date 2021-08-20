@@ -308,6 +308,11 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
           )
         )
       )
+
+      validateJsonFormat(
+        """{"state":"AmendCaseAlreadySubmitted"}""".stripMargin,
+        State.AmendCaseAlreadySubmitted
+      )
     }
 
     "throw an exception when unknown state" in {

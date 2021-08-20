@@ -1,0 +1,42 @@
+@*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
+
+@this(
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        forms: uk.gov.hmrc.traderservices.views.components.forms,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        appConfig: AppConfig
+)
+
+@(restartCall: Call)(implicit request: Request[_], messages: Messages)
+
+@govukLayout(
+  pageTitle("view.case-already-submitted.title"),
+  backLink = None) {
+
+    @html.h1("view.case-already-submitted.heading")
+
+    @html.p {
+      @messages("view.case-already-submitted.description")
+    }
+
+    <a href="@{restartCall.url}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
+        @messages("view.case-already-submitted.button")
+    </a>
+
+}
