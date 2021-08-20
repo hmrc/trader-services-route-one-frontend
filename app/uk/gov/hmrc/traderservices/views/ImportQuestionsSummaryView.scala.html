@@ -41,11 +41,12 @@
 
   @html.summaryList(context.summaryListOfImportQuestions(importQuestions))
 
-  @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
+  @if(importQuestions.vesselDetails.nonEmpty) {
+      @html.h2(messages("view.import-questions.summary.vessel-details.heading"))
 
-  @html.summaryList(context.summaryListOfImportVesselDetails(importQuestions.vesselDetails.getOrElse(VesselDetails()),
-    context.getChangeCallForVesselDetails(importQuestions)))
-
+      @html.summaryList(context.summaryListOfImportVesselDetails(importQuestions.vesselDetails.get,
+          context.getChangeCallForVesselDetails(importQuestions)))
+  }
   @html.h2(messages("view.import-questions.summary.contact-details.heading"))
 
   @html.summaryList(context.summaryListOfImportContactDetails(importQuestions.contactInfo,

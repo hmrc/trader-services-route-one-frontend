@@ -148,7 +148,7 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ExportRequestTypeForm)
-      .apply(Transitions.submittedExportQuestionsAnswerRequestType)
+      .apply(Transitions.submittedExportQuestionsAnswerRequestType(appConfig.requireOptionalTransportFeature))
 
   // GET /new/export/route-type
   final val showAnswerExportQuestionsRouteType: Action[AnyContent] =
@@ -160,7 +160,7 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ExportRouteTypeForm)
-      .apply(Transitions.submittedExportQuestionsAnswerRouteType)
+      .apply(Transitions.submittedExportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
 
   // GET /new/export/has-priority-goods
   final val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -196,7 +196,7 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ExportFreightTypeForm)
-      .apply(Transitions.submittedExportQuestionsAnswerFreightType)
+      .apply(Transitions.submittedExportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature))
 
   // GET /new/export/transport-information-required
   final val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
@@ -278,7 +278,7 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ImportRouteTypeForm)
-      .apply(Transitions.submittedImportQuestionsAnswerRouteType)
+      .apply(Transitions.submittedImportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
 
   // GET /new/import/has-priority-goods
   final val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -326,7 +326,7 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
       .bindForm(ImportFreightTypeForm)
-      .apply(Transitions.submittedImportQuestionsAnswerFreightType)
+      .apply(Transitions.submittedImportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature))
 
   // GET /new/import/transport-information-required
   final val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =

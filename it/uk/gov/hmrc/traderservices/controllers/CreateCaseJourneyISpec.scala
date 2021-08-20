@@ -619,7 +619,7 @@ class CreateCaseJourneyISpec
     }
 
     "POST /new/export/transport-type" should {
-      "submit selected RORO transport type without C1601 and ask next for optional vessel details" in {
+      "submit selected RORO transport type without C1601 and ask next for contact info" in {
 
         journey.setState(
           AnswerExportQuestionsFreightType(
@@ -640,10 +640,10 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
-        journey.getState shouldBe AnswerExportQuestionsOptionalVesselInfo(
+        journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), today),
             ExportQuestions(
@@ -1475,7 +1475,7 @@ class CreateCaseJourneyISpec
     }
 
     "POST /new/import/transport-type" should {
-      "submit selected transport type and ask next for optional vessel details" in {
+      "submit selected transport type and ask next for contact info" in {
 
         journey.setState(
           AnswerImportQuestionsFreightType(
@@ -1496,7 +1496,7 @@ class CreateCaseJourneyISpec
 
         result.status shouldBe 200
 
-        journey.getState shouldBe AnswerImportQuestionsOptionalVesselInfo(
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("211111X"), today),
             ImportQuestions(
