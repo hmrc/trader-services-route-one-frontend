@@ -339,6 +339,32 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
+      s"go to ExportQuestionsSummary when submitted request type C1601 with vessel details and all answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+
+        given(
+          AnswerExportQuestionsRequestType(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers
+                .copy(requestType = Some(ExportRequestType.C1601), vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedExportQuestionsAnswerRequestType(false)(
+          ExportRequestType.C1602
+        ) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers
+                .copy(requestType = Some(ExportRequestType.C1602), vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )
+      }
 
     }
 
@@ -402,6 +428,32 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsStateModel(
               exportEntryDetails,
               completeExportQuestionsAnswers.copy(routeType = Some(ExportRouteType.Route1), vesselDetails = None),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )
+      }
+      s"go to ExportQuestionsSummary when submitted route type HOLD with vessel details and all answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+
+        given(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers
+                .copy(routeType = Some(ExportRouteType.Hold), vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedExportQuestionsAnswerRouteType(false)(
+          ExportRouteType.Hold
+        ) should thenGo(
+          ExportQuestionsSummary(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers
+                .copy(routeType = Some(ExportRouteType.Hold), vesselDetails = Some(vesselDetails)),
               Some(nonEmptyFileUploads)
             )
           )
@@ -1277,6 +1329,33 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+      s"go to ImportQuestionsSummary when submitted route type HOLD with vessel details and all answers are complete" in {
+        val vesselDetails =
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+
+        given(
+          AnswerImportQuestionsRouteType(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers
+                .copy(routeType = Some(ImportRouteType.Hold), vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ) when submittedImportQuestionsAnswerRouteType(false)(
+          ImportRouteType.Hold
+        ) should thenGo(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers
+                .copy(routeType = Some(ImportRouteType.Hold), vesselDetails = Some(vesselDetails)),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )
+      }
+
     }
 
     "at state AnswerImportQuestionsHasPriorityGoods" should {

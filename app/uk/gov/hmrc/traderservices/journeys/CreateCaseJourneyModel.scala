@@ -22,7 +22,9 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesCreateCaseRequest, TraderServicesResult}
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules.isVesselDetailsAnswerMandatory
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+
 import scala.util.Success
 import scala.util.Failure
 
@@ -442,7 +444,9 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model
                 .updated(
                   updatedExportQuestions.copy(vesselDetails =
-                    if (requireOptionalTransportPage) model.exportQuestionsAnswers.vesselDetails else None
+                    if (requireOptionalTransportPage || isVesselDetailsAnswerMandatory(updatedExportQuestions))
+                      model.exportQuestionsAnswers.vesselDetails
+                    else None
                   )
                 )
             )
@@ -465,7 +469,14 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.updated(
                 model.exportQuestionsAnswers.copy(
                   routeType = Some(exportRouteType),
-                  vesselDetails = if (requireOptionalTransportPage) model.exportQuestionsAnswers.vesselDetails else None
+                  vesselDetails =
+                    if (
+                      requireOptionalTransportPage || isVesselDetailsAnswerMandatory(
+                        model.exportQuestionsAnswers.copy(routeType = Some(exportRouteType))
+                      )
+                    )
+                      model.exportQuestionsAnswers.vesselDetails
+                    else None
                 )
               )
             )
@@ -662,7 +673,14 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.updated(
                 model.importQuestionsAnswers.copy(
                   routeType = Some(importRouteType),
-                  vesselDetails = if (requireOptionalTransportPage) model.importQuestionsAnswers.vesselDetails else None
+                  vesselDetails =
+                    if (
+                      requireOptionalTransportPage || isVesselDetailsAnswerMandatory(
+                        model.importQuestionsAnswers.copy(routeType = Some(importRouteType))
+                      )
+                    )
+                      model.importQuestionsAnswers.vesselDetails
+                    else None
                 )
               )
             )
