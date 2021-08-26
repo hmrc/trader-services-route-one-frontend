@@ -369,7 +369,7 @@ class CreateCaseJourneyISpec
         )
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("routeType" -> "Route3")
+        val payload = Map("routeType" -> "Route2")
 
         val result = await(request("/new/export/route-type").post(payload))
 
@@ -379,7 +379,65 @@ class CreateCaseJourneyISpec
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
-            ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route3))
+            ExportQuestions(requestType = Some(ExportRequestType.C1602), routeType = Some(ExportRouteType.Route2))
+          )
+        )
+      }
+
+      "submit the form and ask next for explanation when route type requires mandatory explanation for export" in {
+
+        journey.setState(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              EntryDetails(EPU(235), EntryNumber("A11111X"), today),
+              ExportQuestions(requestType = Some(ExportRequestType.New))
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Route3")
+
+        val result = await(request("/new/export/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe AnswerExportQuestionsExplanation(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("A11111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.New),
+              routeType = Some(ExportRouteType.Route3)
+            )
+          )
+        )
+      }
+      "submit the form and ask next for explanation when request type requires mandatory explanation for export" in {
+        journey.setState(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              EntryDetails(EPU(235), EntryNumber("A11111X"), today),
+              ExportQuestions(requestType = Some(ExportRequestType.Cancellation))
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Route2")
+
+        val result = await(request("/new/export/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe AnswerExportQuestionsExplanation(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("A11111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route2)
+            )
           )
         )
       }
@@ -405,7 +463,6 @@ class CreateCaseJourneyISpec
         journey.getState shouldBe state
       }
     }
-
     "GET /new/export/has-priority-goods" should {
       "show the export has priority goods page" in {
 
@@ -1227,7 +1284,7 @@ class CreateCaseJourneyISpec
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
               EntryDetails(EPU(444), EntryNumber("011111X"), today),
-              ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
+              ImportQuestions(requestType = Some(ImportRequestType.New))
             )
           )
         )
@@ -1244,11 +1301,260 @@ class CreateCaseJourneyISpec
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
             ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+      }
+      "submit the form and ask next for explanation when route type requires mandatory explanation for import" in {
+
+        journey.setState(
+          AnswerImportQuestionsRouteType(
+            ImportQuestionsStateModel(
+              EntryDetails(EPU(444), EntryNumber("011111X"), today),
+              ImportQuestions(requestType = Some(ImportRequestType.New))
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Route3")
+
+        val result = await(request("/new/import/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe AnswerImportQuestionsExplanation(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(444), EntryNumber("011111X"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Route3)
+            )
+          )
+        )
+      }
+      "submit the form and ask next for explanation when request type requires mandatory explanation for import" in {
+
+        journey.setState(
+          AnswerImportQuestionsRouteType(
+            ImportQuestionsStateModel(
+              EntryDetails(EPU(444), EntryNumber("011111X"), today),
+              ImportQuestions(requestType = Some(ImportRequestType.Cancellation))
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("routeType" -> "Route6")
+
+        val result = await(request("/new/import/route-type").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe AnswerImportQuestionsExplanation(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(444), EntryNumber("011111X"), today),
+            ImportQuestions(
               requestType = Some(ImportRequestType.Cancellation),
               routeType = Some(ImportRouteType.Route6)
             )
           )
         )
+      }
+    }
+
+    "GET /new/export/explanation" should {
+      "show the explanation page in the export journey" in {
+
+        val state = AnswerExportQuestionsExplanation(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(110), EntryNumber("911111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route6)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/export/explanation").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "POST /new/export/explanation" should {
+
+      "submit no explanation and re-display the form page with error" in {
+
+        val state = AnswerExportQuestionsExplanation(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route6)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("explanationText" -> "")
+        val result = await(request("/new/export/explanation").post(payload))
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+
+      "submit invalid text length explanation and re-display the form page with error for export" in {
+        val explanationText = Random.alphanumeric.take(1025).mkString
+        val state = AnswerExportQuestionsExplanation(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route6),
+              explanation = Some(explanationText)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val payload = Map("explanationText" -> explanationText)
+        val result = await(request("/new/export/explanation").post(payload))
+
+        result.status shouldBe 200
+
+        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+
+      "ask for export has priority goods question" in {
+        val state = AnswerExportQuestionsHasPriorityGoods(
+          ExportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route6),
+              explanation = Some("bankrupt")
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("explanationText" -> "bankrupt")
+        val result = await(request("/new/export/explanation").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/import/explanation" should {
+      "show the explanation page in import journey" in {
+
+        val state = AnswerImportQuestionsExplanation(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(110), EntryNumber("911111X"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/import/explanation").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+    }
+
+    "POST /new/import/explanation" should {
+
+      "submit no explanation and re-display the form page with error" in {
+
+        val state = AnswerImportQuestionsExplanation(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("explanationText" -> "")
+        val result = await(request("/new/import/explanation").post(payload))
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+
+      "submit invalid text length explanation and re-display the form page with error for import" in {
+        val explanationText = Random.alphanumeric.take(1025).mkString
+        val state = AnswerImportQuestionsExplanation(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6),
+              explanation = Some(explanationText)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val payload = Map("explanationText" -> explanationText)
+        val result = await(request("/new/import/explanation").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
+        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        journey.getState shouldBe state
+      }
+
+      "ask for import has priority goods question" in {
+        val state = AnswerImportQuestionsHasPriorityGoods(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(235), EntryNumber("111111X"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.Cancellation),
+              routeType = Some(ImportRouteType.Route6),
+              explanation = Some("bankrupt")
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map("explanationText" -> "bankrupt")
+        val result = await(request("/new/import/explanation").post(payload))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        journey.getState shouldBe state
       }
     }
 

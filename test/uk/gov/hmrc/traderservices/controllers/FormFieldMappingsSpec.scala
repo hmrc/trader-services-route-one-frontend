@@ -17,12 +17,13 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
-
 import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
 import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
+
 import java.time.LocalTime
+import scala.util.Random
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
@@ -216,6 +217,38 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
       importRouteTypeMapping.bind(Map()) should haveOnlyError[ImportRouteType](
         "error.importRouteType.required"
+      )
+    }
+
+    "validate import explanation text" in {
+      val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
+      importExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
+      importExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
+      importExplanationTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
+      importExplanationTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
+      importExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
+      importExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+      importExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+        "error.importExplanationText.invalid-length"
+      )
+      importExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.importExplanationText.required"
+      )
+    }
+
+    "validate export explanation text" in {
+      val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
+      exportExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
+      exportExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
+      exportExplanationTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
+      exportExplanationTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
+      exportExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
+      exportExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+      exportExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+        "error.exportExplanationText.invalid-length"
+      )
+      exportExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.exportExplanationText.required"
       )
     }
 
