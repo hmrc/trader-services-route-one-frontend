@@ -42,6 +42,8 @@ import akka.actor.Scheduler
 
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.FileStream
+import uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.ResponseTextForm
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.EnterResponseText
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 @Singleton
@@ -162,6 +164,18 @@ class CreateCaseJourneyController @Inject() (
       .bindForm(ExportRouteTypeForm)
       .apply(Transitions.submittedExportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
 
+  // GET /new/export/explanation
+  final val showAnswerExportQuestionsExplanation: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AnswerExportQuestionsExplanation]
+      .orApply(Transitions.backToAnswerExportQuestionsExplanation)
+
+  // POST /new/export/explanation
+  final val submitExportQuestionsExplanationAnswer: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(ExplanationForm)
+      .apply(Transitions.submittedExportQuestionsAnswerExplanation)
+
   // GET /new/export/has-priority-goods
   final val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
     whenAuthorisedAsUser
@@ -279,6 +293,18 @@ class CreateCaseJourneyController @Inject() (
     whenAuthorisedAsUser
       .bindForm(ImportRouteTypeForm)
       .apply(Transitions.submittedImportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
+
+  // GET /new/import/explanation
+  final val showAnswerImportQuestionsExplanation: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .show[State.AnswerImportQuestionsExplanation]
+      .orApply(Transitions.backToAnswerImportQuestionsExplanation)
+
+  // POST /new/import/explanation
+  final val submitImportQuestionsExplanationAnswer: Action[AnyContent] =
+    whenAuthorisedAsUser
+      .bindForm(ExplanationForm)
+      .apply(Transitions.submittedImportQuestionsAnswerExplanation)
 
   // GET /new/import/has-priority-goods
   final val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -627,6 +653,9 @@ class CreateCaseJourneyController @Inject() (
       case _: AnswerExportQuestionsRouteType =>
         controller.showAnswerExportQuestionsRouteType
 
+      case _: AnswerExportQuestionsExplanation =>
+        controller.showAnswerExportQuestionsExplanation
+
       case _: AnswerExportQuestionsHasPriorityGoods =>
         controller.showAnswerExportQuestionsHasPriorityGoods
 
@@ -656,6 +685,9 @@ class CreateCaseJourneyController @Inject() (
 
       case _: AnswerImportQuestionsRouteType =>
         controller.showAnswerImportQuestionsRouteType
+
+      case _: AnswerImportQuestionsExplanation =>
+        controller.showAnswerImportQuestionsExplanation
 
       case _: AnswerImportQuestionsHasPriorityGoods =>
         controller.showAnswerImportQuestionsHasPriorityGoods
@@ -766,6 +798,15 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
+      case AnswerExportQuestionsExplanation(model) =>
+        Ok(
+          views.exportQuestionsExplanationView(
+            formWithErrors.or(ExplanationForm, model.exportQuestionsAnswers.explanation),
+            controller.submitExportQuestionsExplanationAnswer,
+            backLinkFor(breadcrumbs)
+          )
+        )
+
       case AnswerExportQuestionsHasPriorityGoods(model) =>
         Ok(
           views.exportQuestionsHasPriorityGoodsView(
@@ -863,6 +904,15 @@ class CreateCaseJourneyController @Inject() (
           views.importQuestionsRouteTypeView(
             formWithErrors.or(ImportRouteTypeForm, model.importQuestionsAnswers.routeType),
             controller.submitImportQuestionsRouteTypeAnswer,
+            backLinkFor(breadcrumbs)
+          )
+        )
+
+      case AnswerImportQuestionsExplanation(model) =>
+        Ok(
+          views.importQuestionsExplanationView(
+            formWithErrors.or(ExplanationForm, model.importQuestionsAnswers.explanation),
+            controller.submitImportQuestionsExplanationAnswer,
             backLinkFor(breadcrumbs)
           )
         )
@@ -1274,6 +1324,10 @@ object CreateCaseJourneyController {
 
   val ExportRouteTypeForm = Form[ExportRouteType](
     mapping("routeType" -> exportRouteTypeMapping)(identity)(Option.apply)
+  )
+
+  val ExplanationForm = Form[String](
+    mapping("explanationText" -> explanationTextMapping)(identity)(Some(_))
   )
 
   val ExportHasPriorityGoodsForm = Form[Boolean](

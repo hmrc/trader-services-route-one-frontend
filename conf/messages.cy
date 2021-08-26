@@ -521,3 +521,11 @@ view.missing-information.title=Mae peth o’ch gwybodaeth ar goll
 view.missing-information.heading=Mae peth o’ch gwybodaeth ar goll
 view.missing-information.description=Nid ydych wedi nodi’r holl wybodaeth sydd ei hangen arnom er mwyn prosesu’ch gwiriad tollau. Llenwch unrhyw wybodaeth sydd ar goll.
 view.missing-information.continue=Llenwch eich gwybodaeth
+
+view.write-explanation-text.heading=Provide an explanation of why you are making this request
+view.write-explanation-text.title=Provide an explanation of why you are making this request
+view.write-explanation-text.hint=Do not include personal or financial information, like credit cards or business account details.
+view.write-explanation-text.continue=Continue
+summary.export-questions.explanation=Explanation
+summary.import-questions.explanation=Explanation
+error.explanationText.invalid-length=Explanation text must be 1000 characters or fewer

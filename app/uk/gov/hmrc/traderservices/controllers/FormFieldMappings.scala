@@ -146,6 +146,15 @@ object FormFieldMappings {
 
   val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
+  val explanationTextMapping: Mapping[String] = text
+    .verifying(
+      first(
+        nonEmpty("explanationText"),
+        constraint[String]("explanationText", "invalid-length", _.length <= 1000)
+      )
+    )
+    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
+
   val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("importRouteType")
 
   val exportHasPriorityGoodsMapping: Mapping[Boolean] = booleanMapping("exportHasPriorityGoods", "yes", "no")
