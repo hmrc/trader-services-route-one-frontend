@@ -5,7 +5,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.root
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class LanguageSwitchControllerISpec extends CreateCaseJourneyISpec {
+class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
 
   "LanguageSwitchController" when {
 

@@ -23,7 +23,7 @@ import play.twirl.api.Html
 
 @Singleton
 class forms @Inject() (
-  _formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.helpers.formWithCSRF,
+  _formWithCSRF: uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF,
   val fieldset: uk.gov.hmrc.traderservices.views.html.components.fieldset,
   val errorSummary: uk.gov.hmrc.traderservices.views.html.components.errorSummary,
   val inputText: uk.gov.hmrc.traderservices.views.html.components.inputText,
