@@ -148,6 +148,19 @@ class ImportQuestionsViewContext
         )
       )
 
+    val explanationRows =
+      if (importQuestions.explanation.nonEmpty)
+        Seq(
+          summaryListRow(
+            label = "summary.import-questions.explanation",
+            value = importQuestions.explanation.get,
+            visuallyHiddenText = Some("summary.import-questions.explanation"),
+            action = (CreateCaseJourneyController.showAnswerImportQuestionsExplanation, "site.change")
+          )
+        )
+      else
+        Seq.empty
+
     val hasPriorityGoodsRows = Seq(
       summaryListRow(
         label = "summary.import-questions.hasPriorityGoods",
@@ -200,8 +213,7 @@ class ImportQuestionsViewContext
     )
 
     SummaryList(
-      requestTypeRows ++ routeTypeRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ hasALVSRows ++ freightTypeRows
+      requestTypeRows ++ routeTypeRows ++ explanationRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ hasALVSRows ++ freightTypeRows
     )
   }
-
 }

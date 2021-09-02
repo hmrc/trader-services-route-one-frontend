@@ -15,7 +15,7 @@ object TestData {
   def fullExportQuestions(dateTimeOfArrival: LocalDateTime) =
     ExportQuestions(
       requestType = Some(ExportRequestType.New),
-      routeType = Some(ExportRouteType.Route3),
+      routeType = Some(ExportRouteType.Route2),
       hasPriorityGoods = Some(true),
       priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
       freightType = Some(ExportFreightType.Air),
@@ -32,7 +32,7 @@ object TestData {
   def fullImportQuestions(dateTimeOfArrival: LocalDateTime) =
     ImportQuestions(
       requestType = Some(ImportRequestType.New),
-      routeType = Some(ImportRouteType.Route3),
+      routeType = Some(ImportRouteType.Route2),
       hasPriorityGoods = Some(true),
       priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
       hasALVS = Some(true),
