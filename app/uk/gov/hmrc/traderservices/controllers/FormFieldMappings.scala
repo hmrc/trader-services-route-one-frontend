@@ -149,8 +149,8 @@ object FormFieldMappings {
   val exportExplanationTextMapping: Mapping[String] = text
     .verifying(
       first(
-        nonEmpty("exportExplanationText"),
-        constraint[String]("exportExplanationText", "invalid-length", _.length <= 1000)
+        nonEmpty("export.reason-text"),
+        constraint[String]("export.reason-text", "invalid-length", _.length <= 1000)
       )
     )
     .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
@@ -158,8 +158,8 @@ object FormFieldMappings {
   val importExplanationTextMapping: Mapping[String] = text
     .verifying(
       first(
-        nonEmpty("importExplanationText"),
-        constraint[String]("importExplanationText", "invalid-length", _.length <= 1000)
+        nonEmpty("import.reason-text"),
+        constraint[String]("import.reason-text", "invalid-length", _.length <= 1000)
       )
     )
     .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)

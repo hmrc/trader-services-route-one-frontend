@@ -22,20 +22,31 @@
 )
 @(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
+@inputRadioHint = {
+@html.p {
+    @messages("form.export-questions.reason-text.hint.description1")
+}
+@html.ul(Seq("form.export-questions.reason-text.hint.list.cancel",
+    "form.export-questions.reason-text.hint.list.withdraw",
+    "form.export-questions.reason-text.hint.list.submit"): _*)
 
+@html.p {
+    @messages("form.export-questions.reason-text.hint.description2")
+}
+}
 @govukLayout(
-    pageTitle("view.write-explanation-text.title", form),
+    pageTitle("form.export-questions.reason-text.title", form),
     backLink = Some(backLink.url)) {
     @forms.errorSummary(form.errors)
     @forms.formWithCSRF(action = postAction) {
         @forms.inputCharacterCount(
             form("explanationText"),
-            hint = Some(messages("view.write-explanation-text.hint")),
-            label = messages("view.write-explanation-text.heading"),
+            hint = Some(HtmlContent(inputRadioHint)),
+            label = messages("form.export-questions.reason-text.heading"),
             maxLength = Some(1000),
             labelClasses="govuk-label--l"
         )
-        @html.button("view.write-explanation-text.continue")
+        @html.button("form.export-questions.reason-text.continue")
     }
 }
 

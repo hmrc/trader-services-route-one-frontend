@@ -152,9 +152,9 @@ class ImportQuestionsViewContext
       if (importQuestions.explanation.nonEmpty)
         Seq(
           summaryListRow(
-            label = "summary.import-questions.explanation",
+            label = "summary.import-questions.reason-text",
             value = importQuestions.explanation.get,
-            visuallyHiddenText = Some("summary.import-questions.explanation"),
+            visuallyHiddenText = Some("summary.import-questions.reason-text"),
             action = (CreateCaseJourneyController.showAnswerImportQuestionsExplanation, "site.change")
           )
         )

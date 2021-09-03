@@ -141,9 +141,9 @@ class ExportQuestionsViewContext
       if (exportQuestions.explanation.nonEmpty)
         Seq(
           summaryListRow(
-            label = "summary.export-questions.explanation",
+            label = "summary.export-questions.reason-text",
             value = exportQuestions.explanation.get,
-            visuallyHiddenText = Some("summary.export-questions.explanation"),
+            visuallyHiddenText = Some("summary.export-questions.reason-text"),
             action = (CreateCaseJourneyController.showAnswerExportQuestionsExplanation, "site.change")
           )
         )
