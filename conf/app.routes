@@ -15,8 +15,8 @@ GET        /new/export/request-type                                 @uk.gov.hmrc
 POST       /new/export/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsRequestTypeAnswer
 GET        /new/export/route-type                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsRouteType
 POST       /new/export/route-type                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsRouteTypeAnswer
-GET        /new/export/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsReason
-POST       /new/export/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsReasonAnswer
+GET        /new/export/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsExplanation
+POST       /new/export/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsExplanationAnswer
 GET        /new/export/has-priority-goods                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsHasPriorityGoods
 POST       /new/export/has-priority-goods                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitExportQuestionsHasPriorityGoodsAnswer
 GET        /new/export/which-priority-goods                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerExportQuestionsWhichPriorityGoods
@@ -36,8 +36,8 @@ GET        /new/import/request-type                                 @uk.gov.hmrc
 POST       /new/import/request-type                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsRequestTypeAnswer
 GET        /new/import/route-type                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsRouteType
 POST       /new/import/route-type                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsRouteTypeAnswer
-GET        /new/import/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsReason
-POST       /new/import/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsReasonAnswer
+GET        /new/import/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsExplanation
+POST       /new/import/reason                                   @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsExplanationAnswer
 GET        /new/import/has-priority-goods                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsHasPriorityGoods
 POST       /new/import/has-priority-goods                           @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.submitImportQuestionsHasPriorityGoodsAnswer
 GET        /new/import/which-priority-goods                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showAnswerImportQuestionsWhichPriorityGoods

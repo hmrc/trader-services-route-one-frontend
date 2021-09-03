@@ -31,7 +31,7 @@ object CreateCaseJourneyStateFormats
   val turnToAmendCaseJourneyFormat = Json.format[TurnToAmendCaseJourney]
   val answerExportQuestionsRequestTypeFormat = Json.format[AnswerExportQuestionsRequestType]
   val answerExportQuestionsRouteTypeFormat = Json.format[AnswerExportQuestionsRouteType]
-  val answerExportQuestionsReasonFormat = Json.format[AnswerExportQuestionsReason]
+  val answerExportQuestionsExplanationFormat = Json.format[AnswerExportQuestionsExplanation]
   val answerExportQuestionsHasPriorityGoodsFormat = Json.format[AnswerExportQuestionsHasPriorityGoods]
   val answerExportQuestionsWhichPriorityGoodsFormat = Json.format[AnswerExportQuestionsWhichPriorityGoods]
   val answerExportQuestionsFreightTypeFormat = Json.format[AnswerExportQuestionsFreightType]
@@ -41,7 +41,7 @@ object CreateCaseJourneyStateFormats
   val exportQuestionsSummaryFormat = Json.format[ExportQuestionsSummary]
   val exportQuestionsMissingInformationErrorFormat = Json.format[ExportQuestionsMissingInformationError]
   val answerImportQuestionsRequestTypeFormat = Json.format[AnswerImportQuestionsRequestType]
-  val answerImportQuestionsReasonFormat = Json.format[AnswerImportQuestionsReason]
+  val answerImportQuestionsExplanationFormat = Json.format[AnswerImportQuestionsExplanation]
 
   val answerImportQuestionsRouteTypeFormat = Json.format[AnswerImportQuestionsRouteType]
   val answerImportQuestionsHasPriorityGoodsFormat = Json.format[AnswerImportQuestionsHasPriorityGoods]
@@ -64,7 +64,7 @@ object CreateCaseJourneyStateFormats
     case s: TurnToAmendCaseJourney                   => turnToAmendCaseJourneyFormat.writes(s)
     case s: AnswerExportQuestionsRequestType         => answerExportQuestionsRequestTypeFormat.writes(s)
     case s: AnswerExportQuestionsRouteType           => answerExportQuestionsRouteTypeFormat.writes(s)
-    case s: AnswerExportQuestionsReason              => answerExportQuestionsReasonFormat.writes(s)
+    case s: AnswerExportQuestionsExplanation         => answerExportQuestionsExplanationFormat.writes(s)
     case s: AnswerExportQuestionsHasPriorityGoods    => answerExportQuestionsHasPriorityGoodsFormat.writes(s)
     case s: AnswerExportQuestionsWhichPriorityGoods  => answerExportQuestionsWhichPriorityGoodsFormat.writes(s)
     case s: AnswerExportQuestionsFreightType         => answerExportQuestionsFreightTypeFormat.writes(s)
@@ -75,7 +75,7 @@ object CreateCaseJourneyStateFormats
     case s: ExportQuestionsMissingInformationError   => exportQuestionsMissingInformationErrorFormat.writes(s)
     case s: AnswerImportQuestionsRequestType         => answerImportQuestionsRequestTypeFormat.writes(s)
     case s: AnswerImportQuestionsRouteType           => answerImportQuestionsRouteTypeFormat.writes(s)
-    case s: AnswerImportQuestionsReason              => answerImportQuestionsReasonFormat.writes(s)
+    case s: AnswerImportQuestionsExplanation         => answerImportQuestionsExplanationFormat.writes(s)
     case s: AnswerImportQuestionsHasPriorityGoods    => answerImportQuestionsHasPriorityGoodsFormat.writes(s)
     case s: AnswerImportQuestionsWhichPriorityGoods  => answerImportQuestionsWhichPriorityGoodsFormat.writes(s)
     case s: AnswerImportQuestionsALVS                => answerImportQuestionsALVSFormat.writes(s)
@@ -101,7 +101,7 @@ object CreateCaseJourneyStateFormats
       case "TurnToAmendCaseJourney"                  => turnToAmendCaseJourneyFormat.reads(properties)
       case "AnswerExportQuestionsRequestType"        => answerExportQuestionsRequestTypeFormat.reads(properties)
       case "AnswerExportQuestionsRouteType"          => answerExportQuestionsRouteTypeFormat.reads(properties)
-      case "AnswerExportQuestionsReason"             => answerExportQuestionsReasonFormat.reads(properties)
+      case "AnswerExportQuestionsExplanation"        => answerExportQuestionsExplanationFormat.reads(properties)
       case "AnswerExportQuestionsHasPriorityGoods"   => answerExportQuestionsHasPriorityGoodsFormat.reads(properties)
       case "AnswerExportQuestionsWhichPriorityGoods" => answerExportQuestionsWhichPriorityGoodsFormat.reads(properties)
       case "AnswerExportQuestionsFreightType"        => answerExportQuestionsFreightTypeFormat.reads(properties)
@@ -113,7 +113,7 @@ object CreateCaseJourneyStateFormats
       case "ExportQuestionsMissingInformationError"  => exportQuestionsMissingInformationErrorFormat.reads(properties)
       case "AnswerImportQuestionsRequestType"        => answerImportQuestionsRequestTypeFormat.reads(properties)
       case "AnswerImportQuestionsRouteType"          => answerImportQuestionsRouteTypeFormat.reads(properties)
-      case "AnswerImportQuestionsReason"             => answerImportQuestionsReasonFormat.reads(properties)
+      case "AnswerImportQuestionsExplanation"        => answerImportQuestionsExplanationFormat.reads(properties)
       case "AnswerImportQuestionsHasPriorityGoods"   => answerImportQuestionsHasPriorityGoodsFormat.reads(properties)
       case "AnswerImportQuestionsWhichPriorityGoods" => answerImportQuestionsWhichPriorityGoodsFormat.reads(properties)
       case "AnswerImportQuestionsALVS"               => answerImportQuestionsALVSFormat.reads(properties)

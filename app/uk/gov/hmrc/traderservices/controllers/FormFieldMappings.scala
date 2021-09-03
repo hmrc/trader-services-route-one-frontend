@@ -146,7 +146,7 @@ object FormFieldMappings {
 
   val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
-  val exportReasonTextMapping: Mapping[String] = text
+  val exportExplanationTextMapping: Mapping[String] = text
     .verifying(
       first(
         nonEmpty("export.reason-text"),
@@ -155,7 +155,7 @@ object FormFieldMappings {
     )
     .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
 
-  val importReasonTextMapping: Mapping[String] = text
+  val importExplanationTextMapping: Mapping[String] = text
     .verifying(
       first(
         nonEmpty("import.reason-text"),

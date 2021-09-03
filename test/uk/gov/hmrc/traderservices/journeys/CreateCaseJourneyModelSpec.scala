@@ -267,7 +267,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerExportQuestionsRequestType" should {
-      for (requestType <- ExportRequestType.values.diff(mandatoryReasonExportRequestType)) {
+      for (requestType <- ExportRequestType.values.diff(mandatoryExplanationExportRequestType)) {
         s"go to AnswerExportQuestionsRouteType when submitted request type ${ExportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerExportQuestionsRequestType(ExportQuestionsStateModel(exportEntryDetails, ExportQuestions()))
@@ -302,14 +302,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
       }
-      for (requestType <- mandatoryReasonExportRequestType)
-        s"go to ExportQuestionsSummary if request type is changed from $requestType to non-mandatory reason request type and all answers are complete" in {
+      for (requestType <- mandatoryExplanationExportRequestType)
+        s"go to ExportQuestionsSummary if request type is changed from $requestType to non-mandatory explanation request type and all answers are complete" in {
           given(
             AnswerExportQuestionsRequestType(
               ExportQuestionsStateModel(
                 exportEntryDetails,
                 completeExportQuestionsAnswers
-                  .copy(requestType = Some(requestType), reason = Some(reasonText)),
+                  .copy(requestType = Some(requestType), explanation = Some(explanationText)),
                 Some(nonEmptyFileUploads)
               )
             )
@@ -319,7 +319,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsSummary(
               ExportQuestionsStateModel(
                 exportEntryDetails,
-                completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New), reason = None),
+                completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New), explanation = None),
                 Some(nonEmptyFileUploads)
               )
             )
@@ -391,7 +391,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerExportQuestionsRouteType" should {
-      for (routeType <- ExportRouteType.values.filterNot(_ == mandatoryReasonExportRouteType)) {
+      for (routeType <- ExportRouteType.values.filterNot(_ == mandatoryExplanationExportRouteType)) {
         s"go to AnswerExportQuestionsHasPriorityGoods when submitted route ${ExportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerExportQuestionsRouteType(
@@ -481,13 +481,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
-      s"go ExportQuestionsSummary if routeType is changed from mandatory reason route type to non-mandatory reason route type and all answers are complete" in {
+      s"go ExportQuestionsSummary if routeType is changed from mandatory explanation route type to non-mandatory explanation route type and all answers are complete" in {
         given(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
               exportEntryDetails,
               completeExportQuestionsAnswers
-                .copy(routeType = Some(ExportRouteType.Route3), reason = Some(reasonText)),
+                .copy(routeType = Some(ExportRouteType.Route3), explanation = Some(explanationText)),
               Some(nonEmptyFileUploads)
             )
           )
@@ -498,14 +498,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ExportQuestionsStateModel(
               exportEntryDetails,
               completeExportQuestionsAnswers
-                .copy(routeType = Some(ExportRouteType.Route1), vesselDetails = None, reason = None),
+                .copy(routeType = Some(ExportRouteType.Route1), vesselDetails = None, explanation = None),
               Some(nonEmptyFileUploads)
             )
           )
         )
       }
 
-      s"go to AnswerExportQuestionsReason when submitted route type is ${ExportRouteType.Route3}" in {
+      s"go to AnswerExportQuestionsExplanation when submitted route type is ${ExportRouteType.Route3}" in {
         given(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -516,7 +516,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedExportQuestionsAnswerRouteType(false)(
           ExportRouteType.Route3
         ) should thenGo(
-          AnswerExportQuestionsReason(
+          AnswerExportQuestionsExplanation(
             ExportQuestionsStateModel(
               exportEntryDetails,
               ExportQuestions(requestType = Some(ExportRequestType.New), routeType = Some(ExportRouteType.Route3))
@@ -526,10 +526,10 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       for (
-        requestType <- mandatoryReasonExportRequestType;
+        requestType <- mandatoryExplanationExportRequestType;
         routeType   <- ExportRouteType.values
       )
-        s"go to AnswerExportQuestionsReason when submitted route type is $routeType and requestType is $requestType" in {
+        s"go to AnswerExportQuestionsExplanation when submitted route type is $routeType and requestType is $requestType" in {
           given(
             AnswerExportQuestionsRouteType(
               ExportQuestionsStateModel(
@@ -540,7 +540,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) when submittedExportQuestionsAnswerRouteType(false)(
             routeType
           ) should thenGo(
-            AnswerExportQuestionsReason(
+            AnswerExportQuestionsExplanation(
               ExportQuestionsStateModel(
                 exportEntryDetails,
                 ExportQuestions(requestType = Some(requestType), routeType = Some(routeType))
@@ -550,11 +550,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         }
     }
 
-    "at state AnswerExportQuestionsReason" should {
+    "at state AnswerExportQuestionsExplanation" should {
       "go to AnswerExportQuestionsHasPriorityGoods" in {
 
         given(
-          AnswerExportQuestionsReason(
+          AnswerExportQuestionsExplanation(
             ExportQuestionsStateModel(
               exportEntryDetails,
               ExportQuestions(
@@ -563,28 +563,28 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedExportQuestionsAnswerReason(reasonText) should thenGo(
+        ) when submittedExportQuestionsAnswerExplanation(explanationText) should thenGo(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
               exportEntryDetails,
               ExportQuestions(
                 requestType = Some(ExportRequestType.Cancellation),
                 routeType = Some(ExportRouteType.Route1),
-                reason = Some(reasonText)
+                explanation = Some(explanationText)
               )
             )
           )
         )
       }
 
-      "go to ExportQuestionsSummary when reason text is entered all answers are complete" in {
+      "go to ExportQuestionsSummary when explanation text is entered all answers are complete" in {
         val answers = completeExportQuestionsAnswers
-          .copy(reason = Some(reasonText))
+          .copy(explanation = Some(explanationText))
         given(
-          AnswerExportQuestionsReason(
+          AnswerExportQuestionsExplanation(
             ExportQuestionsStateModel(exportEntryDetails, answers, Some(nonEmptyFileUploads))
           )
-        ) when submittedExportQuestionsAnswerReason(reasonText) should thenGo(
+        ) when submittedExportQuestionsAnswerExplanation(explanationText) should thenGo(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
               exportEntryDetails,
@@ -749,7 +749,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         freightType <- ExportFreightType.values;
         requestType <- ExportRequestType.values
                          .diff(mandatoryVesselDetailsRequestTypes)
-                         .diff(mandatoryReasonExportRequestType)
+                         .diff(mandatoryExplanationExportRequestType)
       ) {
         s"go to AnswerExportQuestionsOptionalVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
           .keyOf(requestType)
@@ -898,7 +898,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       for (
         freightType <- ExportFreightType.values;
-        requestType <- ExportRequestType.values.diff(mandatoryReasonExportRequestType)
+        requestType <- ExportRequestType.values.diff(mandatoryExplanationExportRequestType)
       ) {
         s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
           .keyOf(requestType)
@@ -1326,7 +1326,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerImportQuestionsRequestType" should {
-      for (requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)) {
+      for (requestType <- ImportRequestType.values.filterNot(_ == mandatoryExplanationImportRequestType)) {
         s"go to AnswerImportQuestionsRequestType when submitted request type ${ImportRequestType.keyOf(requestType).get}" in {
           given(
             AnswerImportQuestionsRequestType(ImportQuestionsStateModel(importEntryDetails, ImportQuestions()))
@@ -1361,13 +1361,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
 
-        s"go to ImportQuestionsSummary if request type is changed from mandatory reason request type to non-mandatory reason request type and all answers are complete" in {
+        s"go to ImportQuestionsSummary if request type is changed from mandatory explanation request type to non-mandatory explanation request type and all answers are complete" in {
           given(
             AnswerImportQuestionsRequestType(
               ImportQuestionsStateModel(
                 importEntryDetails,
                 completeImportQuestionsAnswers
-                  .copy(requestType = Some(ImportRequestType.Cancellation), reason = Some(reasonText)),
+                  .copy(requestType = Some(ImportRequestType.Cancellation), explanation = Some(explanationText)),
                 Some(nonEmptyFileUploads)
               )
             )
@@ -1377,7 +1377,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsSummary(
               ImportQuestionsStateModel(
                 importEntryDetails,
-                completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New), reason = None),
+                completeImportQuestionsAnswers.copy(requestType = Some(ImportRequestType.New), explanation = None),
                 Some(nonEmptyFileUploads)
               )
             )
@@ -1424,7 +1424,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerImportQuestionsRouteType" should {
-      for (routeType <- ImportRouteType.values.filterNot(_ == mandatoryReasonImportRouteType)) {
+      for (routeType <- ImportRouteType.values.filterNot(_ == mandatoryExplanationImportRouteType)) {
         s"go to AnswerImportQuestionsHasPriorityGoods when submitted route ${ImportRouteType.keyOf(routeType).get}" in {
           given(
             AnswerImportQuestionsRouteType(
@@ -1488,13 +1488,13 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
-      s"go to ImportQuestionsSummary if routeType is changed from mandatory reason route type to non-mandatory reason route type and all answers are complete" in {
+      s"go to ImportQuestionsSummary if routeType is changed from mandatory explanation route type to non-mandatory explanation route type and all answers are complete" in {
         given(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
               importEntryDetails,
               completeImportQuestionsAnswers
-                .copy(routeType = Some(ImportRouteType.Route3), reason = Some(reasonText)),
+                .copy(routeType = Some(ImportRouteType.Route3), explanation = Some(explanationText)),
               Some(nonEmptyFileUploads)
             )
           )
@@ -1505,14 +1505,14 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             ImportQuestionsStateModel(
               importEntryDetails,
               completeImportQuestionsAnswers
-                .copy(routeType = Some(ImportRouteType.Route1), vesselDetails = None, reason = None),
+                .copy(routeType = Some(ImportRouteType.Route1), vesselDetails = None, explanation = None),
               Some(nonEmptyFileUploads)
             )
           )
         )
       }
 
-      s"go to AnswerImportQuestionsReason when submitted route type is ${ImportRouteType.Route3}" in {
+      s"go to AnswerImportQuestionsExplanation when submitted route type is ${ImportRouteType.Route3}" in {
         given(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1523,7 +1523,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when submittedImportQuestionsAnswerRouteType(false)(
           ImportRouteType.Route3
         ) should thenGo(
-          AnswerImportQuestionsReason(
+          AnswerImportQuestionsExplanation(
             ImportQuestionsStateModel(
               importEntryDetails,
               ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
@@ -1533,7 +1533,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       for (routeType <- ImportRouteType.values)
-        s"go to AnswerImportQuestionsReason when submitted route type is $routeType and requestType is ${ImportRequestType.Cancellation}" in {
+        s"go to AnswerImportQuestionsExplanation when submitted route type is $routeType and requestType is ${ImportRequestType.Cancellation}" in {
           given(
             AnswerImportQuestionsRouteType(
               ImportQuestionsStateModel(
@@ -1544,7 +1544,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ) when submittedImportQuestionsAnswerRouteType(false)(
             routeType
           ) should thenGo(
-            AnswerImportQuestionsReason(
+            AnswerImportQuestionsExplanation(
               ImportQuestionsStateModel(
                 importEntryDetails,
                 ImportQuestions(requestType = Some(ImportRequestType.Cancellation), routeType = Some(routeType))
@@ -1554,11 +1554,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         }
     }
 
-    "at state AnswerImportQuestionsReason" should {
+    "at state AnswerImportQuestionsExplanation" should {
       "go to AnswerImportQuestionsHasPriorityGoods" in {
 
         given(
-          AnswerImportQuestionsReason(
+          AnswerImportQuestionsExplanation(
             ImportQuestionsStateModel(
               importEntryDetails,
               ImportQuestions(
@@ -1567,28 +1567,28 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
-        ) when submittedImportQuestionsAnswerReason(reasonText) should thenGo(
+        ) when submittedImportQuestionsAnswerExplanation(explanationText) should thenGo(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
               importEntryDetails,
               ImportQuestions(
                 requestType = Some(ImportRequestType.Cancellation),
                 routeType = Some(ImportRouteType.Route1),
-                reason = Some(reasonText)
+                explanation = Some(explanationText)
               )
             )
           )
         )
       }
 
-      "go to ImportQuestionsSummary when reason text is entered all answers are complete" in {
+      "go to ImportQuestionsSummary when explanation text is entered all answers are complete" in {
         val answers = completeImportQuestionsAnswers
-          .copy(reason = Some(reasonText))
+          .copy(explanation = Some(explanationText))
         given(
-          AnswerImportQuestionsReason(
+          AnswerImportQuestionsExplanation(
             ImportQuestionsStateModel(importEntryDetails, answers, Some(nonEmptyFileUploads))
           )
-        ) when submittedImportQuestionsAnswerReason(reasonText) should thenGo(
+        ) when submittedImportQuestionsAnswerExplanation(explanationText) should thenGo(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
               importEntryDetails,
@@ -1879,7 +1879,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     "at state AnswerImportQuestionsFreightType" should {
       for (
         freightType <- ImportFreightType.values;
-        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
+        requestType <- ImportRequestType.values.filterNot(_ == mandatoryExplanationImportRequestType)
       ) {
         s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
           .keyOf(requestType)
@@ -1971,7 +1971,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
 
       for (
         freightType <- ImportFreightType.values;
-        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
+        requestType <- ImportRequestType.values.filterNot(_ == mandatoryExplanationImportRequestType)
       ) {
         s"go to AnswerImportQuestionsMandatoryVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
           .keyOf(requestType)
