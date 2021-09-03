@@ -30,7 +30,7 @@
     @forms.formWithCSRF(action = postAction) {
         @forms.inputCharacterCount(
             form("responseText"),
-            hint = Some(messages("view.write-response-text.hint")),
+            hint = Some(Text(messages("view.write-response-text.hint"))),
             label = messages("view.write-response-text.heading"),
             maxLength = Some(1000),
             labelClasses="govuk-label--l"

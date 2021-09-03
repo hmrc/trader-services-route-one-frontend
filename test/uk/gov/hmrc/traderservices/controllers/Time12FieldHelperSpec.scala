@@ -256,5 +256,4 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       )
     }
   }
-
 }

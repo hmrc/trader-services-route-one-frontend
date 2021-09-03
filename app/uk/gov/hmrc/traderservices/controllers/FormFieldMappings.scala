@@ -146,20 +146,20 @@ object FormFieldMappings {
 
   val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
-  val exportExplanationTextMapping: Mapping[String] = text
+  val exportReasonTextMapping: Mapping[String] = text
     .verifying(
       first(
-        nonEmpty("exportExplanationText"),
-        constraint[String]("exportExplanationText", "invalid-length", _.length <= 1000)
+        nonEmpty("export.reason-text"),
+        constraint[String]("export.reason-text", "invalid-length", _.length <= 1000)
       )
     )
     .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
 
-  val importExplanationTextMapping: Mapping[String] = text
+  val importReasonTextMapping: Mapping[String] = text
     .verifying(
       first(
-        nonEmpty("importExplanationText"),
-        constraint[String]("importExplanationText", "invalid-length", _.length <= 1000)
+        nonEmpty("import.reason-text"),
+        constraint[String]("import.reason-text", "invalid-length", _.length <= 1000)
       )
     )
     .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)

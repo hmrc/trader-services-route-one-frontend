@@ -16,7 +16,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.implicits._
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.charactercount.CharacterCount
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcCharacterCount
-
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 @this(hmrcCharacterCount: HmrcCharacterCount)
 
 @(
@@ -24,14 +24,14 @@
         label: String,
         labelClasses: String = "",
         maxLength: Option[Int] = None,
-        hint: Option[String] = None,
+        hint: Option[Content] = None,
         classes: String = ""
 )(implicit messages: Messages)
 @hmrcCharacterCount(CharacterCount(
     label = Label(classes = labelClasses,
         isPageHeading = true,
         content = Text(label)),
-    hint = hint.map(h => Hint(content = Text(h))),
+    hint =  hint.map(h => Hint(content = h)),
     maxLength = maxLength,
     classes = classes).withFormField(field)
 )

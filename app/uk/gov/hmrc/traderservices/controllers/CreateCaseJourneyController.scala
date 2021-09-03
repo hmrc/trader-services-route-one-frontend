@@ -164,17 +164,17 @@ class CreateCaseJourneyController @Inject() (
       .bindForm(ExportRouteTypeForm)
       .apply(Transitions.submittedExportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
 
-  // GET /new/export/explanation
-  final val showAnswerExportQuestionsExplanation: Action[AnyContent] =
+  // GET /new/export/reason
+  final val showAnswerExportQuestionsReason: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.AnswerExportQuestionsExplanation]
-      .orApply(Transitions.backToAnswerExportQuestionsExplanation)
+      .show[State.AnswerExportQuestionsReason]
+      .orApply(Transitions.backToAnswerExportQuestionsReason)
 
-  // POST /new/export/explanation
-  final val submitExportQuestionsExplanationAnswer: Action[AnyContent] =
+  // POST /new/export/reason
+  final val submitExportQuestionsReasonAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindForm(ExportExplanationForm)
-      .apply(Transitions.submittedExportQuestionsAnswerExplanation)
+      .bindForm(ExportReasonForm)
+      .apply(Transitions.submittedExportQuestionsAnswerReason)
 
   // GET /new/export/has-priority-goods
   final val showAnswerExportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -294,17 +294,17 @@ class CreateCaseJourneyController @Inject() (
       .bindForm(ImportRouteTypeForm)
       .apply(Transitions.submittedImportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature))
 
-  // GET /new/import/explanation
-  final val showAnswerImportQuestionsExplanation: Action[AnyContent] =
+  // GET /new/import/reason
+  final val showAnswerImportQuestionsReason: Action[AnyContent] =
     whenAuthorisedAsUser
-      .show[State.AnswerImportQuestionsExplanation]
-      .orApply(Transitions.backToAnswerImportQuestionsExplanation)
+      .show[State.AnswerImportQuestionsReason]
+      .orApply(Transitions.backToAnswerImportQuestionsReason)
 
-  // POST /new/import/explanation
-  final val submitImportQuestionsExplanationAnswer: Action[AnyContent] =
+  // POST /new/import/reason
+  final val submitImportQuestionsReasonAnswer: Action[AnyContent] =
     whenAuthorisedAsUser
-      .bindForm(ImportExplanationForm)
-      .apply(Transitions.submittedImportQuestionsAnswerExplanation)
+      .bindForm(ImportReasonForm)
+      .apply(Transitions.submittedImportQuestionsAnswerReason)
 
   // GET /new/import/has-priority-goods
   final val showAnswerImportQuestionsHasPriorityGoods: Action[AnyContent] =
@@ -653,8 +653,8 @@ class CreateCaseJourneyController @Inject() (
       case _: AnswerExportQuestionsRouteType =>
         controller.showAnswerExportQuestionsRouteType
 
-      case _: AnswerExportQuestionsExplanation =>
-        controller.showAnswerExportQuestionsExplanation
+      case _: AnswerExportQuestionsReason =>
+        controller.showAnswerExportQuestionsReason
 
       case _: AnswerExportQuestionsHasPriorityGoods =>
         controller.showAnswerExportQuestionsHasPriorityGoods
@@ -686,8 +686,8 @@ class CreateCaseJourneyController @Inject() (
       case _: AnswerImportQuestionsRouteType =>
         controller.showAnswerImportQuestionsRouteType
 
-      case _: AnswerImportQuestionsExplanation =>
-        controller.showAnswerImportQuestionsExplanation
+      case _: AnswerImportQuestionsReason =>
+        controller.showAnswerImportQuestionsReason
 
       case _: AnswerImportQuestionsHasPriorityGoods =>
         controller.showAnswerImportQuestionsHasPriorityGoods
@@ -798,11 +798,11 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case AnswerExportQuestionsExplanation(model) =>
+      case AnswerExportQuestionsReason(model) =>
         Ok(
-          views.exportQuestionsExplanationView(
-            formWithErrors.or(ExportExplanationForm, model.exportQuestionsAnswers.explanation),
-            controller.submitExportQuestionsExplanationAnswer,
+          views.exportQuestionsReasonView(
+            formWithErrors.or(ExportReasonForm, model.exportQuestionsAnswers.reason),
+            controller.submitExportQuestionsReasonAnswer,
             backLinkFor(breadcrumbs)
           )
         )
@@ -908,11 +908,11 @@ class CreateCaseJourneyController @Inject() (
           )
         )
 
-      case AnswerImportQuestionsExplanation(model) =>
+      case AnswerImportQuestionsReason(model) =>
         Ok(
-          views.importQuestionsExplanationView(
-            formWithErrors.or(ImportExplanationForm, model.importQuestionsAnswers.explanation),
-            controller.submitImportQuestionsExplanationAnswer,
+          views.importQuestionsReasonView(
+            formWithErrors.or(ImportReasonForm, model.importQuestionsAnswers.reason),
+            controller.submitImportQuestionsReasonAnswer,
             backLinkFor(breadcrumbs)
           )
         )
@@ -1326,8 +1326,8 @@ object CreateCaseJourneyController {
     mapping("routeType" -> exportRouteTypeMapping)(identity)(Option.apply)
   )
 
-  val ExportExplanationForm = Form[String](
-    mapping("explanationText" -> exportExplanationTextMapping)(identity)(Some(_))
+  val ExportReasonForm = Form[String](
+    mapping("reasonText" -> exportReasonTextMapping)(identity)(Some(_))
   )
 
   val ExportHasPriorityGoodsForm = Form[Boolean](
@@ -1358,8 +1358,8 @@ object CreateCaseJourneyController {
     mapping("routeType" -> importRouteTypeMapping)(identity)(Option.apply)
   )
 
-  val ImportExplanationForm = Form[String](
-    mapping("explanationText" -> importExplanationTextMapping)(identity)(Some(_))
+  val ImportReasonForm = Form[String](
+    mapping("reasonText" -> importReasonTextMapping)(identity)(Some(_))
   )
 
   val ImportHasPriorityGoodsForm = Form[Boolean](
