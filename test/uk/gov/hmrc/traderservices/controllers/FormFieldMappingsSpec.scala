@@ -220,7 +220,7 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
     }
 
-    "validate import reason text" in {
+    "validate import explanation text" in {
       val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
       importExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
       importExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
@@ -229,14 +229,14 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       importExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
       importExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
       importExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
-        "error.import.reason-text.invalid-length"
+        "error.importExplanationText.invalid-length"
       )
       importExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.import.reason-text.required"
+        "error.importExplanationText.required"
       )
     }
 
-    "validate export reason text" in {
+    "validate export explanation text" in {
       val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
       exportExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
       exportExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
@@ -245,10 +245,10 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       exportExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
       exportExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
       exportExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
-        "error.export.reason-text.invalid-length"
+        "error.exportExplanationText.invalid-length"
       )
       exportExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.export.reason-text.required"
+        "error.exportExplanationText.required"
       )
     }
 
