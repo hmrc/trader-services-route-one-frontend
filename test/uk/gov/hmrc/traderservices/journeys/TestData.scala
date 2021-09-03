@@ -32,12 +32,12 @@ trait TestData {
   val exportEntryDetails = EntryDetails(EPU(123), EntryNumber("Z00000Z"), LocalDate.parse("2020-09-23"))
   val importEntryDetails = EntryDetails(EPU(123), EntryNumber("000000Z"), LocalDate.parse("2020-09-23"))
   val invalidEntryDetails = EntryDetails(EPU(123), EntryNumber("0000000"), LocalDate.parse("2020-09-23"))
-  val mandatoryExplanationImportRequestType = ImportRequestType.Cancellation
-  val mandatoryExplanationImportRouteType = ImportRouteType.Route3
-  val mandatoryExplanationExportRequestType: Set[ExportRequestType] =
+  val mandatoryReasonImportRequestType = ImportRequestType.Cancellation
+  val mandatoryReasonImportRouteType = ImportRouteType.Route3
+  val mandatoryReasonExportRequestType: Set[ExportRequestType] =
     Set(ExportRequestType.WithdrawalOrReturn, ExportRequestType.Cancellation)
-  val mandatoryExplanationExportRouteType = ExportRouteType.Route3
-  val explanationText = "our supplier went bankrupt"
+  val mandatoryReasonExportRouteType = ExportRouteType.Route3
+  val reasonText = "our supplier went bankrupt"
 
   val completeExportQuestionsAnswers = ExportQuestions(
     requestType = Some(ExportRequestType.New),

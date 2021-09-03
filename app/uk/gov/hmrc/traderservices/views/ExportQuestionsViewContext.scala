@@ -137,14 +137,14 @@ class ExportQuestionsViewContext
           action = (CreateCaseJourneyController.showAnswerExportQuestionsRouteType, "site.change")
         )
       )
-    val explanationRows =
-      if (exportQuestions.explanation.nonEmpty)
+    val reasonRows =
+      if (exportQuestions.reason.nonEmpty)
         Seq(
           summaryListRow(
             label = "summary.export-questions.reason-text",
-            value = exportQuestions.explanation.get,
+            value = exportQuestions.reason.get,
             visuallyHiddenText = Some("summary.export-questions.reason-text"),
-            action = (CreateCaseJourneyController.showAnswerExportQuestionsExplanation, "site.change")
+            action = (CreateCaseJourneyController.showAnswerExportQuestionsReason, "site.change")
           )
         )
       else
@@ -190,7 +190,7 @@ class ExportQuestionsViewContext
     )
 
     SummaryList(
-      requestTypeRows ++ routeTypeRows ++ explanationRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ freightTypeRows
+      requestTypeRows ++ routeTypeRows ++ reasonRows ++ hasPriorityGoodsRows ++ whichPriorityGoodsRows ++ freightTypeRows
     )
   }
 

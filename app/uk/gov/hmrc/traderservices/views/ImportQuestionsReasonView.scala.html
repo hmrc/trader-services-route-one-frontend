@@ -40,7 +40,7 @@
     @forms.errorSummary(form.errors)
     @forms.formWithCSRF(action = postAction) {
         @forms.inputCharacterCount(
-            form("explanationText"),
+            form("reasonText"),
             hint = Some(HtmlContent(inputRadioHint)),
             label = messages("form.import-questions.reason-text.title"),
             maxLength = Some(1000),

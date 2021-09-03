@@ -384,7 +384,7 @@ class CreateCaseJourneyISpec
         )
       }
 
-      "submit the form and ask next for explanation when route type requires mandatory explanation for export" in {
+      "submit the form and ask next for reason when route type requires mandatory reason for export" in {
 
         journey.setState(
           AnswerExportQuestionsRouteType(
@@ -401,9 +401,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
-        journey.getState shouldBe AnswerExportQuestionsExplanation(
+        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        journey.getState shouldBe AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
             ExportQuestions(
@@ -413,7 +413,7 @@ class CreateCaseJourneyISpec
           )
         )
       }
-      "submit the form and ask next for explanation when request type requires mandatory explanation for export" in {
+      "submit the form and ask next for reason when request type requires mandatory reason for export" in {
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -429,9 +429,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
-        journey.getState shouldBe AnswerExportQuestionsExplanation(
+        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        journey.getState shouldBe AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
             ExportQuestions(
@@ -1307,7 +1307,7 @@ class CreateCaseJourneyISpec
           )
         )
       }
-      "submit the form and ask next for explanation when route type requires mandatory explanation for import" in {
+      "submit the form and ask next for reason when route type requires mandatory reason for import" in {
 
         journey.setState(
           AnswerImportQuestionsRouteType(
@@ -1324,9 +1324,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
-        journey.getState shouldBe AnswerImportQuestionsExplanation(
+        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        journey.getState shouldBe AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
             ImportQuestions(
@@ -1336,7 +1336,7 @@ class CreateCaseJourneyISpec
           )
         )
       }
-      "submit the form and ask next for explanation when request type requires mandatory explanation for import" in {
+      "submit the form and ask next for reason when request type requires mandatory reason for import" in {
 
         journey.setState(
           AnswerImportQuestionsRouteType(
@@ -1353,9 +1353,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
-        journey.getState shouldBe AnswerImportQuestionsExplanation(
+        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        journey.getState shouldBe AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
             ImportQuestions(
@@ -1367,10 +1367,10 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "GET /new/export/explanation" should {
-      "show the explanation page in the export journey" in {
+    "GET /new/export/reason" should {
+      "show the reason page in the export journey" in {
 
-        val state = AnswerExportQuestionsExplanation(
+        val state = AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), today),
             ExportQuestions(
@@ -1382,20 +1382,20 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/export/explanation").get())
+        val result = await(request("/new/export/reason").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
     }
 
-    "POST /new/export/explanation" should {
+    "POST /new/export/reason" should {
 
-      "submit no explanation and re-display the form page with error" in {
+      "submit no reason and re-display the form page with error" in {
 
-        val state = AnswerExportQuestionsExplanation(
+        val state = AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
             ExportQuestions(
@@ -1407,35 +1407,35 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("explanationText" -> "")
-        val result = await(request("/new/export/explanation").post(payload))
+        val payload = Map("reasonText" -> "")
+        val result = await(request("/new/export/reason").post(payload))
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
-      "submit invalid text length explanation and re-display the form page with error for export" in {
-        val explanationText = Random.alphanumeric.take(1025).mkString
-        val state = AnswerExportQuestionsExplanation(
+      "submit invalid text length reason and re-display the form page with error for export" in {
+        val reasonText = Random.alphanumeric.take(1025).mkString
+        val state = AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
             ExportQuestions(
               requestType = Some(ExportRequestType.Cancellation),
               routeType = Some(ExportRouteType.Route6),
-              explanation = Some(explanationText)
+              reason = Some(reasonText)
             )
           )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val payload = Map("explanationText" -> explanationText)
-        val result = await(request("/new/export/explanation").post(payload))
+        val payload = Map("reasonText" -> reasonText)
+        val result = await(request("/new/export/reason").post(payload))
 
         result.status shouldBe 200
 
-        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1446,15 +1446,15 @@ class CreateCaseJourneyISpec
             ExportQuestions(
               requestType = Some(ExportRequestType.Cancellation),
               routeType = Some(ExportRouteType.Route6),
-              explanation = Some("bankrupt")
+              reason = Some("bankrupt")
             )
           )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("explanationText" -> "bankrupt")
-        val result = await(request("/new/export/explanation").post(payload))
+        val payload = Map("reasonText" -> "bankrupt")
+        val result = await(request("/new/export/reason").post(payload))
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
@@ -1463,10 +1463,10 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "GET /new/import/explanation" should {
-      "show the explanation page in import journey" in {
+    "GET /new/import/reason" should {
+      "show the reason page in import journey" in {
 
-        val state = AnswerImportQuestionsExplanation(
+        val state = AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), today),
             ImportQuestions(
@@ -1478,20 +1478,20 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/import/explanation").get())
+        val result = await(request("/new/import/reason").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
     }
 
-    "POST /new/import/explanation" should {
+    "POST /new/import/reason" should {
 
-      "submit no explanation and re-display the form page with error" in {
+      "submit no reason and re-display the form page with error" in {
 
-        val state = AnswerImportQuestionsExplanation(
+        val state = AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
             ImportQuestions(
@@ -1503,34 +1503,34 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("explanationText" -> "")
-        val result = await(request("/new/import/explanation").post(payload))
+        val payload = Map("reasonText" -> "")
+        val result = await(request("/new/import/reason").post(payload))
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
-      "submit invalid text length explanation and re-display the form page with error for import" in {
-        val explanationText = Random.alphanumeric.take(1025).mkString
-        val state = AnswerImportQuestionsExplanation(
+      "submit invalid text length reason and re-display the form page with error for import" in {
+        val reasonText = Random.alphanumeric.take(1025).mkString
+        val state = AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
             ImportQuestions(
               requestType = Some(ImportRequestType.Cancellation),
               routeType = Some(ImportRouteType.Route6),
-              explanation = Some(explanationText)
+              reason = Some(reasonText)
             )
           )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val payload = Map("explanationText" -> explanationText)
-        val result = await(request("/new/import/explanation").post(payload))
+        val payload = Map("reasonText" -> reasonText)
+        val result = await(request("/new/import/reason").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.write-explanation-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-explanation-text.heading"))
+        result.body should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
+        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1541,15 +1541,15 @@ class CreateCaseJourneyISpec
             ImportQuestions(
               requestType = Some(ImportRequestType.Cancellation),
               routeType = Some(ImportRouteType.Route6),
-              explanation = Some("bankrupt")
+              reason = Some("bankrupt")
             )
           )
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val payload = Map("explanationText" -> "bankrupt")
-        val result = await(request("/new/import/explanation").post(payload))
+        val payload = Map("reasonText" -> "bankrupt")
+        val result = await(request("/new/import/reason").post(payload))
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
