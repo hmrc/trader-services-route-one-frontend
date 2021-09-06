@@ -522,13 +522,30 @@ view.missing-information.heading=Mae peth o’ch gwybodaeth ar goll
 view.missing-information.description=Nid ydych wedi nodi’r holl wybodaeth sydd ei hangen arnom er mwyn prosesu’ch gwiriad tollau. Llenwch unrhyw wybodaeth sydd ar goll.
 view.missing-information.continue=Llenwch eich gwybodaeth
 
-view.write-explanation-text.heading=Provide an explanation of why you are making this request
-view.write-explanation-text.title=Provide an explanation of why you are making this request
-view.write-explanation-text.hint=Do not include personal or financial information, like credit cards or business account details.
-view.write-explanation-text.continue=Continue
-summary.export-questions.explanation=Explanation
-summary.import-questions.explanation=Explanation
-error.exportExplanationText.invalid-length=Reason must be 1000 characters or fewer
-error.importExplanationText.invalid-length=Reason must be 1000 characters or fewer
-error.exportExplanationText.required=Enter a reason for this export request
-error.importExplanationText.required=Enter a reason for this import request
+# Export Reason Form
+# ----------------------------------------------------------
+form.export-questions.reason-text.heading=Provide a reason for this export request
+form.export-questions.reason-text.title=Provide a reason for this export request
+form.export-questions.reason-text.continue=Continue
+summary.export-questions.reason-text=Reason
+error.export.reason-text.invalid-length=Reason must be 1000 characters or fewer
+error.export.reason-text.required=Enter a reason for this export request
+form.export-questions.reason-text.hint.description1=You must include a reason whenever you:
+form.export-questions.reason-text.hint.list.cancel=cancel an export request
+form.export-questions.reason-text.hint.list.withdraw=withdraw an export request
+form.export-questions.reason-text.hint.list.submit=submit a Route 3 declaration
+form.export-questions.reason-text.hint.description2=Do not include personal or financial information, like credit cards or business account details.
+
+
+# Import Reason Form
+# ----------------------------------------------------------
+form.import-questions.reason-text.heading=Provide a reason for this import request
+form.import-questions.reason-text.title=Provide a reason for this import request
+form.import-questions.reason-text.continue=Continue
+summary.import-questions.reason-text=Reason
+error.import.reason-text.invalid-length=Reason must be 1000 characters or fewer
+error.import.reason-text.required=Enter a reason for this import request
+form.import-questions.reason-text.hint.description1=You must include a reason whenever you:
+form.import-questions.reason-text.hint.list.cancel=cancel an import request
+form.import-questions.reason-text.hint.list.submit=submit a Route 3 declaration
+form.import-questions.reason-text.hint.description2=Do not include personal or financial information, like credit cards or business account details.

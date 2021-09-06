@@ -220,35 +220,35 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       )
     }
 
-    "validate import explanation text" in {
+    "validate import reason text" in {
       val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
-      importExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
-      importExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
-      importExplanationTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      importExplanationTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
-      importExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
-      importExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
-      importExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
-        "error.importExplanationText.invalid-length"
+      importReasonTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
+      importReasonTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
+      importReasonTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
+      importReasonTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
+      importReasonTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
+      importReasonTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+      importReasonTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+        "error.import.reason-text.invalid-length"
       )
-      importExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.importExplanationText.required"
+      importReasonTextMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.import.reason-text.required"
       )
     }
 
-    "validate export explanation text" in {
+    "validate export reason text" in {
       val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
-      exportExplanationTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
-      exportExplanationTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
-      exportExplanationTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      exportExplanationTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
-      exportExplanationTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
-      exportExplanationTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
-      exportExplanationTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
-        "error.exportExplanationText.invalid-length"
+      exportReasonTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
+      exportReasonTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
+      exportReasonTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
+      exportReasonTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
+      exportReasonTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
+      exportReasonTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+      exportReasonTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+        "error.export.reason-text.invalid-length"
       )
-      exportExplanationTextMapping.bind(Map("" -> "")) should haveOnlyError(
-        "error.exportExplanationText.required"
+      exportReasonTextMapping.bind(Map("" -> "")) should haveOnlyError(
+        "error.export.reason-text.required"
       )
     }
 
