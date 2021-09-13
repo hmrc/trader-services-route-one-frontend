@@ -25,20 +25,22 @@ import play.api.libs.json._
   */
 trait EnumerationFormats[A] {
 
+  import EnumerationFormats._
+
   /** Set of enum values recognized by the formatter. */
   val values: Set[A]
 
   private lazy val valuesMap: Map[String, A] =
-    values.map(value => (normalize(value.getClass.getSimpleName), value)).toMap
+    values.map(value => (identityOf(value), value)).toMap
 
-  lazy val keys: Set[String] = values.map(value => normalize(value.getClass.getSimpleName))
+  lazy val keys: Set[String] = values.map(value => identityOf(value))
 
   /** Checks if given string is a valid enum key. */
   lazy val isValidKey: String => Boolean = keys.contains
 
   /** Optionally returns string key for a given enum value, if recognized or None */
   def keyOf(value: A): Option[String] =
-    Option(normalize(value.getClass.getSimpleName))
+    Option(identityOf(value))
       .filter(isValidKey)
 
   /** Optionally returns enum for a given key, if exists or None */
@@ -64,9 +66,20 @@ trait EnumerationFormats[A] {
     )
   )
 
-  private def normalize(name: String): String = if (name.endsWith("$")) name.dropRight(1) else name
-
   /** Instance of a typeclass declaration */
   implicit val enumerationFormats: EnumerationFormats[A] = this
 
+}
+
+object EnumerationFormats {
+
+  def identityOf[A](entity: A): String = {
+    val name = entity.getClass.toString
+    val name1 = if (name.endsWith("$") || name.endsWith(".")) name.dropRight(1) else name
+    val name2 = {
+      val i = Math.max(name1.lastIndexOf("."), name1.lastIndexOf("$")) + 1
+      name1.substring(i)
+    }
+    name2
+  }
 }

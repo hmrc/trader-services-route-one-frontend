@@ -24,11 +24,11 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
-import scala.io.AnsiColor
+import play.api.libs.json.JsValue
 
 /**
   * Journey persistence service mixin,
-  * stores encrypted serialized state using SessionCache.
+  * stores encrypted serialized state using [[JourneyCache]].
   */
 trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -62,6 +62,9 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       self.getJourneyId(requestContext)
   }
 
+  def encrypt(state: model.State, breadcrumbs: List[model.State]): JsValue =
+    encryptionFormat.writes(Protected(PersistentState(state, breadcrumbs)))
+
   final override def apply(
     transition: model.Transition
   )(implicit rc: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] =
@@ -78,7 +81,8 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
             Protected(
               PersistentState(
                 endState,
-                updateBreadcrumbs(endState, state, breadcrumbs)
+                if (endState == state) breadcrumbs
+                else state :: breadcrumbsRetentionStrategy(breadcrumbs)
               )
             )
           }
@@ -88,11 +92,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
         val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
         if (traceFSM) {
           println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
-          println(
-            s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(getStateName)}"
-          )
+          println(stateAndBreadcrumbs._1)
         }
         stateAndBreadcrumbs
       }
@@ -117,20 +117,10 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       .map { _ =>
         if (traceFSM) {
           println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
-          println(
-            s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(getStateName)}"
-          )
+          println(stateAndBreadcrumbs._1)
         }
         stateAndBreadcrumbs
       }
-  }
-
-  private def getStateName(state: model.State): String = {
-    val c1 = state.getClass.toString()
-    val c2 = if (c1.endsWith("$")) c1.dropRight(1) else c1
-    c2.reverse.takeWhile(_ != '$').reverse
   }
 
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =

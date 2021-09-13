@@ -532,9 +532,10 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerExportQuestionsReason =
       Transition {
-        case s: ExportQuestionsState =>
+        case s: ExportQuestionsState if Rules.isReasonMandatory(s.model.exportQuestionsAnswers) =>
           goto(AnswerExportQuestionsReason(s.model))
       }
+
     final def submittedExportQuestionsAnswerReason(reason: String) =
       Transition {
         case AnswerExportQuestionsReason(model) =>
@@ -608,10 +609,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
       }
 
-    final val backToAnswerExportQuestionsMandatoryVesselInfo =
+    final val backToAnswerExportQuestionsVesselInfo =
       Transition {
-        case s: ExportQuestionsState =>
+        case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.exportQuestionsAnswers) =>
           goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
+        case s: ExportQuestionsState =>
+          goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
       }
 
     final def submittedExportQuestionsMandatoryVesselDetails(vesselDetails: VesselDetails) =
@@ -622,14 +625,6 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
               model.updated(model.exportQuestionsAnswers.copy(vesselDetails = Some(vesselDetails)))
             )
           )
-      }
-
-    final val backToAnswerExportQuestionsOptionalVesselInfo =
-      Transition {
-        case s: ExportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.exportQuestionsAnswers) =>
-          goto(AnswerExportQuestionsMandatoryVesselInfo(s.model))
-        case s: ExportQuestionsState =>
-          goto(AnswerExportQuestionsOptionalVesselInfo(s.model))
       }
 
     final def submittedExportQuestionsOptionalVesselDetails(vesselDetails: VesselDetails) =
@@ -778,7 +773,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToAnswerImportQuestionsReason =
       Transition {
-        case s: ImportQuestionsState =>
+        case s: ImportQuestionsState if Rules.isReasonMandatory(s.model.importQuestionsAnswers) =>
           goto(AnswerImportQuestionsReason(s.model))
       }
     final def submittedImportQuestionsAnswerReason(reason: String) =
@@ -868,27 +863,19 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
             )
       }
 
-    final val backToAnswerImportQuestionsMandatoryVesselInfo =
-      Transition {
-        case s: ImportQuestionsState =>
-          goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))
-      }
-
     final def submittedImportQuestionsMandatoryVesselDetails(vesselDetails: VesselDetails) =
       Transition {
         case AnswerImportQuestionsMandatoryVesselInfo(model) if vesselDetails.isComplete =>
           gotoSummaryIfCompleteOr(
             AnswerImportQuestionsContactInfo(
               model.updated(
-                model.importQuestionsAnswers.copy(vesselDetails =
-                  if (vesselDetails.isEmpty) None else Some(vesselDetails)
-                )
+                model.importQuestionsAnswers.copy(vesselDetails = Some(vesselDetails))
               )
             )
           )
       }
 
-    final val backToAnswerImportQuestionsOptionalVesselInfo =
+    final val backToAnswerImportQuestionsVesselInfo =
       Transition {
         case s: ImportQuestionsState if Rules.isVesselDetailsAnswerMandatory(s.model.importQuestionsAnswers) =>
           goto(AnswerImportQuestionsMandatoryVesselInfo(s.model))

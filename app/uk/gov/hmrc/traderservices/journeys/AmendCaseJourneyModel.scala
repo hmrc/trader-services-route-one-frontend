@@ -117,10 +117,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
           val updatedModel = model.copy(typeOfAmendment = Some(typeOfAmendment))
           typeOfAmendment match {
             case TypeOfAmendment.WriteResponse =>
-              goto(EnterResponseText(updatedModel.copy(fileUploads = None)))
+              gotoSummaryIfComplete(EnterResponseText(updatedModel.copy(fileUploads = None)))
 
             case TypeOfAmendment.WriteResponseAndUploadDocuments =>
-              goto(EnterResponseText(updatedModel))
+              gotoSummaryIfComplete(EnterResponseText(updatedModel))
 
             case TypeOfAmendment.UploadDocuments =>
               if (uploadMultipleFiles)
@@ -140,10 +140,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToEnterResponseText =
       Transition {
-        case s: AmendCaseState =>
+        case s: AmendCaseState if s.model.typeOfAmendment.exists(TypeOfAmendment.havingWriteResponse.contains(_)) =>
           goto(EnterResponseText(s.model))
 
-        case s: FileUploadState =>
+        case s: FileUploadState if s.hostData.typeOfAmendment.exists(TypeOfAmendment.havingWriteResponse.contains(_)) =>
           goto(EnterResponseText(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 

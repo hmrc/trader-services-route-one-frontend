@@ -37,6 +37,7 @@ class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
   "CreateCaseJourneyStateFormats" should {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat("""{"state":"Start"}""", State.Start)
+      validateJsonFormat("""{"state":"WorkInProgressDeadEnd"}""", State.WorkInProgressDeadEnd)
       validateJsonFormat(
         """{"state":"TurnToAmendCaseJourney","properties":{"continueAmendCaseJourney":true}}""",
         State.TurnToAmendCaseJourney(true)

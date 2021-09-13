@@ -39,6 +39,10 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
         State.Start
       )
       validateJsonFormat(
+        """{"state":"WorkInProgressDeadEnd"}""",
+        State.WorkInProgressDeadEnd
+      )
+      validateJsonFormat(
         """{"state":"EnterCaseReferenceNumber","properties":{"model":{}}}""",
         State.EnterCaseReferenceNumber()
       )

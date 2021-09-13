@@ -32,5 +32,9 @@ object TypeOfAmendment extends EnumerationFormats[TypeOfAmendment] {
     override def viewFormat = "view.amend-case.summary.type.messageAndDocuments"
   }
 
-  val values = Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
+  final val values: Set[TypeOfAmendment] =
+    Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
+
+  final val havingWriteResponse: Set[TypeOfAmendment] =
+    Set(TypeOfAmendment.WriteResponse, TypeOfAmendment.WriteResponseAndUploadDocuments)
 }

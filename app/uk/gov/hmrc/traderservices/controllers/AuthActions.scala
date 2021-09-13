@@ -72,11 +72,4 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       toGGLogin(continueUrl)
   }
 
-  def handleStrideFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
-
-    case _: AuthorisationException ⇒
-      val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
-      toStrideLogin(continueUrl)
-  }
-
 }

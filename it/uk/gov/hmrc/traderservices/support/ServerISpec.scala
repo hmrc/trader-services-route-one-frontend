@@ -2,13 +2,12 @@ package uk.gov.hmrc.traderservices.support
 
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Application
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import play.api.mvc.SessionCookieBaker
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import java.util.UUID
-import play.api.libs.ws.ahc.StandaloneAhcWSClient
 
 abstract class ServerISpec extends BaseISpec with GuiceOneServerPerSuite {
 

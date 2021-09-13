@@ -17,22 +17,30 @@
 package uk.gov.hmrc.traderservices.support
 
 import java.util.concurrent.atomic.AtomicReference
+import java.util.function.UnaryOperator
 
 import scala.concurrent.{ExecutionContext, Future}
 
 /**
   * Basic in-memory store used to test journeys.
   */
-trait InMemoryStore[S, C] {
+trait InMemoryStore[Entity] {
 
-  private val state = new AtomicReference[Option[S]](None)
+  private val state: AtomicReference[Option[Entity]] = new AtomicReference(None)
 
-  def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[S]] =
-    Future.successful(state.get)
+  def fetch: Future[Option[Entity]] =
+    Future.successful(state.get())
 
-  def save(newState: S)(implicit requestContext: C, ec: ExecutionContext): Future[S] =
+  def save(newState: Entity)(implicit ec: ExecutionContext): Future[Entity] =
     Future {
-      state.set(Some(newState))
-      newState
+      state
+        .updateAndGet(new UnaryOperator[Option[Entity]] {
+          override def apply(t: Option[Entity]): Option[Entity] = Some(newState)
+        })
+        .get
     }
+
+  def clear(): Unit =
+    state.set(None)
+
 }

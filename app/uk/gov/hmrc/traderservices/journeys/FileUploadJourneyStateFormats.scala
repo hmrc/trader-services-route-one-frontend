@@ -76,20 +76,6 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
     )(unlift(FileUploaded.unapply))
   )
 
-  private val uploadRequestMapFormat: Format[Map[String, UploadRequest]] = {
-    val uploadRequestFormat = implicitly[Format[UploadRequest]]
-    Format(
-      Reads[Map[String, UploadRequest]] {
-        case obj: JsObject => JsSuccess(obj.fields.map { case (k, v) => (k, uploadRequestFormat.reads(v).get) }.toMap)
-        case other         => JsError(s"Expected JsObject, but got ${other.getClass().getSimpleName()}.")
-      },
-      Writes[Map[String, UploadRequest]] {
-        case uploadRequestMap =>
-          JsObject(uploadRequestMap.mapValues(uploadRequestFormat.writes(_)))
-      }
-    )
-  }
-
   lazy val uploadMultipleFilesFormat = Format(
     (
       (__ \ "hostData").read[model.FileUploadHostData](fileUploadHostDataFormat) and
@@ -100,20 +86,5 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
         (__ \ "fileUploads").write[FileUploads]
     )(unlift(UploadMultipleFiles.unapply))
   )
-
-  val serializeFileUploadStateProperties: PartialFunction[model.State, JsValue] = {
-    case s: UploadFile                 => uploadFileFormat.writes(s)
-    case s: FileUploaded               => fileUploadedFormat.writes(s)
-    case s: WaitingForFileVerification => waitingForFileVerificationFormat.writes(s)
-    case s: UploadMultipleFiles        => uploadMultipleFilesFormat.writes(s)
-  }
-
-  def deserializeFileUploadState(stateName: String, properties: JsValue): JsResult[model.State] =
-    stateName match {
-      case "UploadFile"                 => uploadFileFormat.reads(properties)
-      case "FileUploaded"               => fileUploadedFormat.reads(properties)
-      case "WaitingForFileVerification" => waitingForFileVerificationFormat.reads(properties)
-      case "UploadMultipleFiles"        => uploadMultipleFilesFormat.reads(properties)
-    }
 
 }

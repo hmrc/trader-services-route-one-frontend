@@ -4,6 +4,7 @@
 !.gitignore
 !.scalafmt.conf
 !.description
+!.scalafix.conf
 
 .cache
 /.classpath
