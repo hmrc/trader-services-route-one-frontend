@@ -524,28 +524,28 @@ view.missing-information.continue=Llenwch eich gwybodaeth
 
 # Export Reason Form
 # ----------------------------------------------------------
-form.export-questions.reason-text.heading=Provide a reason for this export request
-form.export-questions.reason-text.title=Provide a reason for this export request
-form.export-questions.reason-text.continue=Continue
-summary.export-questions.reason-text=Reason
-error.export.reason-text.invalid-length=Reason must be 1000 characters or fewer
-error.export.reason-text.required=Enter a reason for this export request
-form.export-questions.reason-text.hint.description1=You must include a reason whenever you:
-form.export-questions.reason-text.hint.list.cancel=cancel an export request
-form.export-questions.reason-text.hint.list.withdraw=withdraw an export request
-form.export-questions.reason-text.hint.list.submit=submit a Route 3 declaration
-form.export-questions.reason-text.hint.description2=Do not include personal or financial information, like credit cards or business account details.
+form.export-questions.reason-text.heading=Rhowch reswm dros y cais allforio hwn
+form.export-questions.reason-text.title=Rhowch reswm dros y cais allforio hwn
+form.export-questions.reason-text.continue=Yn eich blaen
+summary.export-questions.reason-text=Rheswm
+error.export.reason-text.invalid-length=Mae’n rhaid i’r rheswm fod yn 1000 o gymeriadau neu lai
+error.export.reason-text.required=Nodwch reswm dros y cais allforio hwn
+form.export-questions.reason-text.hint.description1=Mae’n rhaid i chi gynnwys rheswm pryd bynnag y byddwch yn:
+form.export-questions.reason-text.hint.list.cancel=canslo cais allforio
+form.export-questions.reason-text.hint.list.withdraw=tynnu cais allforio yn ôl
+form.export-questions.reason-text.hint.list.submit=cyflwyno datganiad Llwybr 3
+form.export-questions.reason-text.hint.description2=Peidiwch â chynnwys gwybodaeth bersonol nac ariannol, megis manylion cardiau credyd neu fanylion cyfrif busnes.
 
 
 # Import Reason Form
 # ----------------------------------------------------------
-form.import-questions.reason-text.heading=Provide a reason for this import request
-form.import-questions.reason-text.title=Provide a reason for this import request
-form.import-questions.reason-text.continue=Continue
-summary.import-questions.reason-text=Reason
-error.import.reason-text.invalid-length=Reason must be 1000 characters or fewer
-error.import.reason-text.required=Enter a reason for this import request
-form.import-questions.reason-text.hint.description1=You must include a reason whenever you:
-form.import-questions.reason-text.hint.list.cancel=cancel an import request
-form.import-questions.reason-text.hint.list.submit=submit a Route 3 declaration
-form.import-questions.reason-text.hint.description2=Do not include personal or financial information, like credit cards or business account details.
+form.import-questions.reason-text.heading=Rhowch reswm dros y cais mewnforio hwn
+form.import-questions.reason-text.title=Rhowch reswm dros y cais mewnforio hwn
+form.import-questions.reason-text.continue=Yn eich blaen
+summary.import-questions.reason-text=Rheswm
+error.import.reason-text.invalid-length=Mae’n rhaid i’r rheswm fod yn 1000 o gymeriadau neu lai
+error.import.reason-text.required=Nodwch reswm dros y cais mewnforio hwn
+form.import-questions.reason-text.hint.description1=Mae’n rhaid i chi gynnwys rheswm pryd bynnag y byddwch yn:
+form.import-questions.reason-text.hint.list.cancel=canslo cais mewnforio
+form.import-questions.reason-text.hint.list.submit=cyflwyno datganiad Llwybr 3
+form.import-questions.reason-text.hint.description2=Peidiwch â chynnwys gwybodaeth bersonol nac ariannol, megis manylion cardiau credyd neu fanylion cyfrif busnes.
