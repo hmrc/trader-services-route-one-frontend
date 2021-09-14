@@ -5,7 +5,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import java.util.UUID
 
-class MongoDBCachedPizzaTaxJourneyServiceSpec extends AppISpec {
+class MongoDBCachedCreateCaseJourneyServiceSpec extends AppISpec {
 
   lazy val service: MongoDBCachedCreateCaseJourneyService =
     app.injector.instanceOf[MongoDBCachedCreateCaseJourneyService]
