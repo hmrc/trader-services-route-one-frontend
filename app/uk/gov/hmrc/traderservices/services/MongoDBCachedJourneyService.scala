@@ -25,6 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
 import play.api.libs.json.JsValue
+import scala.io.AnsiColor
 
 /**
   * Journey persistence service mixin,
@@ -92,7 +93,11 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
         val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
         if (traceFSM) {
           println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(stateAndBreadcrumbs._1)
+          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
+          println(
+            s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
+              .map(nameOf)}"
+          )
         }
         stateAndBreadcrumbs
       }
@@ -117,7 +122,11 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       .map { _ =>
         if (traceFSM) {
           println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(stateAndBreadcrumbs._1)
+          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
+          println(
+            s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
+              .map(nameOf)}"
+          )
         }
         stateAndBreadcrumbs
       }
@@ -125,5 +134,16 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
 
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     cache.clear()
+
+  private def nameOf(state: model.State): String = {
+    val className = state.getClass.getName
+    val lastDot = className.lastIndexOf('.')
+    val typeName = {
+      val s = if (lastDot < 0) className else className.substring(lastDot + 1)
+      if (s.last == '$') s.init else s
+    }
+    val lastDollar = typeName.lastIndexOf('$')
+    if (lastDollar < 0) typeName else typeName.substring(lastDollar + 1)
+  }
 
 }
