@@ -1014,6 +1014,38 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     type CreateCaseApi = TraderServicesCreateCaseRequest => Future[TraderServicesCaseResponse]
 
+    object IsReadyForCreateCaseRequest {
+      def unapply(s: State): Option[TraderServicesCreateCaseRequest] =
+        s match {
+          case state: ExportQuestionsSummary if Rules.isComplete(state.model) =>
+            val uploadedFiles =
+              state.model.fileUploadsOpt.get.toUploadedFiles
+            Some(
+              TraderServicesCreateCaseRequest(
+                state.model.entryDetails,
+                state.model.exportQuestionsAnswers,
+                uploadedFiles,
+                None
+              )
+            )
+
+          case state: ImportQuestionsSummary if Rules.isComplete(state.model) =>
+            val uploadedFiles =
+              state.model.fileUploadsOpt.get.toUploadedFiles
+            Some(
+              TraderServicesCreateCaseRequest(
+                state.model.entryDetails,
+                state.model.importQuestionsAnswers,
+                uploadedFiles,
+                None
+              )
+            )
+
+          case _ => None
+        }
+
+    }
+
     final def createCase(
       createCaseApi: CreateCaseApi
     )(uidAndEori: (Option[String], Option[String]))(implicit ec: ExecutionContext) = {
@@ -1054,32 +1086,11 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
           }
 
       Transition {
-        case state: ExportQuestionsSummary if Rules.isComplete(state.model) =>
-          val uploadedFiles =
-            state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
-          val createCaseRequest =
-            TraderServicesCreateCaseRequest(
-              state.model.entryDetails,
-              state.model.exportQuestionsAnswers,
-              uploadedFiles,
-              uidAndEori._2
-            )
-          invokeCreateCaseApi(createCaseRequest)
+        case IsReadyForCreateCaseRequest(request) =>
+          invokeCreateCaseApi(request.copy(eori = uidAndEori._2))
 
         case state: ExportQuestionsSummary =>
           goto(ExportQuestionsMissingInformationError(state.model))
-
-        case state: ImportQuestionsSummary if Rules.isComplete(state.model) =>
-          val uploadedFiles =
-            state.model.fileUploadsOpt.getOrElse(FileUploads()).toUploadedFiles
-          val createCaseRequest =
-            TraderServicesCreateCaseRequest(
-              state.model.entryDetails,
-              state.model.importQuestionsAnswers,
-              uploadedFiles,
-              uidAndEori._2
-            )
-          invokeCreateCaseApi(createCaseRequest)
 
         case state: ImportQuestionsSummary =>
           goto(ImportQuestionsMissingInformationError(state.model))

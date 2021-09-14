@@ -31,7 +31,8 @@ lazy val compileDeps = Seq(
 def testDeps(scope: String) =
   Seq(
     "org.scalatest"       %% "scalatest"    % "3.2.8"  % scope,
-    "com.vladsch.flexmark" % "flexmark-all" % "0.36.8" % scope
+    "com.vladsch.flexmark" % "flexmark-all" % "0.36.8" % scope,
+    "org.scalameta"       %% "munit"        % "0.7.29" % scope
   )
 
 lazy val itDeps = Seq(

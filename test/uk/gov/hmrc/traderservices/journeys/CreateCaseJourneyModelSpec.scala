@@ -4588,6 +4588,86 @@ class CreateCaseJourneyModelSpec
           )
         )
       }
+
+      "switch over to UploadMultipleFiles when toUploadMultipleFiles" in {
+        given(
+          UploadFile(
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            nonEmptyFileUploads,
+            None
+          )
+        )
+          .when(toUploadMultipleFiles)
+          .thenGoes(
+            UploadMultipleFiles(
+              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+              nonEmptyFileUploads
+            )
+          )
+      }
+
+      "go to UploadFile when initiateFileUpload and number of uploaded files below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(UploadMultipleFiles(hostData, fileUploads))
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "go to FileUploaded when initiateFileUpload and number of uploaded files above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(UploadMultipleFiles(hostData, fileUploads))
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            FileUploaded(
+              hostData,
+              fileUploads
+            )
+          )
+      }
     }
 
     "at state WaitingForFileVerification" should {
@@ -4610,7 +4690,7 @@ class CreateCaseJourneyModelSpec
             )
           )
         )
-        given(state) when waitForFileVerification should thenGo(state)
+        given(state).when(waitForFileVerification).thenNoChange
       }
 
       "go to UploadFile when waitForFileVerification and reference unknown" in {
@@ -5030,6 +5110,33 @@ class CreateCaseJourneyModelSpec
           )
         )
       }
+
+      "go to UploadFile when initiateFileUpload" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val uploadRequest = UploadRequest(
+          href = "https://s3.bucket",
+          fields = Map(
+            "callbackUrl"     -> "https://foo.bar/callback",
+            "successRedirect" -> "https://foo.bar/success",
+            "errorRedirect"   -> "https://foo.bar/failure"
+          )
+        )
+        val fileUploads = FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
+          )
+        )
+        val state = WaitingForFileVerification(
+          hostData,
+          "foo-bar-ref-1",
+          uploadRequest,
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          fileUploads
+        )
+        given(state)
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(UploadFile(hostData, "foo-bar-ref-1", uploadRequest, fileUploads))
+      }
     }
 
     "at state FileUploaded" should {
@@ -5053,10 +5160,70 @@ class CreateCaseJourneyModelSpec
           ),
           acknowledged = false
         )
+        given(state)
+          .when(waitForFileVerification)
+          .thenGoes(state.copy(acknowledged = true))
+      }
 
-        given(state) when
-          waitForFileVerification should
-          thenGo(state.copy(acknowledged = true))
+      "go to UploadFile when initiateFileUpload and number of uploads below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(
+          FileUploaded(
+            hostData,
+            fileUploads,
+            acknowledged = false
+          )
+        )
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "stay when initiateFileUpload and number of uploads above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(
+          FileUploaded(
+            hostData,
+            fileUploads,
+            acknowledged = false
+          )
+        )
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenNoChange
       }
     }
 
@@ -5265,6 +5432,98 @@ class CreateCaseJourneyModelSpec
             )
           )(start)
         ) shouldBe Start
+      }
+
+      "match commonFileUploadStatusHandler" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = nonEmptyFileUploads
+        val uploadRequest = UploadRequest(
+          href = "https://s3.bucket",
+          fields = Map(
+            "callbackUrl"     -> "https://foo.bar/callback",
+            "successRedirect" -> "https://foo.bar/success",
+            "errorRedirect"   -> "https://foo.bar/failure"
+          )
+        )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(None)
+        )
+          .shouldBe(Start)
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadAccepted))
+        )
+          .shouldBe(FileUploaded(hostData, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadPosted))
+        )
+          .shouldBe(WaitingForFileVerification(hostData, "foo-ref", uploadRequest, fileUploadPosted, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadInitiated))
+        )
+          .shouldBe(UploadFile(hostData, "foo-ref", uploadRequest, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadRejected))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(FileTransmissionFailed(fileUploadRejected.details))
+            )
+          )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadFailed))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(FileVerificationFailed(fileUploadFailed.details))
+            )
+          )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadDuplicate))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(
+                DuplicateFileUpload(
+                  fileUploadDuplicate.checksum,
+                  fileUploadDuplicate.existingFileName,
+                  fileUploadDuplicate.duplicateFileName
+                )
+              )
+            )
+          )
       }
     }
   }
