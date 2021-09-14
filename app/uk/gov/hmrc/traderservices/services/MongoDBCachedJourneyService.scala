@@ -82,8 +82,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
             Protected(
               PersistentState(
                 endState,
-                if (endState == state) breadcrumbs
-                else state :: breadcrumbsRetentionStrategy(breadcrumbs)
+                updateBreadcrumbs(endState, state, breadcrumbs)
               )
             )
           }
