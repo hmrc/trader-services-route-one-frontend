@@ -50,6 +50,13 @@ class TimestampSpec extends UnitSpec {
       }
     }
 
+    "do not compare to other entities" in {
+      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+        Timestamp(i) should not be (s"$i")
+        Timestamp(i) should not be (i.toInt)
+      }
+    }
+
     "check isAfter" in {
       Timestamp(1).isAfter(Timestamp(2), 1) shouldBe false
       Timestamp(2).isAfter(Timestamp(1), 1) shouldBe false
@@ -62,6 +69,14 @@ class TimestampSpec extends UnitSpec {
     "print as human readable time" in {
       Timestamp(0).toString shouldBe "00:00:00"
       Timestamp(1).toString shouldBe "00:00:00.001"
+    }
+
+    "have stable and unique hash code" in {
+      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+        Timestamp(i).hashCode shouldBe i.toInt
+        Timestamp(i).hashCode should not be (Timestamp(i + 1).hashCode)
+        Timestamp(i).hashCode should not be (Timestamp(i - 1).hashCode)
+      }
     }
   }
 }

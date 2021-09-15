@@ -73,8 +73,10 @@ trait EnumerationFormats[A] {
 
 object EnumerationFormats {
 
-  def identityOf[A](entity: A): String = {
-    val name = entity.getClass.toString
+  def identityOf[A](entity: A): String =
+    normalize(entity.getClass.toString)
+
+  def normalize(name: String): String = {
     val name1 = if (name.endsWith("$") || name.endsWith(".")) name.dropRight(1) else name
     val name2 = {
       val i = Math.max(name1.lastIndexOf("."), name1.lastIndexOf("$")) + 1
@@ -82,4 +84,5 @@ object EnumerationFormats {
     }
     name2
   }
+
 }

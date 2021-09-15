@@ -22,10 +22,7 @@ case class ImportContactInfo(
   contactName: Option[String] = None,
   contactEmail: String,
   contactNumber: Option[String] = None
-) {
-
-  def isEmpty = contactEmail.isEmpty && contactNumber.isEmpty
-}
+)
 
 object ImportContactInfo {
   implicit val formats: Format[ImportContactInfo] = Json.format[ImportContactInfo]

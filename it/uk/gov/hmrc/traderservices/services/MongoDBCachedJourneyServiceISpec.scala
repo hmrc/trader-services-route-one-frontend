@@ -31,6 +31,8 @@ class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecS
 
   implicit val context: String = UUID.randomUUID().toString()
 
+  class A
+
   "MongoDBCachedJourneyService" should {
 
     "store and fetch a state" in {
@@ -123,6 +125,12 @@ class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecS
 
     "do not throw an exception when clearing with missing journeyId" in {
       await(service.clear(null, implicitly[ExecutionContext])) shouldBe (())
+    }
+
+    "have a nameOf method" in {
+      service.nameOf(5) shouldBe "Integer"
+      service.nameOf(this) shouldBe "MongoDBCachedJourneyServiceISpec"
+      service.nameOf(new A) shouldBe "A"
     }
   }
 

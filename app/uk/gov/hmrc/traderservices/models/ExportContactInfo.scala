@@ -22,10 +22,7 @@ case class ExportContactInfo(
   contactName: Option[String] = None,
   contactEmail: String,
   contactNumber: Option[String] = None
-) {
-
-  def isEmpty = contactEmail.isEmpty && contactNumber.isEmpty
-}
+)
 
 object ExportContactInfo {
   implicit val formats: Format[ExportContactInfo] = Json.format[ExportContactInfo]

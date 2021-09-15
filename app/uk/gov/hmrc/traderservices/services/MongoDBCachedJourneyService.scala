@@ -134,15 +134,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     cache.clear()
 
-  private def nameOf(state: model.State): String = {
-    val className = state.getClass.getName
-    val lastDot = className.lastIndexOf('.')
-    val typeName = {
-      val s = if (lastDot < 0) className else className.substring(lastDot + 1)
-      if (s.last == '$') s.init else s
-    }
-    val lastDollar = typeName.lastIndexOf('$')
-    if (lastDollar < 0) typeName else typeName.substring(lastDollar + 1)
-  }
+  final def nameOf(state: Any): String =
+    uk.gov.hmrc.traderservices.models.EnumerationFormats.identityOf(state)
 
 }
