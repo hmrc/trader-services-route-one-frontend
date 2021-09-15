@@ -24,6 +24,10 @@ class TimeInputSpec extends UnitSpec {
 
   "TimeInputSpec" should {
     "serialize and deserialize" in new JsonFormatTest[TimeInput](info) {
+      validateJsonReads(
+        """{}""",
+        TimeInput()
+      )
       validateJsonFormat(
         """{"id":"","items":[],"periodSelectItems":[],"formGroup":{"classes":""},"classes":"","attributes":{},"showSelectPeriod":true}""",
         TimeInput()
