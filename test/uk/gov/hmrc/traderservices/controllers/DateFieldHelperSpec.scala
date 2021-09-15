@@ -165,6 +165,12 @@ class DateFieldHelperSpec extends UnitSpec with FormMappingMatchers {
     dateFieldsMapping("foo").bind(Map("year" -> "2001", "month" -> "02", "day" -> "29")) should haveOnlyErrors(
       "error.foo.day.invalid-value"
     )
+    dateFieldsMapping("foo").bind(Map("year" -> "2001", "month" -> "a02", "day" -> "a29")) should haveOnlyErrors(
+      "error.foo.all.invalid-value"
+    )
+    dateFieldsMapping("foo").bind(Map("year" -> "2001", "month" -> "02", "day" -> "aaa")) should haveOnlyErrors(
+      "error.foo.day.invalid-value"
+    )
   }
 
   "optionally validate and map date parts into a date" in {

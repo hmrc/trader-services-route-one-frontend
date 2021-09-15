@@ -17,6 +17,8 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import uk.gov.hmrc.traderservices.support.{FormMatchers, UnitSpec}
+import play.api.data.validation.Valid
+import play.api.data.validation.Invalid
 
 class ContactFieldHelperSpec extends UnitSpec with FormMatchers {
 
@@ -39,6 +41,13 @@ class ContactFieldHelperSpec extends UnitSpec with FormMatchers {
 
     "formatNumber" in {
       ContactFieldHelper.replayNumber("01234567891") shouldBe "01234 567 891"
+    }
+
+    "validate a number" in {
+      ContactFieldHelper.contactNumber("foo").apply("01234567898") shouldBe Valid
+      ContactFieldHelper.contactNumber("foo").apply("(123) 456-123") shouldBe a[Invalid]
+      ContactFieldHelper.contactNumber("foo").apply("") shouldBe a[Invalid]
+      ContactFieldHelper.contactNumber("foo").apply(null) shouldBe a[Invalid]
     }
   }
 }

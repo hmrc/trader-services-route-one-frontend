@@ -24,6 +24,8 @@ import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 
 import java.time.LocalTime
 import scala.util.Random
+import play.api.data.validation.Invalid
+import play.api.data.validation.Valid
 
 class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
 
@@ -769,6 +771,14 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
       responseTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
       responseTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
       responseTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+    }
+
+    "validate all constraints" in {
+      FormFieldMappings.all(FormFieldMappings.nonEmpty("foo")).apply("a") shouldBe Valid
+      FormFieldMappings.all(FormFieldMappings.nonEmpty("foo")).apply("") shouldBe a[Invalid]
+      FormFieldMappings
+        .all(FormFieldMappings.nonEmpty("foo1"), FormFieldMappings.nonEmpty("foo2"))
+        .apply("") shouldBe a[Invalid]
     }
   }
 
