@@ -33,6 +33,14 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       }
     }
 
+    "GET /sign-out-no-survey" should {
+      "redirect to the feedback survey" in {
+        givenSignOut()
+        val result = await(requestWithoutJourneyId("/sign-out-no-survey").get())
+        result.status shouldBe 200
+      }
+    }
+
     "GET /keep-alive" should {
       "respond with an empty json body" in {
         val result = await(requestWithoutJourneyId("/keep-alive").get())
@@ -64,6 +72,15 @@ trait SessionControllerISpecSetup extends ServerISpec {
     stubFor(
       get(urlPathEqualTo("/dummy-sign-out-url"))
         .withQueryParam("continue", matching(appConfig.exitSurveyUrl))
+        .willReturn(
+          aResponse()
+            .withStatus(200)
+        )
+    )
+
+  def givenSignOut(): Unit =
+    stubFor(
+      get(urlPathEqualTo("/dummy-sign-out-url"))
         .willReturn(
           aResponse()
             .withStatus(200)
