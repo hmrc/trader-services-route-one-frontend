@@ -140,10 +140,10 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final val backToEnterResponseText =
       Transition {
-        case s: AmendCaseState if s.model.typeOfAmendment.exists(TypeOfAmendment.havingWriteResponse.contains(_)) =>
+        case s: AmendCaseState if s.model.typeOfAmendment.exists(_.hasResponse) =>
           goto(EnterResponseText(s.model))
 
-        case s: FileUploadState if s.hostData.typeOfAmendment.exists(TypeOfAmendment.havingWriteResponse.contains(_)) =>
+        case s: FileUploadState if s.hostData.typeOfAmendment.exists(_.hasResponse) =>
           goto(EnterResponseText(s.hostData.copy(fileUploads = Some(s.fileUploads))))
       }
 
