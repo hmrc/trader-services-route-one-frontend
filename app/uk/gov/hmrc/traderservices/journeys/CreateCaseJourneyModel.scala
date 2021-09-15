@@ -699,6 +699,12 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
                 )
               )
           }
+
+        case s: ImportQuestionsState =>
+          goto(AnswerImportQuestionsContactInfo(s.model))
+
+        case s: ExportQuestionsState =>
+          goto(AnswerExportQuestionsContactInfo(s.model))
       }
 
     final val backToAnswerImportQuestionsRequestType =

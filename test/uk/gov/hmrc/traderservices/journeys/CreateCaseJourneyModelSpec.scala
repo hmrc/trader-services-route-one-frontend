@@ -2866,6 +2866,28 @@ class CreateCaseJourneyModelSpec
           .thenGoes(ExportQuestionsMissingInformationError(model))
       }
 
+      "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
+        val model =
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+        given(ExportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(
+            FileUploaded(
+              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+              nonEmptyFileUploads,
+              acknowledged = true
+            )
+          )
+      }
+
+      "go back to AnswerExportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
+        val model =
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, None)
+        given(ExportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(AnswerExportQuestionsContactInfo(model))
+      }
+
     }
 
     "at state ImportQuestionsSummary" should {
@@ -3059,6 +3081,28 @@ class CreateCaseJourneyModelSpec
         given(ImportQuestionsSummary(model))
           .when(backToImportQuestionsMissingInformationError)
           .thenGoes(ImportQuestionsMissingInformationError(model))
+      }
+
+      "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
+        val model =
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+        given(ImportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(
+            FileUploaded(
+              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+              nonEmptyFileUploads,
+              acknowledged = true
+            )
+          )
+      }
+
+      "go back to AnswerImportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
+        val model =
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, None)
+        given(ImportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(AnswerImportQuestionsContactInfo(model))
       }
     }
 
@@ -5224,6 +5268,77 @@ class CreateCaseJourneyModelSpec
         )
           .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
           .thenNoChange
+      }
+
+      "go to UploadFile when submitedUploadAnotherFileChoice with yes and number of uploads below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "apply follow-up transition when submitedUploadAnotherFileChoice with yes and number of uploads above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+          .thenGoes(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+            )
+          )
+      }
+
+      "apply follow-up transition when submitedUploadAnotherFileChoice with no" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(false))
+          .thenGoes(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+            )
+          )
+      }
+
+      "go to UploadFile when removeFileUploadByReference leaving no files" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(Seq(fileUploadAccepted))
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(removeFileUploadByReference(fileUploadAccepted.reference)(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              FileUploads(Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
+            )
+          )
       }
     }
 
