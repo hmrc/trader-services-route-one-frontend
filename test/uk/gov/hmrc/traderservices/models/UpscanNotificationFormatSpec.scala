@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
-import uk.gov.hmrc.traderservices.support.JsonFormatTest
+import play.api.libs.json._
+import uk.gov.hmrc.traderservices.support.{JsonFormatTest, UnitSpec}
+
 import java.time.ZonedDateTime
 
 class UpscanNotificationFormatSpec extends UnitSpec {
@@ -171,6 +172,14 @@ class UpscanNotificationFormatSpec extends UnitSpec {
           )
         )
       )
+    }
+
+    "report error while de-serializing UpscanNotification" in {
+      UpscanNotification.reads.reads(JsNull) shouldBe a[JsError]
+      UpscanNotification.reads.reads(Json.obj()) shouldBe a[JsError]
+      UpscanNotification.reads.reads(JsString("")) shouldBe a[JsError]
+      UpscanNotification.reads.reads(JsNumber(1)) shouldBe a[JsError]
+      UpscanNotification.reads.reads(JsBoolean(true)) shouldBe a[JsError]
     }
 
   }

@@ -16,33 +16,29 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesResult, UpscanInitiateRequest, UpscanInitiateResponse}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{start => _, _}
 import uk.gov.hmrc.traderservices.models.ImportFreightType.Air
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.CreateCaseJourneyService
-import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
+import uk.gov.hmrc.traderservices.support.JourneyModelSpec
+
 import java.time.{LocalDate, LocalTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.reflect.ClassTag
-import scala.util.Try
 
-class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
+class CreateCaseJourneyModelSpec
+    extends AnyWordSpec with Matchers with BeforeAndAfterAll with JourneyModelSpec with TestData {
 
-  import scala.concurrent.duration._
+  override val model = CreateCaseJourneyModel
 
-  override implicit val defaultTimeout: FiniteDuration = 60 seconds
-
-  // dummy journey context
-  case class DummyContext()
-
-  implicit val dummyContext: DummyContext = DummyContext()
+  import model.State._
+  import model.Transitions._
 
   "CreateCaseJourneyModel" when {
     "at state Start" should {
@@ -54,12 +50,12 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         given(Start) when chooseNewOrExistingCase should thenGo(ChooseNewOrExistingCase())
       }
 
-      "fail when enterEntryDetails" in {
-        given(Start) shouldFailWhen backToEnterEntryDetails
+      "no change when enterEntryDetails" in {
+        given(Start).when(backToEnterEntryDetails).thenNoChange
       }
 
       "fail if any other transition requested" in {
-        given(Start) shouldFailWhen submittedEntryDetails(
+        given(Start) when submittedEntryDetails(
           exportEntryDetails
         )
       }
@@ -264,6 +260,24 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go back to ExportQuestionsMissingInformationError" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers.copy(routeType = None))
+        given(
+          EnterEntryDetails(Some(model.entryDetails), Some(model.exportQuestionsAnswers), None, model.fileUploadsOpt)
+        )
+          .when(backToExportQuestionsMissingInformationError)
+          .thenGoes(ExportQuestionsMissingInformationError(model))
+      }
+
+      "go back to ImportQuestionsMissingInformationError" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers.copy(routeType = None))
+        given(
+          EnterEntryDetails(Some(model.entryDetails), None, Some(model.importQuestionsAnswers), model.fileUploadsOpt)
+        )
+          .when(backToImportQuestionsMissingInformationError)
+          .thenGoes(ImportQuestionsMissingInformationError(model))
+      }
     }
 
     "at state AnswerExportQuestionsRequestType" should {
@@ -302,7 +316,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         }
       }
-      for (requestType <- mandatoryReasonExportRequestType)
+      for (requestType <- mandatoryReasonExportRequestType) {
         s"go to ExportQuestionsSummary if request type is changed from $requestType to non-mandatory reason request type and all answers are complete" in {
           given(
             AnswerExportQuestionsRequestType(
@@ -325,6 +339,31 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
+        s"go to ExportQuestionsSummary if request type is changed from non-mandatory to $requestType request type and all answers are complete" in {
+          given(
+            AnswerExportQuestionsRequestType(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                completeExportQuestionsAnswers
+                  .copy(requestType = Some(ExportRequestType.New), reason = Some(reasonText)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          ) when submittedExportQuestionsAnswerRequestType(true)(
+            requestType
+          ) should thenGo(
+            ExportQuestionsSummary(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                completeExportQuestionsAnswers
+                  .copy(requestType = Some(requestType), reason = Some(reasonText)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        }
+      }
 
       "go to ExportQuestionsSummary when going back and answers completed" in {
         val thisState = AnswerExportQuestionsRequestType(
@@ -361,7 +400,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
       }
-      s"go to ExportQuestionsSummary when submitted request type C1601 with vessel details and all answers are complete" in {
+
+      "go to ExportQuestionsSummary when submitted request type C1601 with vessel details and all answers are complete" in {
         val vesselDetails =
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
 
@@ -386,6 +426,17 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
+      }
+
+      "go back to EnterEntryDetails" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          completeExportQuestionsAnswers,
+          None
+        )
+        given(AnswerExportQuestionsRequestType(model))
+          .when(backToEnterEntryDetails)
+          .thenGoes(EnterEntryDetails(Some(model.entryDetails), Some(model.exportQuestionsAnswers), None))
       }
 
     }
@@ -433,7 +484,30 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
       }
+
+      "go back to AnswerExportQuestionsRequestType" in {
+        given(
+          AnswerExportQuestionsRouteType(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers,
+              Some(nonEmptyFileUploads)
+            )
+          )
+        ).when(backToAnswerExportQuestionsRequestType)
+          .thenGoes(
+            AnswerExportQuestionsRequestType(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                completeExportQuestionsAnswers,
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+      }
+
       s"go to ExportQuestionsSummary when submitted route type HOLD and all answers are complete" in {
         given(
           AnswerExportQuestionsRouteType(
@@ -551,19 +625,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
     }
 
     "at state AnswerExportQuestionsReason" should {
-      "go to AnswerExportQuestionsHasPriorityGoods" in {
-
-        given(
-          AnswerExportQuestionsReason(
-            ExportQuestionsStateModel(
-              exportEntryDetails,
-              ExportQuestions(
-                requestType = Some(ExportRequestType.Cancellation),
-                routeType = Some(ExportRouteType.Route1)
-              )
+      "go to AnswerExportQuestionsHasPriorityGoods" in given(
+        AnswerExportQuestionsReason(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            ExportQuestions(
+              requestType = Some(ExportRequestType.Cancellation),
+              routeType = Some(ExportRouteType.Route1)
             )
           )
-        ) when submittedExportQuestionsAnswerReason(reasonText) should thenGo(
+        )
+      )
+        .when(submittedExportQuestionsAnswerReason(reasonText))
+        .thenGoes(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
               exportEntryDetails,
@@ -575,7 +649,6 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-      }
 
       "go to ExportQuestionsSummary when reason text is entered all answers are complete" in {
         val answers = completeExportQuestionsAnswers
@@ -593,6 +666,21 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
+      }
+
+      "go back to AnswerExportQuestionsRouteType" in {
+        val answers = completeExportQuestionsAnswers
+          .copy(reason = Some(reasonText))
+        given(
+          AnswerExportQuestionsReason(
+            ExportQuestionsStateModel(exportEntryDetails, answers, Some(nonEmptyFileUploads))
+          )
+        ).when(backToAnswerExportQuestionsRouteType)
+          .thenGoes(
+            AnswerExportQuestionsRouteType(
+              ExportQuestionsStateModel(exportEntryDetails, answers, Some(nonEmptyFileUploads))
+            )
+          )
       }
     }
 
@@ -692,6 +780,27 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
+      "go back to AnswerExportQuestionsReason when mandatory" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.Cancellation)),
+          Some(nonEmptyFileUploads)
+        )
+        given(AnswerExportQuestionsHasPriorityGoods(model))
+          .when(backToAnswerExportQuestionsReason)
+          .thenGoes(AnswerExportQuestionsReason(model))
+      }
+
+      "stay when backToAnswerExportQuestionsReason and not mandatory" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          completeExportQuestionsAnswers.copy(requestType = Some(ExportRequestType.New)),
+          Some(nonEmptyFileUploads)
+        )
+        given(AnswerExportQuestionsHasPriorityGoods(model))
+          .when(backToAnswerExportQuestionsReason)
+          .thenNoChange
+      }
     }
 
     "at state AnswerExportQuestionsWhichPriorityGoods" should {
@@ -740,6 +849,17 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
+        }
+
+        s"go back to AnswerExportQuestionsHasPriorityGoods with ${ExportPriorityGoods.keyOf(priorityGood).get}" in {
+          val model = ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(priorityGoods = Some(priorityGood)),
+            Some(nonEmptyFileUploads)
+          )
+          given(AnswerExportQuestionsWhichPriorityGoods(model))
+            .when(backToAnswerExportQuestionsHasPriorityGoods)
+            .thenGoes(AnswerExportQuestionsHasPriorityGoods(model))
         }
       }
     }
@@ -833,6 +953,16 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
               )
             )
           )
+        }
+        s"go back to AnswerExportQuestionsWhichPriorityGoods with ${ExportFreightType.keyOf(freightType).get} and ${ExportRequestType.keyOf(requestType).get}" in {
+          val model = ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(requestType = Some(requestType), freightType = Some(freightType)),
+            Some(nonEmptyFileUploads)
+          )
+          given(AnswerExportQuestionsFreightType(model))
+            .when(backToAnswerExportQuestionsWhichPriorityGoods)
+            .thenGoes(AnswerExportQuestionsWhichPriorityGoods(model))
         }
       }
 
@@ -1021,23 +1151,40 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
       }
 
       "stay when submitted partial vessel details" in {
-        an[TransitionNotAllowed] shouldBe thrownBy {
-          given(
-            AnswerExportQuestionsMandatoryVesselInfo(
-              ExportQuestionsStateModel(
-                exportEntryDetails,
-                ExportQuestions(
-                  requestType = Some(ExportRequestType.C1601),
-                  routeType = Some(ExportRouteType.Route2),
-                  priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
-                  freightType = Some(ExportFreightType.Air)
-                )
+        given(
+          AnswerExportQuestionsMandatoryVesselInfo(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              ExportQuestions(
+                requestType = Some(ExportRequestType.C1601),
+                routeType = Some(ExportRouteType.Route2),
+                priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ExportFreightType.Air)
               )
             )
-          ) when submittedExportQuestionsMandatoryVesselDetails(
-            VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), None)
           )
-        }
+        )
+          .when(
+            submittedExportQuestionsMandatoryVesselDetails(
+              VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), None)
+            )
+          )
+          .thenNoChange
+      }
+
+      "go back to AnswerExportQuestionsFreightType" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            routeType = Some(ExportRouteType.Route2),
+            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+            freightType = Some(ExportFreightType.Air)
+          )
+        )
+        given(AnswerExportQuestionsMandatoryVesselInfo(model))
+          .when(backToAnswerExportQuestionsFreightType)
+          .thenGoes(AnswerExportQuestionsFreightType(model))
       }
     }
 
@@ -1085,7 +1232,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsOptionalVesselInfo should thenGo(
+        given(answerMandatoryVesselInfo) when backToAnswerExportQuestionsVesselInfo should thenGo(
           answerMandatoryVesselInfo
         )
       }
@@ -1162,6 +1309,21 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
+      }
+
+      "go back to AnswerExportQuestionsFreightType" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            routeType = Some(ExportRouteType.Route2),
+            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+            freightType = Some(ExportFreightType.Air)
+          )
+        )
+        given(AnswerExportQuestionsOptionalVesselInfo(model))
+          .when(backToAnswerExportQuestionsFreightType)
+          .thenGoes(AnswerExportQuestionsFreightType(model))
       }
     }
 
@@ -1323,6 +1485,38 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go back to AnswerExportQuestionsMandatoryVesselInfo" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          ExportQuestions(
+            requestType = Some(ExportRequestType.C1601),
+            routeType = Some(ExportRouteType.Route2),
+            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+            freightType = Some(ExportFreightType.Air),
+            vesselDetails =
+              Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+          )
+        )
+        given(AnswerExportQuestionsContactInfo(model))
+          .when(backToAnswerExportQuestionsVesselInfo)
+          .thenGoes(AnswerExportQuestionsMandatoryVesselInfo(model))
+      }
+
+      "go back to AnswerExportQuestionsOptionalVesselInfo" in {
+        val model = ExportQuestionsStateModel(
+          exportEntryDetails,
+          ExportQuestions(
+            requestType = Some(ExportRequestType.New),
+            routeType = Some(ExportRouteType.Route2),
+            priorityGoods = Some(ExportPriorityGoods.ExplosivesOrFireworks),
+            freightType = Some(ExportFreightType.RORO)
+          )
+        )
+        given(AnswerExportQuestionsContactInfo(model))
+          .when(backToAnswerExportQuestionsVesselInfo)
+          .thenGoes(AnswerExportQuestionsOptionalVesselInfo(model))
+      }
     }
 
     "at state AnswerImportQuestionsRequestType" should {
@@ -1383,6 +1577,30 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
+        "go to ImportQuestionsSummary if request type is changed from non-mandatory reason request type to mandatory reason request type and all answers are complete" in {
+          given(
+            AnswerImportQuestionsRequestType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers
+                  .copy(requestType = Some(ImportRequestType.New), reason = Some(reasonText)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          ) when submittedImportQuestionsAnswersRequestType(
+            ImportRequestType.Cancellation
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers
+                  .copy(requestType = Some(ImportRequestType.Cancellation), reason = Some(reasonText)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        }
       }
 
       "go to ImportQuestionsSummary when going back and answers completed" in {
@@ -1419,6 +1637,24 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
         given(thisState).withBreadcrumbs(summaryState) when toSummary should thenGo(summaryState)
+      }
+
+      "go back to EnterEntryDetails" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers,
+          Some(nonEmptyFileUploads)
+        )
+        given(AnswerImportQuestionsRequestType(model))
+          .when(backToEnterEntryDetails)
+          .thenGoes(
+            EnterEntryDetails(
+              Some(model.entryDetails),
+              None,
+              Some(model.importQuestionsAnswers),
+              Some(nonEmptyFileUploads)
+            )
+          )
       }
 
     }
@@ -1466,8 +1702,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
+        s"go back to AnswerImportQuestionsRequestType with ${ImportRouteType.keyOf(routeType).get}" in {
+          val model = ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(routeType = Some(routeType)),
+            Some(nonEmptyFileUploads)
+          )
+          given(AnswerImportQuestionsRouteType(model))
+            .when(backToAnswerImportQuestionsRequestType)
+            .thenGoes(AnswerImportQuestionsRequestType(model))
+        }
       }
-      s"go to ImportQuestionsSummary when submitted route type is HOLD and all answers are complete" in {
+      "go to ImportQuestionsSummary when submitted route type is HOLD and all answers are complete" in {
         given(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1488,7 +1735,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
-      s"go to ImportQuestionsSummary if routeType is changed from mandatory reason route type to non-mandatory reason route type and all answers are complete" in {
+      "go to ImportQuestionsSummary if routeType is changed from mandatory reason route type to non-mandatory reason route type and all answers are complete" in {
         given(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1552,11 +1799,11 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+
     }
 
     "at state AnswerImportQuestionsReason" should {
       "go to AnswerImportQuestionsHasPriorityGoods" in {
-
         given(
           AnswerImportQuestionsReason(
             ImportQuestionsStateModel(
@@ -1598,7 +1845,8 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
-      s"go to ImportQuestionsSummary when submitted route type HOLD with vessel details and all answers are complete" in {
+
+      "go to ImportQuestionsSummary when submitted route type HOLD with vessel details and all answers are complete" in {
         val vesselDetails =
           VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
 
@@ -1625,6 +1873,15 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         )
       }
 
+      "go back to AnswerImportQuestionsRouteType" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+        )
+        given(AnswerImportQuestionsReason(model))
+          .when(backToAnswerImportQuestionsRouteType)
+          .thenGoes(AnswerImportQuestionsRouteType(model))
+      }
     }
 
     "at state AnswerImportQuestionsHasPriorityGoods" should {
@@ -1721,6 +1978,26 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go back to AnswerImportQuestionsReason if reason mandatory" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route3))
+        )
+        given(AnswerImportQuestionsHasPriorityGoods(model))
+          .when(backToAnswerImportQuestionsReason)
+          .thenGoes(AnswerImportQuestionsReason(model))
+      }
+
+      "stay when backToAnswerImportQuestionsReason and reason not mandatory" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          ImportQuestions(requestType = Some(ImportRequestType.New), routeType = Some(ImportRouteType.Route1))
+        )
+        given(AnswerImportQuestionsHasPriorityGoods(model))
+          .when(backToAnswerImportQuestionsReason)
+          .thenNoChange
+      }
     }
 
     "at state AnswerImportQuestionsWhichPriorityGoods" should {
@@ -1769,6 +2046,17 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         }
+      }
+
+      "go back to AnswerImportQuestionsHasPriorityGoods" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers
+            .copy(hasPriorityGoods = Some(true), priorityGoods = None)
+        )
+        given(AnswerImportQuestionsWhichPriorityGoods(model))
+          .when(backToAnswerImportQuestionsHasPriorityGoods)
+          .thenGoes(AnswerImportQuestionsHasPriorityGoods(model))
       }
     }
 
@@ -1856,8 +2144,51 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go back to AnswerImportQuestionsWhichPriorityGoods" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers
+        )
+        given(AnswerImportQuestionsALVS(model))
+          .when(backToAnswerImportQuestionsWhichPriorityGoods)
+          .thenGoes(AnswerImportQuestionsWhichPriorityGoods(model))
+      }
     }
+
     "at state AnswerImportQuestionsMandatoryVesselInfo" should {
+      "go to AnswerImportQuestionsContactInfo when submitted all vessel details" in {
+        given(
+          AnswerImportQuestionsMandatoryVesselInfo(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route2),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air)
+              )
+            )
+          )
+        ) when submittedImportQuestionsMandatoryVesselDetails(
+          VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00")))
+        ) should thenGo(
+          AnswerImportQuestionsContactInfo(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Route2),
+                priorityGoods = Some(ImportPriorityGoods.ExplosivesOrFireworks),
+                freightType = Some(ImportFreightType.Air),
+                vesselDetails =
+                  Some(VesselDetails(Some("Foo"), Some(LocalDate.parse("2021-01-01")), Some(LocalTime.parse("00:00"))))
+              )
+            )
+          )
+        )
+      }
+
       "go to AnswerImportQuestionsMandatoryVesselInfo when mandatory vessel details are submitted but user tries to redirect to optional vessel info" in {
         val answerMandatoryVesselInfo = AnswerImportQuestionsMandatoryVesselInfo(
           ImportQuestionsStateModel(
@@ -1870,168 +2201,19 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsOptionalVesselInfo should thenGo(
+        given(answerMandatoryVesselInfo) when backToAnswerImportQuestionsVesselInfo should thenGo(
           answerMandatoryVesselInfo
         )
       }
-    }
 
-    "at state AnswerImportQuestionsFreightType" should {
-      for (
-        freightType <- ImportFreightType.values;
-        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
-      ) {
-        s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
-          .keyOf(requestType)
-          .get} and optional transport feature is turned on" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route2),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(true)(
-            freightType
-          ) should thenGo(
-            AnswerImportQuestionsOptionalVesselInfo(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route2),
-                  freightType = Some(freightType),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          )
-        }
-
-        s"go to AnswerImportQuestionsContactInfo when submitted freight type when freightType is ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
-          .keyOf(requestType)
-          .get} and optional transport feature is turned off" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route2),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(false)(
-            freightType
-          ) should thenGo(
-            AnswerImportQuestionsContactInfo(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Route2),
-                  freightType = Some(freightType),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          )
-        }
-
-        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} and requestType is ${ImportRequestType
-          .keyOf(requestType)
-          .get}, and all answers are complete" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
-                Some(nonEmptyFileUploads)
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(false)(
-            freightType
-          ) should thenGo(
-            ImportQuestionsSummary(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
-                Some(nonEmptyFileUploads)
-              )
-            )
-          )
-        }
-
-      }
-
-      for (
-        freightType <- ImportFreightType.values;
-        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
-      ) {
-        s"go to AnswerImportQuestionsMandatoryVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Hold),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(false)(
-            freightType
-          ) should thenGo(
-            AnswerImportQuestionsMandatoryVesselInfo(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                ImportQuestions(
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Hold),
-                  freightType = Some(freightType),
-                  hasALVS = Some(false)
-                )
-              )
-            )
-          )
-        }
-        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold and all answers are complete" in {
-          given(
-            AnswerImportQuestionsFreightType(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers
-                  .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold)),
-                Some(nonEmptyFileUploads)
-              )
-            )
-          ) when submittedImportQuestionsAnswerFreightType(false)(
-            freightType
-          ) should thenGo(
-            ImportQuestionsSummary(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers.copy(
-                  freightType = Some(freightType),
-                  requestType = Some(requestType),
-                  routeType = Some(ImportRouteType.Hold)
-                ),
-                Some(nonEmptyFileUploads)
-              )
-            )
-          )
-        }
-
+      "go back to AnswerImportQuestionsALVS" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers
+        )
+        given(AnswerImportQuestionsMandatoryVesselInfo(model))
+          .when(backToAnswerImportQuestionsALVS)
+          .thenGoes(AnswerImportQuestionsALVS(model))
       }
     }
 
@@ -2144,6 +2326,193 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
+      }
+
+      "go back to AnswerImportQuestionsALVS" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Route1))
+        )
+        given(AnswerImportQuestionsOptionalVesselInfo(model))
+          .when(backToAnswerImportQuestionsALVS)
+          .thenGoes(AnswerImportQuestionsALVS(model))
+      }
+    }
+
+    "at state AnswerImportQuestionsFreightType" should {
+      for (
+        freightType <- ImportFreightType.values;
+        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
+      ) {
+        s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
+          .keyOf(requestType)
+          .get} and optional transport feature is turned on" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route2),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(true)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsOptionalVesselInfo(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route2),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          )
+        }
+
+        s"go to AnswerImportQuestionsContactInfo when submitted freight type when freightType is ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
+          .keyOf(requestType)
+          .get} and optional transport feature is turned off" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route2),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsContactInfo(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Route2),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          )
+        }
+
+        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} and requestType is ${ImportRequestType
+          .keyOf(requestType)
+          .get}, and all answers are complete" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers.copy(requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers.copy(freightType = Some(freightType), requestType = Some(requestType)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        }
+      }
+
+      for (
+        freightType <- ImportFreightType.values;
+        requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
+      ) {
+        s"go to AnswerImportQuestionsMandatoryVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
+          .keyOf(requestType)
+          .get} when route is Hold" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            AnswerImportQuestionsMandatoryVesselInfo(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                ImportQuestions(
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold),
+                  freightType = Some(freightType),
+                  hasALVS = Some(false)
+                )
+              )
+            )
+          )
+        }
+        s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
+          .keyOf(requestType)
+          .get} when route is Hold and all answers are complete" in {
+          given(
+            AnswerImportQuestionsFreightType(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers
+                  .copy(requestType = Some(requestType), routeType = Some(ImportRouteType.Hold)),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          ) when submittedImportQuestionsAnswerFreightType(false)(
+            freightType
+          ) should thenGo(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers.copy(
+                  freightType = Some(freightType),
+                  requestType = Some(requestType),
+                  routeType = Some(ImportRouteType.Hold)
+                ),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        }
+      }
+
+      "go back to AnswerImportQuestionsMandatoryVesselInfo" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Hold))
+        )
+        given(AnswerImportQuestionsFreightType(model))
+          .when(backToAnswerImportQuestionsVesselInfo)
+          .thenGoes(AnswerImportQuestionsMandatoryVesselInfo(model))
+      }
+
+      "go back to AnswerImportQuestionsOptionalVesselInfo" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Route1))
+        )
+        given(AnswerImportQuestionsFreightType(model))
+          .when(backToAnswerImportQuestionsVesselInfo)
+          .thenGoes(AnswerImportQuestionsOptionalVesselInfo(model))
       }
     }
 
@@ -2303,6 +2672,16 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             fileUploads = FileUploads()
           )
         )
+      }
+
+      "go back to AnswerImportQuestionsFreightType" in {
+        val model = ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(routeType = Some(ImportRouteType.Route1))
+        )
+        given(AnswerImportQuestionsOptionalVesselInfo(model))
+          .when(backToAnswerImportQuestionsFreightType)
+          .thenGoes(AnswerImportQuestionsFreightType(model))
       }
     }
 
@@ -2465,6 +2844,50 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           CaseAlreadyExists("A1234567890")
         )
       }
+
+      "go back to AnswerExportQuestionsContactInfo" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+        given(ExportQuestionsSummary(model))
+          .when(backToAnswerExportQuestionsContactInfo)
+          .thenGoes(AnswerExportQuestionsContactInfo(model))
+      }
+
+      "stay when backToAnswerImportQuestionsContactInfo" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+        given(ExportQuestionsSummary(model))
+          .when(backToAnswerImportQuestionsContactInfo)
+          .thenGoes(ExportQuestionsSummary(model))
+      }
+
+      "go back to ExportQuestionsMissingInformationError" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers.copy(routeType = None))
+        given(ExportQuestionsSummary(model))
+          .when(backToExportQuestionsMissingInformationError)
+          .thenGoes(ExportQuestionsMissingInformationError(model))
+      }
+
+      "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
+        val model =
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+        given(ExportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(
+            FileUploaded(
+              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+              nonEmptyFileUploads,
+              acknowledged = true
+            )
+          )
+      }
+
+      "go back to AnswerExportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
+        val model =
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, None)
+        given(ExportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(AnswerExportQuestionsContactInfo(model))
+      }
+
     }
 
     "at state ImportQuestionsSummary" should {
@@ -2638,9 +3061,124 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           CaseAlreadyExists("A1234567890")
         )
       }
+
+      "go back to AnswerImportQuestionsContactInfo" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+        given(ImportQuestionsSummary(model))
+          .when(backToAnswerImportQuestionsContactInfo)
+          .thenGoes(AnswerImportQuestionsContactInfo(model))
+      }
+
+      "stay when backToAnswerExportQuestionsContactInfo" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+        given(ImportQuestionsSummary(model))
+          .when(backToAnswerExportQuestionsContactInfo)
+          .thenGoes(ImportQuestionsSummary(model))
+      }
+
+      "go back to ImportQuestionsMissingInformationError" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers.copy(routeType = None))
+        given(ImportQuestionsSummary(model))
+          .when(backToImportQuestionsMissingInformationError)
+          .thenGoes(ImportQuestionsMissingInformationError(model))
+      }
+
+      "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
+        val model =
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+        given(ImportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(
+            FileUploaded(
+              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+              nonEmptyFileUploads,
+              acknowledged = true
+            )
+          )
+      }
+
+      "go back to AnswerImportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
+        val model =
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, None)
+        given(ImportQuestionsSummary(model))
+          .when(backToFileUploaded)
+          .thenGoes(AnswerImportQuestionsContactInfo(model))
+      }
     }
 
     "at state UploadMultipleFiles" should {
+      "go back to AnswerExportQuestionsContactInfo when backToAnswerExportQuestionsContactInfo" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backToAnswerExportQuestionsContactInfo)
+          .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+      }
+
+      "go to Start when backToAnswerExportQuestionsContactInfo but has import answers" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backToAnswerExportQuestionsContactInfo)
+          .thenGoes(Start)
+      }
+
+      "go back to AnswerImportQuestionsContactInfo when backToAnswerImportQuestionsContactInfo" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backToAnswerImportQuestionsContactInfo)
+          .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+      }
+
+      "go to Start when backToAnswerImportQuestionsContactInfo but has export answers" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backToAnswerImportQuestionsContactInfo)
+          .thenGoes(Start)
+      }
+
+      "go back to AnswerExportQuestionsContactInfo when backFromFileUpload" in {
+        val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backFromFileUpload)
+          .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+      }
+
+      "go back to AnswerImportQuestionsContactInfo when backFromFileUpload" in {
+        val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+        given(
+          UploadMultipleFiles(
+            FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+          .when(backFromFileUpload)
+          .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+      }
+
       "go to ImportQuestionsSummary when non-empty file uploads and toSummary" in {
         given(
           UploadMultipleFiles(
@@ -4094,6 +4632,86 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "switch over to UploadMultipleFiles when toUploadMultipleFiles" in {
+        given(
+          UploadFile(
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+            "foo-bar-ref-4",
+            UploadRequest(
+              href = "https://s3.bucket",
+              fields = Map(
+                "callbackUrl"     -> "https://foo.bar/callback",
+                "successRedirect" -> "https://foo.bar/success",
+                "errorRedirect"   -> "https://foo.bar/failure"
+              )
+            ),
+            nonEmptyFileUploads,
+            None
+          )
+        )
+          .when(toUploadMultipleFiles)
+          .thenGoes(
+            UploadMultipleFiles(
+              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+              nonEmptyFileUploads
+            )
+          )
+      }
+
+      "go to UploadFile when initiateFileUpload and number of uploaded files below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(UploadMultipleFiles(hostData, fileUploads))
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "go to FileUploaded when initiateFileUpload and number of uploaded files above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(UploadMultipleFiles(hostData, fileUploads))
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            FileUploaded(
+              hostData,
+              fileUploads
+            )
+          )
+      }
     }
 
     "at state WaitingForFileVerification" should {
@@ -4116,7 +4734,7 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
             )
           )
         )
-        given(state) when waitForFileVerification should thenGo(state)
+        given(state).when(waitForFileVerification).thenNoChange
       }
 
       "go to UploadFile when waitForFileVerification and reference unknown" in {
@@ -4536,6 +5154,33 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           )
         )
       }
+
+      "go to UploadFile when initiateFileUpload" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val uploadRequest = UploadRequest(
+          href = "https://s3.bucket",
+          fields = Map(
+            "callbackUrl"     -> "https://foo.bar/callback",
+            "successRedirect" -> "https://foo.bar/success",
+            "errorRedirect"   -> "https://foo.bar/failure"
+          )
+        )
+        val fileUploads = FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
+          )
+        )
+        val state = WaitingForFileVerification(
+          hostData,
+          "foo-bar-ref-1",
+          uploadRequest,
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          fileUploads
+        )
+        given(state)
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(UploadFile(hostData, "foo-bar-ref-1", uploadRequest, fileUploads))
+      }
     }
 
     "at state FileUploaded" should {
@@ -4559,10 +5204,141 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
           ),
           acknowledged = false
         )
+        given(state)
+          .when(waitForFileVerification)
+          .thenGoes(state.copy(acknowledged = true))
+      }
 
-        given(state) when
-          waitForFileVerification should
-          thenGo(state.copy(acknowledged = true))
+      "go to UploadFile when initiateFileUpload and number of uploads below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(
+          FileUploaded(
+            hostData,
+            fileUploads,
+            acknowledged = false
+          )
+        )
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "stay when initiateFileUpload and number of uploads above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield FileUpload.Accepted(
+              Nonce(i),
+              Timestamp.Any,
+              s"foo-bar-ref-$i",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+        )
+        given(
+          FileUploaded(
+            hostData,
+            fileUploads,
+            acknowledged = false
+          )
+        )
+          .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+          .thenNoChange
+      }
+
+      "go to UploadFile when submitedUploadAnotherFileChoice with yes and number of uploads below the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+            )
+          )
+      }
+
+      "apply follow-up transition when submitedUploadAnotherFileChoice with yes and number of uploads above the limit" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until maxFileUploadsNumber)
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+          .thenGoes(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+            )
+          )
+      }
+
+      "apply follow-up transition when submitedUploadAnotherFileChoice with no" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(files =
+          for (i <- 0 until (maxFileUploadsNumber - 1))
+            yield fileUploadAccepted.copy(reference = s"file-$i")
+        )
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(false))
+          .thenGoes(
+            ImportQuestionsSummary(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+            )
+          )
+      }
+
+      "go to UploadFile when removeFileUploadByReference leaving no files" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = FileUploads(Seq(fileUploadAccepted))
+        given(
+          FileUploaded(hostData, fileUploads)
+        )
+          .when(removeFileUploadByReference(fileUploadAccepted.reference)(testUpscanRequest)(mockUpscanInitiate))
+          .thenGoes(
+            UploadFile(
+              hostData,
+              "foo-bar-ref",
+              someUploadRequest(testUpscanRequest("foo")),
+              FileUploads(Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
+            )
+          )
       }
     }
 
@@ -4611,7 +5387,29 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when toSummary should thenGo(CaseAlreadySubmitted)
       }
 
-      "go to clean EnterEntryDetails when going back to entry details" in {
+      "go to the clean EnterEntryDetails when backToEnterEntryDetails from an export end state" in {
+        given(
+          CreateCaseConfirmation(
+            importEntryDetails,
+            completeExportQuestionsAnswers,
+            Seq(
+              UploadedFile(
+                "foo",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            TraderServicesResult("A1234567890", generatedAt),
+            CaseSLA(Some(generatedAt.plusHours(2)))
+          )
+        ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
+      }
+
+      "go to the clean EnterEntryDetails when backToEnterEntryDetails from an import end state" in {
         given(
           CreateCaseConfirmation(
             importEntryDetails,
@@ -4647,26 +5445,201 @@ class CreateCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with
         ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
       }
     }
-  }
 
-  case class given[S <: State: ClassTag](initialState: S)
-      extends CreateCaseJourneyService[DummyContext] with InMemoryStore[(State, List[State]), DummyContext] {
+    "at any state" should {
+      "check model completeness in gotoSummaryIfCompleteOr" in {
+        await(model.gotoSummaryIfCompleteOr(Start)) shouldBe Start
+        await(model.gotoSummaryIfCompleteOr(EnterEntryDetails())) shouldBe EnterEntryDetails()
+        await(
+          model.gotoSummaryIfCompleteOr(
+            AnswerImportQuestionsWhichPriorityGoods(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+            )
+          )
+        ) shouldBe ImportQuestionsSummary(
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+        )
+        await(
+          model.gotoSummaryIfCompleteOr(
+            AnswerImportQuestionsWhichPriorityGoods(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers.copy(contactInfo = None),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        ) shouldBe AnswerImportQuestionsWhichPriorityGoods(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers.copy(contactInfo = None),
+            Some(nonEmptyFileUploads)
+          )
+        )
+        await(
+          model.gotoSummaryIfCompleteOr(
+            AnswerExportQuestionsHasPriorityGoods(
+              ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+            )
+          )
+        ) shouldBe ExportQuestionsSummary(
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+        )
+        await(
+          model.gotoSummaryIfCompleteOr(
+            AnswerExportQuestionsHasPriorityGoods(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                completeExportQuestionsAnswers.copy(contactInfo = None),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )
+        ) shouldBe AnswerExportQuestionsHasPriorityGoods(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers.copy(contactInfo = None),
+            Some(nonEmptyFileUploads)
+          )
+        )
+      }
 
-    await(save((initialState, Nil)))
+      "check model completeness in gotoSummaryIfCompleteOrApplyTransition" in {
+        await(model.gotoSummaryIfCompleteOrApplyTransition(Start)(start)) shouldBe Start
+        await(model.gotoSummaryIfCompleteOrApplyTransition(EnterEntryDetails())(start)) shouldBe EnterEntryDetails()
+        await(
+          model.gotoSummaryIfCompleteOrApplyTransition(
+            AnswerImportQuestionsWhichPriorityGoods(
+              ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+            )
+          )(start)
+        ) shouldBe ImportQuestionsSummary(
+          ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+        )
+        await(
+          model.gotoSummaryIfCompleteOrApplyTransition(
+            AnswerImportQuestionsWhichPriorityGoods(
+              ImportQuestionsStateModel(
+                importEntryDetails,
+                completeImportQuestionsAnswers.copy(contactInfo = None),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )(start)
+        ) shouldBe Start
+        await(
+          model.gotoSummaryIfCompleteOrApplyTransition(
+            AnswerExportQuestionsHasPriorityGoods(
+              ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+            )
+          )(start)
+        ) shouldBe ExportQuestionsSummary(
+          ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+        )
+        await(
+          model.gotoSummaryIfCompleteOrApplyTransition(
+            AnswerExportQuestionsHasPriorityGoods(
+              ExportQuestionsStateModel(
+                exportEntryDetails,
+                completeExportQuestionsAnswers.copy(contactInfo = None),
+                Some(nonEmptyFileUploads)
+              )
+            )
+          )(start)
+        ) shouldBe Start
+      }
 
-    def withBreadcrumbs(breadcrumbs: State*): this.type = {
-      val (state, _) = await(fetch).getOrElse((Start, Nil))
-      await(save((state, breadcrumbs.toList)))
-      this
+      "match commonFileUploadStatusHandler" in {
+        val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+        val fileUploads = nonEmptyFileUploads
+        val uploadRequest = UploadRequest(
+          href = "https://s3.bucket",
+          fields = Map(
+            "callbackUrl"     -> "https://foo.bar/callback",
+            "successRedirect" -> "https://foo.bar/success",
+            "errorRedirect"   -> "https://foo.bar/failure"
+          )
+        )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(None)
+        )
+          .shouldBe(Start)
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadAccepted))
+        )
+          .shouldBe(FileUploaded(hostData, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadPosted))
+        )
+          .shouldBe(WaitingForFileVerification(hostData, "foo-ref", uploadRequest, fileUploadPosted, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadInitiated))
+        )
+          .shouldBe(UploadFile(hostData, "foo-ref", uploadRequest, fileUploads))
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadRejected))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(FileTransmissionFailed(fileUploadRejected.details))
+            )
+          )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadFailed))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(FileVerificationFailed(fileUploadFailed.details))
+            )
+          )
+
+        await(
+          model.FileUploadTransitions
+            .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+            .apply(Some(fileUploadDuplicate))
+        )
+          .shouldBe(
+            UploadFile(
+              hostData,
+              "foo-ref",
+              uploadRequest,
+              fileUploads,
+              Some(
+                DuplicateFileUpload(
+                  fileUploadDuplicate.checksum,
+                  fileUploadDuplicate.existingFileName,
+                  fileUploadDuplicate.duplicateFileName
+                )
+              )
+            )
+          )
+      }
     }
-
-    def when(transition: Transition): (State, List[State]) =
-      await(super.apply(transition))
-
-    def shouldFailWhen(transition: Transition) =
-      Try(await(super.apply(transition))).isSuccess shouldBe false
-
-    def when(merger: Merger[S], state: State): (State, List[State]) =
-      await(super.modify { s: S => merger.apply((s, state)) })
   }
 }

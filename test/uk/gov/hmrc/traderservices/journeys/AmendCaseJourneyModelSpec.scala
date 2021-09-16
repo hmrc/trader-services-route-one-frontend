@@ -16,6 +16,9 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadTransitions._
@@ -23,22 +26,17 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{start => _, _}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.AmendCaseJourneyService
-import uk.gov.hmrc.traderservices.support.{InMemoryStore, StateMatchers, UnitSpec}
+import uk.gov.hmrc.traderservices.support.JourneyModelSpec
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.reflect.ClassTag
-import scala.util.{Random, Try}
-class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with TestData {
+import scala.util.Random
 
-  import scala.concurrent.duration._
-  override implicit val defaultTimeout: FiniteDuration = 60 seconds
+class AmendCaseJourneyModelSpec
+    extends AnyWordSpec with Matchers with BeforeAndAfterAll with JourneyModelSpec with TestData {
 
-  // dummy journey context
-  case class DummyContext()
-  implicit val dummyContext: DummyContext = DummyContext()
+  override val model = AmendCaseJourneyModel
 
   "AmendCaseJourneyModel" when {
     "at state Start" should {
@@ -115,6 +113,22 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
             )
           )
+        )
+      }
+
+      "go to AmendCaseSummary when submited type of amendment WriteResponseAndUploadDocuments and all answers has been completed" in {
+        val model = AmendCaseModel(
+          responseText = Some("abc"),
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          fileUploads = Some(nonEmptyFileUploads)
+        )
+        given(
+          SelectTypeOfAmendment(model)
+        ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
+          TypeOfAmendment.WriteResponseAndUploadDocuments
+        ) should thenGo(
+          AmendCaseSummary(model)
         )
       }
 
@@ -313,9 +327,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
               typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
             )
           )
-        ) shouldFailWhen submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
-          responseText
-        )
+        ).when(
+          submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
+            responseText
+          )
+        ).thenNoChange
       }
 
       "retreat to SelectTypeOfAmendment when backToSelectTypeOfAmendment from EnterResponseText" in {
@@ -1173,6 +1189,29 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
           mockUpscanInitiate
         ) should thenGo(state)
+      }
+
+      "go back to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
+        given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
+          .when(backToSelectTypeOfAmendment)
+          .thenGoes(SelectTypeOfAmendment(fullAmendCaseStateModel.copy(fileUploads = Some(nonEmptyFileUploads))))
+      }
+
+      "go back to EnterResponseText when backToEnterResponseText" in {
+        given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
+          .when(backToEnterResponseText)
+          .thenGoes(EnterResponseText(fullAmendCaseStateModel.copy(fileUploads = Some(nonEmptyFileUploads))))
+      }
+
+      "go back to SelectTypeOfAmendment when backFromFileUpload and undefined typeOfAmendment" in {
+        given(UploadMultipleFiles(fullAmendCaseStateModel.copy(typeOfAmendment = None), nonEmptyFileUploads))
+          .when(backFromFileUpload)
+          .thenGoes(
+            SelectTypeOfAmendment(
+              fullAmendCaseStateModel
+                .copy(typeOfAmendment = None, fileUploads = Some(nonEmptyFileUploads))
+            )
+          )
       }
     }
 
@@ -2042,7 +2081,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
       }
 
-      "fail when amendCase and received error response" in {
+      "stay when amendCase and received error response" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
             TraderServicesCaseResponse(correlationId = "", error = Some(ApiError("", Some(""))))
@@ -2054,10 +2093,12 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(uidAndEori)
+        )
+          .when(amendCase(updateCaseApi)(uidAndEori))
+          .thenNoChange
       }
 
-      "fail when amendCase and received case reference doesn't match" in {
+      "stay when amendCase and received case reference doesn't match" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
             TraderServicesCaseResponse(
@@ -2072,7 +2113,9 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             someFileUploads,
             acknowledged = false
           )
-        ) shouldFailWhen amendCase(updateCaseApi)(uidAndEori)
+        )
+          .when(amendCase(updateCaseApi)(uidAndEori))
+          .thenNoChange
       }
     }
 
@@ -2103,6 +2146,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
       }
+
       "goto AmendConfirmation when in AmendSummary mode and both text and files are provided" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
@@ -2123,6 +2167,7 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
             )
           )
       }
+
       "goto AmendConfirmation when amendCase and only files are uploaded" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
@@ -2186,8 +2231,11 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(uidAndEori)
+        )
+          .when(amendCase(updateCaseApi)(uidAndEori))
+          .thenFailsWith[Exception]
       }
+
       "fail when submitted response text in AmendCaseSummary mode and UpdateCase API returned success with different case reference number" in {
         val updateCaseApi: UpdateCaseApi = { request =>
           Future.successful(
@@ -2205,7 +2253,44 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         )
         given(
           AmendCaseSummary(model)
-        ) shouldFailWhen amendCase(updateCaseApi)(uidAndEori)
+        )
+          .when(amendCase(updateCaseApi)(uidAndEori))
+          .thenFailsWith[Exception]
+      }
+
+      "go back to EnterResponseText when backToEnterResponseText and WriteResponse" in {
+        val model = AmendCaseModel(
+          responseText = Some("foo"),
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
+        )
+        given(AmendCaseSummary(model))
+          .when(backToEnterResponseText)
+          .thenGoes(EnterResponseText(model))
+      }
+
+      "go back to EnterResponseText when backToEnterResponseText and WriteResponseAndUploadDocuments" in {
+        val model = AmendCaseModel(
+          responseText = Some("foo"),
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          fileUploads = Some(nonEmptyFileUploads)
+        )
+        given(AmendCaseSummary(model))
+          .when(backToEnterResponseText)
+          .thenGoes(EnterResponseText(model))
+      }
+
+      "go back to backToAmendCaseMissingInformationError" in {
+        val model = AmendCaseModel(
+          responseText = None,
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          fileUploads = Some(nonEmptyFileUploads)
+        )
+        given(AmendCaseSummary(model))
+          .when(backToAmendCaseMissingInformationError)
+          .thenGoes(AmendCaseMissingInformationError(model))
       }
     }
 
@@ -2226,26 +2311,5 @@ class AmendCaseJourneyModelSpec extends UnitSpec with StateMatchers[State] with 
         ) when toAmendSummary should thenGo(AmendCaseAlreadySubmitted)
       }
     }
-  }
-
-  case class given[S <: State: ClassTag](initialState: S)
-      extends AmendCaseJourneyService[DummyContext] with InMemoryStore[(State, List[State]), DummyContext] {
-
-    await(save((initialState, Nil)))
-
-    def withBreadcrumbs(breadcrumbs: State*): this.type = {
-      val (state, _) = await(fetch).getOrElse((EnterCaseReferenceNumber(), Nil))
-      await(save((state, breadcrumbs.toList)))
-      this
-    }
-
-    def when(transition: Transition): (State, List[State]) =
-      await(super.apply(transition))
-
-    def shouldFailWhen(transition: Transition) =
-      Try(await(super.apply(transition))).isSuccess shouldBe false
-
-    def when(merger: Merger[S], state: State): (State, List[State]) =
-      await(super.modify { s: S => merger.apply((s, state)) })
   }
 }

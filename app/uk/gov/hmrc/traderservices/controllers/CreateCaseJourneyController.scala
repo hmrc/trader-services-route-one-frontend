@@ -16,35 +16,28 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.data.{Form, Mapping}
+import akka.actor.{ActorSystem, Scheduler}
+import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
+import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
-import uk.gov.hmrc.traderservices.connectors.{FrontendAuthConnector, PdfGeneratorConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
+import uk.gov.hmrc.traderservices.connectors.{FileStream, FrontendAuthConnector, PdfGeneratorConnector, TraderServicesApiConnector, TraderServicesResult, UpscanInitiateConnector, UpscanInitiateRequest}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
-import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
-import play.mvc.Http.HeaderNames
-import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.views.UploadFileViewContext
-
 import java.time.LocalDate
-import akka.actor.Scheduler
-
-import scala.concurrent.Future
-import uk.gov.hmrc.traderservices.connectors.FileStream
-import uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.ResponseTextForm
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.EnterResponseText
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
@@ -216,7 +209,7 @@ class CreateCaseJourneyController @Inject() (
   final val showAnswerExportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsMandatoryVesselInfo]
-      .orApply(Transitions.backToAnswerExportQuestionsMandatoryVesselInfo)
+      .orApply(Transitions.backToAnswerExportQuestionsVesselInfo)
 
   // POST /new/export/transport-information-required
   final val submitExportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -230,7 +223,7 @@ class CreateCaseJourneyController @Inject() (
   final val showAnswerExportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerExportQuestionsOptionalVesselInfo]
-      .orApply(Transitions.backToAnswerExportQuestionsOptionalVesselInfo)
+      .orApply(Transitions.backToAnswerExportQuestionsVesselInfo)
 
   // POST /new/export/transport-information
   final val submitExportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =
@@ -358,7 +351,7 @@ class CreateCaseJourneyController @Inject() (
   final val showAnswerImportQuestionsMandatoryVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsMandatoryVesselInfo]
-      .orApply(Transitions.backToAnswerImportQuestionsMandatoryVesselInfo)
+      .orApply(Transitions.backToAnswerImportQuestionsVesselInfo)
 
   // POST /new/import/transport-information-required
   final val submitImportQuestionsMandatoryVesselInfoAnswer: Action[AnyContent] =
@@ -370,7 +363,7 @@ class CreateCaseJourneyController @Inject() (
   final val showAnswerImportQuestionsOptionalVesselInfo: Action[AnyContent] =
     whenAuthorisedAsUser
       .show[State.AnswerImportQuestionsOptionalVesselInfo]
-      .orApply(Transitions.backToAnswerImportQuestionsOptionalVesselInfo)
+      .orApply(Transitions.backToAnswerImportQuestionsVesselInfo)
 
   // POST /new/import/transport-information
   final val submitImportQuestionsOptionalVesselInfoAnswer: Action[AnyContent] =

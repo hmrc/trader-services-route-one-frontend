@@ -24,11 +24,12 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
+import play.api.libs.json.JsValue
 import scala.io.AnsiColor
 
 /**
   * Journey persistence service mixin,
-  * stores encrypted serialized state using SessionCache.
+  * stores encrypted serialized state using [[JourneyCache]].
   */
 trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -62,6 +63,9 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       self.getJourneyId(requestContext)
   }
 
+  def encrypt(state: model.State, breadcrumbs: List[model.State]): JsValue =
+    encryptionFormat.writes(Protected(PersistentState(state, breadcrumbs)))
+
   final override def apply(
     transition: model.Transition
   )(implicit rc: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] =
@@ -91,7 +95,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           println(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(getStateName)}"
+              .map(nameOf)}"
           )
         }
         stateAndBreadcrumbs
@@ -120,20 +124,17 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           println(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(getStateName)}"
+              .map(nameOf)}"
           )
         }
         stateAndBreadcrumbs
       }
   }
 
-  private def getStateName(state: model.State): String = {
-    val c1 = state.getClass.toString()
-    val c2 = if (c1.endsWith("$")) c1.dropRight(1) else c1
-    c2.reverse.takeWhile(_ != '$').reverse
-  }
-
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     cache.clear()
+
+  final def nameOf(state: Any): String =
+    uk.gov.hmrc.traderservices.models.EnumerationFormats.identityOf(state)
 
 }

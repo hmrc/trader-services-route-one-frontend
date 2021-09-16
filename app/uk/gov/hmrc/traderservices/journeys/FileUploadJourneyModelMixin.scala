@@ -272,7 +272,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       }
 
     /** Common transition helper based on the file upload status. */
-    private def commonFileUploadStatusHandler(
+    final def commonFileUploadStatusHandler(
       hostData: FileUploadHostData,
       fileUploads: FileUploads,
       reference: String,

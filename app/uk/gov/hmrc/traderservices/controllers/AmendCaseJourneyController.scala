@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorSystem, Scheduler}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -32,18 +32,11 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
-import play.api.libs.json.Json
-import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
-import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.views.UploadFileViewContext
-import akka.actor.Scheduler
-import scala.concurrent.Future
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AmendCaseJourneyController @Inject() (

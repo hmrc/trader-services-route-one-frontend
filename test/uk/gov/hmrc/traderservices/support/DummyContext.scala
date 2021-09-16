@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.models
+package uk.gov.hmrc.traderservices.support
 
-import play.api.libs.json.{Format, Json}
+sealed trait DummyContext
 
-case class ExportContactInfo(
-  contactName: Option[String] = None,
-  contactEmail: String,
-  contactNumber: Option[String] = None
-)
-
-object ExportContactInfo {
-  implicit val formats: Format[ExportContactInfo] = Json.format[ExportContactInfo]
+object DummyContext {
+  implicit val default: DummyContext = new DummyContext {}
 }

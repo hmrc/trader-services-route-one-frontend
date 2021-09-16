@@ -15,11 +15,9 @@
  */
 
 package uk.gov.hmrc.traderservices.models
-import java.time.LocalDate
-
 import play.api.libs.json.{Format, Json}
-import java.time.LocalTime
-import java.time.LocalDateTime
+
+import java.time.{LocalDate, LocalTime}
 
 case class VesselDetails(
   vesselName: Option[String] = None,
@@ -28,21 +26,6 @@ case class VesselDetails(
 ) {
 
   def isComplete: Boolean = vesselName.isDefined && dateOfArrival.isDefined && timeOfArrival.isDefined
-
-  def isEmpty: Boolean = vesselName.isEmpty && dateOfArrival.isEmpty && timeOfArrival.isEmpty
-
-  def isDateAndTimeBetweenNowAnd(maxDateExclusive: LocalDate, required: Boolean): Boolean = {
-    val now = LocalDateTime.now()
-    dateOfArrival match {
-      case Some(date) if date.isEqual(now.toLocalDate()) =>
-        timeOfArrival match {
-          case None       => !required
-          case Some(time) => !time.isBefore(now.toLocalTime())
-        }
-      case Some(date) => date.isAfter(now.toLocalDate()) && date.isBefore(maxDateExclusive)
-      case None       => !required
-    }
-  }
 
 }
 

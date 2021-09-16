@@ -1,0 +1,70 @@
+/*
+ * Copyright 2021 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package uk.gov.hmrc.traderservices.journeys
+
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import uk.gov.hmrc.traderservices.support.{Generators, UnitSpec}
+import org.scalactic.anyvals.PosInt
+
+class JourneyLogSpec extends UnitSpec with ScalaCheckPropertyChecks {
+
+  implicit override val generatorDrivenConfig =
+    PropertyCheckConfiguration(minSuccessful = PosInt(100))
+
+  "JourneyLog" should {
+    "log create case result" in {
+      forAll(
+        Gen.option(Generators.nonEmptyString(5)),
+        Generators.traderServicesCreateCaseRequestGen,
+        Generators.traderServicesCaseResponseGen
+      ) {
+        JourneyLog.logCreateCase
+      }
+    }
+
+    "log create case error" in {
+      forAll(
+        Gen.option(Generators.nonEmptyString(5)),
+        Generators.traderServicesCreateCaseRequestGen,
+        Generators.nonEmptyString(20).map(new Exception(_))
+      ) {
+        JourneyLog.logCreateCase
+      }
+    }
+
+    "log update case result" in {
+      forAll(
+        Gen.option(Generators.nonEmptyString(5)),
+        Generators.traderServicesUpdateCaseRequestGen,
+        Generators.traderServicesCaseResponseGen
+      ) {
+        JourneyLog.logUpdateCase
+      }
+    }
+
+    "log update case error" in {
+      forAll(
+        Gen.option(Generators.nonEmptyString(5)),
+        Generators.traderServicesUpdateCaseRequestGen,
+        Generators.nonEmptyString(20).map(new Exception(_))
+      ) {
+        JourneyLog.logUpdateCase
+      }
+    }
+  }
+}

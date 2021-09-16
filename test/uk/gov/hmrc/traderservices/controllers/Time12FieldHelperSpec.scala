@@ -182,6 +182,14 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       timeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "PM")) shouldBe Right(
         LocalTime.parse("15:03")
       )
+
+      timeFieldsMapping("bar")
+        .unbind(LocalTime.parse("00:45")) shouldBe Map("hour" -> "12", "minutes" -> "45", "period" -> "AM")
+      timeFieldsMapping("bar")
+        .unbind(LocalTime.parse("03:03")) shouldBe Map("hour" -> "03", "minutes" -> "03", "period" -> "AM")
+      timeFieldsMapping("bar")
+        .unbind(LocalTime.parse("13:53")) shouldBe Map("hour" -> "01", "minutes" -> "53", "period" -> "PM")
+
       timeFieldsMapping("bar").bind(Map("hour" -> "13", "minutes" -> "33", "period" -> "AM")) should haveOnlyError(
         "error.bar.hour.invalid-value"
       )
@@ -225,6 +233,13 @@ class Time12FieldHelperSpec extends UnitSpec with FormMappingMatchers {
       optionalTimeFieldsMapping("bar").bind(Map("hour" -> "3", "minutes" -> "3", "period" -> "PM")) shouldBe Right(
         Some(LocalTime.parse("15:03"))
       )
+
+      optionalTimeFieldsMapping("bar")
+        .unbind(Some(LocalTime.parse("15:03"))) shouldBe (Map("hour" -> "03", "minutes" -> "03", "period" -> "PM"))
+      optionalTimeFieldsMapping("bar")
+        .unbind(Some(LocalTime.parse("05:33"))) shouldBe (Map("hour" -> "05", "minutes" -> "33", "period" -> "AM"))
+      optionalTimeFieldsMapping("bar").unbind(None) shouldBe Map("hour" -> "", "minutes" -> "", "period" -> "")
+
       optionalTimeFieldsMapping("bar").bind(
         Map("hour" -> "13", "minutes" -> "33", "period" -> "AM")
       ) should haveOnlyError(

@@ -262,7 +262,7 @@ object JourneyLog {
     request: TraderServicesCreateCaseRequest,
     exception: Throwable
   ): Unit =
-    Logger(getClass).info(s"json${Json.stringify(Json.toJson(CreateCaseLog(userId, request, exception)))}")
+    Logger(getClass).error(s"json${Json.stringify(Json.toJson(CreateCaseLog(userId, request, exception)))}")
 
   final def logUpdateCase(
     userId: Option[String],
@@ -276,6 +276,6 @@ object JourneyLog {
     request: TraderServicesUpdateCaseRequest,
     exception: Throwable
   ): Unit =
-    Logger(getClass).info(s"json${Json.stringify(Json.toJson(UpdateCaseLog(userId, request, exception)))}")
+    Logger(getClass).error(s"json${Json.stringify(Json.toJson(UpdateCaseLog(userId, request, exception)))}")
 
 }

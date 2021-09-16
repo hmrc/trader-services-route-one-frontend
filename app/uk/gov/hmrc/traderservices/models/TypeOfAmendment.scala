@@ -15,22 +15,34 @@
  */
 
 package uk.gov.hmrc.traderservices.models
+
 sealed trait View {
   def viewFormat: String
 }
-sealed trait TypeOfAmendment extends View
+
+sealed trait TypeOfAmendment extends View {
+  def hasResponse: Boolean
+  def hasFiles: Boolean
+}
 
 object TypeOfAmendment extends EnumerationFormats[TypeOfAmendment] {
 
   case object WriteResponse extends TypeOfAmendment {
-    override def viewFormat = "view.amend-case.summary.type.message"
+    final override def viewFormat = "view.amend-case.summary.type.message"
+    final override def hasResponse: Boolean = true
+    final override def hasFiles: Boolean = false
   }
   case object UploadDocuments extends TypeOfAmendment {
-    override def viewFormat = "view.amend-case.summary.type.documents"
+    final override def viewFormat = "view.amend-case.summary.type.documents"
+    final override def hasResponse: Boolean = false
+    final override def hasFiles: Boolean = true
   }
   case object WriteResponseAndUploadDocuments extends TypeOfAmendment {
-    override def viewFormat = "view.amend-case.summary.type.messageAndDocuments"
+    final override def viewFormat = "view.amend-case.summary.type.messageAndDocuments"
+    final override def hasResponse: Boolean = true
+    final override def hasFiles: Boolean = true
   }
 
-  val values = Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
+  final val values: Set[TypeOfAmendment] =
+    Set(WriteResponse, UploadDocuments, WriteResponseAndUploadDocuments)
 }

@@ -46,7 +46,6 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   val format: Format[T]
 
   val maxWorkerLifespanMinutes: Int = 30
-  // Transition timeout, some transitions may depend on long external calls.
   val timeoutSeconds: Int = 300
 
   def getJourneyId(implicit requestContext: C): Option[String]
@@ -74,17 +73,20 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             .ask(replyTo => (journeyId, Modify(modification, default), replyTo))
           )
           .flatMap {
-            case Right(entity: T) =>
-              Future.successful(entity)
+            case Right(entity: Any) =>
+              Future.successful(entity.asInstanceOf[T])
 
             case Left(JsResultException(_)) =>
               val error =
-                "Encountered issue with de-serialising JSON state from cache. Check if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
+                "Encountered an issue with de-serialising JSON state from cache. \nCheck if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
               Logger(getClass).warn(error)
               Future.failed(new Exception(error))
 
             case Left(error: Throwable) =>
               Future.failed(error)
+
+            case Left(e) =>
+              Future.failed(new RuntimeException(s"Unknow error $e"))
           }
 
       case None =>
@@ -108,6 +110,9 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             case Left(error: String) =>
               Logger(getClass).warn(error)
               Future.failed(new RuntimeException(error))
+
+            case Left(e) =>
+              Future.failed(new RuntimeException(s"Unknow error $e"))
           }
 
       case None =>
@@ -127,6 +132,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             case Left(error: String) =>
               Logger(getClass).warn(error)
               Future.failed(new RuntimeException(error))
+            case Left(e) =>
+              Future.failed(new RuntimeException(s"Unknow error $e"))
           }
 
       case None =>
@@ -160,7 +167,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
     private def createWorker(journeyId: String): ActorRef = {
       val workerUuid = UUID.randomUUID().toString().takeRight(8)
       Logger(s"uk.gov.hmrc.traderservices.cache.$journeyKey.$managerUuid")
-        .info(s"Creating new cache worker $workerUuid for journey $journeyId")
+        .info(s"Creating new cache worker $workerUuid for the journey $journeyId")
       context.system.scheduler
         .scheduleOnce(Duration(maxWorkerLifespanMinutes, TimeUnit.MINUTES), context.self, (journeyId, LifeEnd))(
           context.system.dispatcher
@@ -174,24 +181,28 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
     private def removeWorker(journeyId: String): Option[ActorRef] =
       workers.remove(journeyId).map { worker =>
         Logger(s"uk.gov.hmrc.traderservices.cache.$journeyKey.$managerUuid")
-          .info(s"Removing existing cache worker for journey $journeyId")
+          .info(s"Removing existing cache worker of the journey $journeyId")
         worker
       }
 
     override def receive: Receive = {
 
-      case m @ (journeyId: String, Modify(modification, default), replyTo) =>
+      case m @ (journeyId: String, Modify(modification, default), replyTo: ActorRef) =>
         getWorker(journeyId) ! m
 
-      case m @ (journeyId: String, Get, replyTo) =>
+      case m @ (journeyId: String, Get, replyTo: ActorRef) =>
         getWorker(journeyId) ! m
 
-      case m @ (journeyId: String, store: Store, replyTo) =>
+      case m @ (journeyId: String, store: Store, replyTo: ActorRef) =>
         getWorker(journeyId) ! m
 
-      case m @ (journeyId: String, Delete, replyTo) =>
-        getWorker(journeyId) ! m
-        removeWorker(journeyId).foreach(_ ! PoisonPill)
+      case m @ (journeyId: String, Delete, replyTo: ActorRef) =>
+        getWorker(journeyId)
+          .ask(ref => (journeyId, Delete, ref))
+          .map { value =>
+            replyTo ! value
+            self ! ((journeyId, LifeEnd))
+          }(context.system.dispatcher)
 
       case (journeyId: String, LifeEnd) =>
         removeWorker(journeyId).foreach(_ ! PoisonPill)
@@ -230,29 +241,20 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             .findById(journeyId)
             .map {
               case Some(cacheItem) =>
-                (cacheItem.data \ journeyKey).asOpt[JsValue] match {
-                  case None => Right(default)
-                  case Some(obj: JsValue) =>
-                    obj.validate[T](format) match {
-                      case JsSuccess(entity, _) => Right(entity)
-                      case JsError(errors) =>
-                        val allErrors = errors.map(_._2.map(_.message).mkString(",")).mkString(",")
-                        Left(allErrors)
-                    }
+                (cacheItem.data \ journeyKey).asOpt[T](format) match {
+                  case None        => default
+                  case Some(value) => value
                 }
-              case None => Right(default)
+              case None => default
             }
-            .flatMap {
-              case Right(entity) =>
-                modification
-                  .apply(entity.asInstanceOf[T])
-                  .flatMap { newEntity =>
-                    cacheRepository
-                      .put[T](journeyId)(DataKey(journeyKey), newEntity.asInstanceOf[T])(format)
-                      .map(_ => Right(newEntity))
-                  }
-
-              case left => left
+            .flatMap { entity =>
+              modification
+                .apply(entity.asInstanceOf[T])
+                .flatMap { newEntity =>
+                  cacheRepository
+                    .put[T](journeyId)(DataKey(journeyKey), newEntity.asInstanceOf[T])(format)
+                    .map(_ => Right(newEntity))
+                }
             }
             .recover { case e => Left(e) }
             .map(Result(_, replyTo))
@@ -290,16 +292,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             .findById(journeyId)
             .map {
               case Some(cacheItem) =>
-                (cacheItem.data \ journeyKey).asOpt[JsValue] match {
-                  case None => Right(None)
-                  case Some(obj: JsValue) =>
-                    obj.validate[T](format) match {
-                      case JsSuccess(p, _) => Right(Some(p))
-                      case JsError(errors) =>
-                        val allErrors = errors.map(_._2.map(_.message).mkString(",")).mkString(",")
-                        Left(allErrors)
-                    }
-                }
+                Right((cacheItem.data \ journeyKey).asOpt[T](format))
+
               case None => Right(None)
             }
             .recover {

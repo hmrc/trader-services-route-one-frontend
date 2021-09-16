@@ -21,6 +21,13 @@ import java.time.ZonedDateTime
 
 class FileUploadsSpec extends UnitSpec {
 
+  val initiatedFileUpload1 = FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1")
+  val initiatedFileUpload2 = FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2")
+  val initiatedFileUpload3 = FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo3")
+  val postedFileUpload1 = FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1")
+  val postedFileUpload2 = FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo2")
+  val postedFileUpload3 = FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+
   val acceptedFileUpload = FileUpload.Accepted(
     Nonce(4),
     Timestamp.Any,
@@ -33,6 +40,32 @@ class FileUploadsSpec extends UnitSpec {
     Some(4567890)
   )
 
+  val failedFileUpload = FileUpload.Failed(
+    Nonce(4),
+    Timestamp.Any,
+    "foo-bar-ref-4",
+    UpscanNotification.FailureDetails(
+      UpscanNotification.QUARANTINE,
+      "e.g. This file has a virus"
+    )
+  )
+
+  val rejectedFileUpload = FileUpload.Rejected(
+    Nonce(5),
+    Timestamp.Any,
+    "foo-bar-ref-5",
+    S3UploadError("a", "b", "c")
+  )
+
+  val duplicateFileUpload = FileUpload.Duplicate(
+    Nonce(6),
+    Timestamp.Any,
+    "foo-bar-ref-6",
+    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+    "test.pdf",
+    "test2.png"
+  )
+
   "FileUploads" should {
     "filter out initiated uploads" in {
       FileUploads(
@@ -41,41 +74,40 @@ class FileUploadsSpec extends UnitSpec {
 
       FileUploads(
         files = Seq(
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo3")
+          initiatedFileUpload1,
+          initiatedFileUpload2,
+          initiatedFileUpload3
         )
       ).filterOutInitiated shouldBe FileUploads()
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload1,
+          initiatedFileUpload2,
+          failedFileUpload,
+          initiatedFileUpload3
         )
-      ).filterOutInitiated shouldBe FileUploads(files = Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1")))
+      ).filterOutInitiated shouldBe FileUploads(files = Seq(postedFileUpload1, failedFileUpload))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload1,
+          initiatedFileUpload2,
+          rejectedFileUpload
         )
-      ).filterOutInitiated shouldBe FileUploads(files =
-        Seq(FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"), FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3"))
-      )
+      ).filterOutInitiated shouldBe FileUploads(files = Seq(postedFileUpload1, rejectedFileUpload))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload1,
+          postedFileUpload2,
+          postedFileUpload3
         )
       ).filterOutInitiated shouldBe FileUploads(files =
         Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload1,
+          postedFileUpload2,
+          postedFileUpload3
         )
       )
 
@@ -88,37 +120,37 @@ class FileUploadsSpec extends UnitSpec {
 
       FileUploads(
         files = Seq(
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo3"),
+          initiatedFileUpload1,
+          initiatedFileUpload2,
+          initiatedFileUpload3,
           acceptedFileUpload
         )
       ).onlyAccepted shouldBe FileUploads(Seq(acceptedFileUpload))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
+          postedFileUpload1,
           acceptedFileUpload,
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo3")
+          initiatedFileUpload2,
+          initiatedFileUpload3
         )
       ).onlyAccepted shouldBe FileUploads(files = Seq(acceptedFileUpload))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
-          FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo2"),
+          postedFileUpload1,
+          initiatedFileUpload2,
           acceptedFileUpload,
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload3
         )
       ).onlyAccepted shouldBe FileUploads(files = Seq(acceptedFileUpload))
 
       FileUploads(
         files = Seq(
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo1"),
+          postedFileUpload1,
           acceptedFileUpload,
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo2"),
-          FileUpload.Posted(Nonce.Any, Timestamp.Any, "foo3")
+          postedFileUpload2,
+          postedFileUpload3
         )
       ).onlyAccepted shouldBe FileUploads(files = Seq(acceptedFileUpload))
 
@@ -214,6 +246,49 @@ class FileUploadsSpec extends UnitSpec {
         "123orem_ipsum_dolor_sit_amet-----consec9999999999tetur-adipiscing elit_Vestibulum***12cursus,!!![erat]+sed+fringilla (lacinia), sem/nulla/vulputate /_mauris,~at&tincidunt@eros.ext"
       ) shouldBe "123oremipsumdolorsitametconsec9999999999teturadipiscingelitVestibulum12cursuseratsedfring.ext"
 
+    }
+
+    "count accepted" in {
+      FileUploads(
+        files = Seq(
+          postedFileUpload1,
+          acceptedFileUpload,
+          initiatedFileUpload2,
+          acceptedFileUpload,
+          initiatedFileUpload3,
+          duplicateFileUpload,
+          rejectedFileUpload,
+          failedFileUpload
+        )
+      ).acceptedCount shouldBe 2
+    }
+
+    "count initiated or accepted" in {
+      FileUploads(
+        files = Seq(
+          postedFileUpload1,
+          acceptedFileUpload,
+          initiatedFileUpload2,
+          acceptedFileUpload,
+          initiatedFileUpload3,
+          duplicateFileUpload,
+          rejectedFileUpload,
+          failedFileUpload
+        )
+      ).initiatedOrAcceptedCount shouldBe 5
+    }
+
+    "have isReady property" in {
+      postedFileUpload1.isReady shouldBe false
+      initiatedFileUpload1.isReady shouldBe false
+      acceptedFileUpload.isReady shouldBe true
+      failedFileUpload.isReady shouldBe true
+      rejectedFileUpload.isReady shouldBe true
+      duplicateFileUpload.isReady shouldBe true
+    }
+
+    "have MAX_FILENAME_LENGTH" in {
+      FileUpload.MAX_FILENAME_LENGTH shouldBe 93
     }
   }
 }
