@@ -51,17 +51,6 @@ class EnumerationFormatsSpec extends AnyWordSpec with Matchers {
       Foo.format.reads(JsNumber(1)) shouldBe a[JsError]
       Foo.format.reads(JsBoolean(true)) shouldBe a[JsError]
     }
-
-    "normalize name" in {
-      EnumerationFormats.normalize("") shouldBe ""
-      EnumerationFormats.normalize(".") shouldBe ""
-      EnumerationFormats.normalize("..") shouldBe ""
-      EnumerationFormats.normalize("A.") shouldBe "A"
-      EnumerationFormats.normalize("a.ABC.") shouldBe "ABC"
-      EnumerationFormats.normalize("a.b.$Bcd$") shouldBe "Bcd"
-      EnumerationFormats.normalize("a.b.$Bcd") shouldBe "Bcd"
-      EnumerationFormats.normalize("a.b.Bcd") shouldBe "Bcd"
-    }
-
   }
+
 }

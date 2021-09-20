@@ -26,6 +26,7 @@ import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
 import play.api.libs.json.JsValue
 import scala.io.AnsiColor
+import uk.gov.hmrc.play.fsm.PlayFsmUtils
 
 /**
   * Journey persistence service mixin,
@@ -95,7 +96,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           println(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(nameOf)}"
+              .map(PlayFsmUtils.identityOf)}"
           )
         }
         stateAndBreadcrumbs
@@ -124,7 +125,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           println(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(nameOf)}"
+              .map(PlayFsmUtils.identityOf)}"
           )
         }
         stateAndBreadcrumbs
@@ -133,8 +134,5 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
 
   final override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     cache.clear()
-
-  final def nameOf(state: Any): String =
-    uk.gov.hmrc.traderservices.models.EnumerationFormats.identityOf(state)
 
 }

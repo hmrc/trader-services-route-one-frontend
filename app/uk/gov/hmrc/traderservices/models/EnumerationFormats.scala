@@ -17,6 +17,7 @@
 package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json._
+import uk.gov.hmrc.play.fsm.PlayFsmUtils
 
 /**
   * Helper trait providing JSON formatter based on the set of enum values.
@@ -25,7 +26,7 @@ import play.api.libs.json._
   */
 trait EnumerationFormats[A] {
 
-  import EnumerationFormats._
+  import PlayFsmUtils.identityOf
 
   /** Set of enum values recognized by the formatter. */
   val values: Set[A]
@@ -68,21 +69,5 @@ trait EnumerationFormats[A] {
 
   /** Instance of a typeclass declaration */
   implicit val enumerationFormats: EnumerationFormats[A] = this
-
-}
-
-object EnumerationFormats {
-
-  def identityOf[A](entity: A): String =
-    normalize(entity.getClass.toString)
-
-  def normalize(name: String): String = {
-    val name1 = if (name.endsWith("$") || name.endsWith(".")) name.dropRight(1) else name
-    val name2 = {
-      val i = Math.max(name1.lastIndexOf("."), name1.lastIndexOf("$")) + 1
-      name1.substring(i)
-    }
-    name2
-  }
 
 }
