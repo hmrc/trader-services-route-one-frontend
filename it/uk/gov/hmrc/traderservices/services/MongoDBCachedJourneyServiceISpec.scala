@@ -126,12 +126,6 @@ class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecS
     "do not throw an exception when clearing with missing journeyId" in {
       await(service.clear(null, implicitly[ExecutionContext])) shouldBe (())
     }
-
-    "have a nameOf method" in {
-      service.nameOf(5) shouldBe "Integer"
-      service.nameOf(this) shouldBe "MongoDBCachedJourneyServiceISpec"
-      service.nameOf(new A) shouldBe "A"
-    }
   }
 
 }
