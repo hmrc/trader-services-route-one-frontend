@@ -46,11 +46,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
           } yield identifier.value
 
           id.map(x => body((credentials.map(_.providerId), Some(x))))
-            .getOrElse(
-              throw new IllegalStateException(
-                s"Cannot find identifier key $identifierKey for service name $serviceName!"
-              )
-            )
+            .getOrElse(throw InsufficientEnrolments())
       }
       .recover(handleFailure)
 

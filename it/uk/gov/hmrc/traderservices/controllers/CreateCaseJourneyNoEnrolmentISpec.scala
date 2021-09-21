@@ -39,7 +39,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "show the start page" in {
 
         journey.setState(Start)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/").get())
 
@@ -54,7 +54,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "show the choice between new and existing case" in {
 
         journey.setState(ChooseNewOrExistingCase())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new-or-existing").get())
 
@@ -69,7 +69,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit the choice of New and ask next for declaration details" in {
 
         journey.setState(ChooseNewOrExistingCase())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "newOrExistingCase" -> "New"
@@ -86,7 +86,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit the choice of Existing and ask next for case reference number" in {
 
         journey.setState(ChooseNewOrExistingCase())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "newOrExistingCase" -> "Existing"
@@ -103,7 +103,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit invalid choice and re-display the form page with error" in {
 
         journey.setState(ChooseNewOrExistingCase())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "newOrExistingCase" -> "Foo"
@@ -122,7 +122,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "show declaration details page if at Start" in {
 
         journey.setState(EnterEntryDetails())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/entry-details").get())
 
@@ -142,7 +142,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/entry-details").get())
 
@@ -162,7 +162,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit the form and ask next for requestType when entryNumber is for export" in {
 
         journey.setState(EnterEntryDetails(None))
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "entryDate.year"  -> s"$y",
@@ -188,7 +188,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit the form and go next page when entryNumber is for import" in {
 
         journey.setState(EnterEntryDetails(None))
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "entryDate.year"  -> s"$y",
@@ -212,7 +212,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       "submit invalid form and re-display the form page with errors" in {
 
         journey.setState(EnterEntryDetails())
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "entryDate.year"  -> "202a",
@@ -241,7 +241,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/request-type").get())
 
@@ -263,7 +263,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("requestType" -> "New")
 
@@ -289,7 +289,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("requestType" -> "Foo")
 
@@ -312,7 +312,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/route-type").get())
 
@@ -334,7 +334,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route2")
 
@@ -361,7 +361,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route3")
 
@@ -388,7 +388,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route2")
 
@@ -417,7 +417,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Foo")
 
@@ -443,7 +443,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/reason").get())
 
@@ -468,7 +468,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("reasonText" -> "")
         val result = await(request("/new/export/reason").post(payload))
@@ -491,7 +491,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val payload = Map("reasonText" -> reasonText)
         val result = await(request("/new/export/reason").post(payload))
 
@@ -514,7 +514,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("reasonText" -> "bankrupt")
         val result = await(request("/new/export/reason").post(payload))
@@ -536,7 +536,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/has-priority-goods").get())
 
@@ -558,7 +558,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("hasPriorityGoods" -> "yes")
 
@@ -592,7 +592,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("hasPriorityGoods" -> "no")
 
@@ -625,7 +625,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("hasPriorityGoods" -> "")
 
@@ -648,7 +648,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/which-priority-goods").get())
 
@@ -670,7 +670,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("priorityGoods" -> "LiveAnimals")
 
@@ -700,7 +700,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("priorityGoods" -> "")
 
@@ -727,7 +727,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/transport-type").get())
 
@@ -753,7 +753,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("freightType" -> "RORO")
 
@@ -790,7 +790,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("freightType" -> "Air")
 
@@ -826,7 +826,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("freightType" -> "")
 
@@ -856,7 +856,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
 
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/transport-information-required").get())
 
@@ -883,7 +883,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
 
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/transport-information-required").get())
 
@@ -910,7 +910,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
@@ -961,7 +961,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "vesselName" -> "Foo Bar"
@@ -992,7 +992,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/transport-information").get())
 
@@ -1019,7 +1019,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
@@ -1073,7 +1073,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map[String, String]()
 
@@ -1111,7 +1111,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("dateOfDeparture.year" -> "202A")
 
@@ -1136,7 +1136,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/contact-information").get())
 
@@ -1171,7 +1171,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "contactEmail" -> "someone@email.com"
@@ -1230,7 +1230,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "contactName"   -> "Full Name",
@@ -1255,7 +1255,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/export/check-your-answers").get())
 
@@ -1276,7 +1276,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/request-type").get())
 
@@ -1301,7 +1301,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("requestType" -> "New")
 
@@ -1329,7 +1329,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/route-type").get())
 
@@ -1351,7 +1351,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route6")
 
@@ -1380,7 +1380,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route3")
 
@@ -1409,7 +1409,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("routeType" -> "Route6")
 
@@ -1443,7 +1443,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val result = await(request("/new/import/reason").get())
 
         result.status shouldBe 200
@@ -1467,7 +1467,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val payload = Map("reasonText" -> "")
         val result = await(request("/new/import/reason").post(payload))
         result.status shouldBe 200
@@ -1489,7 +1489,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val payload = Map("reasonText" -> reasonText)
         val result = await(request("/new/import/reason").post(payload))
 
@@ -1511,7 +1511,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val payload = Map("reasonText" -> "bankrupt")
         val result = await(request("/new/import/reason").post(payload))
 
@@ -1532,7 +1532,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/has-priority-goods").get())
 
@@ -1554,7 +1554,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("hasPriorityGoods" -> "yes")
 
@@ -1585,7 +1585,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("hasPriorityGoods" -> "no")
 
@@ -1617,7 +1617,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/which-priority-goods").get())
 
@@ -1639,7 +1639,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("priorityGoods" -> "LiveAnimals")
 
@@ -1671,7 +1671,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/automatic-licence-verification").get())
 
@@ -1694,7 +1694,7 @@ class CreateCaseJourneyNoEnrolmentISpec
               )
             )
           )
-          givenAuthorised
+          givenAuthorisedWithoutEnrolments
 
           val payload = Map("hasALVS" -> { if (hasALVS) "yes" else "no" })
 
@@ -1733,7 +1733,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/transport-type").get())
 
@@ -1758,7 +1758,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("freightType" -> "RORO")
 
@@ -1791,7 +1791,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map("freightType" -> "Maritime")
 
@@ -1828,7 +1828,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
 
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/transport-information").get())
 
@@ -1855,7 +1855,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
@@ -1907,7 +1907,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map[String, String]()
 
@@ -1940,7 +1940,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/contact-information").get())
 
@@ -1970,9 +1970,9 @@ class CreateCaseJourneyNoEnrolmentISpec
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val payload = Map(
           "contactEmail" -> "someone@email.com"
@@ -2027,7 +2027,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/import/check-your-answers").get())
 
@@ -2047,7 +2047,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/upload-files").get())
 
@@ -2065,7 +2065,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/upload-files").get())
 
@@ -2082,7 +2082,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/upload-files").get())
 
@@ -2102,7 +2102,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/upload-files").get())
 
@@ -2125,7 +2125,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
@@ -2197,7 +2197,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
@@ -2269,7 +2269,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
@@ -2311,7 +2311,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         val callbackUrl =
           appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
         givenUpscanInitiateSucceeds(callbackUrl)
@@ -2376,7 +2376,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
         givenCreateCaseApiRequestSucceedsWithoutEori()
 
         val result = await(request("/new/create-case").post(""))
@@ -2437,7 +2437,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           CaseSLA(Some(generatedAt.plusHours(2)))
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/confirmation").get)
 
@@ -2469,7 +2469,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result1 =
           await(
@@ -2527,7 +2527,7 @@ class CreateCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result1 =
           await(requestWithoutJourneyId(s"/new/journey/${journeyId.value}/file-verification").get())
@@ -2603,7 +2603,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result1 =
           await(
@@ -2674,7 +2674,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/file-uploaded").get())
 
@@ -2717,7 +2717,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/file-uploaded").get())
 
@@ -2762,7 +2762,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").get())
 
@@ -2824,7 +2824,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").post(""))
 
@@ -2886,7 +2886,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result =
           await(
@@ -2933,7 +2933,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result =
           await(
@@ -2950,7 +2950,7 @@ class CreateCaseJourneyNoEnrolmentISpec
     "GET /foo" should {
       "return an error page not found" in {
         val state = journey.getState
-        givenAuthorised
+        givenAuthorisedWithoutEnrolments
 
         val result = await(request("/foo").get())
 

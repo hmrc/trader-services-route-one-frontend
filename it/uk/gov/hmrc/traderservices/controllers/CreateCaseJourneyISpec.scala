@@ -24,6 +24,7 @@ import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.connectors.FileTransferResult
+import play.mvc.Http.HeaderNames
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -36,6 +37,18 @@ class CreateCaseJourneyISpec
   implicit val journeyId: JourneyId = JourneyId()
 
   "CreateCaseJourneyController" when {
+
+    "user not enrolled for HMRC-XYZ" should {
+      "be redirected to the subscription journey" in {
+        journey.setState(Start)
+        givenAuthorisedWithoutEnrolments
+        givenDummySubscriptionUrl
+        val result = await(request("/").get())
+        result.status shouldBe 200
+        verifyAuthoriseAttempt()
+        verifySubscriptionAttempt()
+      }
+    }
 
     "GET /send-documents-for-customs-check/" should {
       "show the start page" in {
@@ -1963,6 +1976,82 @@ class CreateCaseJourneyISpec
             )
           )
         )
+      }
+    }
+
+    "POST /new/import/transport-information-required" should {
+      "submit mandatory vessel details and ask next for contact details" in {
+
+        journey.setState(
+          AnswerImportQuestionsMandatoryVesselInfo(
+            ImportQuestionsStateModel(
+              EntryDetails(EPU(230), EntryNumber("111111Z"), today),
+              ImportQuestions(
+                requestType = Some(ImportRequestType.New),
+                routeType = Some(ImportRouteType.Hold),
+                priorityGoods = Some(ImportPriorityGoods.HumanRemains),
+                freightType = Some(ImportFreightType.Air)
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
+        val payload = Map(
+          "vesselName"            -> "Foo Bar",
+          "dateOfArrival.year"    -> f"${dateTimeOfArrival.get(ChronoField.YEAR)}",
+          "dateOfArrival.month"   -> f"${dateTimeOfArrival.get(ChronoField.MONTH_OF_YEAR)}%02d",
+          "dateOfArrival.day"     -> f"${dateTimeOfArrival.get(ChronoField.DAY_OF_MONTH)}%02d",
+          "timeOfArrival.hour"    -> f"${dateTimeOfArrival.get(ChronoField.HOUR_OF_DAY)}%02d",
+          "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
+        )
+
+        val result = await(request("/new/import/transport-information-required").post(payload))
+
+        result.status shouldBe 200
+
+        journey.getState shouldBe AnswerImportQuestionsContactInfo(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(230), EntryNumber("111111Z"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Hold),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
+              freightType = Some(ImportFreightType.Air),
+              vesselDetails = Some(
+                VesselDetails(
+                  vesselName = Some("Foo Bar"),
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "submit none vessel details and ask again for mandatory vessel details" in {
+        val state = AnswerImportQuestionsMandatoryVesselInfo(
+          ImportQuestionsStateModel(
+            EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
+            ImportQuestions(
+              requestType = Some(ImportRequestType.New),
+              routeType = Some(ImportRouteType.Hold),
+              priorityGoods = Some(ImportPriorityGoods.HumanRemains),
+              freightType = Some(ImportFreightType.Air)
+            )
+          )
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val payload = Map[String, String]()
+        val result = await(request("/new/import/transport-information-required").post(payload))
+
+        result.status shouldBe 200
+        journey.getState shouldBe state
       }
     }
 

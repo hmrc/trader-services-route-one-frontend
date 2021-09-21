@@ -42,7 +42,7 @@ class AuthActionsISpec extends AuthActionISpecSetup {
   "authorisedWithoutEnrolment" should {
 
     "authorize even when insufficient enrollments" in {
-      givenAuthorised
+      givenAuthorisedWithoutEnrolments
       val result = TestController.testAuhorizedWithoutEnrolment
       status(result) shouldBe 200
       bodyOf(result) should be("12345-credId,none")
