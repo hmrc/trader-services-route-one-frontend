@@ -19,14 +19,10 @@ package uk.gov.hmrc.traderservices.controllers
 import akka.actor.{ActorSystem, Scheduler}
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport}
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models._
@@ -36,26 +32,31 @@ import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
-  appConfig: AppConfig,
-  override val messagesApi: MessagesApi,
+  amendCaseJourneyService: AmendCaseJourneyServiceWithHeaderCarrier,
+  views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
   traderServicesApiConnector: TraderServicesApiConnector,
   upscanInitiateConnector: UpscanInitiateConnector,
-  val authConnector: FrontendAuthConnector,
-  val env: Environment,
-  controllerComponents: MessagesControllerComponents,
-  views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
   uploadFileViewContext: UploadFileViewContext,
   printStylesheet: ReceiptStylesheet,
   pdfGeneratorConnector: PdfGeneratorConnector,
-  override val journeyService: AmendCaseJourneyServiceWithHeaderCarrier,
-  override val actionBuilder: DefaultActionBuilder
-)(implicit val config: Configuration, ec: ExecutionContext, val actorSystem: ActorSystem)
-    extends FrontendController(controllerComponents) with I18nSupport with AuthActions
-    with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] with FileStream {
+  appConfig: AppConfig,
+  authConnector: FrontendAuthConnector,
+  environment: Environment,
+  configuration: Configuration,
+  controllerComponents: MessagesControllerComponents,
+  val actorSystem: ActorSystem
+) extends BaseJourneyController(
+      amendCaseJourneyService,
+      controllerComponents,
+      appConfig,
+      authConnector,
+      environment,
+      configuration
+    ) with FileStream {
 
   final val controller = routes.AmendCaseJourneyController
 
@@ -63,41 +64,6 @@ class AmendCaseJourneyController @Inject() (
   import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel._
 
   implicit val scheduler: Scheduler = actorSystem.scheduler
-
-  /** AsUser authorisation request */
-  final val AsUser: WithAuthorised[Option[String]] =
-    if (appConfig.requireEnrolmentFeature) { implicit request => body =>
-      authorisedWithEnrolment(
-        appConfig.authorisedServiceName,
-        appConfig.authorisedIdentifierKey
-      )(x => body(x._2))
-    } else { implicit request => body =>
-      authorisedWithoutEnrolment(x => body(x._2))
-    }
-
-  final val AsUserWithUidAndEori: WithAuthorised[(Option[String], Option[String])] =
-    if (appConfig.requireEnrolmentFeature) { implicit request =>
-      authorisedWithEnrolment(
-        appConfig.authorisedServiceName,
-        appConfig.authorisedIdentifierKey
-      )
-    } else { implicit request =>
-      authorisedWithoutEnrolment
-    }
-
-  /** Base authorized action builder */
-  final val whenAuthorisedAsUser = actions.whenAuthorised(AsUser)
-  final val whenAuthorisedAsUserWithEori = actions.whenAuthorisedWithRetrievals(AsUser)
-  final val whenAuthorisedAsUserWithUidAndEori = actions.whenAuthorisedWithRetrievals(AsUserWithUidAndEori)
-
-  /** Dummy action to use only when developing to fill loose-ends. */
-  private val actionNotYetImplemented = Action(NotImplemented)
-
-  final def toSubscriptionJourney(continueUrl: String): Result =
-    Redirect(appConfig.subscriptionJourneyUrl)
-
-  // Dummy URL to use when developing the journey
-  final val workInProgresDeadEndCall = Call("GET", "/send-documents-for-customs-check/amend/work-in-progress")
 
   // GET /
   final val showStart: Action[AnyContent] =
@@ -710,24 +676,6 @@ class AmendCaseJourneyController @Inject() (
 
       case _ => Future.successful(BadRequest)
     })
-
-  private val journeyIdPathParamRegex = ".*?/journey/([A-Za-z0-9-]{36})/.*".r
-
-  override def journeyId(implicit rh: RequestHeader): Option[String] = {
-    val journeyIdFromPath = rh.path match {
-      case journeyIdPathParamRegex(id) => Some(id)
-      case _                           => None
-    }
-    journeyIdFromPath.orElse(rh.session.get(journeyService.journeyKey))
-  }
-
-  private def currentJourneyId(implicit rh: RequestHeader): String = journeyId.get
-
-  final override implicit def context(implicit rh: RequestHeader): HeaderCarrier =
-    appendJourneyId(super.hc)
-
-  final override def amendContext(headerCarrier: HeaderCarrier)(key: String, value: String): HeaderCarrier =
-    headerCarrier.withExtraHeaders(key -> value)
 }
 
 object AmendCaseJourneyController {
