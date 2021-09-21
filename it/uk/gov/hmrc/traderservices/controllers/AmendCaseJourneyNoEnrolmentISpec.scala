@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 import akka.actor.ActorSystem
 
 class AmendCaseJourneyNoEnrolmentISpec
-    extends AmendCaseJourneyNoEnrolmentISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
+    extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
@@ -30,6 +30,10 @@ class AmendCaseJourneyNoEnrolmentISpec
   implicit val journeyId: JourneyId = JourneyId()
 
   val dateTime = LocalDateTime.now()
+
+  override def uploadMultipleFilesFeature: Boolean = false
+  override def requireEnrolmentFeature: Boolean = false
+  override def requireOptionalTransportFeature: Boolean = false
 
   "AmendCaseJourneyController" when {
 
@@ -1130,36 +1134,5 @@ class AmendCaseJourneyNoEnrolmentISpec
         journey.getState shouldBe state
       }
     }
-  }
-}
-
-trait AmendCaseJourneyNoEnrolmentISpecSetup extends ServerISpec {
-
-  import play.api.i18n._
-  implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
-  override val requireEnrolmentFeature: Boolean = false
-
-  // define test service capable of manipulating journey state
-  lazy val journey = new TestJourneyService[JourneyId]
-    with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
-
-    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
-    override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
-
-    override val stateFormats: Format[model.State] =
-      AmendCaseJourneyStateFormats.formats
-
-    override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
-  }
-
-  final def request(path: String)(implicit journeyId: JourneyId) = {
-    val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
-
-    wsClient
-      .url(s"$baseUrl$path")
-      .withCookies(
-        DefaultWSCookie(sessionCookie.name, sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
-      )
   }
 }

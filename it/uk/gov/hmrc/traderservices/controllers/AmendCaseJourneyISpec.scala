@@ -33,6 +33,10 @@ class AmendCaseJourneyISpec
 
   val dateTime = LocalDateTime.now()
 
+  override def uploadMultipleFilesFeature: Boolean = false
+  override def requireEnrolmentFeature: Boolean = true
+  override def requireOptionalTransportFeature: Boolean = false
+
   "AmendCaseJourneyController" when {
 
     "GET /send-documents-for-customs-check/add/case-reference-number" should {

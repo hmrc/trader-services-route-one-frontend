@@ -7,6 +7,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
 
+  override def uploadMultipleFilesFeature: Boolean = false
+  override def requireEnrolmentFeature: Boolean = true
+  override def requireOptionalTransportFeature: Boolean = false
+
   "LanguageSwitchController" when {
 
     "GET /language/cy" should {

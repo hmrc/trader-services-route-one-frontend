@@ -24,7 +24,8 @@ import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock
 import akka.actor.ActorSystem
 import uk.gov.hmrc.traderservices.connectors.FileTransferResult
-import play.mvc.Http.HeaderNames
+import play.api.test.FakeRequest
+import play.api.mvc.Cookie
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -35,6 +36,10 @@ class CreateCaseJourneyISpec
   val dateTime = LocalDateTime.now()
 
   implicit val journeyId: JourneyId = JourneyId()
+
+  override def uploadMultipleFilesFeature: Boolean = false
+  override def requireEnrolmentFeature: Boolean = true
+  override def requireOptionalTransportFeature: Boolean = false
 
   "CreateCaseJourneyController" when {
 
@@ -47,6 +52,18 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         verifyAuthoriseAttempt()
         verifySubscriptionAttempt()
+      }
+    }
+
+    "preferUploadMultipleFiles" should {
+      "return false when jsenabled cookie NOT set" in {
+        controller.preferUploadMultipleFiles(FakeRequest()) shouldBe false
+      }
+
+      "return false when jsenabled cookie set but config feature flag not set" in {
+        controller.preferUploadMultipleFiles(
+          FakeRequest().withCookies(Cookie(controller.COOKIE_JSENABLED, "true"))
+        ) shouldBe false
       }
     }
 
