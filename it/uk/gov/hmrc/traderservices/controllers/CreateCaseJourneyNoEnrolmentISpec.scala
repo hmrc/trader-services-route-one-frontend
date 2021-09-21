@@ -1,28 +1,17 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.libs.json.Format
-import play.api.mvc.Session
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
+import play.api.libs.json.{JsObject, JsValue, Json}
+import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServicesResult}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
-import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support.{ServerISpec, TestData, TestJourneyService}
+import uk.gov.hmrc.traderservices.support.TestData
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
-import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import java.time.temporal.{ChronoField, ChronoUnit}
+import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.ws.DefaultWSCookie
 import scala.util.Random
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.connectors.FileTransferResult
 
 class CreateCaseJourneyNoEnrolmentISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {

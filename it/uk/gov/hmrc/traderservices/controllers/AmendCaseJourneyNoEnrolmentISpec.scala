@@ -1,25 +1,14 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.libs.json.Format
-import play.api.libs.ws.DefaultWSCookie
-import play.api.mvc.Session
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support.{ServerISpec, TestJourneyService}
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import akka.actor.ActorSystem
 
 class AmendCaseJourneyNoEnrolmentISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
