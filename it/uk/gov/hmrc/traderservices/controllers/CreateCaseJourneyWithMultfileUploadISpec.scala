@@ -136,7 +136,50 @@ class CreateCaseJourneyWithMultfileUploadISpec
           fakeRequest(Cookie(controller.COOKIE_JSENABLED, "true"))
         ) shouldBe true
       }
+    }
 
+    "getCallFor" should {
+      "return /new/file-verification for WaitingForFileVerification" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val state = WaitingForFileVerification(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          "2b72fe99-8adf-4edb-865e-622ae710f77c",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+            )
+          )
+        )
+        controller
+          .getCallFor(state)(FakeRequest())
+          .url
+          .should(endWith("/new/file-verification"))
+      }
+
+      "return workInProgresDeadEndCall for an unsupported state" in {
+        controller
+          .getCallFor(WorkInProgressDeadEnd)(FakeRequest())
+          .shouldBe(controller.workInProgresDeadEndCall)
+      }
+    }
+
+    "renderState" should {
+      "redirect at TurnToAmendCaseJourney the same way as in getCallFor" in {
+        controller
+          .renderState(TurnToAmendCaseJourney(false), Nil, None)(FakeRequest())
+          .shouldBe(controller.Redirect(controller.getCallFor(TurnToAmendCaseJourney(false))(FakeRequest())))
+        controller
+          .renderState(TurnToAmendCaseJourney(true), Nil, None)(FakeRequest())
+          .shouldBe(controller.Redirect(controller.getCallFor(TurnToAmendCaseJourney(true))(FakeRequest())))
+      }
+      "return NotImplemented for an unsupported state" in {
+        controller
+          .renderState(WorkInProgressDeadEnd, Nil, None)(FakeRequest())
+          .shouldBe(controller.NotImplemented)
+      }
     }
 
     "POST /new/import/contact-information" should {
