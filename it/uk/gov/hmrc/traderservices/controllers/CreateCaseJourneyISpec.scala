@@ -29,6 +29,7 @@ import play.api.mvc.Cookie
 import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.AnyContent
+import play.api.libs.ws.StandaloneWSRequest
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -148,7 +149,7 @@ class CreateCaseJourneyISpec
       }
 
       "submit the choice of Existing and ask next for case reference number (when continue is true)" in {
-        journey.setState(ChooseNewOrExistingCase())
+        journey.setState(ChooseNewOrExistingCase(continueAmendCaseJourney = true))
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val payload = Map(
@@ -1240,6 +1241,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe state
       }
     }
@@ -2160,6 +2162,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
         result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe state
       }
     }
@@ -2501,6 +2504,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2566,6 +2570,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.importEntryDetails,
           TestData.fullImportQuestions(dateTimeOfArrival),
@@ -2614,6 +2619,7 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.missing-information.title"))
         result.body should include(htmlEscapedMessage("view.missing-information.heading"))
+        verifyCreateCaseRequestHappened(0)
         journey.getState shouldBe ExportQuestionsMissingInformationError(model)
       }
 
@@ -2635,7 +2641,48 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.missing-information.title"))
         result.body should include(htmlEscapedMessage("view.missing-information.heading"))
+        verifyCreateCaseRequestHappened(0)
         journey.getState shouldBe ImportQuestionsMissingInformationError(model)
+      }
+
+      "show case already exists page for an export" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val model = ExportQuestionsStateModel(
+          TestData.exportEntryDetails,
+          TestData.fullExportQuestions(dateTimeOfArrival),
+          Some(FileUploads(files = Seq(TestData.acceptedFileUpload)))
+        )
+        journey.setState(ExportQuestionsSummary(model))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))
+        givenCreateCaseApiRequestReturnsDuplicateCaseError()
+
+        val result = await(request("/new/create-case").post(""))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
+        result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        verifyCreateCaseRequestHappened(1)
+        journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
+      }
+
+      "show case already exists page for an import" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val model = ImportQuestionsStateModel(
+          TestData.importEntryDetails,
+          TestData.fullImportQuestions(dateTimeOfArrival),
+          Some(FileUploads(files = Seq(TestData.acceptedFileUpload)))
+        )
+        journey.setState(ImportQuestionsSummary(model))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "GB123456789012345"))
+        givenCreateCaseApiRequestReturnsDuplicateCaseError()
+
+        val result = await(request("/new/create-case").post(""))
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
+        result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        verifyCreateCaseRequestHappened(1)
+        journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
       }
     }
 
@@ -2801,6 +2848,47 @@ class CreateCaseJourneyISpec
         result.bodyAsBytes.toArray shouldBe pdfContent
 
         journey.getState shouldBe state
+      }
+    }
+
+    "GET /new/file-verification" should {
+      "display waiting for file verification page" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        journey.setState(
+          UploadFile(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            "2b72fe99-8adf-4edb-865e-622ae710f77c",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/new/file-verification").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.waiting"))
+        result.body should include(htmlEscapedMessage("view.upload-file.waiting"))
+
+        journey.getState shouldBe (
+          WaitingForFileVerification(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            "2b72fe99-8adf-4edb-865e-622ae710f77c",
+            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+            FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
       }
     }
 
@@ -3072,6 +3160,273 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
         result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
         journey.getState shouldBe state
+      }
+    }
+
+    "POST /new/file-uploaded" should {
+
+      val FILES_LIMIT = 10
+
+      "show upload a file view for export when yes and number of files below the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "yes"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.next.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.next.heading"))
+        journey.getState shouldBe UploadFile(
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files =
+            fileUploads.files ++
+              Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"))
+          )
+        )
+      }
+
+      "show upload a file view for import when yes and number of files below the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        val callbackUrl =
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+        givenUpscanInitiateSucceeds(callbackUrl)
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "yes"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.upload-file.next.title"))
+        result.body should include(htmlEscapedMessage("view.upload-file.next.heading"))
+        journey.getState shouldBe UploadFile(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          uploadRequest = UploadRequest(
+            href = "https://bucketName.s3.eu-west-2.amazonaws.com",
+            fields = Map(
+              "Content-Type"            -> "application/xml",
+              "acl"                     -> "private",
+              "key"                     -> "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+              "policy"                  -> "xxxxxxxx==",
+              "x-amz-algorithm"         -> "AWS4-HMAC-SHA256",
+              "x-amz-credential"        -> "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
+              "x-amz-date"              -> "yyyyMMddThhmmssZ",
+              "x-amz-meta-callback-url" -> callbackUrl,
+              "x-amz-signature"         -> "xxxx",
+              "success_action_redirect" -> "https://myservice.com/nextPage",
+              "error_action_redirect"   -> "https://myservice.com/errorPage"
+            )
+          ),
+          fileUploads = FileUploads(files =
+            fileUploads.files ++
+              Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"))
+          )
+        )
+      }
+
+      "show check-your-anwers page for export when yes and files number limit has been reached" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "yes"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            TestData.exportEntryDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
+      }
+
+      "show check-your-anwers page for import when yes and files number limit has been reached" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "yes"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            TestData.importEntryDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
+      }
+
+      "show check-your-anwers page for export when no and files number below the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "no"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            TestData.exportEntryDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
+      }
+
+      "show check-your-anwers page for import when no and files number below the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "no"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            TestData.importEntryDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
+      }
+
+      "show check-your-anwers page for export when no and files number above the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "no"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            TestData.exportEntryDetails,
+            TestData.fullExportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
+      }
+
+      "show check-your-anwers page for import when no and files number above the limit" in {
+        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val state = FileUploaded(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          fileUploads
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(
+          request("/new/file-uploaded")
+            .post(Map("uploadAnotherFile" -> "no"))
+        )
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        journey.getState shouldBe ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            TestData.importEntryDetails,
+            TestData.fullImportQuestions(dateTimeOfArrival),
+            Some(fileUploads)
+          )
+        )
       }
     }
 
@@ -3431,13 +3786,34 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec {
       .withCookies(cookies: _*)
       .withSession(journey.journeyKey -> journeyId.value)
 
-  final def request(path: String)(implicit journeyId: JourneyId) = {
-    val sessionCookie = sessionCookieBaker.encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+  final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
+    val sessionCookie =
+      sessionCookieBaker
+        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+    wsClient
+      .url(s"$baseUrl$path")
+      .withCookies(
+        DefaultWSCookie(
+          sessionCookie.name,
+          sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
+        )
+      )
+  }
+
+  final def requestWithCookies(path: String, cookies: (String, String)*)(implicit
+    journeyId: JourneyId
+  ): StandaloneWSRequest = {
+    val sessionCookie =
+      sessionCookieBaker
+        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
 
     wsClient
       .url(s"$baseUrl$path")
       .withCookies(
-        DefaultWSCookie(sessionCookie.name, sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
+        (cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
+          sessionCookie.name,
+          sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
+        )): _*
       )
   }
 

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration debug="false">
+   <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
         <file>logs/trader-services-26-frontend.log</file>
@@ -47,7 +48,13 @@
 
     <logger name="uk.gov" level="INFO"/>
 
-    <logger name="play" level="INFO"/>
+    <logger name="uk.gov.hmrc.play.bootstrap" level="ERROR"/>
+
+    <logger name="play" level="WARN"/>
+
+    <logger name="play.api.internal" level="ERROR"/>
+
+    <logger name="play.core" level="ERROR"/>
 
     <logger name="uk.gov.hmrc.audit" level="ERROR"/>
 
@@ -58,6 +65,8 @@
     <logger name="akka" level="ERROR"/>
 
     <logger name="reactivemongo" level="ERROR"/>
+
+    <logger name="uk.gov.hmrc.mongo.play" level="ERROR"/>
 
     <logger name="org.asynchttpclient" level="ERROR"/>
 
