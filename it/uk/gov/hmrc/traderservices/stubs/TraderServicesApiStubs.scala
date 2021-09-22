@@ -60,6 +60,13 @@ trait TraderServicesApiStubs {
   def givenAnExternalServiceError(): StubMapping =
     givenCreateCaseApiErrorStub(500, validRequestOfCreateCaseApi())
 
+  def givenCreateCaseApiRequestReturnsDuplicateCaseError(): StubMapping =
+    givenCreateCaseApiStub(
+      409,
+      validRequestOfCreateCaseApi(),
+      createCaseApiErrorResponseBody("409", "dummy-case-reference-number")
+    )
+
   def givenCreateCaseApiStub(httpResponseCode: Int, requestBody: String, responseBody: String): StubMapping =
     stubFor(
       post(urlEqualTo(s"/create-case"))
