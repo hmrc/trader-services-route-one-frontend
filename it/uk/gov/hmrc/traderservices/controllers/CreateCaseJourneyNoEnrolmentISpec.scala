@@ -30,7 +30,6 @@ class CreateCaseJourneyNoEnrolmentISpec
   "CreateCaseJourneyController with no enrolment checks" when {
     "GET /send-documents-for-customs-check/" should {
       "show the start page" in {
-
         journey.setState(Start)
         givenAuthorisedWithoutEnrolments
 
@@ -45,7 +44,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /send-documents-for-customs-check/new-or-existing" should {
       "show the choice between new and existing case" in {
-
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedWithoutEnrolments
 
@@ -60,7 +58,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new-or-existing" should {
       "submit the choice of New and ask next for declaration details" in {
-
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedWithoutEnrolments
 
@@ -77,7 +74,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit the choice of Existing and ask next for case reference number" in {
-
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedWithoutEnrolments
 
@@ -94,7 +90,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid choice and re-display the form page with error" in {
-
         journey.setState(ChooseNewOrExistingCase())
         givenAuthorisedWithoutEnrolments
 
@@ -113,7 +108,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /send-documents-for-customs-check/new/entry-details" should {
       "show declaration details page if at Start" in {
-
         journey.setState(EnterEntryDetails())
         givenAuthorisedWithoutEnrolments
 
@@ -126,7 +120,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "redisplay pre-filled enter declaration details page" in {
-
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
@@ -153,7 +146,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/entry-details" should {
       "submit the form and ask next for requestType when entryNumber is for export" in {
-
         journey.setState(EnterEntryDetails(None))
         givenAuthorisedWithoutEnrolments
 
@@ -179,7 +171,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit the form and go next page when entryNumber is for import" in {
-
         journey.setState(EnterEntryDetails(None))
         givenAuthorisedWithoutEnrolments
 
@@ -203,7 +194,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-
         journey.setState(EnterEntryDetails())
         givenAuthorisedWithoutEnrolments
 
@@ -226,7 +216,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/request-type" should {
       "show the export request type question page" in {
-
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -247,7 +236,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/request-type" should {
       "submit the form and ask next for routeType" in {
-
         journey.setState(
           AnswerExportQuestionsRequestType(
             ExportQuestionsStateModel(
@@ -274,7 +262,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-
         val state = AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -297,7 +284,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/route-type" should {
       "show the export route type question page" in {
-
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -318,7 +304,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/route-type" should {
       "submit the form and ask next for hasPriorityGoods" in {
-
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -345,7 +330,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit the form and ask next for reason text when route type requires mandatory reason" in {
-
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -372,7 +356,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit the form and ask next for reason text when request type requires mandatory reason" in {
-
         journey.setState(
           AnswerExportQuestionsRouteType(
             ExportQuestionsStateModel(
@@ -402,7 +385,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid form and re-display the form page with errors" in {
-
         val state = AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -425,7 +407,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/reason" should {
       "show the reason page in the export journey" in {
-
         val state = AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), today),
@@ -450,7 +431,6 @@ class CreateCaseJourneyNoEnrolmentISpec
     "POST /new/export/reason" should {
 
       "submit no reason and re-display the form page with error" in {
-
         val state = AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -521,7 +501,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/has-priority-goods" should {
       "show the export has priority goods page" in {
-
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -542,7 +521,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/has-priority-goods" should {
       "submit YES choice and ask next for which priority goods" in {
-
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
@@ -573,7 +551,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit NO choice and ask next for transport type" in {
-
         journey.setState(
           AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
@@ -607,7 +584,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit empty choice and re-display the form with error" in {
-
         val state = AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -633,7 +609,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/which-priority-goods" should {
       "show the export which priority goods page" in {
-
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -654,7 +629,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/which-priority-goods" should {
       "submit selected priority goods and ask next for transport type" in {
-
         journey.setState(
           AnswerExportQuestionsWhichPriorityGoods(
             ExportQuestionsStateModel(
@@ -685,7 +659,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit empty priority goods and re-display the form with error" in {
-
         val state = AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), today),
@@ -708,7 +681,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/transport-type" should {
       "show the export transport type page" in {
-
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -733,7 +705,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/transport-type" should {
       "submit selected RORO transport type without C1601 and ask next for contact info" in {
-
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
@@ -770,7 +741,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit selected Air transport type with C1601 and ask next for mandatory vessel details" in {
-
         journey.setState(
           AnswerExportQuestionsFreightType(
             ExportQuestionsStateModel(
@@ -807,7 +777,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit empty transport type and re-display the form with error" in {
-
         val state = AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), today),
@@ -835,7 +804,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/transport-information-required" should {
       "show the export vessel details page" in {
-
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -862,7 +830,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/transport-information-required" should {
       "show the export vessel details page when routeType=Hold" in {
-
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -889,7 +856,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/transport-information-required" should {
       "submit mandatory vessel details and ask next for contact details" in {
-
         journey.setState(
           AnswerExportQuestionsMandatoryVesselInfo(
             ExportQuestionsStateModel(
@@ -941,7 +907,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit incomplete vessel details and re-display the form page with error" in {
-
         val state = AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -972,7 +937,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/transport-information" should {
       "show the export vessel details page" in {
-
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -998,7 +962,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/transport-information" should {
       "submit optional vessel details and ask next for contact details" in {
-
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -1052,7 +1015,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit none vessel details and ask next for contact details" in {
-
         journey.setState(
           AnswerExportQuestionsOptionalVesselInfo(
             ExportQuestionsStateModel(
@@ -1091,7 +1053,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid vessel details and re-display the form page" in {
-
         val state = AnswerExportQuestionsOptionalVesselInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("A11111Z"), today),
@@ -1120,7 +1081,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/contact-information" should {
       "show the export contact information question page" in {
-
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -1147,7 +1107,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/export/contact-information" should {
       "go to upload file page when an email submitted" in {
-
         journey.setState(
           AnswerExportQuestionsContactInfo(
             ExportQuestionsStateModel(
@@ -1210,7 +1169,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit invalid contact info and re-display the form page with error" in {
-
         val state = AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -1242,7 +1200,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/check-your-answers" should {
       "show the export questions summary page" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -1261,7 +1218,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/request-type" should {
       "show the import request type question page" in {
-
         val state = AnswerImportQuestionsRequestType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -1282,7 +1238,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/request-type" should {
       "submit the form and ask next for route type" in {
-
         journey.setState(
           AnswerImportQuestionsRequestType(
             ImportQuestionsStateModel(
@@ -1314,7 +1269,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/route-type" should {
       "show the import route type question page" in {
-
         val state = AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(532), EntryNumber("111111X"), today),
@@ -1335,7 +1289,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/route-type" should {
       "submit the form and ask next for hasPriorityGoods" in {
-
         journey.setState(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1364,7 +1317,6 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
       }
       "submit the form and ask next for reason when route type requires mandatory reason" in {
-
         journey.setState(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1393,7 +1345,6 @@ class CreateCaseJourneyNoEnrolmentISpec
         )
       }
       "submit the form and ask next for reason when request type requires mandatory reason" in {
-
         journey.setState(
           AnswerImportQuestionsRouteType(
             ImportQuestionsStateModel(
@@ -1425,7 +1376,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/reason" should {
       "show the reason page in import journey" in {
-
         val state = AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), today),
@@ -1449,7 +1399,6 @@ class CreateCaseJourneyNoEnrolmentISpec
     "POST /new/import/reason" should {
 
       "submit no reason and re-display the form page with error" in {
-
         val state = AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -1517,7 +1466,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/has-priority-goods" should {
       "show the import has priority goods page" in {
-
         val state = AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(110), EntryNumber("911111X"), today),
@@ -1538,7 +1486,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/has-priority-goods" should {
       "submit YES choice and ask next for which priority goods" in {
-
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
@@ -1569,7 +1516,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit NO choice and ask next for transport type" in {
-
         journey.setState(
           AnswerImportQuestionsHasPriorityGoods(
             ImportQuestionsStateModel(
@@ -1602,7 +1548,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/which-priority-goods" should {
       "show the import which priority goods page" in {
-
         val state = AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("111111Z"), today),
@@ -1623,7 +1568,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/which-priority-goods" should {
       "submit selected priority goods and ask next for automatic licence verification" in {
-
         journey.setState(
           AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
@@ -1656,7 +1600,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/automatic-licence-verification" should {
       "show the import has ALVS page" in {
-
         val state = AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("711111X"), today),
@@ -1678,7 +1621,6 @@ class CreateCaseJourneyNoEnrolmentISpec
     "POST /new/import/automatic-licence-verification" should {
       for (hasALVS <- Seq(true, false))
         s"submit ${if (hasALVS) "YES" else "NO"} choice and ask next for transport type" in {
-
           journey.setState(
             AnswerImportQuestionsALVS(
               ImportQuestionsStateModel(
@@ -1715,7 +1657,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/transport-type" should {
       "show the import transport type page" in {
-
         val state = AnswerImportQuestionsFreightType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("311111Z"), today),
@@ -1739,7 +1680,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/transport-type" should {
       "submit selected transport type and ask next for contact info" in {
-
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
@@ -1772,7 +1712,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit selected transport type and ask next for mandatory vessel details" in {
-
         journey.setState(
           AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
@@ -1807,7 +1746,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/transport-information" should {
       "show the import vessel details page" in {
-
         val state = AnswerImportQuestionsOptionalVesselInfo(
           ImportQuestionsStateModel(
             EntryDetails(EPU(230), EntryNumber("111111Z"), today),
@@ -1834,7 +1772,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/transport-information" should {
       "submit optional vessel details and ask next for contact details" in {
-
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1886,7 +1823,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "submit none vessel details and ask next for contact details" in {
-
         journey.setState(
           AnswerImportQuestionsOptionalVesselInfo(
             ImportQuestionsStateModel(
@@ -1925,7 +1861,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/contact-information" should {
       "show the import contact information question page" in {
-
         val state = AnswerImportQuestionsContactInfo(
           ImportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -1946,7 +1881,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/import/contact-information" should {
       "go to upload file page when an email submitted" in {
-
         journey.setState(
           AnswerImportQuestionsContactInfo(
             ImportQuestionsStateModel(
@@ -2014,7 +1948,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/check-your-answers" should {
       "show the import questions summary page" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -2033,7 +1966,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/upload-files" should {
       "show the upload multiple files page for an importer" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2051,7 +1983,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show the upload multiple files page for an exporter" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -2069,7 +2000,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files page for an importer" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -2089,7 +2019,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files page for an exporter" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -2111,7 +2040,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2181,7 +2109,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "initialise next file upload" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2256,7 +2183,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-upload" should {
       "show the upload first document page for the importer" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
@@ -2298,7 +2224,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show the upload first document page for the exporter" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
@@ -2342,7 +2267,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/create-case" should {
       "create case and show the confirmation page" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           ExportQuestionsSummary(
@@ -2410,7 +2334,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/confirmation" should {
       "show the confirmation page" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
@@ -2447,7 +2370,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
@@ -2505,7 +2427,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
@@ -2546,7 +2467,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-verification/:reference/status" should {
       "return file verification status" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2646,7 +2566,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-uploaded" should {
       "show uploaded singular file view" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2678,7 +2597,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show uploaded plural file view" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2723,7 +2641,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2785,7 +2702,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2846,7 +2762,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-uploaded/:reference" should {
       "stream the uploaded file content back if exists" in {
-
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
@@ -2895,7 +2810,6 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "return error page if file does not exist" in {
-
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         val state = FileUploaded(

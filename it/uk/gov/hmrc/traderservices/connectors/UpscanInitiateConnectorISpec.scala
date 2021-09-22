@@ -13,7 +13,6 @@ class UpscanInitiateConnectorISpec extends UpscanInitiateConnectorISpecSetup {
   "UpscanInitiateConnector" when {
     "/upscan/v2/initiate" should {
       "return upload request metadata" in {
-
         givenUpscanInitiateSucceeds("https://myservice.com/callback")
         givenAuditConnector()
 

@@ -28,8 +28,9 @@ import play.mvc.Http.HeaderNames
 import play.api.test.FakeRequest
 import play.api.mvc.Cookie
 import com.fasterxml.jackson.module.scala.deser.overrides
+import java.util.UUID
 
-class CreateCaseJourneyISpec2
+class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
@@ -50,12 +51,14 @@ class CreateCaseJourneyISpec2
         controller.preferUploadMultipleFiles(FakeRequest()) shouldBe false
       }
 
-      "return true when jsenabled cookie set and config feature flag set" in {
+      "return true when jsenabled cookie set and uploadMultipleFilesFeature flag set" in {
         controller.preferUploadMultipleFiles(
-          FakeRequest().withCookies(Cookie(controller.COOKIE_JSENABLED, "true"))
+          fakeRequest(Cookie(controller.COOKIE_JSENABLED, "true"))
         ) shouldBe true
       }
+
     }
+
   }
 
 }

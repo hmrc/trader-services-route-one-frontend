@@ -41,7 +41,6 @@ class AmendCaseJourneyISpec
 
     "GET /send-documents-for-customs-check/add/case-reference-number" should {
       "show enter case reference number page" in {
-
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(request("/add/case-reference-number").get())
@@ -55,7 +54,6 @@ class AmendCaseJourneyISpec
 
     "POST /send-documents-for-customs-check/add/case-reference-number" should {
       "sumbit case reference number and show next page" in {
-
         journey.setState(EnterCaseReferenceNumber())
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -74,7 +72,6 @@ class AmendCaseJourneyISpec
 
     "GET /send-documents-for-customs-check/add/type-of-amendment" should {
       "show select type of amendment page" in {
-
         val state = SelectTypeOfAmendment(
           AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         )
@@ -92,7 +89,6 @@ class AmendCaseJourneyISpec
 
     "POST /send-documents-for-customs-check/add/type-of-amendment" should {
       "submit type of amendment choice and show next page" in {
-
         journey.setState(
           SelectTypeOfAmendment(
             AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
@@ -118,7 +114,6 @@ class AmendCaseJourneyISpec
 
     "GET /send-documents-for-customs-check/add/write-response" should {
       "show write response page" in {
-
         val state = EnterResponseText(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -139,7 +134,6 @@ class AmendCaseJourneyISpec
 
     "POST /send-documents-for-customs-check/add/write-response" should {
       "submit type of amendment choice and show next page" in {
-
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO05"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
@@ -165,7 +159,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/upload-files" should {
       "show the upload multiple files page when in UploadDocuments mode" in {
-
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -185,7 +178,6 @@ class AmendCaseJourneyISpec
       }
 
       "show the upload multiple files page when in WriteResponseAndUploadDocuments mode" in {
-
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -206,7 +198,6 @@ class AmendCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files when in UploadDocuments mode" in {
-
         val state = AmendCaseSummary(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -231,7 +222,6 @@ class AmendCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files when in WriteResponseAndUploadDocuments mode" in {
-
         val state = AmendCaseSummary(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -260,7 +250,6 @@ class AmendCaseJourneyISpec
 
     "POST /add/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -337,7 +326,6 @@ class AmendCaseJourneyISpec
       }
 
       "initialise next file upload" in {
-
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -423,7 +411,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-upload" should {
       "show the upload first document page" in {
-
         val callbackUrl =
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/callback-from-upscan/"
         val state = UploadFile(
@@ -468,7 +455,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-
         journey.setState(
           UploadFile(
             AmendCaseModel(
@@ -531,7 +517,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-
         journey.setState(
           UploadFile(
             AmendCaseModel(
@@ -577,7 +562,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-verification/:reference/status" should {
       "return file verification status" in {
-
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -679,7 +663,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-uploaded" should {
       "show uploaded singular file view" in {
-
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -713,7 +696,6 @@ class AmendCaseJourneyISpec
       }
 
       "show uploaded plural file view" in {
-
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -760,7 +742,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-rejected" should {
       "show upload document again" in {
-
         journey.setState(
           UploadFile(
             AmendCaseModel(
@@ -812,7 +793,6 @@ class AmendCaseJourneyISpec
 
     "POST /add/file-rejected" should {
       "mark file upload as rejected" in {
-
         journey.setState(
           UploadMultipleFiles(
             AmendCaseModel(
@@ -863,7 +843,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-
         val state = FileUploaded(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -930,7 +909,6 @@ class AmendCaseJourneyISpec
 
     "POST /add/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-
         val state = UploadMultipleFiles(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -996,7 +974,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/confirmation" should {
       "show confirmation page" in {
-
         val state = AmendCaseConfirmation(
           Seq(
             UploadedFile(
@@ -1032,7 +1009,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/confirmation/receipt" should {
       "download the confirmation receipt" in {
-
         val state = AmendCaseConfirmation(
           Seq(
             UploadedFile(
@@ -1078,7 +1054,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/confirmation/receipt/pdf/test.pdf" should {
       "download the confirmation receipt as pdf" in {
-
         val state = AmendCaseConfirmation(
           Seq(
             UploadedFile(
@@ -1127,7 +1102,6 @@ class AmendCaseJourneyISpec
 
     "GET /add/file-uploaded/:reference" should {
       "stream the uploaded file content back if exists" in {
-
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test1.png")
@@ -1180,7 +1154,6 @@ class AmendCaseJourneyISpec
       }
 
       "return error page if file does not exist" in {
-
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
         val state = FileUploaded(
           AmendCaseModel(
@@ -1271,7 +1244,6 @@ class AmendCaseJourneyISpec
         journey.getState shouldBe state
       }
       "show the amendment review page with only additional information section from WriteResponse mode" in {
-
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse),

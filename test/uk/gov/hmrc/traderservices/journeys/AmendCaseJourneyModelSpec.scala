@@ -26,7 +26,7 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{start => _, _}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.support.JourneyModelSpec
+import uk.gov.hmrc.traderservices.support._
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -203,7 +203,6 @@ class AmendCaseJourneyModelSpec
 
     "at state EnterResponseText" should {
       "goto AmendCaseSummary when submitted response text in WriteResponse mode" in {
-
         val responseText = Random.alphanumeric.take(1000).mkString
         val model = AmendCaseModel(
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -494,7 +493,6 @@ class AmendCaseJourneyModelSpec
       }
 
       "do nothing when initiateNextFileUpload with existing uploadId" in {
-
         given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
@@ -511,7 +509,6 @@ class AmendCaseJourneyModelSpec
       }
 
       "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
-
         val fileUploads = FileUploads(files =
           (0 until maxFileUploadsNumber)
             .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
@@ -754,17 +751,7 @@ class AmendCaseJourneyModelSpec
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -838,17 +825,7 @@ class AmendCaseJourneyModelSpec
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -886,17 +863,7 @@ class AmendCaseJourneyModelSpec
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -942,17 +909,7 @@ class AmendCaseJourneyModelSpec
             fullAmendCaseStateModel,
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -1471,21 +1428,7 @@ class AmendCaseJourneyModelSpec
         ) should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }
@@ -1690,40 +1633,12 @@ class AmendCaseJourneyModelSpec
               "application/pdf",
               Some(4567890)
             ),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         ) when waitForFileVerification should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }
@@ -1818,21 +1733,7 @@ class AmendCaseJourneyModelSpec
         ) should thenGo(
           FileUploaded(
             fullAmendCaseStateModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }

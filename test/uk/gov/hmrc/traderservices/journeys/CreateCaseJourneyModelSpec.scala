@@ -2783,21 +2783,7 @@ class CreateCaseJourneyModelSpec
           exportEntryDetails,
           completeExportQuestionsAnswers.copy(requestType = None),
           Some(
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
         given(
@@ -3000,21 +2986,7 @@ class CreateCaseJourneyModelSpec
           importEntryDetails,
           completeImportQuestionsAnswers.copy(requestType = None),
           Some(
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
         given(
@@ -3636,17 +3608,7 @@ class CreateCaseJourneyModelSpec
             FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -3768,17 +3730,7 @@ class CreateCaseJourneyModelSpec
             FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -3853,17 +3805,7 @@ class CreateCaseJourneyModelSpec
             FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -3909,17 +3851,7 @@ class CreateCaseJourneyModelSpec
             FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
             FileUploads(files =
               Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
+                acceptedFileUpload,
                 FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                 FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
               )
@@ -4415,21 +4347,7 @@ class CreateCaseJourneyModelSpec
         ) should thenGo(
           FileUploaded(
             FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }
@@ -4802,40 +4720,12 @@ class CreateCaseJourneyModelSpec
               "application/pdf",
               Some(4567890)
             ),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         ) when waitForFileVerification should thenGo(
           FileUploaded(
             FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }
@@ -4930,21 +4820,7 @@ class CreateCaseJourneyModelSpec
         ) should thenGo(
           FileUploaded(
             FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
+            FileUploads(files = Seq(acceptedFileUpload))
           )
         )
       }
