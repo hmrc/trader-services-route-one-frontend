@@ -19,9 +19,9 @@ abstract class BaseISpec
   import scala.concurrent.duration._
   override implicit val defaultTimeout: FiniteDuration = 5 seconds
 
-  val uploadMultipleFilesFeature: Boolean = false
-  val requireEnrolmentFeature: Boolean = true
-  val requireOptionalTransportFeature: Boolean = false
+  def uploadMultipleFilesFeature: Boolean
+  def requireEnrolmentFeature: Boolean
+  def requireOptionalTransportFeature: Boolean
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()

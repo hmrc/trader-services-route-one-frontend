@@ -17,12 +17,12 @@
 package uk.gov.hmrc.traderservices.wiring
 
 import com.google.inject.ImplementedBy
-import javax.inject.Inject
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
-import scala.util.Try
+import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import javax.inject.Inject
 import scala.concurrent.duration.Duration
 
 object AppConfig {
