@@ -21,8 +21,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
   implicit val journeyId: JourneyId = JourneyId()
 
-  val dateTime = LocalDateTime.now()
-
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = false
   override def requireOptionalTransportFeature: Boolean = false
@@ -1200,7 +1198,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/export/check-your-answers" should {
       "show the export questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -1948,7 +1946,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/import/check-your-answers" should {
       "show the import questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -1966,7 +1964,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/upload-files" should {
       "show the upload multiple files page for an importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -1983,7 +1981,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show the upload multiple files page for an exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2000,7 +1998,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files page for an importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -2019,7 +2017,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "retreat from summary to the upload multiple files page for an exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -2040,7 +2038,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2109,7 +2107,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "initialise next file upload" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(
@@ -2183,7 +2181,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-upload" should {
       "show the upload first document page for the importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -2224,7 +2222,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show the upload first document page for the exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -2267,7 +2265,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/create-case" should {
       "create case and show the confirmation page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
@@ -2334,7 +2331,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/confirmation" should {
       "show the confirmation page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2370,7 +2367,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2427,7 +2423,6 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2467,7 +2462,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-verification/:reference/status" should {
       "return file verification status" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
@@ -2566,7 +2561,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-uploaded" should {
       "show uploaded singular file view" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -2597,7 +2592,7 @@ class CreateCaseJourneyNoEnrolmentISpec
       }
 
       "show uploaded plural file view" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -2641,7 +2636,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "GET /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -2702,7 +2697,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
     "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -2765,7 +2760,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
@@ -2811,7 +2806,7 @@ class CreateCaseJourneyNoEnrolmentISpec
 
       "return error page if file does not exist" in {
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =

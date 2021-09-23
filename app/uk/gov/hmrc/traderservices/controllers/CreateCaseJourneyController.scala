@@ -492,12 +492,14 @@ class CreateCaseJourneyController @Inject() (
       .apply(FileUploadTransitions.markUploadAsPosted)
       .displayUsing(acknowledgeFileUploadRedirect)
 
-  // POST /new/journey/:journeyId/callback-from-upscan
+  // POST /new/journey/:journeyId/callback-from-upscan/:nonce
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
     actions
       .parseJsonWithFallback[UpscanNotification](BadRequest)
       .apply(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce)))
-      .transform { case _ => NoContent }
+      .transform {
+        case r if r.header.status < 400 => NoContent
+      }
       .recover {
         case e => InternalServerError
       }

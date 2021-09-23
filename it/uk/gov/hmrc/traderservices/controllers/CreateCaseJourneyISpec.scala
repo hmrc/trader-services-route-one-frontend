@@ -10,7 +10,7 @@ import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support.{ServerISpec, TestData, TestJourneyService}
+import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
 import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
@@ -30,14 +30,16 @@ import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.AnyContent
 import play.api.libs.ws.StandaloneWSRequest
+import play.api.http.HeaderNames
+import play.api.libs.json.JsString
+import play.api.http.MimeTypes
+import play.api.libs.json.JsNumber
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
-
-  val dateTime = LocalDateTime.now()
 
   implicit val journeyId: JourneyId = JourneyId()
 
@@ -235,7 +237,6 @@ class CreateCaseJourneyISpec
       }
 
       "show declaration details page if at CreateCaseConfirmation" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           CreateCaseConfirmation(
             TestData.exportEntryDetails,
@@ -1229,7 +1230,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/export/check-your-answers" should {
       "show the export questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -2150,7 +2151,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/import/check-your-answers" should {
       "show the import questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -2169,7 +2170,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/upload-files" should {
       "show the upload multiple files page for an importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2186,7 +2187,7 @@ class CreateCaseJourneyISpec
       }
 
       "show the upload multiple files page for an exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2203,7 +2204,7 @@ class CreateCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files page for an importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -2222,7 +2223,7 @@ class CreateCaseJourneyISpec
       }
 
       "retreat from summary to the upload multiple files page for an exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -2243,7 +2244,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/upload-files/initialise/:uploadId" should {
       "initialise first file upload" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2312,7 +2313,7 @@ class CreateCaseJourneyISpec
       }
 
       "initialise next file upload" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(
@@ -2386,7 +2387,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-upload" should {
       "show the upload first document page for the importer" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival))
         )
@@ -2427,7 +2428,7 @@ class CreateCaseJourneyISpec
       }
 
       "show the upload first document page for the exporter" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival))
         )
@@ -2470,7 +2471,6 @@ class CreateCaseJourneyISpec
 
     "POST /new/create-case" should {
       "create case and show the confirmation page for an export" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           ExportQuestionsSummary(
             ExportQuestionsStateModel(
@@ -2536,7 +2536,6 @@ class CreateCaseJourneyISpec
       }
 
       "create case and show the confirmation page for an import" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(
@@ -2602,7 +2601,7 @@ class CreateCaseJourneyISpec
       }
 
       "show missing information page if questionnaire answers are not complete for export" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val model = ExportQuestionsStateModel(
           TestData.exportEntryDetails,
           TestData
@@ -2624,7 +2623,7 @@ class CreateCaseJourneyISpec
       }
 
       "show missing information page if questionnaire answers are not complete for import" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val model = ImportQuestionsStateModel(
           TestData.importEntryDetails,
           TestData
@@ -2646,7 +2645,7 @@ class CreateCaseJourneyISpec
       }
 
       "show case already exists page for an export" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val model = ExportQuestionsStateModel(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2666,7 +2665,7 @@ class CreateCaseJourneyISpec
       }
 
       "show case already exists page for an import" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val model = ImportQuestionsStateModel(
           TestData.importEntryDetails,
           TestData.fullImportQuestions(dateTimeOfArrival),
@@ -2688,7 +2687,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation" should {
       "show the confirmation page if in CreateCaseConfirmation state" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2722,7 +2721,7 @@ class CreateCaseJourneyISpec
       }
 
       "goto CaseAlreadySubmitted if in CreateCaseConfirmation state" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2761,7 +2760,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation/receipt" should {
       "download the confirmation receipt" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2806,7 +2805,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/confirmation/receipt/pdf/test.pdf" should {
       "download the confirmation receipt as pdf" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
@@ -2853,7 +2852,6 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-verification" should {
       "display waiting for file verification page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2894,7 +2892,6 @@ class CreateCaseJourneyISpec
 
     "GET /new/journey/:journeyId/file-rejected" should {
       "set current file upload status as rejected and return 204 NoContent" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2951,7 +2948,6 @@ class CreateCaseJourneyISpec
 
     "GET /new/journey/:journeyId/file-verification" should {
       "set current file upload status as posted and return 204 NoContent" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -2991,7 +2987,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-verification/:reference/status" should {
       "return file verification status" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
@@ -3090,7 +3086,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-uploaded" should {
       "show uploaded singular file view" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -3121,7 +3117,7 @@ class CreateCaseJourneyISpec
       }
 
       "show uploaded plural file view" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -3168,7 +3164,7 @@ class CreateCaseJourneyISpec
       val FILES_LIMIT = 10
 
       "show upload a file view for export when yes and number of files below the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -3215,7 +3211,7 @@ class CreateCaseJourneyISpec
       }
 
       "show upload a file view for import when yes and number of files below the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3262,7 +3258,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for export when yes and files number limit has been reached" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -3290,7 +3286,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for import when yes and files number limit has been reached" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3318,7 +3314,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for export when no and files number below the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -3346,7 +3342,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for import when no and files number below the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3374,7 +3370,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for export when no and files number above the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
@@ -3402,7 +3398,7 @@ class CreateCaseJourneyISpec
       }
 
       "show check-your-anwers page for import when no and files number above the limit" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3432,7 +3428,6 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-rejected" should {
       "show upload document again" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadFile(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3478,7 +3473,6 @@ class CreateCaseJourneyISpec
 
     "POST /new/file-rejected" should {
       "mark file upload as rejected" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
         journey.setState(
           UploadMultipleFiles(
             FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3523,7 +3517,7 @@ class CreateCaseJourneyISpec
 
     "GET /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -3584,7 +3578,7 @@ class CreateCaseJourneyISpec
 
     "POST /new/file-uploaded/:reference/remove" should {
       "remove file from upload list by reference" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -3647,7 +3641,7 @@ class CreateCaseJourneyISpec
         val bytes = Array.ofDim[Byte](1024 * 1024)
         Random.nextBytes(bytes)
         val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
@@ -3693,7 +3687,7 @@ class CreateCaseJourneyISpec
 
       "return error page if file does not exist" in {
         val upscanUrl = stubForFileDownloadFailure(404, "test.pdf")
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           FileUploads(files =
@@ -3736,6 +3730,282 @@ class CreateCaseJourneyISpec
       }
     }
 
+    "GET /new/journey/:journeyId/file-posted" should {
+      "set current file upload status as posted and return 201 Created" in {
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result =
+          await(
+            requestWithoutJourneyId(
+              s"/new/journey/${journeyId.value}/file-posted?key=11370e18-6e24-453e-b45a-76d3e32ea33d&bucket=foo"
+            ).get()
+          )
+
+        result.status shouldBe 201
+        result.body.isEmpty shouldBe true
+        result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
+        journey.getState should beState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "POST /new/journey/:journeyId/callback-from-upscan" should {
+      "return 400 if callback body invalid" in {
+        val nonce = Nonce.random
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+              .post(
+                Json.obj(
+                  "reference" -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c")
+                )
+              )
+          )
+
+        result.status shouldBe 400
+        journey.getState should beState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+      }
+
+      "modify file status to Accepted and return 204" in {
+        val nonce = Nonce.random
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+              .post(
+                Json.obj(
+                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                  "fileStatus"  -> JsString("READY"),
+                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
+                  "uploadDetails" -> Json.obj(
+                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
+                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
+                    "fileName"        -> JsString("foo.pdf"),
+                    "fileMimeType"    -> JsString("application/pdf"),
+                    "size"            -> JsNumber(1)
+                  )
+                )
+              )
+          )
+
+        result.status shouldBe 204
+        journey.getState should beState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Accepted(
+                  nonce,
+                  Timestamp.Any,
+                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                  "https://foo.bar/XYZ123/foo.pdf",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "foo.pdf",
+                  "application/pdf",
+                  Some(1)
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "keep file status Accepted and return 204" in {
+        val nonce = Nonce.random
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Accepted(
+                  nonce,
+                  Timestamp.Any,
+                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                  "https://foo.bar/XYZ123/foo.pdf",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "foo.pdf",
+                  "application/pdf",
+                  Some(1)
+                )
+              )
+            )
+          )
+        )
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+              .post(
+                Json.obj(
+                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                  "fileStatus"  -> JsString("READY"),
+                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
+                  "uploadDetails" -> Json.obj(
+                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
+                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
+                    "fileName"        -> JsString("foo.pdf"),
+                    "fileMimeType"    -> JsString("application/pdf"),
+                    "size"            -> JsNumber(1)
+                  )
+                )
+              )
+          )
+
+        result.status shouldBe 204
+        journey.getState should beState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Accepted(
+                  nonce,
+                  Timestamp.Any,
+                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                  "https://foo.bar/XYZ123/foo.pdf",
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "foo.pdf",
+                  "application/pdf",
+                  Some(1)
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "change nothing if nonce not matching" in {
+        val nonce = Nonce.random
+        journey.setState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/callback-from-upscan/${Nonce.random}")
+              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+              .post(
+                Json.obj(
+                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                  "fileStatus"  -> JsString("READY"),
+                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
+                  "uploadDetails" -> Json.obj(
+                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
+                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
+                    "fileName"        -> JsString("foo.pdf"),
+                    "fileMimeType"    -> JsString("application/pdf"),
+                    "size"            -> JsNumber(1)
+                  )
+                )
+              )
+          )
+
+        result.status shouldBe 204
+        journey.getState should beState(
+          UploadMultipleFiles(
+            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+              )
+            )
+          )
+        )
+      }
+    }
+
+    "OPTIONS /new/journey/:journeyId/file-rejected" should {
+      "return 201 with access control header" in {
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/file-rejected")
+              .options()
+          )
+        result.status shouldBe 201
+        result.body.isEmpty shouldBe true
+        result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
+      }
+    }
+
+    "OPTIONS /new/journey/:journeyId/file-posted" should {
+      "return 201 with access control header" in {
+        val result =
+          await(
+            request(s"/new/journey/${journeyId.value}/file-posted")
+              .options()
+          )
+        result.status shouldBe 201
+        result.body.isEmpty shouldBe true
+        result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
+      }
+    }
+
     "GET /foo" should {
       "return an error page not found" in {
         val state = journey.getState
@@ -3751,7 +4021,10 @@ class CreateCaseJourneyISpec
   }
 }
 
-trait CreateCaseJourneyISpecSetup extends ServerISpec {
+trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
+
+  val dateTime = LocalDateTime.now()
+  val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
   import play.api.i18n._
   implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
