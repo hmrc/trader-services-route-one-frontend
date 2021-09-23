@@ -1,34 +1,14 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.libs.json.Format
-import play.api.mvc.Session
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
-import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support.{ServerISpec, TestData, TestJourneyService}
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
-
-import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
-import java.time.temporal.{ChronoField, ChronoUnit}
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.ws.DefaultWSCookie
-import scala.util.Random
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import com.github.tomakehurst.wiremock.client.WireMock
-import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.connectors.FileTransferResult
-import play.mvc.Http.HeaderNames
-import play.api.test.FakeRequest
 import play.api.mvc.Cookie
-import com.fasterxml.jackson.module.scala.deser.overrides
-import java.util.UUID
+import play.api.test.FakeRequest
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
+import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
+import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.support.TestData
+
+import java.time.ZonedDateTime
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -40,15 +20,13 @@ class CreateCaseJourneyWithMultfileUploadISpec
   def requireEnrolmentFeature: Boolean = true
   def requireOptionalTransportFeature: Boolean = false
 
-  val dateTime = LocalDateTime.now()
-
   implicit val journeyId: JourneyId = JourneyId()
 
   "CreateCaseJourneyController" when {
 
     "GET /new/export/check-your-answers" should {
       "show the export questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ExportQuestionsSummary(
           ExportQuestionsStateModel(
             TestData.exportEntryDetails,
@@ -88,7 +66,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
 
     "GET /new/import/check-your-answers" should {
       "show the import questions summary page" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = ImportQuestionsSummary(
           ImportQuestionsStateModel(
             TestData.importEntryDetails,
@@ -140,7 +118,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
 
     "getCallFor" should {
       "return /new/file-verification for WaitingForFileVerification" in {
-        val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+
         val state = WaitingForFileVerification(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           "2b72fe99-8adf-4edb-865e-622ae710f77c",

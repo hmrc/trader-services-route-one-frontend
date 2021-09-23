@@ -32,6 +32,7 @@ abstract class BaseISpec
         "auditing.consumer.baseUri.port"       -> wireMockPort,
         "play.filters.csrf.method.whiteList.0" -> "POST",
         "play.filters.csrf.method.whiteList.1" -> "GET",
+        "play.filters.csrf.method.whiteList.2" -> "OPTIONS",
         "features.workingHours.start"          -> 0,
         "features.workingHours.end"            -> 24
       )
