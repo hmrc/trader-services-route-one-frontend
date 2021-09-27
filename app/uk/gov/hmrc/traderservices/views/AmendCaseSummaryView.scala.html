@@ -22,6 +22,7 @@
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
+        govukButton: GovukButton,
         html: uk.gov.hmrc.traderservices.views.components.html,
         helper: AmendCaseSummaryHelper
 )
@@ -44,7 +45,18 @@
         @html.h2(messages("view.amend-case.summary.documents.heading"))
         @html.summaryList(helper.summaryListOfFileUploads(model.fileUploads.get, fileUploadLink))
     }
-    @forms.formWithCSRF(action = postAction) {
-        @html.button("form.amend-case.summary.continue", disableAfterClick=true)
+
+    @forms.formWithCSRF(action = postAction ) {  
+      <p class="case-summary__submitting hidden" aria-hidden="true" >
+        @messages("view.amend-case.summary.stillSubmitting")...
+        <span class="case-summary__spinner ccms-loader"></span>
+      </p>
+      <div>
+        @govukButton(Button(
+          content = Text(messages("form.amend-case.summary.continue")),
+          preventDoubleClick = true,       
+          classes = "case-summary__submit"
+        ))
+      </div>
     }
 }
