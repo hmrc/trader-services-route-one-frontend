@@ -22,6 +22,7 @@
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
+        govukButton: GovukButton,
         html: uk.gov.hmrc.traderservices.views.components.html,
         context: ExportQuestionsViewContext
 )
@@ -64,6 +65,17 @@
     @html.summaryList(context.summaryListOfFileUploads(fileUploads, fileUploadLink))
 
     @forms.formWithCSRF(action = postAction) {
-        @html.button("form.export-questions.summary.continue", disableAfterClick = true)
+
+        <p class="govuk-body case-summary__submitting hidden" aria-hidden="true" >
+            @messages("form.export-questions.summary.stillSubmitting")...
+            <span class="case-summary__spinner ccms-loader"></span>
+        </p>
+        <div>
+            @govukButton(Button(
+              content = Text(messages("form.export-questions.summary.continue")),
+              preventDoubleClick = true,       
+              classes = "case-summary__submit"
+            ))
+        </div>
     }
 }

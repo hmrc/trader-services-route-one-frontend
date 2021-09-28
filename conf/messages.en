@@ -271,6 +271,7 @@ form.export-questions.contactName=Full name (optional)
 form.export-questions.contactEmail=Email address
 form.export-questions.contactNumber=UK telephone number (optional)
 form.export-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900 982
+form.export-questions.summary.stillSubmitting=Your case is still being submitted
 form.export-questions.continue=Continue
 form.export-questions.summary.continue=Submit
 
@@ -349,6 +350,7 @@ form.import-questions.contactName=Full name (optional)
 form.import-questions.contactEmail=Email address
 form.import-questions.contactNumber=UK telephone number (optional)
 form.import-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900 982
+form.import-questions.summary.stillSubmitting=Your case is still being submitted
 form.import-questions.continue=Continue
 form.import-questions.summary.continue=Submit
 
@@ -589,6 +591,7 @@ view.amend-case.summary.filenames=File names
 view.amend-case.summary.type.message=Message
 view.amend-case.summary.type.documents=Documents
 view.amend-case.summary.type.messageAndDocuments=Message and documents
+view.amend-case.summary.stillSubmitting=Your case is still being submitted
 form.amend-case.summary.continue=Submit
 
 view.missing-information.title=We’re missing some of your information
