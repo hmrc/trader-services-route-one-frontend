@@ -33,6 +33,7 @@ import play.api.mvc.Request
 import play.api.mvc.Cookie
 import play.api.mvc.AnyContent
 import uk.gov.hmrc.traderservices.connectors.FileTransferResult
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
 class AmendCaseJourneyISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -317,6 +318,52 @@ class AmendCaseJourneyISpec
         journey.getState should beState(
           AmendCaseMissingInformationError(incompleteAmendCaseStateModel)
         )
+      }
+    }
+
+    "GET /add/confirmation/receipt" should {
+      "download the confirmation receipt" in {
+        val state = AmendCaseConfirmation(
+          Seq(
+            UploadedFile(
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          AmendCaseModel(
+            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+            responseText = Some("foo bar"),
+            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
+          ),
+          TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
+        )
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        WireMock.stubFor(
+          WireMock
+            .get(WireMock.urlEqualTo("/send-documents-for-customs-check/assets/stylesheets/download-receipt.css"))
+            .willReturn(WireMock.aResponse.withBody(""))
+        )
+
+        val result = await(request("/add/confirmation/receipt").get)
+
+        result.status shouldBe 200
+        result.header("Content-Disposition") shouldBe Some(
+          """attachment; filename="Document_receipt_PC12010081330XGBNZJO04.html""""
+        )
+
+        result.body should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
+        result.body should include(
+          s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
+        )
+
+        journey.getState shouldBe state
       }
     }
 
