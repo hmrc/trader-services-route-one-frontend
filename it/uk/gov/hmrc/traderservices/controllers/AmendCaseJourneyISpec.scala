@@ -32,6 +32,7 @@ import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Cookie
 import play.api.mvc.AnyContent
+import uk.gov.hmrc.traderservices.connectors.FileTransferResult
 
 class AmendCaseJourneyISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -220,6 +221,102 @@ class AmendCaseJourneyISpec
 
         result.status shouldBe 200
         journey.getState shouldBe AmendCaseSummary(model.copy(responseText = Some(text)))
+      }
+    }
+
+    "POST /add/amend-case" should {
+      "call the backend API to amend the case when answers are complete" in {
+        val bytes = Array.ofDim[Byte](1024 * 1024)
+        Random.nextBytes(bytes)
+        val upscanUrl = stubForFileDownload(200, bytes, "test.pdf")
+        val text = Random.alphanumeric.take(1000).mkString
+        val fullAmendCaseStateModel = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          responseText = Some(text),
+          fileUploads = Some(
+            FileUploads(files =
+              Seq(
+                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+                FileUpload.Accepted(
+                  Nonce.Any,
+                  Timestamp.Any,
+                  "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                  upscanUrl,
+                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                  "test.pdf",
+                  "application/pdf",
+                  Some(4567890)
+                )
+              )
+            )
+          )
+        )
+        journey.setState(AmendCaseSummary(fullAmendCaseStateModel))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        givenUpdateCaseApiRequestSucceeds(
+          "PC12010081330XGBNZJO04",
+          "WriteResponseAndUploadDocuments",
+          text
+        )
+
+        val result = await(request("/add/amend-case").post(""))
+
+        result.status shouldBe 200
+        journey.getState should beState(
+          AmendCaseConfirmation(
+            Seq(
+              UploadedFile(
+                "f029444f-415c-4dec-9cf2-36774ec63ab8",
+                upscanUrl,
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            ),
+            fullAmendCaseStateModel,
+            TraderServicesResult(
+              "PC12010081330XGBNZJO04",
+              generatedAt,
+              List(
+                FileTransferResult(
+                  "foo1",
+                  true,
+                  201,
+                  LocalDateTime.parse("2021-04-18T12:07:36")
+                )
+              )
+            )
+          )
+        )
+      }
+
+      "display missing information view if answers are incomplete" in {
+        val text = Random.alphanumeric.take(1000).mkString
+        val incompleteAmendCaseStateModel = AmendCaseModel(
+          caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
+          typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
+          responseText = Some(text),
+          fileUploads = None
+        )
+        journey.setState(AmendCaseSummary(incompleteAmendCaseStateModel))
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+        givenUpdateCaseApiRequestSucceeds(
+          "PC12010081330XGBNZJO04",
+          "WriteResponseAndUploadDocuments",
+          text
+        )
+
+        val result = await(request("/add/amend-case").post(""))
+
+        result.status shouldBe 200
+        journey.getState should beState(
+          AmendCaseMissingInformationError(incompleteAmendCaseStateModel)
+        )
       }
     }
 
@@ -486,7 +583,6 @@ class AmendCaseJourneyISpec
       }
 
       "initialise next file upload" in {
-
         val state = UploadMultipleFiles(
           exampleAmendCaseModel,
           fileUploads = FileUploads(
