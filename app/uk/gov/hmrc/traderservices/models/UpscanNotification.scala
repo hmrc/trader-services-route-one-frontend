@@ -155,7 +155,7 @@ object UpscanNotification {
   val upscanFileReadyFormat: Format[UpscanFileReady] = Json.format[UpscanFileReady]
   val upscanFileFailedFormat: Format[UpscanFileFailed] = Json.format[UpscanFileFailed]
 
-  implicit def reads: Reads[UpscanNotification] =
+  implicit lazy val reads: Reads[UpscanNotification] =
     Reads {
       case o: JsObject if (o \ fileStatus).asOpt[String].contains(READY) =>
         upscanFileReadyFormat.reads(o)
@@ -170,7 +170,7 @@ object UpscanNotification {
     case o => o
   }
 
-  implicit def writes: Writes[UpscanNotification] =
+  implicit lazy val writes: Writes[UpscanNotification] =
     new Writes[UpscanNotification] {
       override def writes(o: UpscanNotification): JsValue =
         o match {
