@@ -58,7 +58,7 @@
   @html.summaryList(context.summaryListOfFileUploads(fileUploads,fileUploadLink))  
 
   @forms.formWithCSRF(action = postAction) {
-    <p class="case-summary__submitting hidden" aria-hidden="true" >
+    <p class="govuk-body case-summary__submitting hidden" aria-hidden="true" >
       @messages("form.import-questions.summary.stillSubmitting")...
       <span class="case-summary__spinner ccms-loader"></span>
     </p>

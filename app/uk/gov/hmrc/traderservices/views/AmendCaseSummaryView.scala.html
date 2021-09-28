@@ -47,7 +47,7 @@
     }
 
     @forms.formWithCSRF(action = postAction ) {  
-      <p class="case-summary__submitting hidden" aria-hidden="true" >
+      <p class="govuk-body case-summary__submitting hidden" aria-hidden="true" >
         @messages("view.amend-case.summary.stillSubmitting")...
         <span class="case-summary__spinner ccms-loader"></span>
       </p>

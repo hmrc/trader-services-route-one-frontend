@@ -271,6 +271,7 @@ form.export-questions.contactName=Full name (optional)
 form.export-questions.contactEmail=Email address
 form.export-questions.contactNumber=UK telephone number (optional)
 form.export-questions.contactNumber.hint=For example, 01632 960 001 or 07700 900 982
+form.export-questions.summary.stillSubmitting=Your case is still being submitted
 form.export-questions.continue=Continue
 form.export-questions.summary.continue=Submit
 

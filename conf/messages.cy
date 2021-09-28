@@ -216,6 +216,7 @@ form.export-questions.contactName=Enw llawn (dewisol)
 form.export-questions.contactEmail=Cyfeiriad e-bost
 form.export-questions.contactNumber=Rhif ffôn yn y DU (dewisol)
 form.export-questions.contactNumber.hint=Er enghraifft, 01632 960 001 neu 07700 900 982
+form.export-questions.summary.stillSubmitting=Mae’ch achos yn dal i gael ei gyflwyno
 form.export-questions.continue=Yn eich blaen
 form.export-questions.summary.continue=Yn eich blaen i uwchlwytho ffeil
 error.exportRequestType.required=Dewiswch y math o gais allforio
