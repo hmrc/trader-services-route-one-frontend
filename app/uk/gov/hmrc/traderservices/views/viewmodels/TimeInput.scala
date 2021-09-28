@@ -39,7 +39,7 @@ object TimeInput {
 
   def defaultObject: TimeInput = TimeInput()
 
-  implicit def jsonReads: Reads[TimeInput] =
+  implicit lazy val jsonReads: Reads[TimeInput] =
     (
       (__ \ "id").readWithDefault[String](defaultObject.id) and
         (__ \ "namePrefix").readNullable[String] and
@@ -54,7 +54,7 @@ object TimeInput {
         (__ \ "showSelectPeriod").readWithDefault[Boolean](defaultObject.showSelectPeriod)
     )(TimeInput.apply _)
 
-  implicit def jsonWrites: OWrites[TimeInput] =
+  implicit lazy val jsonWrites: OWrites[TimeInput] =
     (
       (__ \ "id").write[String] and
         (__ \ "namePrefix").writeNullable[String] and
