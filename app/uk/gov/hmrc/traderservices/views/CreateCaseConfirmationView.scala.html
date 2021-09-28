@@ -118,12 +118,11 @@
       </li>
     </ul>
   </div>
-  <noscript>
-    <style type="text/css">
-       #print-receipt{display: none; }
-    </style>
-   </noscript>
 
+  <style type="text/css" >
+          #print-receipt{display: none;}
+          .js-enabled #print-receipt{display: inline-block; }
+  </style>
   <div class="govuk-grid-column-two-thirds">
     @partials.createCaseReceipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt)(messages)
   </div>

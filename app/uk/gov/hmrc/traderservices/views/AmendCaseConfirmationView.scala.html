@@ -73,13 +73,13 @@
     </noscript>
   </div>
   </div>
-  
+
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
       <li class="action-buttons__item" id="print-receipt">
         <button class="print-page action-buttons__button action-buttons__button--print" >
           @messages("view.case-confirmation.button.print")
-        </button> 
+        </button>
       </li>
       <li class="action-buttons__item">
         <a class="govuk-link action-buttons__button action-buttons__button--download" href="@{downloadHtmlCall}" role="button" data-module="govuk-button">
@@ -88,11 +88,10 @@
       </li>
     </ul>
   </div>
-  <noscript>
     <style type="text/css" >
-       #print-receipt{display: none;}
+            #print-receipt{display: none;}
+            .js-enabled #print-receipt{display: inline-block; }
     </style>
-   </noscript>
 
   <div class="govuk-grid-column-two-thirds">
     @partials.amendCaseReceipt(caseReferenceId, context, uploadedFiles, responseText, generatedAt)(messages)
