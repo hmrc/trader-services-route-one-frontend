@@ -1,7 +1,9 @@
-declare const GOVUKFrontend: { initAll };
-declare const HMRCFrontend: { initAll };
+import GOVUKFrontend from 'webjars/lib/govuk-frontend/govuk/all.js';
+import HMRCFrontend from 'webjars/lib/hmrc-frontend/hmrc/all.js';
 
-export default function init(): void {
+export default function
+
+  init(): void {
   GOVUKFrontend.initAll();
   HMRCFrontend.initAll();
 

@@ -1,10 +1,11 @@
-const webpackConfig = require('./webpack.dev.config.js');
+const path = require('path');
+const webpackConfig = require('./webpack.config.js');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
   config.set({
     client: {
-      jasmine:{
+      jasmine: {
         random: false
       }
     },
@@ -42,7 +43,18 @@ module.exports = function (config) {
     preprocessors: {
       './spec/**/*.spec.js': ['webpack']
     },
-    webpack: webpackConfig,
+    webpack: webpackConfig({
+      entry: {
+        0: path.join(__dirname, './javascripts/index.ts')
+      },
+      output: {
+        path: path.join(__dirname, './build'),
+        filename: 'application.min.js',
+      },
+      webjars: {
+        path: path.join(__dirname, '../../target/web/web-modules/main/webjars')
+      }
+    }),
     webpackMiddleware: {
     },
     failOnEmptyTestSuite: false
