@@ -86,21 +86,19 @@
         messageKey = "view.create-case-confirmation.feedback"
       )
     }
-    <div id="confirmation-heading">
-      @html.h2("view.create-case-confirmation.print-receipts.heading")
-     </div>
-     <div >
-       <noscript>
-         @html.h2("view.create-case-confirmation.print-receipts.no-javascript.heading")
-         <style type="text/css">
-           #confirmation-heading{display: none;}
-         </style>
-       </noscript>
-     </div>
-     
+    <div id="confirmation-heading" hidden>
+    @html.h2("view.create-case-confirmation.print-receipts.heading")
+    </div>
+    <div id="confirmation-heading-no-js">
+    @html.h2("view.create-case-confirmation.print-receipts.no-javascript.heading")
+    </div>
     @html.p {
       @messages("view.create-case-confirmation.print-receipts.description")
     }
+    <style type="text/css">
+            .js-enabled #confirmation-heading-no-js{display: none;}
+            .js-enabled #confirmation-heading{display: inline-block;}
+    </style>
   </div>
 
 
