@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import play.api.i18n.Messages
+import play.api.libs.json.{Format, Json}
 import play.api.mvc.Call
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 
 case class FileVerificationStatus(
   reference: String,

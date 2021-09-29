@@ -217,37 +217,6 @@ class FileUploadsSpec extends UnitSpec {
       ) shouldBe "0000Chry*[(anth]?)emum\u1213jpg"
     }
 
-    "trim the file name" in {
-      val MAX = FileUpload.MAX_FILENAME_LENGTH
-
-      FileUpload.trimFileName("") shouldBe ""
-      FileUpload.trimFileName("a") shouldBe "a"
-      FileUpload.trimFileName("a.a") shouldBe "a.a"
-      FileUpload.trimFileName("a" * MAX) shouldBe "a" * MAX
-      FileUpload.trimFileName("a" * (MAX + 1)) shouldBe "a" * MAX
-      FileUpload.trimFileName("a" * (MAX - 5) + ".ext") shouldBe "a" * (MAX - 5) + ".ext"
-      FileUpload.trimFileName("a" * (MAX - 4) + ".ext") shouldBe "a" * (MAX - 4) + ".ext"
-      FileUpload.trimFileName("a" * (MAX + 1) + ".ext") shouldBe "a" * (MAX - 4) + ".ext"
-      FileUpload.trimFileName("a" * (MAX - 2) + ".") shouldBe "a" * (MAX - 2) + "."
-      FileUpload.trimFileName("a" * (MAX - 1) + ".") shouldBe "a" * (MAX - 1) + "."
-      FileUpload.trimFileName("a" * MAX + ".") shouldBe "a" * (MAX - 1) + "."
-      FileUpload.trimFileName("-" * MAX) shouldBe "-" * MAX
-      FileUpload.trimFileName("-" * (MAX - 5) + ".ext") shouldBe "-" * (MAX - 5) + ".ext"
-      FileUpload.trimFileName("-" * (MAX - 4) + ".ext") shouldBe "-" * (MAX - 4) + ".ext"
-      FileUpload.trimFileName("-" * (MAX + 1) + ".ext") shouldBe "-" * (MAX - 4) + ".ext"
-
-      FileUpload.trimFileName(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra usce."
-      ) shouldBe "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus tempor egestas viverra usce."
-      FileUpload.trimFileName(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum cursus, erat sed fringilla lacinia, sem nulla vulputate mauris, at tincidunt eros.ext"
-      ) shouldBe "LoremipsumdolorsitametconsecteturadipiscingelitVestibulumcursuseratsedfringillalaciniasem.ext"
-      FileUpload.trimFileName(
-        "123orem_ipsum_dolor_sit_amet-----consec9999999999tetur-adipiscing elit_Vestibulum***12cursus,!!![erat]+sed+fringilla (lacinia), sem/nulla/vulputate /_mauris,~at&tincidunt@eros.ext"
-      ) shouldBe "123oremipsumdolorsitametconsec9999999999teturadipiscingelitVestibulum12cursuseratsedfring.ext"
-
-    }
-
     "count accepted" in {
       FileUploads(
         files = Seq(
@@ -285,10 +254,6 @@ class FileUploadsSpec extends UnitSpec {
       failedFileUpload.isReady shouldBe true
       rejectedFileUpload.isReady shouldBe true
       duplicateFileUpload.isReady shouldBe true
-    }
-
-    "have MAX_FILENAME_LENGTH" in {
-      FileUpload.MAX_FILENAME_LENGTH shouldBe 93
     }
   }
 }
