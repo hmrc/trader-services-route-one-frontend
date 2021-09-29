@@ -263,9 +263,10 @@ object SbtWebpack extends AutoPlugin {
   case class CompilationEntry(inputFile: File, filesRead: Set[File], filesWritten: Set[File])
 
   object Shell {
-    def execute(cmd: String, cwd: File, envs: (String, String)*): (Int, Seq[String]) = {
+    def execute(cmd: Seq[String], cwd: File, envs: (String, String)*): (Int, Seq[String]) = {
       var output = Vector.empty[String]
-      val exitCode = Process(cmd, cwd, envs: _*).!(ProcessLogger(s => output = output.:+(s)))
+      val process = Process(cmd, cwd, envs: _*)
+      val exitCode = process.!(ProcessLogger(s => output = output.:+(s)))
       (exitCode, output)
     }
   }
@@ -293,21 +294,24 @@ object SbtWebpack extends AutoPlugin {
     def compile(): CompilationResult = {
       import sbt._
 
-      val entriesEnvs = entries.zipWithIndex.map {
+      val entriesEnvs = entries.zipWithIndex.flatMap {
         case (file, index) =>
-          s"""--env entry.$index=${file.getAbsolutePath()}"""
+          Seq("--env", s"""entry.$index=${file.getAbsolutePath()}""")
       }
 
-      val cmd = (Seq(
-        binary.getCanonicalPath,
+      val cmd = Seq(
+        s"""${binary.getCanonicalPath}""",
         "--config",
-        configFile.getAbsolutePath(),
-        s"""--env output.path=${outputDirectory.getAbsolutePath()}""",
-        s"""--env output.filename=$outputFileName""",
-        s"""--env webjars.path=${webjarsDirectory.getAbsolutePath()}"""
-      ) ++ entriesEnvs).mkString(" ")
+        s"""${configFile.getAbsolutePath()}""",
+        "--env",
+        s"""output.path=${outputDirectory.getAbsolutePath()}""",
+        "--env",
+        s"""output.filename=$outputFileName""",
+        "--env",
+        s"""webjars.path=${webjarsDirectory.getAbsolutePath()}"""
+      ) ++ entriesEnvs
 
-      logger.info(s"[sbt-webpack] Running command ${AnsiColor.CYAN}$cmd${AnsiColor.RESET}")
+      logger.info(s"[sbt-webpack] Running command ${AnsiColor.CYAN}${cmd.mkString(" ")}${AnsiColor.RESET}")
 
       val (exitCode, output) =
         Shell.execute(cmd, baseDir, "NODE_PATH" -> nodeModules.getCanonicalPath)
