@@ -1,39 +1,47 @@
 const path = require('path');
 
-module.exports = {
-  watch: true,
-  devtool: 'source-map',
-  entry: './javascripts/index.ts',
-  resolve: {
-    extensions: ['.js', '.ts']
-  },
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              '@babel/typescript',
-              '@babel/preset-env'
-            ],
-            plugins: [
-              '@babel/plugin-proposal-class-properties'
-            ]
-          }
-        }
-      },
-      {
-        test: /\.ts$/,
-        exclude: /node_modules/,
-        loader: 'eslint-loader'
+module.exports = function (env) {
+  return {
+    mode: 'production',
+    optimization: {
+      minimize: true,
+      concatenateModules: true
+    },
+    watch: false,
+    devtool: 'source-map',
+    entry: Object.values(env.entry),
+    resolve: {
+      extensions: ['.js', '.ts'],
+      alias: {
+        'node_modules': path.join(__dirname, 'node_modules'),
+        'webjars': env.webjars.path
       }
-    ]
-  },
-  output: {
-    path: path.resolve(__dirname, 'build'),
-    filename: 'application.min.js'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.ts$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/typescript',
+                '@babel/preset-env'
+              ],
+              plugins: [
+                '@babel/plugin-proposal-class-properties'
+              ]
+            }
+          }
+        },
+        {
+          test: /\.ts$/,
+          exclude: /node_modules|legacy/,
+          loader: 'eslint-loader'
+        }
+      ]
+    },
+    output: env.output
   }
 };

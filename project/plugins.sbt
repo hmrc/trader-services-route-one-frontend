@@ -14,7 +14,3 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.8.2")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.3")
 
 addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.11")
-
-addSbtPlugin("net.ground5hark.sbt" % "sbt-concat" % "0.2.0")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-uglify" % "2.0.0")
