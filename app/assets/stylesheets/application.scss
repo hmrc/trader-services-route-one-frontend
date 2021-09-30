@@ -16,3 +16,9 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 @import "components/multi-file-upload";
 @import "components/receipt";
 @import "components/case-summary";
+
+.js-enabled #confirmation-heading-no-js{display: none;}
+.js-enabled #confirmation-heading{display: inline-block;}
+
+#print-receipt{display: none;}
+.js-enabled #print-receipt{display: inline-block; }

@@ -96,10 +96,6 @@
       @messages("view.create-case-confirmation.print-receipts.description")
     }
   </div>
-  <style type="text/css">
-          .js-enabled #confirmation-heading-no-js{display: none;}
-          .js-enabled #confirmation-heading{display: inline-block;}
-  </style>
 
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
@@ -116,10 +112,6 @@
     </ul>
   </div>
 
-  <style type="text/css" >
-          #print-receipt{display: none;}
-          .js-enabled #print-receipt{display: inline-block; }
-  </style>
   <div class="govuk-grid-column-two-thirds">
     @partials.createCaseReceipt(caseReferenceId, context, entryDetails, uploadedFiles, generatedAt)(messages)
   </div>

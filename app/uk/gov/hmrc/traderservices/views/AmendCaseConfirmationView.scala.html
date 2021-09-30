@@ -68,10 +68,6 @@
         @html.h2("view.amend-case-confirmation.info.no-javascript.heading", classes = "govuk-heading-m")
     </div>
   </div>
-    <style type="text/css">
-            .js-enabled #confirmation-heading-no-js{display: none;}
-            .js-enabled #confirmation-heading{display: inline-block;}
-    </style>
   <div class="govuk-grid-column-two-thirds print-receipt-hide">
     <ul class="action-buttons">
       <li class="action-buttons__item" id="print-receipt">
@@ -86,10 +82,6 @@
       </li>
     </ul>
   </div>
-    <style type="text/css" >
-            #print-receipt{display: none;}
-            .js-enabled #print-receipt{display: inline-block; }
-    </style>
 
   <div class="govuk-grid-column-two-thirds">
     @partials.amendCaseReceipt(caseReferenceId, context, uploadedFiles, responseText, generatedAt)(messages)
