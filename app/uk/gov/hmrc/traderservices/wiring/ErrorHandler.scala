@@ -17,9 +17,7 @@
 package uk.gov.hmrc.traderservices.wiring
 
 import com.google.inject.name.Named
-import play.api.Configuration
-import play.api.Environment
-import play.api.Mode
+import play.api.{Configuration, Environment, Logger, Mode, PlayException}
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import play.api.mvc.RequestHeader
@@ -35,6 +33,7 @@ import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.traderservices.connectors.TraderServicesAmendApiError
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.CaseReferenceUpstreamException
 import uk.gov.hmrc.traderservices.models.DateTimeHelper
 import uk.gov.hmrc.traderservices.views.html.AmendCaseErrorView
 import uk.gov.hmrc.traderservices.views.html.ErrorOutOfHoursView
@@ -62,6 +61,7 @@ class ErrorHandler @Inject() (
   errorOutOfHoursView: ErrorOutOfHoursView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
+  private val logger = Logger(getClass)
 
   private val isDevEnv =
     if (env.mode.equals(Mode.Test)) false
@@ -71,6 +71,27 @@ class ErrorHandler @Inject() (
     auditClientError(request, statusCode, message)
     super.onClientError(request, statusCode, message)
   }
+
+  override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
+    exception match {
+      case TraderServicesAmendApiError(ex: CaseReferenceUpstreamException) =>
+        logger.warn(
+          """
+            |
+            |! %sInternal server error, for (%s) [%s] ->
+            | """.stripMargin.format(
+            ex match {
+              case p: PlayException => "@" + p.id + " - "
+              case _                => ""
+            },
+            request.method,
+            request.uri
+          ),
+          ex
+        )
+        Future.successful(resolveError(request, exception))
+      case _ => super.onServerError(request, exception)
+    }
 
   override def resolveError(request: RequestHeader, exception: Throwable) = {
     auditServerError(request, exception)
