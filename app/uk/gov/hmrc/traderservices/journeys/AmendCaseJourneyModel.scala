@@ -271,7 +271,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
                 else
                   fail(
                     TraderServicesAmendApiError(
-                      new RuntimeException(
+                      CaseReferenceUpstreamException(
                         s"Received UpdateCase API response with different case reference number than requested, expected $caseReferenceNumber but got ${response.result.get}."
                       )
                     )
@@ -279,7 +279,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
               else {
                 val message = response.error.map(_.errorCode).map(_ + " ").getOrElse("") +
                   response.error.map(_.errorMessage).getOrElse("")
-                fail(TraderServicesAmendApiError(new RuntimeException(message)))
+                fail(TraderServicesAmendApiError(CaseReferenceUpstreamException(message)))
               }
           }
       }
@@ -293,4 +293,5 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       }
     }
   }
+  case class CaseReferenceUpstreamException(message: String) extends RuntimeException(message)
 }
