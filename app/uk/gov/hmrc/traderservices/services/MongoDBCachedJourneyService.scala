@@ -24,7 +24,9 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
+import play.api.Logger
 import play.api.libs.json.JsValue
+
 import scala.io.AnsiColor
 import uk.gov.hmrc.play.fsm.PlayFsmUtils
 
@@ -52,6 +54,8 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
 
   implicit lazy val encryptionFormat: JsonEncryptor[PersistentState] = new JsonEncryptor()
   implicit lazy val decryptionFormat: JsonDecryptor[PersistentState] = new JsonDecryptor()
+
+  private val logger = Logger.apply(this.getClass)
 
   final val cache = new JourneyCache[Protected[PersistentState], RequestContext] {
 
@@ -92,9 +96,9 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
         val entry = protectedEntry.decryptedValue
         val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
         if (traceFSM) {
-          println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
-          println(
+          logger.debug("-" + stateAndBreadcrumbs._2.length + "-" * 32)
+          logger.debug(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
+          logger.debug(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
               .map(PlayFsmUtils.identityOf)}"
           )
@@ -121,9 +125,9 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
       .save(protectedEntry)
       .map { _ =>
         if (traceFSM) {
-          println("-" + stateAndBreadcrumbs._2.length + "-" * 32)
-          println(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
-          println(
+          logger.debug("-" + stateAndBreadcrumbs._2.length + "-" * 32)
+          logger.debug(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
+          logger.debug(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
               .map(PlayFsmUtils.identityOf)}"
           )
