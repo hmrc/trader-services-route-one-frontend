@@ -176,7 +176,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -227,7 +227,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 

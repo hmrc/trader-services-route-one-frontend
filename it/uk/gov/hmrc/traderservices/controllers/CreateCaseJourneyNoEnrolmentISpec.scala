@@ -1119,7 +1119,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedWithoutEnrolments
 
@@ -1893,7 +1893,7 @@ class CreateCaseJourneyNoEnrolmentISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedWithoutEnrolments
 
@@ -2046,7 +2046,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/upload-files/initialise/001").post(""))
@@ -2117,7 +2117,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/upload-files/initialise/002").post(""))
@@ -2188,7 +2188,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/file-upload").get())
@@ -2229,7 +2229,7 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/file-upload").get())
