@@ -1151,7 +1151,7 @@ class CreateCaseJourneyISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -2098,7 +2098,7 @@ class CreateCaseJourneyISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -2633,7 +2633,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/upload-files/initialise/001").post(""))
@@ -2704,7 +2704,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/upload-files/initialise/002").post(""))
@@ -2775,7 +2775,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/file-upload").get())
@@ -2816,7 +2816,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/new/file-upload").get())
@@ -3173,7 +3173,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(
@@ -3220,7 +3220,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/new/journey/${journeyId.value}/callback-from-upscan"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(
@@ -3769,7 +3769,7 @@ class CreateCaseJourneyISpec
       }
     }
 
-    "POST /new/journey/:journeyId/callback-from-upscan" should {
+    "POST /callback-from-upscan/new/journey/:journeyId" should {
       "return 400 if callback body invalid" in {
         val nonce = Nonce.random
         journey.setState(
@@ -3785,7 +3785,7 @@ class CreateCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+            request(s"/callback-from-upscan/new/journey/${journeyId.value}/$nonce")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -3823,7 +3823,7 @@ class CreateCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+            request(s"/callback-from-upscan/new/journey/${journeyId.value}/$nonce")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -3890,7 +3890,7 @@ class CreateCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/new/journey/${journeyId.value}/callback-from-upscan/$nonce")
+            request(s"/callback-from-upscan/new/journey/${journeyId.value}/$nonce")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -3947,7 +3947,7 @@ class CreateCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/new/journey/${journeyId.value}/callback-from-upscan/${Nonce.random}")
+            request(s"/callback-from-upscan/new/journey/${journeyId.value}/${Nonce.random}")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
