@@ -14,29 +14,24 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.wiring.AppConfig
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.language._
-@import uk.gov.hmrc.traderservices.controllers.routes
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcReportTechnicalIssueHelper
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcTrackingConsentSnippet
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
-@import views.html.helper.CSPNonce
-@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
-@import uk.gov.hmrc.traderservices.controllers.routes.SignOutController
-@import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 @import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
+@import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcReportTechnicalIssueHelper, HmrcStandardFooter, HmrcStandardHeader, HmrcTrackingConsentSnippet}
+@import uk.gov.hmrc.traderservices.controllers.routes
+@import uk.gov.hmrc.traderservices.views.html.templates.GovukLayout1
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import views.html.helper.CSPNonce
 
 @this(
-govukLayout: GovukLayout1,
-govukBackLink: GovukBackLink,
-appConfig: AppConfig,
-hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
-hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
-hmrcStandardHeader: HmrcStandardHeader,
-hmrcStandardFooter: HmrcStandardFooter,
-standardBetaBanner:StandardBetaBanner,
-languageSelection: components.languageSelection
+        govukLayout: GovukLayout1,
+        govukBackLink: GovukBackLink,
+        appConfig: AppConfig,
+        hmrcReportTechnicalIssueHelper: HmrcReportTechnicalIssueHelper,
+        hmrcTrackingConsentSnippet: HmrcTrackingConsentSnippet,
+        hmrcStandardHeader: HmrcStandardHeader,
+        hmrcStandardFooter: HmrcStandardFooter,
+        standardBetaBanner: StandardBetaBanner,
+        languageSelection: components.languageSelection
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
@@ -44,67 +39,71 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit request: Request[_], messag
 
 @head = {
 @hmrcTrackingConsentSnippet(nonce = CSPNonce.get)
-<meta name="format-detection" content="telephone=no">
-<!--[if lte IE 8]><link href='@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
-<!--[if gt IE 8]><!-->
-<link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet"
+    <meta name="format-detection" content="telephone=no">
+        <!--[if lte IE 8]><link href='
+@controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")
+    ' rel="stylesheet" type="text/css" /><![endif]-->
+        <!--[if gt IE 8]><!-->
+    <link href='@controllers.routes.Assets.versioned("stylesheets/application.css")' media="screen" rel="stylesheet"
     type="text/css" />
-<!--<![endif]-->
-<link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css"
+        <!--<![endif]-->
+    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css"
     media="print" />
-@if(refresh>0){
-<noscript>
- <meta http-equiv="refresh" content="@refresh"/>
-</noscript>
+@if(refresh > 0) {
+    <noscript>
+        <meta http-equiv="refresh" content="@refresh"/>
+    </noscript>
 }
 
 @if(timeout) {
-  <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
-  data-language="@messages.lang.language"
-  data-message="@messages("view.timedout.dialog.message")"
-  data-message-suffix="@messages("view.timedout.dialog.message.suffix")"
-  data-timeout="@appConfig.timeout"
-  data-countdown="@appConfig.countdown"
-  data-keep-alive-url="@routes.SessionController.keepAlive"
-  data-sign-out-url="@{appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url}"/>
+    <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
+    data-language="@messages.lang.language"
+    data-message="@messages("view.timedout.dialog.message")"
+    data-message-suffix="@messages("view.timedout.dialog.message.suffix")"
+    data-timeout="@appConfig.timeout"
+    data-countdown="@appConfig.countdown"
+    data-keep-alive-url="@routes.SessionController.keepAlive"
+    data-sign-out-url="@{
+        appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url
+    }"/>
 }
 }
 
 @scripts = {
-  <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
+    <script src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
 }
 
 @beforeContentBlock = {
-  @languageSelection(
+@languageSelection(
     appConfig.languageMap,
     appConfig.routeToSwitchLanguage
-  )
-  @if(backLink.isDefined) {
+)
+@if(backLink.isDefined) {
     @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
-  }
+}
 }
 
 @content = {
-  <div class="govuk-!-margin-bottom-6">
+    <div class="govuk-!-margin-bottom-6">
     @contentBlock
-  </div>
+    </div>
 
-  <div class="report-a-problem">
+    <div class="report-a-problem">
     @hmrcReportTechnicalIssueHelper()
-  </div>
+    </div>
 }
 
 @govukLayout(
-    pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}" ), headBlock = Some(head),
-beforeContentBlock = Some(beforeContentBlock),
-bodyEndBlock = None,
-scriptsBlock = Some(scripts),
-headerBlock = Some(hmrcStandardHeader(
-  serviceUrl = Some(CreateCaseJourneyController.showStart.url),
-  signOutUrl = if(timeout) Some(SignOutController.signOut().url) else None,
-  phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
-  userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
-  displayHmrcBanner = false
-)),
-footerBlock = Some(hmrcStandardFooter())
+    pageTitle = pageTitle.map(title => s"$title - ${messages("site.serviceName")} - ${messages("site.govuk")}"), headBlock = Some(head),
+    beforeContentBlock = Some(beforeContentBlock),
+    bodyEndBlock = None,
+    scriptsBlock = Some(scripts),
+    headerBlock = Some(hmrcStandardHeader(
+        serviceUrl = Some(routes.CreateCaseJourneyController.showStart.url),
+        signOutUrl = if(timeout) Some(routes.SignOutController.signOut().url) else None,
+        phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
+        userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
+        displayHmrcBanner = false
+    )),
+    footerBlock = Some(hmrcStandardFooter())
 )(content)

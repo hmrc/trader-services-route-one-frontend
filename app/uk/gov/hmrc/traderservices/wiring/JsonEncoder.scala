@@ -16,29 +16,26 @@
 
 package uk.gov.hmrc.traderservices.wiring
 
-import java.net.InetAddress
-import java.nio.charset.StandardCharsets
-
 import ch.qos.logback.classic.spi.{ILoggingEvent, ThrowableProxyUtil}
 import ch.qos.logback.core.encoder.EncoderBase
 import com.fasterxml.jackson.core.JsonGenerator.Feature
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.commons.io.IOUtils._
-import org.apache.commons.lang3.time.FastDateFormat
-import com.typesafe.config.ConfigFactory
-
-import scala.util.{Success, Try}
-import scala.collection.JavaConverters._
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
+import com.typesafe.config.ConfigFactory
+import org.apache.commons.lang3.time.FastDateFormat
 import play.api.Logger
+
+import java.net.InetAddress
+import java.nio.charset.StandardCharsets
+import scala.collection.JavaConverters._
+import scala.util.{Success, Try}
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
   private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)
 
   lazy val appName: String = Try(ConfigFactory.load().getString("appName")) match {
-    case Success(name) => name.toString
+    case Success(name) => name
     case _             => "APP NAME NOT SET"
   }
 
@@ -46,7 +43,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
   private lazy val dateFormat = {
     val dformat = Try(ConfigFactory.load().getString("logger.json.dateformat")) match {
-      case Success(date) => date.toString
+      case Success(date) => date
       case _             => DATE_FORMAT
     }
     FastDateFormat.getInstance(dformat)
@@ -72,7 +69,7 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
     )
     event.getMDCPropertyMap.asScala foreach { case (k, v) => eventNode.put(k.toLowerCase, v) }
 
-    s"${mapper.writeValueAsString(eventNode)}$LINE_SEPARATOR".getBytes(StandardCharsets.UTF_8)
+    s"${mapper.writeValueAsString(eventNode)}${System.lineSeparator()}".getBytes(StandardCharsets.UTF_8)
   }
 
   def decodeMessage(eventNode: ObjectNode, message: String): Unit =
@@ -80,18 +77,18 @@ class JsonEncoder extends EncoderBase[ILoggingEvent] {
       eventNode.put("message", message.drop(4))
       try {
         val messageNode: JsonNode = mapper.readTree(message.drop(4))
-        eventNode.put("route1", messageNode)
+        eventNode.set("route1", messageNode)
       } catch {
         case e: Exception =>
-          Logger(getClass).error(e.getMessage())
+          Logger(getClass).error(e.getMessage)
       }
     } else
       eventNode.put("message", message)
 
   override def footerBytes(): Array[Byte] =
-    LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8)
+    System.lineSeparator().getBytes(StandardCharsets.UTF_8)
 
   override def headerBytes(): Array[Byte] =
-    LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8)
+    System.lineSeparator().getBytes(StandardCharsets.UTF_8)
 
 }

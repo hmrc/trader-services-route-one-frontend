@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
@@ -29,7 +29,7 @@ class StartPageController @Inject() (
   config: AppConfig
 ) extends FrontendController(controllerComponents) {
 
-  val showGovUkStart: Action[AnyContent] = Action.async { implicit request =>
+  val showGovUkStart: Action[AnyContent] = Action.async {
     Future.successful(Redirect(config.govukStartUrl))
   }
 }

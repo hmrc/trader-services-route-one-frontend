@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.traderservices.views.html.TimedOutView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 @Singleton
@@ -33,7 +33,7 @@ class SessionController @Inject() (
     Future.successful(Ok(timedOutView()))
   }
 
-  val keepAlive: Action[AnyContent] = Action.async { implicit request =>
+  val keepAlive: Action[AnyContent] = Action.async {
     Future.successful(Ok("{}"))
   }
 }

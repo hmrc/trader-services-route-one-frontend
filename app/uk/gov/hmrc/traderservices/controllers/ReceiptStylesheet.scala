@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.ws.WSClient
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import play.api.mvc.Call
-import play.api.mvc.RequestHeader
 import play.api.Logger
+import play.api.libs.ws.WSClient
+import play.api.mvc.Call
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ReceiptStylesheet @Inject() (wsClient: WSClient, appConfig: AppConfig) {
@@ -35,7 +34,7 @@ class ReceiptStylesheet @Inject() (wsClient: WSClient, appConfig: AppConfig) {
 
   Logger(getClass).info(s"Sourcing download stylesheet from $url")
 
-  final def content(implicit request: RequestHeader, ec: ExecutionContext): Future[String] =
+  final def content(implicit ec: ExecutionContext): Future[String] =
     wsClient
       .url(url)
       .get()
