@@ -1,27 +1,15 @@
-import java.io.PrintWriter
-import java.nio.file.Paths
-
+import com.typesafe.sbt.packager
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
-import com.typesafe.sbt.packager
 import sbt.Keys._
 import sbt._
-import xsbti.{Position, Problem, Severity}
-
-import scala.io.Source
 import sbt.internal.util.ManagedLogger
-import xsbti.Reporter
-import scala.sys.process.ProcessLogger
-import scala.io.AnsiColor
+import xsbti.{Position, Problem, Reporter, Severity}
 
-import java.io.{File, FileOutputStream, PrintWriter}
-import java.nio.file.{Files, Path}
-import sbt.internal.util.ManagedLogger
-import scala.io.Source
-import play.sbt.PlayRunHook
-import sbt.internal.util.ConsoleLogger
-import scala.util.Properties
-import scala.sys.process.Process
+import java.io.File
+import java.util.Optional
+import scala.io.{AnsiColor, Source}
+import scala.sys.process.{Process, ProcessLogger}
 
 /**
   * Runs `webpack` command in assets.
@@ -30,9 +18,9 @@ import scala.sys.process.Process
   */
 object SbtWebpack extends AutoPlugin {
 
-  override def requires = SbtWeb
+  override def requires: SbtWeb.type = SbtWeb
 
-  override def trigger = AllRequirements
+  override def trigger: PluginTrigger = AllRequirements
 
   object autoImport {
     object WebpackKeys {
@@ -50,10 +38,10 @@ object SbtWebpack extends AutoPlugin {
     }
   }
 
+  import SbtNpm.autoImport.NpmKeys
   import SbtWeb.autoImport._
   import WebKeys._
   import autoImport.WebpackKeys
-  import SbtNpm.autoImport.NpmKeys
 
   final val unscopedWebpackSettings = Seq(
     WebpackKeys.binary := (Assets / sourceDirectory).value / "node_modules" / ".bin" / "webpack",
@@ -65,13 +53,11 @@ object SbtWebpack extends AutoPlugin {
       .dependsOn(NpmKeys.npmInstall)
       .value,
     WebpackKeys.webpack / excludeFilter := HiddenFileFilter ||
-      new FileFilter {
-        override def accept(file: File): Boolean = {
-          val path = file.getAbsolutePath()
-          path.contains("/node_modules/") ||
+      ((file: File) => {
+        val path = file.getAbsolutePath
+        path.contains("/node_modules/") ||
           path.contains("/build/")
-        }
-      },
+      }),
     WebpackKeys.webpack / includeFilter := "*.js" || "*.ts",
     WebpackKeys.webpack / resourceManaged := webTarget.value / "webpack" / "build",
     WebpackKeys.webpack / sbt.Keys.skip := false,
@@ -93,7 +79,7 @@ object SbtWebpack extends AutoPlugin {
     inConfig(Assets)(unscopedWebpackSettings)
 
   final def readAndClose(file: File): String =
-    if (file.exists() && file.canRead()) {
+    if (file.exists() && file.canRead) {
       val s = Source.fromFile(file)
       try s.mkString
       finally s.close()
@@ -102,33 +88,33 @@ object SbtWebpack extends AutoPlugin {
   lazy val task = Def.task {
 
     val skip = (WebpackKeys.webpack / sbt.Keys.skip).value
-    val logger: ManagedLogger = (streams in Assets).value.log
-    val baseDir: File = (sourceDirectory in Assets).value
-    val targetDir: File = (resourceManaged in WebpackKeys.webpack in Assets).value
+    val logger: ManagedLogger = (Assets / streams).value.log
+    val baseDir: File = (Assets / sourceDirectory).value
+    val targetDir: File = (Assets / WebpackKeys.webpack / resourceManaged).value
 
-    val nodeModulesLocation: File = (WebpackKeys.nodeModulesPath in WebpackKeys.webpack).value
-    val webpackSourceDirs: Seq[File] = (WebpackKeys.sourceDirs in WebpackKeys.webpack).value
-    val webpackReporter: Reporter = (reporter in Assets).value
-    val webpackBinaryLocation: File = (WebpackKeys.binary in WebpackKeys.webpack).value
-    val webpackConfigFileLocation: File = (WebpackKeys.configFile in WebpackKeys.webpack).value
-    val webpackEntries: Seq[String] = (WebpackKeys.entries in WebpackKeys.webpack).value
-    val webpackOutputFileName: String = (WebpackKeys.outputFileName in WebpackKeys.webpack).value
-    val webpackTargetDir: File = (resourceManaged in WebpackKeys.webpack).value
-    val assetsWebJarsLocation: File = (webJarsDirectory in Assets).value
+    val nodeModulesLocation: File = (WebpackKeys.webpack / WebpackKeys.nodeModulesPath).value
+    val webpackSourceDirs: Seq[File] = (WebpackKeys.webpack / WebpackKeys.sourceDirs).value
+    val webpackReporter: Reporter = (Assets / reporter).value
+    val webpackBinaryLocation: File = (WebpackKeys.webpack / WebpackKeys.binary).value
+    val webpackConfigFileLocation: File = (WebpackKeys.webpack / WebpackKeys.configFile).value
+    val webpackEntries: Seq[String] = (WebpackKeys.webpack / WebpackKeys.entries).value
+    val webpackOutputFileName: String = (WebpackKeys.webpack / WebpackKeys.outputFileName).value
+    val webpackTargetDir: File = (WebpackKeys.webpack / resourceManaged).value
+    val assetsWebJarsLocation: File = (Assets / webJarsDirectory).value
     val projectRoot: File = baseDirectory.value
 
     val webpackEntryFiles: Set[File] =
       webpackEntries.map { path =>
         if (path.startsWith("assets:"))
-          baseDir.toPath.resolve(path.drop(7)).toFile()
+          baseDir.toPath.resolve(path.drop(7)).toFile
         else if (path.startsWith("webjar:"))
-          assetsWebJarsLocation.toPath.resolve(path.drop(7)).toFile()
-        else projectRoot.toPath().resolve(path).toFile()
+          assetsWebJarsLocation.toPath.resolve(path.drop(7)).toFile
+        else projectRoot.toPath.resolve(path).toFile
       }.toSet
 
     val sources: Seq[File] = (webpackSourceDirs
       .flatMap { sourceDir =>
-        (sourceDir ** ((includeFilter in WebpackKeys.webpack).value -- (excludeFilter in WebpackKeys.webpack).value)).get
+        (sourceDir ** ((WebpackKeys.webpack / includeFilter).value -- (WebpackKeys.webpack / excludeFilter).value)).get
       }
       .filter(_.isFile) ++ webpackEntryFiles ++ Seq(webpackConfigFileLocation)).distinct
 
@@ -153,14 +139,14 @@ object SbtWebpack extends AutoPlugin {
       )
     }
 
-    val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
+    val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "run", sources) {
       modifiedSources =>
         val startInstant = System.currentTimeMillis
 
         if (!skip && modifiedSources.nonEmpty) {
           logger.info(s"""
                          |[sbt-webpack] Detected ${modifiedSources.size} changed files:
-                         |[sbt-webpack] - ${modifiedSources.map(f => f.relativeTo(projectRoot).getOrElse(f).toString()).mkString("\n[sbt-webpack] - ")}
+                         |[sbt-webpack] - ${modifiedSources.map(f => f.relativeTo(projectRoot).getOrElse(f).toString).mkString("\n[sbt-webpack] - ")}
            """.stripMargin.trim)
 
           val compiler = new Compiler(
@@ -192,21 +178,21 @@ object SbtWebpack extends AutoPlugin {
 
                   override def message() = ""
 
-                  override def position() =
+                  override def position(): Position =
                     new Position {
-                      override def line() = java.util.Optional.empty()
+                      override def line(): Optional[Integer] = java.util.Optional.empty()
 
                       override def lineContent() = ""
 
-                      override def offset() = java.util.Optional.empty()
+                      override def offset(): Optional[Integer] = java.util.Optional.empty()
 
-                      override def pointer() = java.util.Optional.empty()
+                      override def pointer(): Optional[Integer] = java.util.Optional.empty()
 
-                      override def pointerSpace() = java.util.Optional.empty()
+                      override def pointerSpace(): Optional[String] = java.util.Optional.empty()
 
-                      override def sourcePath() = java.util.Optional.empty()
+                      override def sourcePath(): Optional[String] = java.util.Optional.empty()
 
-                      override def sourceFile() = java.util.Optional.empty()
+                      override def sourceFile(): Optional[File] = java.util.Optional.empty()
                     }
                 })
               else Seq.empty
@@ -296,19 +282,19 @@ object SbtWebpack extends AutoPlugin {
 
       val entriesEnvs = entries.zipWithIndex.flatMap {
         case (file, index) =>
-          Seq("--env", s"""entry.$index=${file.getAbsolutePath()}""")
+          Seq("--env", s"""entry.$index=${file.getAbsolutePath}""")
       }
 
       val cmd = Seq(
         s"""${binary.getCanonicalPath}""",
         "--config",
-        s"""${configFile.getAbsolutePath()}""",
+        s"""${configFile.getAbsolutePath}""",
         "--env",
-        s"""output.path=${outputDirectory.getAbsolutePath()}""",
+        s"""output.path=${outputDirectory.getAbsolutePath}""",
         "--env",
         s"""output.filename=$outputFileName""",
         "--env",
-        s"""webjars.path=${webjarsDirectory.getAbsolutePath()}"""
+        s"""webjars.path=${webjarsDirectory.getAbsolutePath}"""
       ) ++ entriesEnvs
 
       logger.info(s"[sbt-webpack] Running command ${AnsiColor.CYAN}${cmd.mkString(" ")}${AnsiColor.RESET}")
@@ -332,7 +318,7 @@ object SbtWebpack extends AutoPlugin {
             .filter(s => s.contains("[built]") && !s.contains("multi") && !s.contains("(webpack)"))
             .map(parseOutputLine)
             .sorted
-            .map(path => baseDir.toPath().resolve(path).toFile)
+            .map(path => baseDir.toPath.resolve(path).toFile)
 
         logger.info(
           processedFiles
@@ -346,7 +332,7 @@ object SbtWebpack extends AutoPlugin {
             CompilationEntry(
               inputFile = configFile,
               filesRead = processedFiles.toSet,
-              filesWritten = Set(outputDirectory.toPath().resolve(outputFileName).toFile())
+              filesWritten = Set(outputDirectory.toPath.resolve(outputFileName).toFile)
             )
           )
         )

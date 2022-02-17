@@ -4,11 +4,14 @@ import xsbti.{Position, Problem, Severity}
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
 import com.typesafe.sbt.packager
+
 import scala.io.Source
 import scala.sys.process.{Process, ProcessBuilder}
 import java.io.PrintWriter
 import java.nio.file.Paths
 import sbt.internal.util.ManagedLogger
+
+import scala.language.postfixOps
 
 /**
   * Enables running NPM scripts, if a package.json file exists in the `packageJsonDirectory`.
@@ -45,14 +48,14 @@ object SbtNpm extends AutoPlugin {
   override def projectSettings: Seq[Setting[_]] =
     inConfig(Assets)(
       Seq(
-        packageJsonDirectory := (sourceDirectory in WebKeys.assets).value,
+        packageJsonDirectory := (WebKeys.assets / sourceDirectory).value,
         // this enables 'sbt "npm <args>"' commands
         commands ++= packageJsonDirectory(base => Seq(npmCommand(base))).value,
         npmInstall := {
-          val logger: ManagedLogger = (streams in Assets).value.log
+          val logger: ManagedLogger = (Assets / streams).value.log
           val projectRoot: File = baseDirectory.value
           val nodeModulesDir = packageJsonDirectory.value / "node_modules"
-          if (nodeModulesDir.exists() && nodeModulesDir.isDirectory()) {
+          if (nodeModulesDir.exists() && nodeModulesDir.isDirectory) {
             logger.info(
               s"[sbt-npm] Folder ${nodeModulesDir.relativeTo(projectRoot).getOrElse(nodeModulesDir)} already exists."
             )

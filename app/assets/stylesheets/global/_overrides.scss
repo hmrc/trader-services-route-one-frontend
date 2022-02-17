@@ -2,7 +2,7 @@
 
 // Show red border around a focused field with error
 .govuk-input--error {
-  border: $govuk-border-width-form-element-error solid $govuk-error-colour !important;
+  border: 5px solid $govuk-error-colour !important;
 
   &:focus {
     border-color: $govuk-input-border-colour;
