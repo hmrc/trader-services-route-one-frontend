@@ -16,146 +16,109 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import java.time.LocalDate
-import uk.gov.hmrc.traderservices.support.UnitSpec
+import org.scalacheck.Gen
+import org.scalacheck.Shrink.shrinkAny
+import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import play.api.data.validation.{Invalid, Valid}
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
-import uk.gov.hmrc.traderservices.models.{EPU, EntryNumber, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType, ImportFreightType, ImportPriorityGoods, ImportRequestType, ImportRouteType}
-import uk.gov.hmrc.traderservices.support.FormMappingMatchers
+import uk.gov.hmrc.traderservices.generators.FormFieldGenerators
+import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.support.{FormMappingMatchers, UnitSpec}
 
-import java.time.LocalTime
-import scala.util.Random
-import play.api.data.validation.Invalid
-import play.api.data.validation.Valid
+import java.time.{LocalDate, LocalTime}
 
-class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
-
-  val (y, m, d) = {
-    val now = LocalDate.now
-    (now.getYear(), now.getMonthValue(), now.getDayOfMonth())
-  }
+class FormFieldMappingsSpec
+    extends UnitSpec with FormMappingMatchers with ScalaCheckDrivenPropertyChecks with FormFieldGenerators {
 
   "FormFieldMappings" should {
     "validate EPU" in {
-      epuMapping.bind(Map("" -> "0")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "00")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "000")) should haveOnlyError[EPU]("error.epu.invalid-number")
-      epuMapping.bind(Map("" -> "1")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "01")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "001")) shouldBe Right(EPU(1))
-      epuMapping.bind(Map("" -> "009")) shouldBe Right(EPU(9))
-      epuMapping.bind(Map("" -> "010")) shouldBe Right(EPU(10))
-      epuMapping.bind(Map("" -> "012")) shouldBe Right(EPU(12))
-      epuMapping.bind(Map("" -> "099")) shouldBe Right(EPU(99))
-      epuMapping.bind(Map("" -> "123")) shouldBe Right(EPU(123))
-      epuMapping.bind(Map("" -> "456")) shouldBe Right(EPU(456))
-      epuMapping.bind(Map("" -> "669")) shouldBe Right(EPU(669))
-      epuMapping.bind(Map("" -> "670")) should haveOnlyError[EPU]("error.epu.invalid-number")
-      epuMapping.bind(Map("" -> "700")) should haveOnlyError[EPU]("error.epu.invalid-number")
-      epuMapping.bind(Map("" -> "701")) should haveOnlyError[EPU]("error.epu.invalid-number")
-      epuMapping.bind(Map("" -> "999")) should haveOnlyError[EPU]("error.epu.invalid-number")
+
+      forAll(Gen.choose(1, 669), Gen.choose(670, 999)) { (rawEPU, invalidEPU) =>
+        val epu = f"$rawEPU%03d"
+        epuMapping.bind(Map("" -> epu)) shouldBe Right(EPU(rawEPU))
+        epuMapping.bind(Map("" -> epu.slice(1, 2))) should haveOnlyError[EPU]("error.epu.invalid-length")
+        epuMapping.bind(Map("" -> invalidEPU.toString)) should haveOnlyError[EPU]("error.epu.invalid-number")
+        epuMapping.bind(Map("" -> epu.replaceFirst("[0-9]", "A"))) should haveOnlyError[EPU](
+          "error.epu.invalid-only-digits"
+        )
+      }
+
       epuMapping.bind(Map("" -> "")) should haveOnlyError[EPU]("error.epu.required")
-      epuMapping.bind(Map("" -> "1")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "12")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "1224")) should haveOnlyError[EPU]("error.epu.invalid-length")
-      epuMapping.bind(Map("" -> "12A")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
-      epuMapping.bind(Map("" -> "AAA")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
-      epuMapping.bind(Map("" -> "A12")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
-      epuMapping.bind(Map("" -> "1A2")) should haveOnlyError[EPU]("error.epu.invalid-only-digits")
     }
 
     "validate EntryNumber" in {
-      entryNumberMapping.bind(Map("" -> "000000Z")) shouldBe Right(EntryNumber("000000Z"))
-      entryNumberMapping.bind(Map("" -> "A00000Z")) shouldBe Right(EntryNumber("A00000Z"))
+
+      forAll(entryNumberGen, Gen.alphaChar, invalidSpecialCharGen) { (number, char, specialChar) =>
+        val numberWithAlphaPrefix = number.replaceFirst("\\d", char.toUpper.toString)
+
+        entryNumberMapping.bind(Map("" -> number)) shouldBe Right(EntryNumber(number))
+        entryNumberMapping.bind(Map("" -> numberWithAlphaPrefix)) shouldBe Right(EntryNumber(numberWithAlphaPrefix))
+
+        entryNumberMapping.bind(Map("" -> number.slice(0, number.length - 1))) should haveOnlyError[EntryNumber](
+          "error.entryNumber.invalid-length"
+        )
+
+        entryNumberMapping
+          .bind(Map("" -> number.replace(number.charAt(4), specialChar))) should haveOnlyError[EntryNumber](
+          "error.entryNumber.invalid-only-digits-and-letters"
+        )
+
+        entryNumberMapping.bind(Map("" -> number.reverse)) should haveOnlyError[EntryNumber](
+          "error.entryNumber.invalid-ends-with-letter"
+        )
+
+        entryNumberMapping.bind(Map("" -> number.replace(number.charAt(4), char))) should haveOnlyError[EntryNumber](
+          "error.entryNumber.invalid-letter-wrong-position"
+        )
+      }
+
       entryNumberMapping.bind(Map("" -> "")) should haveOnlyError[EntryNumber]("error.entryNumber.required")
-      entryNumberMapping.bind(Map("" -> "00000Z")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-length"
-      )
-      entryNumberMapping.bind(Map("" -> "0000Z")) should haveOnlyError[EntryNumber]("error.entryNumber.invalid-length")
-      entryNumberMapping.bind(Map("" -> "00000")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-length"
-      )
-      entryNumberMapping.bind(Map("" -> "0")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-length"
-      )
-      entryNumberMapping.bind(Map("" -> "Z")) should haveOnlyError[EntryNumber]("error.entryNumber.invalid-length")
-      entryNumberMapping.bind(Map("" -> "+")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-only-digits-and-letters"
-      )
-      entryNumberMapping.bind(Map("" -> "000000Z+")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-only-digits-and-letters"
-      )
-      entryNumberMapping.bind(Map("" -> "000+000Z")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-only-digits-and-letters"
-      )
-      entryNumberMapping.bind(Map("" -> "+++++++")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-only-digits-and-letters"
-      )
-      entryNumberMapping.bind(Map("" -> "++++++Z")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-only-digits-and-letters"
-      )
-      entryNumberMapping.bind(Map("" -> "00000Z0")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-ends-with-letter"
-      )
-      entryNumberMapping.bind(Map("" -> "Z000000")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-ends-with-letter"
-      )
-      entryNumberMapping.bind(Map("" -> "0A0000Z")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-letter-wrong-position"
-      )
-      entryNumberMapping.bind(Map("" -> "0A000000Z")) should haveOnlyError[EntryNumber](
-        "error.entryNumber.invalid-length"
-      )
     }
 
     "validate EntryDate" in {
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> s"$m", "day" -> s"$d")) shouldBe Right(
-        LocalDate.parse(f"$y-$m%02d-$d%02d")
-      )
-      entryDateMapping.bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.all.required"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.required"
-      )
-      entryDateMapping.bind(Map("year" -> "", "month" -> "11", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.required"
-      )
-      entryDateMapping.bind(Map("year" -> "", "month" -> "", "day" -> "31")) should haveOnlyError[LocalDate](
-        "error.entryDate.month.required"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "12", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.required"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "13", "day" -> "")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.required"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "13", "day" -> "32")) should haveOnlyError[LocalDate](
-        "error.entryDate.all.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> "20", "month" -> "13", "day" -> "32")) should haveOnlyError[LocalDate](
-        "error.entryDate.all.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "2", "day" -> "30")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> "202", "month" -> "2", "day" -> "28")) should haveOnlyError[LocalDate](
-        "error.entryDate.year.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> "202A", "month" -> "1", "day" -> "1")) should haveOnlyError[LocalDate](
-        "error.entryDate.year.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "06", "day" -> "31")) should haveOnlyError[LocalDate](
-        "error.entryDate.day.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> "", "month" -> "0A", "day" -> "21")) should haveError[LocalDate](
-        "error.entryDate.year.required"
-      )
-      entryDateMapping.bind(Map("year" -> s"$y", "month" -> "0A", "day" -> "2AA")) should haveOnlyError[LocalDate](
-        "error.entryDate.all.invalid-value"
-      )
-      entryDateMapping.bind(Map("year" -> "2021", "month" -> "0A", "day" -> "2AA")) should haveOnlyError[LocalDate](
-        "error.entryDate.all.invalid-value"
-      )
+
+      forAll(Gen.chooseNum(1, 10).map(LocalDate.now.minusDays(_)), stringGen) { (date, invalidValue) =>
+        entryDateMapping.bind(
+          Map("year" -> s"${date.getYear}", "month" -> s"${date.getMonthValue}", "day" -> s"${date.getDayOfMonth}")
+        ) shouldBe Right(date)
+
+        entryDateMapping.bind(
+          Map("year" -> s"${date.getYear}", "month" -> s"${date.getMonthValue}", "day" -> "")
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.day.required"
+        )
+
+        entryDateMapping.bind(
+          Map("year" -> s"${date.getYear}", "month" -> s"${date.getMonthValue}", "day" -> invalidValue)
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.day.invalid-value"
+        )
+
+        entryDateMapping.bind(
+          Map("year" -> s"${date.getYear}", "month" -> "", "day" -> s"${date.getDayOfMonth}")
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.month.required"
+        )
+
+        entryDateMapping.bind(
+          Map("year" -> s"${date.getYear}", "month" -> invalidValue, "day" -> s"${date.getDayOfMonth}")
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.month.invalid-value"
+        )
+
+        entryDateMapping.bind(
+          Map("year" -> "", "month" -> s"${date.getMonthValue}", "day" -> s"${date.getDayOfMonth}")
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.year.required"
+        )
+
+        entryDateMapping.bind(
+          Map("year" -> invalidValue, "month" -> s"${date.getMonthValue}", "day" -> s"${date.getDayOfMonth}")
+        ) should haveOnlyError[LocalDate](
+          "error.entryDate.year.invalid-value"
+        )
+      }
+
       entryDateMapping.bind(Map("year" -> "2050", "month" -> "01", "day" -> "01")) should haveOnlyError[LocalDate](
         "error.entryDate.all.invalid-value-future"
       )
@@ -165,88 +128,87 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate export requestType" in {
-      exportRequestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ExportRequestType.New)
-      exportRequestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ExportRequestType.Cancellation)
-      exportRequestTypeMapping.bind(Map("" -> "C1601")) shouldBe Right(ExportRequestType.C1601)
-      exportRequestTypeMapping.bind(Map("" -> "C1602")) shouldBe Right(ExportRequestType.C1602)
-      exportRequestTypeMapping.bind(Map("" -> "C1603")) shouldBe Right(ExportRequestType.C1603)
-      exportRequestTypeMapping.bind(Map("" -> "WithdrawalOrReturn")) shouldBe Right(
-        ExportRequestType.WithdrawalOrReturn
-      )
-      exportRequestTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRequestType](
-        "error.exportRequestType.invalid-option"
-      )
+
+      forAll(exportRequestTypeGen, stringGen) { (requestType, invalidInput) =>
+        exportRequestTypeMapping.bind(Map("" -> requestType.toString)) shouldBe Right(requestType)
+
+        exportRequestTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ExportRequestType](
+          "error.exportRequestType.invalid-option"
+        )
+      }
+
       exportRequestTypeMapping.bind(Map()) should haveOnlyError[ExportRequestType](
         "error.exportRequestType.required"
       )
     }
 
     "validate import requestType" in {
-      importRequestTypeMapping.bind(Map("" -> "New")) shouldBe Right(ImportRequestType.New)
-      importRequestTypeMapping.bind(Map("" -> "Cancellation")) shouldBe Right(ImportRequestType.Cancellation)
-      importRequestTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportRequestType](
-        "error.importRequestType.invalid-option"
-      )
+
+      forAll(importRequestTypeGen, stringGen) { (requestType, invalidInput) =>
+        importRequestTypeMapping.bind(Map("" -> requestType.toString)) shouldBe Right(requestType)
+
+        importRequestTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ImportRequestType](
+          "error.importRequestType.invalid-option"
+        )
+      }
+
       importRequestTypeMapping.bind(Map()) should haveOnlyError[ImportRequestType](
         "error.importRequestType.required"
       )
     }
 
     "validate export routeType" in {
-      exportRouteTypeMapping.bind(Map("" -> "Route1")) shouldBe Right(ExportRouteType.Route1)
-      exportRouteTypeMapping.bind(Map("" -> "Route1Cap")) shouldBe Right(ExportRouteType.Route1Cap)
-      exportRouteTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ExportRouteType.Route2)
-      exportRouteTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ExportRouteType.Route3)
-      exportRouteTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ExportRouteType.Route6)
-      exportRouteTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ExportRouteType.Hold)
-      exportRouteTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportRouteType](
-        "error.exportRouteType.invalid-option"
-      )
+
+      forAll(exportRouteTypeGen, stringGen) { (routeType, invalidInput) =>
+        exportRouteTypeMapping.bind(Map("" -> routeType.toString)) shouldBe Right(routeType)
+
+        exportRouteTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ExportRouteType](
+          "error.exportRouteType.invalid-option"
+        )
+      }
+
       exportRouteTypeMapping.bind(Map()) should haveOnlyError[ExportRouteType](
         "error.exportRouteType.required"
       )
     }
 
     "validate import routeType" in {
-      importRouteTypeMapping.bind(Map("" -> "Route1")) shouldBe Right(ImportRouteType.Route1)
-      importRouteTypeMapping.bind(Map("" -> "Route1Cap")) shouldBe Right(ImportRouteType.Route1Cap)
-      importRouteTypeMapping.bind(Map("" -> "Route2")) shouldBe Right(ImportRouteType.Route2)
-      importRouteTypeMapping.bind(Map("" -> "Route3")) shouldBe Right(ImportRouteType.Route3)
-      importRouteTypeMapping.bind(Map("" -> "Route6")) shouldBe Right(ImportRouteType.Route6)
-      importRouteTypeMapping.bind(Map("" -> "Hold")) shouldBe Right(ImportRouteType.Hold)
-      importRouteTypeMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportRouteType](
-        "error.importRouteType.invalid-option"
-      )
+
+      forAll(importRouteTypeGen, stringGen) { (routeType, invalidInput) =>
+        importRouteTypeMapping.bind(Map("" -> routeType.toString)) shouldBe Right(routeType)
+
+        importRouteTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ImportRouteType](
+          "error.importRouteType.invalid-option"
+        )
+      }
+
       importRouteTypeMapping.bind(Map()) should haveOnlyError[ImportRouteType](
         "error.importRouteType.required"
       )
     }
 
     "validate import reason text" in {
-      val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
-      importReasonTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
-      importReasonTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
-      importReasonTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      importReasonTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
-      importReasonTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
-      importReasonTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
-      importReasonTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+
+      forAll(stringGen.suchThat(_.length <= 1024)) { input =>
+        importReasonTextMapping.bind(Map("" -> input)) shouldBe Right(input)
+      }
+
+      importReasonTextMapping.bind(Map("" -> textGreaterThan(1024))) should haveOnlyError(
         "error.import.reason-text.invalid-length"
       )
+
       importReasonTextMapping.bind(Map("" -> "")) should haveOnlyError(
         "error.import.reason-text.required"
       )
     }
 
     "validate export reason text" in {
-      val textGreaterThan1024 = Random.alphanumeric.take(1025).mkString
-      exportReasonTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
-      exportReasonTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
-      exportReasonTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      exportReasonTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
-      exportReasonTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
-      exportReasonTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
-      exportReasonTextMapping.bind(Map("" -> textGreaterThan1024)) should haveOnlyError(
+
+      forAll(stringGen.suchThat(_.length <= 1024)) { input =>
+        exportReasonTextMapping.bind(Map("" -> input)) shouldBe Right(input)
+      }
+
+      exportReasonTextMapping.bind(Map("" -> textGreaterThan(1024))) should haveOnlyError(
         "error.export.reason-text.invalid-length"
       )
       exportReasonTextMapping.bind(Map("" -> "")) should haveOnlyError(
@@ -255,142 +217,167 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate export hasPriorityGoods" in {
-      exportHasPriorityGoodsMapping.bind(Map("" -> "yes")) shouldBe Right(true)
-      exportHasPriorityGoodsMapping.bind(Map("" -> "no")) shouldBe Right(false)
+
+      forAll(yesNoGen) { input =>
+        exportHasPriorityGoodsMapping.bind(Map("" -> input)) shouldBe Right(yesNoConversion(input))
+      }
+
       exportHasPriorityGoodsMapping.bind(Map()) should haveOnlyError[Boolean]("error.exportHasPriorityGoods.required")
     }
 
     "validate import hasPriorityGoods" in {
-      importHasPriorityGoodsMapping.bind(Map("" -> "yes")) shouldBe Right(true)
-      importHasPriorityGoodsMapping.bind(Map("" -> "no")) shouldBe Right(false)
+
+      forAll(yesNoGen) { input =>
+        importHasPriorityGoodsMapping.bind(Map("" -> input)) shouldBe Right(yesNoConversion(input))
+      }
+
       importHasPriorityGoodsMapping.bind(Map()) should haveOnlyError[Boolean]("error.importHasPriorityGoods.required")
     }
 
     "validate export priorityGoods" in {
-      exportPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ExportPriorityGoods.LiveAnimals)
-      exportPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ExportPriorityGoods.HumanRemains)
-      exportPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
-        ExportPriorityGoods.ExplosivesOrFireworks
-      )
-      exportPriorityGoodsMapping.bind(Map("" -> "Foo")) should haveOnlyError[ExportPriorityGoods](
-        "error.exportPriorityGoods.invalid-option"
-      )
+
+      forAll(exportPriorityGoodsGen, stringGen) { (priorityGood, invalidInput) =>
+        exportPriorityGoodsMapping.bind(Map("" -> priorityGood.toString)) shouldBe Right(priorityGood)
+
+        exportPriorityGoodsMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ExportPriorityGoods](
+          "error.exportPriorityGoods.invalid-option"
+        )
+      }
+
       exportPriorityGoodsMapping.bind(Map()) should haveOnlyError[ExportPriorityGoods](
         "error.exportPriorityGoods.required"
       )
     }
 
     "validate import priorityGoods" in {
-      importPriorityGoodsMapping.bind(Map("" -> "LiveAnimals")) shouldBe Right(ImportPriorityGoods.LiveAnimals)
-      importPriorityGoodsMapping.bind(Map("" -> "HumanRemains")) shouldBe Right(ImportPriorityGoods.HumanRemains)
-      importPriorityGoodsMapping.bind(Map("" -> "ExplosivesOrFireworks")) shouldBe Right(
-        ImportPriorityGoods.ExplosivesOrFireworks
-      )
-      importPriorityGoodsMapping.bind(Map("" -> "Foo")) should haveOnlyError[ImportPriorityGoods](
-        "error.importPriorityGoods.invalid-option"
-      )
+
+      forAll(importPriorityGoodsGen, stringGen) { (priorityGood, invalidInput) =>
+        importPriorityGoodsMapping.bind(Map("" -> priorityGood.toString)) shouldBe Right(priorityGood)
+
+        importPriorityGoodsMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ImportPriorityGoods](
+          "error.importPriorityGoods.invalid-option"
+        )
+      }
+
       importPriorityGoodsMapping.bind(Map()) should haveOnlyError[ImportPriorityGoods](
         "error.importPriorityGoods.required"
       )
     }
 
     "validate import hasALVS" in {
-      importHasALVSMapping.bind(Map("" -> "yes")) shouldBe Right(true)
-      importHasALVSMapping.bind(Map("" -> "no")) shouldBe Right(false)
+
+      forAll(yesNoGen) { input =>
+        importHasALVSMapping.bind(Map("" -> input)) shouldBe Right(yesNoConversion(input))
+      }
+
       importHasALVSMapping.bind(Map()) should haveOnlyError[Boolean]("error.importHasALVS.required")
     }
 
     "validate export freightType" in {
-      exportFreightTypeMapping.bind(Map("" -> "Air")) shouldBe Right(ExportFreightType.Air)
-      exportFreightTypeMapping.bind(Map("" -> "Maritime")) shouldBe Right(ExportFreightType.Maritime)
-      exportFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ExportFreightType.RORO)
+
+      forAll(exportFreightTypeGen, stringGen) { (freightType, invalidInput) =>
+        exportFreightTypeMapping.bind(Map("" -> freightType.toString)) shouldBe Right(freightType)
+        exportFreightTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ExportFreightType](
+          "error.exportFreightType.invalid-option"
+        )
+      }
+
       exportFreightTypeMapping.bind(Map()) should haveOnlyError[ExportFreightType]("error.exportFreightType.required")
     }
 
     "validate import freightType" in {
-      importFreightTypeMapping.bind(Map("" -> "Air")) shouldBe Right(ImportFreightType.Air)
-      importFreightTypeMapping.bind(Map("" -> "Maritime")) shouldBe Right(ImportFreightType.Maritime)
-      importFreightTypeMapping.bind(Map("" -> "RORO")) shouldBe Right(ImportFreightType.RORO)
+
+      forAll(importFreightTypeGen, stringGen) { (freightType, invalidInput) =>
+        importFreightTypeMapping.bind(Map("" -> freightType.toString)) shouldBe Right(freightType)
+        importFreightTypeMapping.bind(Map("" -> invalidInput)) should haveOnlyError[ImportFreightType](
+          "error.importFreightType.invalid-option"
+        )
+      }
+
       importFreightTypeMapping.bind(Map()) should haveOnlyError[ImportFreightType]("error.importFreightType.required")
     }
 
     "validate mandatory vesselName" in {
-      mandatoryVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
-      mandatoryVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
-      mandatoryVesselNameMapping.bind(Map("" -> " Shipley & West-Yorkshire")) shouldBe Right(
-        Some("Shipley & West-Yorkshire")
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
-      mandatoryVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
-      mandatoryVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
-      mandatoryVesselNameMapping.bind(Map("" -> "")) should haveOnlyError[Option[String]](
-        "error.vesselName.required"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> " ")) should haveOnlyError[Option[String]](
-        "error.vesselName.required"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "  ")) should haveOnlyError[Option[String]](
-        "error.vesselName.required"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+
+      forAll(
+        stringGen,
+        allowedSpecialCharGen,
+        invalidSpecialCharGen
+      ) { (input, allowedSpecialChar, invalidSpecialChar) =>
+        val inputWithSpecialChar = input + allowedSpecialChar
+
+        mandatoryVesselNameMapping.bind(Map("" -> input)) shouldBe Right(Some(input.trim))
+
+        mandatoryVesselNameMapping.bind(Map("" -> inputWithSpecialChar)) shouldBe Right(
+          Some(inputWithSpecialChar.trim)
+        )
+        mandatoryVesselNameMapping.bind(Map("" -> (input + invalidSpecialChar))) should haveOnlyError[Option[String]](
+          "error.vesselName.invalid-characters"
+        )
+      }
+
+      mandatoryVesselNameMapping.bind(Map("" -> textGreaterThan(128))) should haveOnlyError[Option[String]](
         "error.vesselName.invalid-length"
       )
-      mandatoryVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      mandatoryVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
+
+      mandatoryVesselNameMapping.bind(Map("" -> "")) should haveOnlyError[Option[String]](
+        "error.vesselName.required"
       )
     }
 
     "validate optional vesselName" in {
-      optionalVesselNameMapping.bind(Map("" -> "Titanic")) shouldBe Right(Some("Titanic"))
-      optionalVesselNameMapping.bind(Map("" -> "Brian's boat ")) shouldBe Right(Some("Brian's boat"))
-      optionalVesselNameMapping.bind(Map("" -> " Shipley & West-Yorkshire")) shouldBe Right(
-        Some("Shipley & West-Yorkshire")
-      )
-      optionalVesselNameMapping.bind(Map("" -> "DINGY  123")) shouldBe Right(Some("DINGY 123"))
-      optionalVesselNameMapping.bind(Map("" -> "Me & You")) shouldBe Right(Some("Me & You"))
-      optionalVesselNameMapping.bind(Map("" -> "   Titanic  ")) shouldBe Right(Some("Titanic"))
-      optionalVesselNameMapping.bind(Map("" -> "")) shouldBe Right(None)
-      optionalVesselNameMapping.bind(Map("" -> " ")) shouldBe Right(None)
-      optionalVesselNameMapping.bind(Map("" -> "  ")) shouldBe Right(None)
-      optionalVesselNameMapping.bind(Map("" -> "                        ")) shouldBe Right(None)
-      optionalVesselNameMapping.bind(Map("" -> "                        A")) shouldBe Right(Some("A"))
-      optionalVesselNameMapping.bind(Map("" -> "X" * 129)) should haveOnlyError[Option[String]](
+
+      forAll(
+        stringGen,
+        allowedSpecialCharGen,
+        invalidSpecialCharGen
+      ) { (input, allowedSpecialChar, invalidSpecialChar) =>
+        val inputWithSpecialChar = input + allowedSpecialChar
+
+        optionalVesselNameMapping.bind(Map("" -> input)) shouldBe Right(Some(input.trim))
+
+        optionalVesselNameMapping.bind(Map("" -> inputWithSpecialChar)) shouldBe Right(
+          Some(inputWithSpecialChar.trim)
+        )
+        optionalVesselNameMapping.bind(Map("" -> (input + invalidSpecialChar))) should haveOnlyError[Option[String]](
+          "error.vesselName.invalid-characters"
+        )
+      }
+
+      optionalVesselNameMapping.bind(Map("" -> textGreaterThan(128))) should haveOnlyError[Option[String]](
         "error.vesselName.invalid-length"
       )
-      optionalVesselNameMapping.bind(Map("" -> "@X" * 65)) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      optionalVesselNameMapping.bind(Map("" -> "-+-")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      optionalVesselNameMapping.bind(Map("" -> "/")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      optionalVesselNameMapping.bind(Map("" -> "a$$$$$$$")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
-      optionalVesselNameMapping.bind(Map("" -> "B@d name")) should haveOnlyError[Option[String]](
-        "error.vesselName.invalid-characters"
-      )
+
+      optionalVesselNameMapping.bind(Map("" -> "")) shouldBe Right(None)
     }
 
     "validate mandatory dateOfArrival" in {
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "31")) shouldBe Right(Some(LocalDate.parse(s"$y-12-31")))
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "01", "day" -> "01")) shouldBe Right(Some(LocalDate.parse(s"$y-01-01")))
+
+      forAll(pastDateGen) { date =>
+        mandatoryDateOfArrivalMapping.bind(
+          Map(
+            "year"  -> date.getYear.toString,
+            "month" -> date.getMonthValue.toString,
+            "day"   -> date.getDayOfMonth.toString
+          )
+        ) shouldBe Right(Some(date))
+
+        mandatoryDateOfArrivalMapping
+          .bind(
+            Map("year" -> "", "month" -> date.getMonth.toString, "day" -> date.getDayOfMonth.toString)
+          ) should haveOnlyError(
+          "error.dateOfArrival.year.required"
+        )
+        mandatoryDateOfArrivalMapping
+          .bind(Map("year" -> "", "month" -> "", "day" -> date.getDayOfMonth.toString)) should haveOnlyError(
+          "error.dateOfArrival.month.required"
+        )
+        mandatoryDateOfArrivalMapping
+          .bind(Map("year" -> date.getYear.toString, "month" -> "", "day" -> "")) should haveOnlyError(
+          "error.dateOfArrival.day.required"
+        )
+      }
+
       mandatoryDateOfArrivalMapping.bind(Map()) should haveOnlyError[Option[LocalDate]](
         "error.dateOfArrival.all.required"
       )
@@ -398,91 +385,58 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         .bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
         "error.dateOfArrival.all.required"
       )
-      mandatoryDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
-        "error.dateOfArrival.all.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.year.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.month.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
-        "error.dateOfArrival.month.required"
-      )
-      mandatoryDateOfArrivalMapping
-        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
     }
 
     "validate optional dateOfArrival" in {
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "31")) shouldBe Right(
-        Some(LocalDate.parse(s"$y-12-31"))
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "01", "day" -> "01")) shouldBe Right(
-        Some(LocalDate.parse(s"$y-01-01"))
-      )
+
+      forAll(pastDateGen) { date =>
+        optionalDateOfArrivalMapping.bind(
+          Map(
+            "year"  -> date.getYear.toString,
+            "month" -> date.getMonthValue.toString,
+            "day"   -> date.getDayOfMonth.toString
+          )
+        ) shouldBe Right(Some(date))
+
+        optionalDateOfArrivalMapping
+          .bind(
+            Map("year" -> "", "month" -> date.getMonth.toString, "day" -> date.getDayOfMonth.toString)
+          ) should haveOnlyError(
+          "error.dateOfArrival.year.required"
+        )
+        optionalDateOfArrivalMapping
+          .bind(Map("year" -> "", "month" -> "", "day" -> date.getDayOfMonth.toString)) should haveOnlyError(
+          "error.dateOfArrival.month.required"
+        )
+        optionalDateOfArrivalMapping
+          .bind(Map("year" -> date.getYear.toString, "month" -> "", "day" -> "")) should haveOnlyError(
+          "error.dateOfArrival.day.required"
+        )
+      }
+
       optionalDateOfArrivalMapping.bind(Map()) shouldBe Right(None)
       optionalDateOfArrivalMapping
         .bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)
-      optionalDateOfArrivalMapping.bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.year.required"
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfArrival.month.required"
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
-        "error.dateOfArrival.month.required"
-      )
-
-      optionalDateOfArrivalMapping
-        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
-        "error.dateOfArrival.day.required"
-      )
     }
 
     "validate mandatory timeOfArrival" in {
-      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("12:00"))
-      )
-      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("00:00"))
-      )
-      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
+
+      forAll(hourGen, minutesGen) { (hours, minutes) =>
+        val formattedHours = f"$hours%02d"
+        val formattedMinutes = f"$minutes%02d"
+        mandatoryTimeOfArrivalMapping.bind(Map("hour" -> formattedHours, "minutes" -> formattedMinutes)) shouldBe Right(
+          Some(LocalTime.parse(s"$formattedHours:$formattedMinutes"))
+        )
+
+        mandatoryTimeOfArrivalMapping.bind(Map("hour" -> formattedHours, "minutes" -> "")) should haveOnlyError(
+          "error.timeOfArrival.minutes.required"
+        )
+        mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> formattedMinutes)) should haveOnlyError(
+          "error.timeOfArrival.hour.required"
+        )
+      }
+
+      mandatoryTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> "")) should haveOnlyError(
         "error.timeOfArrival.all.required"
       )
       mandatoryTimeOfArrivalMapping.bind(Map()) should haveOnlyError(
@@ -491,21 +445,53 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate optional timeOfArrival" in {
-      optionalTimeOfArrivalMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("00:00"))
-      )
-      optionalTimeOfArrivalMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("12:00"))
-      )
+
+      forAll(hourGen, minutesGen) { (hours, minutes) =>
+        val formattedHours = f"$hours%02d"
+        val formattedMinutes = f"$minutes%02d"
+        optionalTimeOfArrivalMapping.bind(Map("hour" -> formattedHours, "minutes" -> formattedMinutes)) shouldBe Right(
+          Some(LocalTime.parse(s"$formattedHours:$formattedMinutes"))
+        )
+
+        optionalTimeOfArrivalMapping.bind(Map("hour" -> formattedHours, "minutes" -> "")) should haveOnlyError(
+          "error.timeOfArrival.minutes.required"
+        )
+        optionalTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> formattedMinutes)) should haveOnlyError(
+          "error.timeOfArrival.hour.required"
+        )
+      }
+
       optionalTimeOfArrivalMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)
       optionalTimeOfArrivalMapping.bind(Map()) shouldBe Right(None)
     }
 
     "validate mandatory dateOfDeparture" in {
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "31")) shouldBe Right(Some(LocalDate.parse(s"$y-12-31")))
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "01", "day" -> "01")) shouldBe Right(Some(LocalDate.parse(s"$y-01-01")))
+
+      forAll(pastDateGen) { date =>
+        mandatoryDateOfDepartureMapping.bind(
+          Map(
+            "year"  -> date.getYear.toString,
+            "month" -> date.getMonthValue.toString,
+            "day"   -> date.getDayOfMonth.toString
+          )
+        ) shouldBe Right(Some(date))
+
+        mandatoryDateOfDepartureMapping
+          .bind(
+            Map("year" -> "", "month" -> date.getMonth.toString, "day" -> date.getDayOfMonth.toString)
+          ) should haveOnlyError(
+          "error.dateOfDeparture.year.required"
+        )
+        mandatoryDateOfDepartureMapping
+          .bind(Map("year" -> "", "month" -> "", "day" -> date.getDayOfMonth.toString)) should haveOnlyError(
+          "error.dateOfDeparture.month.required"
+        )
+        mandatoryDateOfDepartureMapping
+          .bind(Map("year" -> date.getYear.toString, "month" -> "", "day" -> "")) should haveOnlyError(
+          "error.dateOfDeparture.day.required"
+        )
+      }
+
       mandatoryDateOfDepartureMapping.bind(Map()) should haveOnlyError[Option[LocalDate]](
         "error.dateOfDeparture.all.required"
       )
@@ -513,91 +499,61 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
         .bind(Map("year" -> "", "month" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
         "error.dateOfDeparture.all.required"
       )
-      mandatoryDateOfDepartureMapping.bind(Map("year" -> "", "day" -> "")) should haveOnlyError[Option[LocalDate]](
-        "error.dateOfDeparture.all.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfDeparture.year.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfDeparture.month.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
-        "error.dateOfDeparture.month.required"
-      )
-      mandatoryDateOfDepartureMapping
-        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
     }
 
     "validate optional dateOfDeparture" in {
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "31")) shouldBe Right(
-        Some(LocalDate.parse(s"$y-12-31"))
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "01", "day" -> "01")) shouldBe Right(
-        Some(LocalDate.parse(s"$y-01-01"))
-      )
+
+      forAll(pastDateGen) { date =>
+        optionalDateOfDepartureMapping.bind(
+          Map(
+            "year"  -> date.getYear.toString,
+            "month" -> date.getMonthValue.toString,
+            "day"   -> date.getDayOfMonth.toString
+          )
+        ) shouldBe Right(Some(date))
+
+        optionalDateOfDepartureMapping
+          .bind(
+            Map("year" -> "", "month" -> date.getMonth.toString, "day" -> date.getDayOfMonth.toString)
+          ) should haveOnlyError(
+          "error.dateOfDeparture.year.required"
+        )
+        optionalDateOfDepartureMapping
+          .bind(Map("year" -> "", "month" -> "", "day" -> date.getDayOfMonth.toString)) should haveOnlyError(
+          "error.dateOfDeparture.month.required"
+        )
+        optionalDateOfDepartureMapping
+          .bind(Map("year" -> date.getYear.toString, "month" -> "", "day" -> "")) should haveOnlyError(
+          "error.dateOfDeparture.day.required"
+        )
+      }
+
       optionalDateOfDepartureMapping.bind(Map()) shouldBe Right(None)
       optionalDateOfDepartureMapping
         .bind(Map("year" -> "", "month" -> "", "day" -> "")) shouldBe Right(None)
       optionalDateOfDepartureMapping.bind(Map("year" -> "", "day" -> "")) shouldBe Right(None)
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "31")) should haveOnlyError(
-        "error.dateOfDeparture.year.required"
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "31")) should haveOnlyError(
-        "error.dateOfDeparture.month.required"
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> s"$y", "month" -> "", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "12", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> "", "month" -> "", "day" -> "00")) should haveOnlyError(
-        "error.dateOfDeparture.month.required"
-      )
-
-      optionalDateOfDepartureMapping
-        .bind(Map("year" -> "XX", "month" -> "13", "day" -> "")) should haveOnlyError(
-        "error.dateOfDeparture.day.required"
-      )
     }
 
     "validate mandatory timeOfDeparture" in {
-      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("12:00"))
-      )
-      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("00:00"))
-      )
-      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> " ")) should haveOnlyError(
+
+      forAll(hourGen, minutesGen) { (hours, minutes) =>
+        val formattedHours = f"$hours%02d"
+        val formattedMinutes = f"$minutes%02d"
+        mandatoryTimeOfDepartureMapping.bind(
+          Map("hour" -> formattedHours, "minutes" -> formattedMinutes)
+        ) shouldBe Right(
+          Some(LocalTime.parse(s"$formattedHours:$formattedMinutes"))
+        )
+
+        mandatoryTimeOfDepartureMapping.bind(Map("hour" -> formattedHours, "minutes" -> "")) should haveOnlyError(
+          "error.timeOfDeparture.minutes.required"
+        )
+        mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> formattedMinutes)) should haveOnlyError(
+          "error.timeOfDeparture.hour.required"
+        )
+      }
+
+      mandatoryTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> "")) should haveOnlyError(
         "error.timeOfDeparture.all.required"
       )
       mandatoryTimeOfDepartureMapping.bind(Map()) should haveOnlyError(
@@ -606,175 +562,157 @@ class FormFieldMappingsSpec extends UnitSpec with FormMappingMatchers {
     }
 
     "validate optional timeOfDeparture" in {
-      optionalTimeOfDepartureMapping.bind(Map("hour" -> "00", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("00:00"))
-      )
-      optionalTimeOfDepartureMapping.bind(Map("hour" -> "12", "minutes" -> "00")) shouldBe Right(
-        Some(LocalTime.parse("12:00"))
-      )
-      optionalTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> " ")) shouldBe Right(None)
+
+      forAll(hourGen, minutesGen) { (hours, minutes) =>
+        val formattedHours = f"$hours%02d"
+        val formattedMinutes = f"$minutes%02d"
+        optionalTimeOfDepartureMapping.bind(
+          Map("hour" -> formattedHours, "minutes" -> formattedMinutes)
+        ) shouldBe Right(
+          Some(LocalTime.parse(s"$formattedHours:$formattedMinutes"))
+        )
+
+        optionalTimeOfDepartureMapping.bind(Map("hour" -> formattedHours, "minutes" -> "")) should haveOnlyError(
+          "error.timeOfDeparture.minutes.required"
+        )
+        optionalTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> formattedMinutes)) should haveOnlyError(
+          "error.timeOfDeparture.hour.required"
+        )
+      }
+
+      optionalTimeOfDepartureMapping.bind(Map("hour" -> "", "minutes" -> "")) shouldBe Right(None)
       optionalTimeOfDepartureMapping.bind(Map()) shouldBe Right(None)
     }
 
     "validate import contactNameMapping" in {
-      importContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      importContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
-      importContactNameMapping.bind(Map("" -> "Test\u2061")) shouldBe Right(Some("Test"))
-      importContactNameMapping.bind(Map("" -> "Test\u0009Test")) shouldBe Right(Some("Test\u0009Test"))
+      forAll(stringGen) { validInput =>
+        whenever(validInput.length > 1) {
+          importContactNameMapping.bind(Map("" -> validInput)) shouldBe Right(Some(validInput))
+        }
+      }
+
+      importContactNameMapping.bind(Map("" -> textGreaterThan(128))) should haveOnlyError(
+        "error.contactName.invalid-length-long"
+      )
+      importContactNameMapping.bind(Map("" -> "a")) should haveOnlyError("error.contactName.invalid-length-short")
+      importContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
     }
 
     "validate export contactNameMapping" in {
-      exportContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
 
-      exportContactNameMapping.bind(Map("" -> "Full Name")) shouldBe Right(Some("Full Name"))
-      exportContactNameMapping.bind(Map("" -> "Test\u2061")) shouldBe Right(Some("Test"))
-      exportContactNameMapping.bind(Map("" -> "Test\u0009Test")) shouldBe Right(Some("Test\u0009Test"))
+      forAll(stringGen.suchThat(_.nonEmpty)) { validInput =>
+        whenever(validInput.length > 1) {
+          exportContactNameMapping.bind(Map("" -> validInput)) shouldBe Right(Some(validInput))
+        }
+      }
+
+      exportContactNameMapping.bind(Map("" -> textGreaterThan(128))) should haveOnlyError(
+        "error.contactName.invalid-length-long"
+      )
+      exportContactNameMapping.bind(Map("" -> "a")) should haveOnlyError("error.contactName.invalid-length-short")
+
+      exportContactNameMapping.bind(Map("" -> "")) shouldBe Right(None)
     }
 
     "validate import contactEmailMapping" in {
+
+      forAll(stringGen) { invalidEmail =>
+        importContactEmailMapping.bind(Map("" -> invalidEmail)) should haveOnlyError(
+          "error.contactEmail"
+        )
+      }
+
+      importContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
+
       importContactEmailMapping.bind(Map("" -> "")) should haveOnlyError(
         "error.contactEmail.required"
       )
-
-      importContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      importContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      importContactEmailMapping.bind(Map("" -> "12@c.c")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      importContactEmailMapping.bind(Map("" -> "12@c.ccccc")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      importContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
-      importContactEmailMapping.bind(Map("" -> "12@c.cc")) shouldBe Right("12@c.cc")
     }
 
     "validate export contactEmailMapping" in {
+
+      forAll(stringGen) { invalidEmail =>
+        exportContactEmailMapping.bind(Map("" -> invalidEmail)) should haveOnlyError(
+          "error.contactEmail"
+        )
+      }
+
+      exportContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
+
       exportContactEmailMapping.bind(Map("" -> "")) should haveOnlyError(
         "error.contactEmail.required"
       )
-
-      exportContactEmailMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      exportContactEmailMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactEmail"
-      )
-      exportContactEmailMapping.bind(Map("" -> "12@c.c")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      exportContactEmailMapping.bind(Map("" -> "12@c.ccccc")) should haveOnlyError(
-        "error.contactEmail"
-      )
-
-      exportContactEmailMapping.bind(Map("" -> "test@example.com")) shouldBe Right("test@example.com")
-      exportContactEmailMapping.bind(Map("" -> "12@c.cc")) shouldBe Right("12@c.cc")
     }
 
     "validate import contactNumberMapping" in {
 
+      forAll(invalidPhoneNumberGen) { invalidNumber =>
+        importContactNumberMapping.bind(Map("" -> textGreaterThan(10))) should haveOnlyError(
+          "error.contactNumber"
+        )
+        importContactNumberMapping.bind(Map("" -> invalidNumber)) should haveOnlyError(
+          "error.contactNumber"
+        )
+      }
+
+      importContactNumberMapping.bind(Map("" -> "07894561232")) shouldBe Right(Some("07894561232"))
+      importContactNumberMapping.bind(Map("" -> "+44113 2432111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "4411-3243-2111")) shouldBe Right(Some("01132432111"))
+      importContactNumberMapping.bind(Map("" -> "(0044)1132432111")) shouldBe Right(Some("01132432111"))
+
       importContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
-
-      importContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "0706897650")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "123456789876")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "01234567891a!")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      importContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
-      importContactNumberMapping.bind(Map("" -> "441132432111")) shouldBe Right(Some("01132432111"))
-      importContactNumberMapping.bind(Map("" -> "00441132432111")) shouldBe Right(Some("01132432111"))
-
-      importContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
-      importContactNumberMapping.bind(Map("" -> "07930487952")) shouldBe Right(Some("07930487952"))
-      importContactNumberMapping.bind(Map("" -> "07132 432111")) shouldBe Right(Some("07132432111"))
-      importContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331543211"))
     }
 
     "validate export contactNumberMapping" in {
 
+      forAll(invalidPhoneNumberGen) { invalidNumber =>
+        exportContactNumberMapping.bind(Map("" -> textGreaterThan(10))) should haveOnlyError(
+          "error.contactNumber"
+        )
+        exportContactNumberMapping.bind(Map("" -> invalidNumber)) should haveOnlyError(
+          "error.contactNumber"
+        )
+      }
+
+      exportContactNumberMapping.bind(Map("" -> "07894561232")) shouldBe Right(Some("07894561232"))
+      exportContactNumberMapping.bind(Map("" -> "+44113 2432111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "4411-3243-2111")) shouldBe Right(Some("01132432111"))
+      exportContactNumberMapping.bind(Map("" -> "(0044)1132432111")) shouldBe Right(Some("01132432111"))
+
       exportContactNumberMapping.bind(Map("" -> "")) shouldBe Right(None)
-
-      exportContactNumberMapping.bind(Map("" -> "12@")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "12")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "040 689 7650")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "0406897650")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "12@34567891")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "01234567891a!")) should haveOnlyError(
-        "error.contactNumber"
-      )
-
-      exportContactNumberMapping.bind(Map("" -> "+441132432111")) shouldBe Right(Some("01132432111"))
-      exportContactNumberMapping.bind(Map("" -> "441132432111")) shouldBe Right(Some("01132432111"))
-      exportContactNumberMapping.bind(Map("" -> "00441132432111")) shouldBe Right(Some("01132432111"))
-
-      exportContactNumberMapping.bind(Map("" -> "01132432111")) shouldBe Right(Some("01132432111"))
-      exportContactNumberMapping.bind(Map("" -> "01132 432111")) shouldBe Right(Some("01132432111"))
-      exportContactNumberMapping.bind(Map("" -> "07331 543211")) shouldBe Right(Some("07331543211"))
     }
 
     "validate case reference number mapping" in {
+
+      forAll(Gen.alphaNumStr.suchThat(str => str.nonEmpty && str.length != 22)) { invalidRef =>
+        caseReferenceNumberMapping.bind(Map("" -> invalidRef)) should haveOnlyError(
+          "error.caseReferenceNumber.invalid-value"
+        )
+      }
+
       caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000Z")) shouldBe Right("AA0000000000000000000Z")
       caseReferenceNumberMapping.bind(Map("" -> "")) should haveOnlyError("error.caseReferenceNumber.required")
-      caseReferenceNumberMapping.bind(Map("" -> "A")) should haveOnlyError("error.caseReferenceNumber.invalid-value")
-      caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000")) should haveOnlyError(
-        "error.caseReferenceNumber.invalid-value"
-      )
-      caseReferenceNumberMapping.bind(Map("" -> "AA0000000000000000000Z0")) should haveOnlyError(
-        "error.caseReferenceNumber.invalid-value"
-      )
     }
 
     "validate response text mapping" in {
-      responseTextMapping.bind(Map("" -> "test A")) shouldBe Right("test A")
-      responseTextMapping.bind(Map("" -> "test\u2061A")) shouldBe Right("testA")
-      responseTextMapping.bind(Map("" -> "abc")) shouldBe Right("abc")
-      responseTextMapping.bind(Map("" -> "abc\u0000d")) shouldBe Right("abcd")
-      responseTextMapping.bind(Map("" -> "test\u0041")) shouldBe Right("testA")
-      responseTextMapping.bind(Map("" -> "test\u0009A")) shouldBe Right("test\u0009A")
+
+      forAll(stringGen) { input =>
+        responseTextMapping.bind(Map("" -> input)) shouldBe Right(input)
+      }
+
+      responseTextMapping.bind(Map("" -> textGreaterThan(1000))) should haveOnlyError(
+        "error.responseText.invalid-length"
+      )
+      responseTextMapping.bind(Map("" -> "")) should haveOnlyError("error.responseText.required")
     }
 
     "validate all constraints" in {
-      FormFieldMappings.all(FormFieldMappings.nonEmpty("foo")).apply("a") shouldBe Valid
+
+      forAll(stringGen) { input =>
+        FormFieldMappings.all(FormFieldMappings.nonEmpty("foo")).apply(input) shouldBe Valid
+      }
+
       FormFieldMappings.all(FormFieldMappings.nonEmpty("foo")).apply("") shouldBe a[Invalid]
       FormFieldMappings
         .all(FormFieldMappings.nonEmpty("foo1"), FormFieldMappings.nonEmpty("foo2"))
