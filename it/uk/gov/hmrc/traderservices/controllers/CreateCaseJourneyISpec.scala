@@ -17,6 +17,7 @@ import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import java.time.temporal.{ChronoField, ChronoUnit}
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.libs.ws.DefaultWSCookie
+
 import scala.util.Random
 import play.api.libs.json.JsValue
 import play.api.libs.json.JsObject
@@ -34,6 +35,7 @@ import play.api.http.HeaderNames
 import play.api.libs.json.JsString
 import play.api.http.MimeTypes
 import play.api.libs.json.JsNumber
+import uk.gov.hmrc.http.SessionKeys
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -4047,6 +4049,23 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
     override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
   }
 
+  def sessionCookie(implicit journeyId: JourneyId) =
+    sessionCookieBaker
+      .encodeAsCookie(
+        Session(
+          Map(
+            journey.journeyKey    -> journeyId.value,
+            SessionKeys.authToken -> "Bearer XYZ"
+          )
+        )
+      )
+
+  def withHeaders(f: => StandaloneWSRequest): StandaloneWSRequest =
+    f.addHttpHeaders(
+      play.api.http.HeaderNames.USER_AGENT    -> "it-test",
+      play.api.http.HeaderNames.AUTHORIZATION -> "Bearer XYZ"
+    )
+
   final def fakeRequest(cookies: Cookie*)(implicit
     journeyId: JourneyId
   ): Request[AnyContent] =
@@ -4057,37 +4076,29 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   ): Request[AnyContent] =
     FakeRequest(Call(method, path))
       .withCookies(cookies: _*)
-      .withSession(journey.journeyKey -> journeyId.value)
+      .withSession(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")
 
-  final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
-    val sessionCookie =
-      sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
-    wsClient
-      .url(s"$baseUrl$path")
-      .withCookies(
-        DefaultWSCookie(
-          sessionCookie.name,
-          sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
+  final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest =
+    withHeaders {
+      wsClient
+        .url(s"$baseUrl$path")
+        .withCookies(
+          DefaultWSCookie(sessionCookie.name, sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value)
         )
-      )
-  }
+    }
 
   final def requestWithCookies(path: String, cookies: (String, String)*)(implicit
     journeyId: JourneyId
-  ): StandaloneWSRequest = {
-    val sessionCookie =
-      sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
-
-    wsClient
-      .url(s"$baseUrl$path")
-      .withCookies(
-        (cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
-          sessionCookie.name,
-          sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
-        )): _*
-      )
-  }
+  ): StandaloneWSRequest =
+    withHeaders {
+      wsClient
+        .url(s"$baseUrl$path")
+        .withCookies(
+          (cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
+            sessionCookie.name,
+            sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
+          )): _*
+        )
+    }
 
 }

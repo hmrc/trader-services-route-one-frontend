@@ -5,9 +5,9 @@ object AppDependencies {
     "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % "5.24.0",
     "uk.gov.hmrc"                  %% "auth-client"                % "5.8.0-play-28",
     "uk.gov.hmrc"                  %% "play-fsm"                   % "0.89.0-play-28",
-    "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"         % "0.59.0",
+    "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"         % "0.63.0",
     "uk.gov.hmrc"                  %% "json-encryption"            % "4.11.0-play-28",
-    "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "3.4.0-play-28",
+    "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "3.15.0-play-28",
     "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.31",
     "com.fasterxml.jackson.module" %% "jackson-module-scala"       % "2.12.5",
     "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
