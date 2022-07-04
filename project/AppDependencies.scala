@@ -2,7 +2,7 @@ import sbt._
 
 object AppDependencies {
   lazy val compileDeps = Seq(
-    "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % "5.20.0",
+    "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % "5.24.0",
     "uk.gov.hmrc"                  %% "auth-client"                % "5.8.0-play-28",
     "uk.gov.hmrc"                  %% "play-fsm"                   % "0.89.0-play-28",
     "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"         % "0.59.0",
