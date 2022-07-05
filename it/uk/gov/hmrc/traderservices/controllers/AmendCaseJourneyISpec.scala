@@ -1229,13 +1229,15 @@ class AmendCaseJourneyISpec
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(
-          request("/add/file-rejected").post(
-            Json.obj(
-              "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
-              "errorCode"    -> "EntityTooLarge",
-              "errorMessage" -> "Entity Too Large"
+          request("/add/file-rejected")
+            .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
+            .post(
+              Json.obj(
+                "key"          -> "2b72fe99-8adf-4edb-865e-622ae710f77c",
+                "errorCode"    -> "EntityTooLarge",
+                "errorMessage" -> "Entity Too Large"
+              )
             )
-          )
         )
 
         result.status shouldBe 201
