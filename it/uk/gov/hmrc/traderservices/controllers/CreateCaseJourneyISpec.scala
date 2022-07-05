@@ -1,39 +1,28 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.libs.json.Format
-import play.api.mvc.Session
+import akka.actor.ActorSystem
+import com.github.tomakehurst.wiremock.client.WireMock
+import play.api.http.{HeaderNames, MimeTypes}
+import play.api.libs.json._
+import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest}
+import play.api.mvc._
+import play.api.test.FakeRequest
 import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
+import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServicesResult}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyStateFormats
-import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
+import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, MongoDBCachedJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 
-import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import java.time.temporal.{ChronoField, ChronoUnit}
+import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.ws.DefaultWSCookie
 import scala.util.Random
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import com.github.tomakehurst.wiremock.client.WireMock
-import akka.actor.ActorSystem
-import uk.gov.hmrc.traderservices.connectors.FileTransferResult
-import play.api.test.FakeRequest
-import play.api.mvc.Cookie
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.AnyContent
-import play.api.libs.ws.StandaloneWSRequest
-import play.api.http.HeaderNames
-import play.api.libs.json.JsString
-import play.api.http.MimeTypes
-import play.api.libs.json.JsNumber
 
 class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
@@ -4062,9 +4051,13 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+        .encodeAsCookie(
+          Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ"))
+        )
+
     wsClient
       .url(s"$baseUrl$path")
+      .withHttpHeaders(HeaderNames.AUTHORIZATION -> "Bearer token")
       .withCookies(
         DefaultWSCookie(
           sessionCookie.name,
@@ -4078,10 +4071,11 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   ): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
 
     wsClient
       .url(s"$baseUrl$path")
+      .withHttpHeaders(HeaderNames.AUTHORIZATION -> "Bearer token")
       .withCookies(
         (cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
           sessionCookie.name,

@@ -32,6 +32,7 @@ import play.api.mvc.Call
 import play.api.mvc.Request
 import play.api.mvc.Cookie
 import play.api.mvc.AnyContent
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.traderservices.connectors.FileTransferResult
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
@@ -1784,12 +1785,12 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   ): Request[AnyContent] =
     FakeRequest(Call(method, path))
       .withCookies(cookies: _*)
-      .withSession(journey.journeyKey -> journeyId.value)
+      .withSession(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")
 
   final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
     wsClient
       .url(s"$baseUrl$path")
       .withCookies(
@@ -1805,7 +1806,7 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   ): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value)))
+        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
 
     wsClient
       .url(s"$baseUrl$path")
