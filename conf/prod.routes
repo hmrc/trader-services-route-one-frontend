@@ -1,4 +1,4 @@
-->         /send-documents-for-customs-check      app.Routes
+->         /send-documents-for-customs-check1      app.Routes
 ->         /                                      health.Routes
 
 GET        /admin/metrics        @com.kenshoo.play.metrics.MetricsController.metrics
