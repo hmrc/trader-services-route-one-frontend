@@ -4,28 +4,22 @@ import xsbti.{Position, Problem, Severity}
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
 import com.typesafe.sbt.packager
-
 import scala.io.Source
 import scala.sys.process.{Process, ProcessBuilder}
 import java.io.PrintWriter
 import java.nio.file.Paths
 import sbt.internal.util.ManagedLogger
 
-import scala.language.postfixOps
-
-/**
-  * Enables running NPM scripts, if a package.json file exists in the `packageJsonDirectory`.
-  * This directory is explicitly configured below.
+/** Enables running NPM scripts, if a package.json file exists in the `packageJsonDirectory`. This directory is
+  * explicitly configured below.
   *
-  * Example usage:
-  *     sbt "npm run build"
-  *     sbt "npm test"
+  * Example usage: sbt "npm run build" sbt "npm test"
   *
-  * This assumes that NPM is available, up-to-date, configured appropriately, etc. It makes not guarantees apart
-  * from being able to invoke NPM with arguments.
+  * This assumes that NPM is available, up-to-date, configured appropriately, etc. It makes not guarantees apart from
+  * being able to invoke NPM with arguments.
   *
-  * Additionally to this, there is some wiring to make 'npm test' run whenever 'sbt test' is run, and to
-  * run 'npm run build' when doing the dist command (which is part of the distTgz command run in Jenkins)
+  * Additionally to this, there is some wiring to make 'npm test' run whenever 'sbt test' is run, and to run 'npm run
+  * build' when doing the dist command (which is part of the distTgz command run in Jenkins)
   */
 object SbtNpm extends AutoPlugin {
 
@@ -42,20 +36,19 @@ object SbtNpm extends AutoPlugin {
   }
 
   import SbtWeb.autoImport._
-  import WebKeys._
   import autoImport.NpmKeys._
 
   override def projectSettings: Seq[Setting[_]] =
     inConfig(Assets)(
       Seq(
-        packageJsonDirectory := (WebKeys.assets / sourceDirectory).value,
+        packageJsonDirectory := (Assets / sourceDirectory).value,
         // this enables 'sbt "npm <args>"' commands
         commands ++= packageJsonDirectory(base => Seq(npmCommand(base))).value,
         npmInstall := {
           val logger: ManagedLogger = (Assets / streams).value.log
           val projectRoot: File = baseDirectory.value
           val nodeModulesDir = packageJsonDirectory.value / "node_modules"
-          if (nodeModulesDir.exists() && nodeModulesDir.isDirectory) {
+          if (nodeModulesDir.exists() && nodeModulesDir.isDirectory()) {
             logger.info(
               s"[sbt-npm] Folder ${nodeModulesDir.relativeTo(projectRoot).getOrElse(nodeModulesDir)} already exists."
             )

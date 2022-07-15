@@ -29,13 +29,34 @@ lazy val root = (project in file("."))
     publishingSettings,
     scoverageSettings,
     majorVersion := 0,
-    WebpackKeys.webpack / WebpackKeys.outputFileName := "javascripts/application.min.js",
-    WebpackKeys.webpack / WebpackKeys.entries := Seq("assets:javascripts/index.ts"),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     Compile / scalafmtOnCompile := true,
     Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
     Test / parallelExecution := false,
     Test / scalafmtOnCompile := true,
+    WebpackKeys.configurations := Seq(
+      WebpackConfig(
+        id = "js",
+        configFilePath = "webpack.javascript.config.js",
+        includeFilter = "*.js" || "*.ts",
+        inputs = Seq("javascripts/index.ts"),
+        output = "javascripts/application.min.js"
+      ),
+      WebpackConfig(
+        id = "css",
+        configFilePath = "webpack.stylesheet.config.js",
+        includeFilter = "*.scss" || "*.sass" || "*.css",
+        inputs = Seq("stylesheets/application.scss"),
+        output = "stylesheets/application.css"
+      ),
+      WebpackConfig(
+        id = "print",
+        configFilePath = "webpack.stylesheet.config.js",
+        includeFilter = "*.scss" || "*.sass" || "*.css",
+        inputs = Seq("stylesheets/print.scss"),
+        output = "stylesheets/print.css"
+      )
+    )
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
