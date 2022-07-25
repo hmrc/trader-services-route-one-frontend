@@ -9,7 +9,7 @@
     <logger name="uk.gov.hmrc.play" level="INFO"/>
     <logger name="uk.gov.hmrc.traderservices" level="${logger.uk.gov.hmrc.traderservices:-INFO}"/>
 
-    <logger name="application" level="${logger.application:-INFO}"/>
+    <logger name="application" level="INFO"/>
 
     <root level="${logger.root:-ERROR}">
         <appender-ref ref="STDOUT"/>
