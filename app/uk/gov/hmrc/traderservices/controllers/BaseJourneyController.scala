@@ -21,7 +21,7 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.bootstrap.controller.WithDefaultFormBinding
+import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.fsm.{JourneyController, JourneyIdSupport, JourneyService}
 import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -36,7 +36,7 @@ abstract class BaseJourneyController[S <: JourneyService[HeaderCarrier]](
   val authConnector: FrontendAuthConnector,
   val env: Environment,
   val config: Configuration
-) extends FrontendBaseController with WithDefaultFormBinding with I18nSupport with AuthActions
+) extends FrontendBaseController with WithUnsafeDefaultFormBinding with I18nSupport with AuthActions
     with JourneyController[HeaderCarrier] with JourneyIdSupport[HeaderCarrier] {
 
   final override val actionBuilder = controllerComponents.actionBuilder
