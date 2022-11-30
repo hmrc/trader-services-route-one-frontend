@@ -19,35 +19,22 @@ package uk.gov.hmrc.traderservices.connectors
 import play.api.libs.json.{Format, Json}
 import uk.gov.hmrc.traderservices.models.UploadRequest
 
-/**
-  * Response from Upscan Initiate.
-  * see: https://github.com/hmrc/upscan-initiate#post-upscanv2initiate
+/** Response from Upscan Initiate. see: https://github.com/hmrc/upscan-initiate#post-upscanv2initiate
   *
-  * @param reference Globally unique file reference for the upload. This reference can be used by the Upscan service team to view the progress and result of the journey through the different Upscan components. The consuming service can use this reference to correlate the subsequent upload result with this upscan initiation.
-  * @param uploadRequest Pre-filled template for the upload of the file
+  * @param reference
+  *   Globally unique file reference for the upload. This reference can be used by the Upscan service team to view the
+  *   progress and result of the journey through the different Upscan components. The consuming service can use this
+  *   reference to correlate the subsequent upload result with this upscan initiation.
+  * @param uploadRequest
+  *   Pre-filled template for the upload of the file
   *
   * @example
-  * <pre>
-  *  {
-  *   "reference": "11370e18-6e24-453e-b45a-76d3e32ea33d",
-  *   "uploadRequest": {
-  *       "href": "https://xxxx/upscan-upload-proxy/bucketName",
-  *       "fields": {
-  *           "Content-Type": "application/xml",
-  *           "acl": "private",
-  *           "key": "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  *           "policy": "xxxxxxxx==",
-  *           "x-amz-algorithm": "AWS4-HMAC-SHA256",
-  *           "x-amz-credential": "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request",
-  *           "x-amz-date": "yyyyMMddThhmmssZ",
-  *           "x-amz-meta-callback-url": "https://myservice.com/callback",
-  *           "x-amz-signature": "xxxx",
-  *           "success_action_redirect": "https://myservice.com/nextPage",
-  *           "error_action_redirect": "https://myservice.com/errorPage"
-  *       }
-  *     }
-  *   }
-  * </pre>
+  *   <pre> { "reference": "11370e18-6e24-453e-b45a-76d3e32ea33d", "uploadRequest": { "href":
+  *   "https://xxxx/upscan-upload-proxy/bucketName", "fields": { "Content-Type": "application/xml", "acl": "private",
+  *   "key": "xxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "policy": "xxxxxxxx==", "x-amz-algorithm": "AWS4-HMAC-SHA256",
+  *   "x-amz-credential": "ASIAxxxxxxxxx/20180202/eu-west-2/s3/aws4_request", "x-amz-date": "yyyyMMddThhmmssZ",
+  *   "x-amz-meta-callback-url": "https://myservice.com/callback", "x-amz-signature": "xxxx", "success_action_redirect":
+  *   "https://myservice.com/nextPage", "error_action_redirect": "https://myservice.com/errorPage" } } } </pre>
   */
 case class UpscanInitiateResponse(
   reference: String,

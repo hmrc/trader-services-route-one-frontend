@@ -22,16 +22,13 @@ import play.api.{Configuration, Environment, Mode}
 
 object CallOps {
 
-  /**
-    * Creates a URL string with localhost and port if running locally, for relative URLs
-    * Absolute URLs are unaffected
+  /** Creates a URL string with localhost and port if running locally, for relative URLs Absolute URLs are unaffected
     * Just passes through the URL as normal if running in a non-local environment
     */
   def localFriendlyUrl(env: Environment, config: Configuration)(url: String, hostAndPort: String) = {
-    val isLocalEnv = {
+    val isLocalEnv =
       if (env.mode.equals(Mode.Test)) false
       else config.getOptional[String]("run.mode").contains(Mode.Dev.toString)
-    }
 
     val uri = new URI(url)
 

@@ -63,8 +63,8 @@ class FileUploadedViewContext extends RadioItemsHelper with SummaryListRowHelper
       )
 
     SummaryList(
-      rows = fileUploads.files.collect { case a: FileUpload.Accepted => a }.zipWithIndex.map {
-        case (file, index) => fileUploadRow(file, index + 1)
+      rows = fileUploads.files.collect { case a: FileUpload.Accepted => a }.zipWithIndex.map { case (file, index) =>
+        fileUploadRow(file, index + 1)
       },
       classes = """govuk-summary-list govuk-!-margin-bottom-9"""
     )

@@ -45,14 +45,13 @@ trait Retries {
           } else
             Future.successful(result)
         )
-        .recoverWith {
-          case e: Throwable =>
-            if (remainingIntervals.nonEmpty && shouldRetry(Failure(e))) {
-              val delay = remainingIntervals.head
-              Logger(getClass).warn(s"Retrying in $delay due to ${e.getClass.getName()}: ${e.getMessage()}")
-              after(delay, actorSystem.scheduler)(loop(remainingIntervals.tail)(mdcData)(block))
-            } else
-              Future.failed(e)
+        .recoverWith { case e: Throwable =>
+          if (remainingIntervals.nonEmpty && shouldRetry(Failure(e))) {
+            val delay = remainingIntervals.head
+            Logger(getClass).warn(s"Retrying in $delay due to ${e.getClass.getName()}: ${e.getMessage()}")
+            after(delay, actorSystem.scheduler)(loop(remainingIntervals.tail)(mdcData)(block))
+          } else
+            Future.failed(e)
         }
     loop(intervals)(Mdc.mdcData)(block)
   }

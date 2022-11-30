@@ -35,9 +35,8 @@ abstract class ReadSuccessOrFailure[A: Reads](implicit mf: Manifest[A]) {
           implicitly[Reads[A]].reads(response.json) match {
             case JsSuccess(value, path) => HttpReads.pure(value)
             case JsError(errors) =>
-              HttpReads.ask.map {
-                case (method, url, response) =>
-                  throw new JsValidationException(method, url, mf.runtimeClass, errors.toString)
+              HttpReads.ask.map { case (method, url, response) =>
+                throw new JsValidationException(method, url, mf.runtimeClass, errors.toString)
               }
           }
         else

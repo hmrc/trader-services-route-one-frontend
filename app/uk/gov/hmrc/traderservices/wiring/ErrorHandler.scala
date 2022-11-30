@@ -86,7 +86,7 @@ class ErrorHandler @Inject() (
     auditServerError(request, exception)
     implicit val r: Request[String] = Request(request, "")
     exception match {
-      case _: NoActiveSession             => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
+      case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments      => Forbidden
       case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
       case _ =>

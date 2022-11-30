@@ -21,8 +21,7 @@ import java.util.function.UnaryOperator
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Basic in-memory store used to test journeys.
+/** Basic in-memory store used to test journeys.
   */
 trait InMemoryStore[Entity] {
 

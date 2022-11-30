@@ -18,14 +18,15 @@ package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json.{Format, Json}
 
-/**
-  * Details of the S3 file upload success.
+/** Details of the S3 file upload success.
   *
-  * The query parameter named key contains the globally unique file reference
-  * that was allocated by the initiate request to identify the upload.
+  * The query parameter named key contains the globally unique file reference that was allocated by the initiate request
+  * to identify the upload.
   *
-  * @param key file upload reference
-  * @param bucket upscan inbound bucket name, optional
+  * @param key
+  *   file upload reference
+  * @param bucket
+  *   upscan inbound bucket name, optional
   */
 case class S3UploadSuccess(
   key: String,

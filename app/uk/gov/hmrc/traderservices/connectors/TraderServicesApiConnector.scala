@@ -28,8 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import akka.actor.ActorSystem
 import scala.concurrent.duration._
 
-/**
-  * Connects to the backend trader-services-route-one service API.
+/** Connects to the backend trader-services-route-one service API.
   */
 @Singleton
 class TraderServicesApiConnector @Inject() (
@@ -55,9 +54,8 @@ class TraderServicesApiConnector @Inject() (
             new URL(baseUrl + createCaseApiPath).toExternalForm,
             request
           )
-          .recoverWith {
-            case e: Throwable =>
-              Future.failed(TraderServicesApiError(e))
+          .recoverWith { case e: Throwable =>
+            Future.failed(TraderServicesApiError(e))
           }
       }
     }
@@ -71,9 +69,8 @@ class TraderServicesApiConnector @Inject() (
           new URL(baseUrl + updateCaseApiPath).toExternalForm,
           request
         )
-        .recoverWith {
-          case e: Throwable =>
-            Future.failed(TraderServicesAmendApiError(e))
+        .recoverWith { case e: Throwable =>
+          Future.failed(TraderServicesAmendApiError(e))
         }
     }
 

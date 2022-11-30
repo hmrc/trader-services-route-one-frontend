@@ -44,12 +44,13 @@ object Port {
 
   private def available(p: Int): Boolean = {
     var socket: ServerSocket = null
-    try if (!usedPorts.contains(p)) {
-      socket = new ServerSocket(p)
-      socket.setReuseAddress(true)
-      true
-    } else
-      false
+    try
+      if (!usedPorts.contains(p)) {
+        socket = new ServerSocket(p)
+        socket.setReuseAddress(true)
+        true
+      } else
+        false
     catch {
       case t: Throwable => false
     } finally if (socket != null) socket.close()

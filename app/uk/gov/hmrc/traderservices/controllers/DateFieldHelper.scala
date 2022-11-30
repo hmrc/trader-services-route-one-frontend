@@ -75,64 +75,62 @@ object DateFieldHelper {
     (y, m, d)
   }
 
-  val reorder: Function[(String, String, String), Option[(String, String, String)]] = {
-    case (y, m, d) => Some((d, m, y))
+  val reorder: Function[(String, String, String), Option[(String, String, String)]] = { case (y, m, d) =>
+    Some((d, m, y))
   }
 
-  val normalizeDateFields: ((String, String, String)) => (String, String, String) = {
-    case (y, m, d) =>
-      if (y.isEmpty && m.isEmpty && d.isEmpty) (y, m, d)
-      else {
-        val year =
-          if (y.isEmpty) "" else if (y.length == 2) "20" + y else if (y.length > 4) dropLeadindZeroes(y, 4) else y
-        val month =
-          if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
-        val day =
-          if (d.isEmpty) "" else if (d.length == 1) "0" + d else if (d.length > 2) dropLeadindZeroes(d, 2) else d
-        (year, month, day)
-      }
+  val normalizeDateFields: ((String, String, String)) => (String, String, String) = { case (y, m, d) =>
+    if (y.isEmpty && m.isEmpty && d.isEmpty) (y, m, d)
+    else {
+      val year =
+        if (y.isEmpty) "" else if (y.length == 2) "20" + y else if (y.length > 4) dropLeadindZeroes(y, 4) else y
+      val month =
+        if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
+      val day =
+        if (d.isEmpty) "" else if (d.length == 1) "0" + d else if (d.length > 2) dropLeadindZeroes(d, 2) else d
+      (year, month, day)
+    }
   }
 
   def validDateFields(fieldName: String, required: Boolean): Constraint[(String, String, String)] =
-    Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") {
-      case (y, m, d) =>
-        if (y.isEmpty && m.isEmpty && d.isEmpty)
-          if (required) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.all.required")))
-          else Valid
-        else if (d.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.required")))
-        else if (m.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.required")))
-        else if (y.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.required")))
-        else if (atLeastTwoOfThree(!isValidDay(d, m, y), !isValidMonth(m), !isValidYear(y)))
-          Invalid(
-            ValidationError(
-              Seq(
-                s"subfieldFocus=${if (!isValidDay(d, m, y)) "day" else if (!isValidMonth(m)) "month" else "year"}",
-                s"error.$fieldName.all.invalid-value"
-              )
-            )
-          )
-        else if (!isValidDay(d, m, y))
-          Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-value")))
-        else if (!isValidMonth(m))
-          Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value")))
-        else if (!isValidYear(y))
-          Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
-        else if (atLeastTwoOfThree(!d.forall(_.isDigit), !m.forall(_.isDigit), !y.forall(_.isDigit)))
-          Invalid(
-            ValidationError(
-              Seq(
-                s"subfieldFocus=${if (!d.forall(_.isDigit)) "day" else if (!m.forall(_.isDigit)) "month" else "year"}",
-                s"error.$fieldName.all.invalid-digits"
-              )
-            )
-          )
-        else if (!d.forall(_.isDigit))
-          Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
-        else if (!m.forall(_.isDigit))
-          Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
-        else if (!y.forall(_.isDigit))
-          Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
+    Constraint[(String, String, String)](s"constraint.$fieldName.date-fields") { case (y, m, d) =>
+      if (y.isEmpty && m.isEmpty && d.isEmpty)
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.all.required")))
         else Valid
+      else if (d.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.required")))
+      else if (m.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.required")))
+      else if (y.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.required")))
+      else if (atLeastTwoOfThree(!isValidDay(d, m, y), !isValidMonth(m), !isValidYear(y)))
+        Invalid(
+          ValidationError(
+            Seq(
+              s"subfieldFocus=${if (!isValidDay(d, m, y)) "day" else if (!isValidMonth(m)) "month" else "year"}",
+              s"error.$fieldName.all.invalid-value"
+            )
+          )
+        )
+      else if (!isValidDay(d, m, y))
+        Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-value")))
+      else if (!isValidMonth(m))
+        Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value")))
+      else if (!isValidYear(y))
+        Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
+      else if (atLeastTwoOfThree(!d.forall(_.isDigit), !m.forall(_.isDigit), !y.forall(_.isDigit)))
+        Invalid(
+          ValidationError(
+            Seq(
+              s"subfieldFocus=${if (!d.forall(_.isDigit)) "day" else if (!m.forall(_.isDigit)) "month" else "year"}",
+              s"error.$fieldName.all.invalid-digits"
+            )
+          )
+        )
+      else if (!d.forall(_.isDigit))
+        Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
+      else if (!m.forall(_.isDigit))
+        Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
+      else if (!y.forall(_.isDigit))
+        Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
+      else Valid
     }
 
   def atLeastTwoOfThree(a: Boolean, b: Boolean, c: Boolean): Boolean = (a && b) || (b && c) || (a && c)

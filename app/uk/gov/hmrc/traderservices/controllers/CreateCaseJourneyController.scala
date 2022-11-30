@@ -370,9 +370,7 @@ class CreateCaseJourneyController @Inject() (
   /** Initial time to wait for callback arrival. */
   final val INITIAL_CALLBACK_WAIT_TIME_SECONDS = 2
 
-  /**
-    * This cookie is set by the script on each request
-    * coming from one of our own pages open in the browser.
+  /** This cookie is set by the script on each request coming from one of our own pages open in the browser.
     */
   final val COOKIE_JSENABLED = "jsenabled"
 
@@ -500,8 +498,8 @@ class CreateCaseJourneyController @Inject() (
       .transform {
         case r if r.header.status < 400 => NoContent
       }
-      .recover {
-        case e => InternalServerError
+      .recover { case e =>
+        InternalServerError
       }
 
   // GET /new/file-uploaded
@@ -587,9 +585,7 @@ class CreateCaseJourneyController @Inject() (
       .show[State.CaseAlreadySubmitted.type]
       .orRollback
 
-  /**
-    * Function from the `State` to the `Call` (route),
-    * used by play-fsm internally to create redirects.
+  /** Function from the `State` to the `Call` (route), used by play-fsm internally to create redirects.
     */
   final override def getCallFor(state: State)(implicit request: Request[_]): Call =
     state match {
@@ -705,9 +701,7 @@ class CreateCaseJourneyController @Inject() (
 
   import uk.gov.hmrc.play.fsm.OptionalFormOps._
 
-  /**
-    * Function from the `State` to the `Result`,
-    * used by play-fsm internally to render the actual content.
+  /** Function from the `State` to the `Result`, used by play-fsm internally to render the actual content.
     */
   final override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
@@ -1142,7 +1136,7 @@ class CreateCaseJourneyController @Inject() (
                   case _ =>
                     HeaderNames.CONTENT_DISPOSITION ->
                       s"""inline; filename="${fileName.filter(_.toInt < 128)}"; filename*=utf-8''${RFC3986Encoder
-                        .encode(fileName)}"""
+                          .encode(fileName)}"""
                 }
             )
 
@@ -1153,15 +1147,14 @@ class CreateCaseJourneyController @Inject() (
 
   private def acknowledgeFileUploadRedirect =
     Renderer
-      .simple {
-        case state =>
-          (state match {
-            case _: FileUploadState.UploadMultipleFiles        => Created
-            case _: FileUploadState.FileUploaded               => Created
-            case _: FileUploadState.WaitingForFileVerification => Accepted
-            case _                                             => NoContent
-          })
-            .withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
+      .simple { case state =>
+        (state match {
+          case _: FileUploadState.UploadMultipleFiles        => Created
+          case _: FileUploadState.FileUploaded               => Created
+          case _: FileUploadState.WaitingForFileVerification => Accepted
+          case _                                             => NoContent
+        })
+          .withHeaders(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN -> "*")
       }
 
   private val renderConfirmationReceiptHtml =

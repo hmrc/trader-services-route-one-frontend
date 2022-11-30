@@ -393,8 +393,8 @@ class InvalidMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServic
   // Invalid state format
   override val stateFormats: Format[Int] =
     Format(
-      Reads {
-        case json => JsError(s"Expected error")
+      Reads { case json =>
+        JsError(s"Expected error")
       },
       Writes.apply(entity => JsString(entity.toString()))
     )
@@ -630,8 +630,8 @@ trait MongoDBCachedJourneyServiceISpecSetup extends AppISpec {
     override val root: Int = 0
 
     def modify(f: Int => Int) =
-      Transition {
-        case i => goto(f(i))
+      Transition { case i =>
+        goto(f(i))
       }
 
     val notAllowed =
@@ -646,7 +646,7 @@ trait MongoDBCachedJourneyServiceISpecSetup extends AppISpec {
       Format(
         Reads {
           case JsNumber(value) if value >= 0 => JsSuccess(from(value))
-          case json                          => JsError(s"Expected non-negative json number but got ${json.getClass.getSimpleName}")
+          case json => JsError(s"Expected non-negative json number but got ${json.getClass.getSimpleName}")
         },
         Writes.apply(entity => JsNumber(to(entity)))
       )

@@ -38,15 +38,14 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       Enrolment(serviceName)
         and AuthProviders(GovernmentGateway)
     )
-      .retrieve(credentials and authorisedEnrolments) {
-        case credentials ~ enrolments =>
-          val id = for {
-            enrolment  <- enrolments.getEnrolment(serviceName)
-            identifier <- enrolment.getIdentifier(identifierKey)
-          } yield identifier.value
+      .retrieve(credentials and authorisedEnrolments) { case credentials ~ enrolments =>
+        val id = for {
+          enrolment  <- enrolments.getEnrolment(serviceName)
+          identifier <- enrolment.getIdentifier(identifierKey)
+        } yield identifier.value
 
-          id.map(x => body((credentials.map(_.providerId), Some(x))))
-            .getOrElse(throw InsufficientEnrolments())
+        id.map(x => body((credentials.map(_.providerId), Some(x))))
+          .getOrElse(throw InsufficientEnrolments())
       }
       .recover(handleFailure)
 

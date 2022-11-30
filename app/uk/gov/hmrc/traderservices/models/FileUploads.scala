@@ -46,17 +46,16 @@ case class FileUploads(
     files.find(_.reference == reference)
 
   def toUploadedFiles: Seq[UploadedFile] =
-    files.collect {
-      case f: FileUpload.Accepted =>
-        UploadedFile(
-          f.reference,
-          f.url,
-          f.uploadTimestamp,
-          f.checksum,
-          f.fileName,
-          f.fileMimeType,
-          f.fileSize
-        )
+    files.collect { case f: FileUpload.Accepted =>
+      UploadedFile(
+        f.reference,
+        f.url,
+        f.uploadTimestamp,
+        f.checksum,
+        f.fileName,
+        f.fileMimeType,
+        f.fileSize
+      )
     }
 
   def +(file: FileUpload): FileUploads = copy(files = files :+ file)
@@ -68,9 +67,8 @@ case class FileUploads(
     }
 
   def findReferenceAndUploadRequestForUploadId(uploadId: String): Option[(String, UploadRequest)] =
-    files.collectFirst {
-      case FileUpload.Initiated(_, _, reference, Some(uploadRequest), Some(`uploadId`)) =>
-        (reference, uploadRequest)
+    files.collectFirst { case FileUpload.Initiated(_, _, reference, Some(uploadRequest), Some(`uploadId`)) =>
+      (reference, uploadRequest)
     }
 
   def filterOutInitiated: FileUploads =
@@ -114,9 +112,8 @@ object FileUpload extends SealedTraitFormats[FileUpload] {
       case name                     => name
     }
 
-  /**
-    * Status when file upload attributes has been requested from upscan-initiate
-    * but the file itself has not been yet transmitted to S3 bucket.
+  /** Status when file upload attributes has been requested from upscan-initiate but the file itself has not been yet
+    * transmitted to S3 bucket.
     */
   case class Initiated(
     nonce: Nonce,

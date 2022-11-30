@@ -18,16 +18,21 @@ package uk.gov.hmrc.traderservices.connectors
 
 import play.api.libs.json.{Format, Json}
 
-/**
-  * Request to Upscan Initiate.
-  * see: https://github.com/hmrc/upscan-initiate#post-upscanv2initiate
+/** Request to Upscan Initiate. see: https://github.com/hmrc/upscan-initiate#post-upscanv2initiate
   *
-  * @param callbackUrl (required) Url that will be called to report the outcome of file checking and upload, including retrieval details if successful. Notification format is detailed further down in this file. Must be https.
-  * @param successRedirect (optional) Url to redirect to after file has been successfully uploaded
-  * @param errorRedirect (optional) Url to redirect to if error encountered during upload
-  * @param minimumFileSize (optional) Minimum file size (in Bytes). Default is 0
-  * @param maximumFileSize (optional) Maximum file size (in Bytes). Cannot be greater than 100MB. Default is 100MB
-  * @param expectedContentType (optional) MIME type describing the upload contents.
+  * @param callbackUrl
+  *   (required) Url that will be called to report the outcome of file checking and upload, including retrieval details
+  *   if successful. Notification format is detailed further down in this file. Must be https.
+  * @param successRedirect
+  *   (optional) Url to redirect to after file has been successfully uploaded
+  * @param errorRedirect
+  *   (optional) Url to redirect to if error encountered during upload
+  * @param minimumFileSize
+  *   (optional) Minimum file size (in Bytes). Default is 0
+  * @param maximumFileSize
+  *   (optional) Maximum file size (in Bytes). Cannot be greater than 100MB. Default is 100MB
+  * @param expectedContentType
+  *   (optional) MIME type describing the upload contents.
   */
 case class UpscanInitiateRequest(
   callbackUrl: String,

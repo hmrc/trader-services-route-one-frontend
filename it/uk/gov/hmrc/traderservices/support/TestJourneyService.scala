@@ -5,9 +5,8 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
-/**
-  * Intended to be mixed-in when binding a real service for integration testing,
-  * exposes protected service's methods to the test.
+/** Intended to be mixed-in when binding a real service for integration testing, exposes protected service's methods to
+  * the test.
   */
 trait TestJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 

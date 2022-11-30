@@ -22,7 +22,7 @@ object ImportFreightType extends EnumerationFormats[ImportFreightType] {
 
   case object Maritime extends ImportFreightType
   case object Air extends ImportFreightType
-  //Road, Rail or Roll on Roll off
+  // Road, Rail or Roll on Roll off
   case object RORO extends ImportFreightType
 
   val values = Set(Maritime, Air, RORO)

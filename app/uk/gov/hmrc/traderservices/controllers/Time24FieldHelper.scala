@@ -64,35 +64,33 @@ object Time24FieldHelper {
         { case Some(time) => isoTimeFormatter.format(time); case None => "" }
       )
 
-  val normalizeTimeFields: (String, String) => TimeParts = {
-    case (h, m) =>
-      if (h.isEmpty && m.isEmpty) (h, m)
-      else {
-        val hour =
-          if (h.isEmpty) "" else if (h.length == 1) "0" + h else if (h.length > 2) dropLeadindZeroes(h, 2) else h
-        val minutes =
-          if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
-        (hour, minutes)
-      }
+  val normalizeTimeFields: (String, String) => TimeParts = { case (h, m) =>
+    if (h.isEmpty && m.isEmpty) (h, m)
+    else {
+      val hour =
+        if (h.isEmpty) "" else if (h.length == 1) "0" + h else if (h.length > 2) dropLeadindZeroes(h, 2) else h
+      val minutes =
+        if (m.isEmpty) "" else if (m.length == 1) "0" + m else if (m.length > 2) dropLeadindZeroes(m, 2) else m
+      (hour, minutes)
+    }
   }
 
   def validTimeFields(fieldName: String, required: Boolean): Constraint[TimeParts] =
-    Constraint[TimeParts](s"constraint.$fieldName.time-fields") {
-      case (h, m) =>
-        if (h.isEmpty && m.isEmpty)
-          if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required")))
-          else Valid
-        else if (h.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.required")))
-        else if (m.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.required")))
-        else if (!h.forall(_.isDigit))
-          Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-digits")))
-        else if (!m.forall(_.isDigit))
-          Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-digits")))
-        else if (!isValidHour(h))
-          Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-value")))
-        else if (!isValidMinutes(m))
-          Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-value")))
+    Constraint[TimeParts](s"constraint.$fieldName.time-fields") { case (h, m) =>
+      if (h.isEmpty && m.isEmpty)
+        if (required) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.all.required")))
         else Valid
+      else if (h.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.required")))
+      else if (m.isEmpty) Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.required")))
+      else if (!h.forall(_.isDigit))
+        Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-digits")))
+      else if (!m.forall(_.isDigit))
+        Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-digits")))
+      else if (!isValidHour(h))
+        Invalid(ValidationError(Seq("subfieldFocus=hour", s"error.$fieldName.hour.invalid-value")))
+      else if (!isValidMinutes(m))
+        Invalid(ValidationError(Seq("subfieldFocus=minutes", s"error.$fieldName.minutes.invalid-value")))
+      else Valid
     }
 
   @tailrec

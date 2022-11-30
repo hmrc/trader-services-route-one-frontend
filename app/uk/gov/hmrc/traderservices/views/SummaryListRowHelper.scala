@@ -47,7 +47,7 @@ trait SummaryListRowHelper {
         content = HtmlContent(
           if (url.nonEmpty)
             s"<a class='govuk-link' href='${url.get}' target='_blank' rel='noopener noreferrer'>${if (escape) HtmlFormat.escape(value)
-            else value}</a>"
+              else value}</a>"
           else
             s"${if (escape) HtmlFormat.escape(value) else value}"
         ),
