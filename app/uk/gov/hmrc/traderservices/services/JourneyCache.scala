@@ -34,9 +34,8 @@ import akka.actor.PoisonPill
 import java.util.UUID
 import akka.pattern.ExplicitAskSupport
 
-/**
-  * Generic short-term journey state store based on hmrc-mongo cache.
-  * Internally employs an actor to make writes and reads sequential per each journeyId.
+/** Generic short-term journey state store based on hmrc-mongo cache. Internally employs an actor to make writes and
+  * reads sequential per each journeyId.
   */
 trait JourneyCache[T, C] extends ExplicitAskSupport {
 
@@ -68,10 +67,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   )(modification: T => Future[T])(implicit requestContext: C, ec: ExecutionContext): Future[T] =
     getJourneyId match {
       case Some(journeyId) =>
-        (
-          stateCacheActor
-            .ask(replyTo => (journeyId, Modify(modification, default), replyTo))
-          )
+        stateCacheActor
+          .ask(replyTo => (journeyId, Modify(modification, default), replyTo))
           .flatMap {
             case Right(entity: Any) =>
               Future.successful(entity.asInstanceOf[T])
@@ -79,11 +76,10 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             case Left(JsResultException(jsonErrors)) =>
               val error =
                 s"Encountered an issue with de-serialising JSON state from cache: ${jsonErrors
-                  .map {
-                    case (p, s) =>
+                    .map { case (p, s) =>
                       s"${if (p.toString().isEmpty()) "" else s"$p -> "}${s.map(_.message).mkString(", ")}"
-                  }
-                  .mkString(", ")}. \nCheck if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
+                    }
+                    .mkString(", ")}. \nCheck if all your states have relevant entries declared in the *JourneyStateFormats.serializeStateProperties and *JourneyStateFormats.deserializeState functions."
               Logger(getClass).error(error)
               Future.failed(new Exception(error))
 
@@ -104,10 +100,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   final def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[T]] =
     getJourneyId match {
       case Some(journeyId) =>
-        (
-          stateCacheActor
-            .ask(replyTo => (journeyId, Get, replyTo))
-          )
+        stateCacheActor
+          .ask(replyTo => (journeyId, Get, replyTo))
           .flatMap {
             case Right(entityOpt: Option[T]) =>
               Future.successful(entityOpt)
@@ -128,10 +122,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   final def save(input: T)(implicit requestContext: C, ec: ExecutionContext): Future[T] =
     getJourneyId match {
       case Some(journeyId) =>
-        (
-          stateCacheActor
-            .ask(replyTo => (journeyId, Store(input), replyTo))
-          )
+        stateCacheActor
+          .ask(replyTo => (journeyId, Store(input), replyTo))
           .flatMap {
             case Right(_) => input
             case Left(error: String) =>
@@ -151,10 +143,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
   final def clear()(implicit requestContext: C, ec: ExecutionContext): Future[Unit] =
     getJourneyId match {
       case Some(journeyId) =>
-        (
-          stateCacheActor
-            .ask(replyTo => (journeyId, Delete, replyTo))
-          )
+        stateCacheActor
+          .ask(replyTo => (journeyId, Delete, replyTo))
           .map(_ => ())
 
       case None =>
@@ -272,8 +262,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
           cacheRepository
             .put[T](journeyId)(DataKey(journeyKey), entity.asInstanceOf[T])(format)
             .map(ci => Result(Right(()), replyTo))
-            .recover {
-              case e => Result(Left(e.getMessage), replyTo)
+            .recover { case e =>
+              Result(Left(e.getMessage), replyTo)
             }
             .pipeTo(context.self)
         else
@@ -284,8 +274,8 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
           cacheRepository
             .deleteEntity(journeyId)
             .map(ci => Result(Right(()), replyTo))
-            .recover {
-              case e => Result(Left(e.getMessage), replyTo)
+            .recover { case e =>
+              Result(Left(e.getMessage), replyTo)
             }
             .pipeTo(context.self)
         else

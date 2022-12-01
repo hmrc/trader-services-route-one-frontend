@@ -30,9 +30,7 @@ import play.api.libs.json.JsValue
 import scala.io.AnsiColor
 import uk.gov.hmrc.play.fsm.PlayFsmUtils
 
-/**
-  * Journey persistence service mixin,
-  * stores encrypted serialized state using [[JourneyCache]].
+/** Journey persistence service mixin, stores encrypted serialized state using [[JourneyCache]].
   */
 trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 
@@ -100,7 +98,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           logger.debug(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           logger.debug(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(PlayFsmUtils.identityOf)}"
+                .map(PlayFsmUtils.identityOf)}"
           )
         }
         stateAndBreadcrumbs
@@ -129,7 +127,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
           logger.debug(s"${AnsiColor.CYAN}Current state: ${AnsiColor.RESET}${stateAndBreadcrumbs._1}")
           logger.debug(
             s"${AnsiColor.BLUE}Breadcrumbs: ${AnsiColor.RESET}${stateAndBreadcrumbs._2
-              .map(PlayFsmUtils.identityOf)}"
+                .map(PlayFsmUtils.identityOf)}"
           )
         }
         stateAndBreadcrumbs

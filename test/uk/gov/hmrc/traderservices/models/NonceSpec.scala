@@ -60,7 +60,7 @@ class NonceSpec extends UnitSpec {
 
     "do not compare to other entities" in {
       for (i <- Stream.continually(Random.nextInt).take(1000)) {
-        Nonce(i) should not be (s"$i")
+        Nonce(i) should not be s"$i"
         Nonce(i) should not be (i.toInt)
       }
     }

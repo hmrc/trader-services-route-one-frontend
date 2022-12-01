@@ -11,10 +11,8 @@ import java.util.Optional
 import scala.io.{AnsiColor, Source}
 import scala.sys.process.{Process, ProcessLogger}
 
-/**
-  * Runs `webpack` command in assets.
-  * Project's build has to define `entries` and `outputFileName` settings.
-  * Supports `skip` setting.
+/** Runs `webpack` command in assets. Project's build has to define `entries` and `outputFileName` settings. Supports
+  * `skip` setting.
   */
 object SbtWebpack extends AutoPlugin {
 
@@ -56,7 +54,7 @@ object SbtWebpack extends AutoPlugin {
       ((file: File) => {
         val path = file.getAbsolutePath
         path.contains("/node_modules/") ||
-          path.contains("/build/")
+        path.contains("/build/")
       }),
     WebpackKeys.webpack / includeFilter := "*.js" || "*.ts",
     WebpackKeys.webpack / resourceManaged := webTarget.value / "webpack" / "build",
@@ -146,7 +144,9 @@ object SbtWebpack extends AutoPlugin {
         if (!skip && modifiedSources.nonEmpty) {
           logger.info(s"""
                          |[sbt-webpack] Detected ${modifiedSources.size} changed files:
-                         |[sbt-webpack] - ${modifiedSources.map(f => f.relativeTo(projectRoot).getOrElse(f).toString).mkString("\n[sbt-webpack] - ")}
+                         |[sbt-webpack] - ${modifiedSources
+                          .map(f => f.relativeTo(projectRoot).getOrElse(f).toString)
+                          .mkString("\n[sbt-webpack] - ")}
            """.stripMargin.trim)
 
           val compiler = new Compiler(
@@ -280,9 +280,8 @@ object SbtWebpack extends AutoPlugin {
     def compile(): CompilationResult = {
       import sbt._
 
-      val entriesEnvs = entries.zipWithIndex.flatMap {
-        case (file, index) =>
-          Seq("--env", s"""entry.$index=${file.getAbsolutePath}""")
+      val entriesEnvs = entries.zipWithIndex.flatMap { case (file, index) =>
+        Seq("--env", s"""entry.$index=${file.getAbsolutePath}""")
       }
 
       val cmd = Seq(

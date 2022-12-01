@@ -27,8 +27,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Connects to the upscan-initiate service API.
+/** Connects to the upscan-initiate service API.
   */
 @Singleton
 class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
@@ -49,9 +48,8 @@ class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet wit
           new URL(baseUrl + upscanInitiatev2Path).toExternalForm,
           request
         )
-        .recoverWith {
-          case e: Throwable =>
-            Future.failed(UpscanInitiateError(e))
+        .recoverWith { case e: Throwable =>
+          Future.failed(UpscanInitiateError(e))
         }
     }
 

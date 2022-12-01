@@ -6,9 +6,7 @@ import uk.gov.hmrc.play.fsm.PersistentJourneyService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-/**
-  * Basic in-memory implementation of the journey service,
-  * facilitates integration testing without MongoDB.
+/** Basic in-memory implementation of the journey service, facilitates integration testing without MongoDB.
   */
 trait InMemoryJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
 

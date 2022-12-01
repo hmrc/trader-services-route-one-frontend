@@ -16,8 +16,9 @@ trait StateMatchers {
           MatchResult(
             false,
             s"State ${AnsiColor.CYAN}${PlayFsmUtils.identityOf(
-              expected
-            )}${AnsiColor.RESET} has been expected but got state ${AnsiColor.CYAN}${PlayFsmUtils.identityOf(obtained)}${AnsiColor.RESET}",
+                expected
+              )}${AnsiColor.RESET} has been expected but got state ${AnsiColor.CYAN}${PlayFsmUtils
+                .identityOf(obtained)}${AnsiColor.RESET}",
             s""
           )
         else {

@@ -872,8 +872,8 @@ class CreateCaseJourneyModelSpec
                          .diff(mandatoryReasonExportRequestType)
       ) {
         s"go to AnswerExportQuestionsOptionalVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
-          .keyOf(requestType)
-          .get} and require optional transport feature is turned on" in {
+            .keyOf(requestType)
+            .get} and require optional transport feature is turned on" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -902,8 +902,8 @@ class CreateCaseJourneyModelSpec
           )
         }
         s"go to AnswerExportQuestionsContactInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
-          .keyOf(requestType)
-          .get} and optional transport feature is turned off" in {
+            .keyOf(requestType)
+            .get} and optional transport feature is turned off" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -932,8 +932,8 @@ class CreateCaseJourneyModelSpec
           )
         }
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
-          .keyOf(requestType)
-          .get}, and all answers are complete" in {
+            .keyOf(requestType)
+            .get}, and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -971,8 +971,8 @@ class CreateCaseJourneyModelSpec
         requestType <- mandatoryVesselDetailsRequestTypes
       ) {
         s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
-          .keyOf(requestType)
-          .get}" in {
+            .keyOf(requestType)
+            .get}" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -1002,8 +1002,8 @@ class CreateCaseJourneyModelSpec
         }
 
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} and requestType is ${ExportRequestType
-          .keyOf(requestType)
-          .get}, and all answers are complete" in {
+            .keyOf(requestType)
+            .get}, and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -1031,8 +1031,8 @@ class CreateCaseJourneyModelSpec
         requestType <- ExportRequestType.values.diff(mandatoryReasonExportRequestType)
       ) {
         s"go to AnswerExportQuestionsMandatoryVesselInfo when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold" in {
+            .keyOf(requestType)
+            .get} when route is Hold" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -1062,8 +1062,8 @@ class CreateCaseJourneyModelSpec
         }
 
         s"go to ExportQuestionsSummary when submitted freight type ${ExportFreightType.keyOf(freightType).get} regardless of request type ${ExportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold and all answers are complete" in {
+            .keyOf(requestType)
+            .get} when route is Hold and all answers are complete" in {
           given(
             AnswerExportQuestionsFreightType(
               ExportQuestionsStateModel(
@@ -2345,8 +2345,8 @@ class CreateCaseJourneyModelSpec
         requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
       ) {
         s"go to AnswerImportQuestionsOptionalVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
-          .keyOf(requestType)
-          .get} and optional transport feature is turned on" in {
+            .keyOf(requestType)
+            .get} and optional transport feature is turned on" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -2376,8 +2376,8 @@ class CreateCaseJourneyModelSpec
         }
 
         s"go to AnswerImportQuestionsContactInfo when submitted freight type when freightType is ${ImportFreightType.keyOf(freightType).get} and request type is ${ImportRequestType
-          .keyOf(requestType)
-          .get} and optional transport feature is turned off" in {
+            .keyOf(requestType)
+            .get} and optional transport feature is turned off" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -2407,8 +2407,8 @@ class CreateCaseJourneyModelSpec
         }
 
         s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} and requestType is ${ImportRequestType
-          .keyOf(requestType)
-          .get}, and all answers are complete" in {
+            .keyOf(requestType)
+            .get}, and all answers are complete" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -2436,8 +2436,8 @@ class CreateCaseJourneyModelSpec
         requestType <- ImportRequestType.values.filterNot(_ == mandatoryReasonImportRequestType)
       ) {
         s"go to AnswerImportQuestionsMandatoryVesselInfo when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold" in {
+            .keyOf(requestType)
+            .get} when route is Hold" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(
@@ -2466,8 +2466,8 @@ class CreateCaseJourneyModelSpec
           )
         }
         s"go to ImportQuestionsSummary when submitted freight type ${ImportFreightType.keyOf(freightType).get} regardless of request type ${ImportRequestType
-          .keyOf(requestType)
-          .get} when route is Hold and all answers are complete" in {
+            .keyOf(requestType)
+            .get} when route is Hold and all answers are complete" in {
           given(
             AnswerImportQuestionsFreightType(
               ImportQuestionsStateModel(

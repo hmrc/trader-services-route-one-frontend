@@ -48,9 +48,7 @@ object CommonUtilsHelper {
         .toLocalDateTime()
   }
 
-  /**
-    * Mapping, folding and getOrElse on Option[String] for non-empty strings.
-    * Commonly used in the Twirl components.
+  /** Mapping, folding and getOrElse on Option[String] for non-empty strings. Commonly used in the Twirl components.
     *
     * @param optString
     */

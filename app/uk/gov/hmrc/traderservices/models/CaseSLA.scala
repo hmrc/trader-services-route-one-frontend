@@ -19,20 +19,14 @@ package uk.gov.hmrc.traderservices.models
 import play.api.libs.json.{Format, Json}
 import java.time.LocalDateTime
 
-/**
-  * An expected case response time.
+/** An expected case response time.
   *
-  * Route = Hold - do not show an SLA
-  * Route = anything other than Hold  - show SLA
+  * Route = Hold - do not show an SLA Route = anything other than Hold - show SLA
   *
-  * Air transportation exports = 2 hours
-  * RORO transportation exports = 2 hours
-  * Maritime exports = 2 hours
+  * Air transportation exports = 2 hours RORO transportation exports = 2 hours Maritime exports = 2 hours
   *
-  * Air transportation imports = 2 hours
-  * RORO transportation imports = 2 hours
-  * Maritime transportation imports (received before 15:00) = 3 hours
-  * Maritime transportation imports  (received after 15:00) = 08:00 the next day
+  * Air transportation imports = 2 hours RORO transportation imports = 2 hours Maritime transportation imports (received
+  * before 15:00) = 3 hours Maritime transportation imports (received after 15:00) = 08:00 the next day
   */
 case class CaseSLA(dateTime: Option[LocalDateTime])
 

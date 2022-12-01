@@ -13,19 +13,16 @@ import sbt.internal.util.ManagedLogger
 
 import scala.language.postfixOps
 
-/**
-  * Enables running NPM scripts, if a package.json file exists in the `packageJsonDirectory`.
-  * This directory is explicitly configured below.
+/** Enables running NPM scripts, if a package.json file exists in the `packageJsonDirectory`. This directory is
+  * explicitly configured below.
   *
-  * Example usage:
-  *     sbt "npm run build"
-  *     sbt "npm test"
+  * Example usage: sbt "npm run build" sbt "npm test"
   *
-  * This assumes that NPM is available, up-to-date, configured appropriately, etc. It makes not guarantees apart
-  * from being able to invoke NPM with arguments.
+  * This assumes that NPM is available, up-to-date, configured appropriately, etc. It makes not guarantees apart from
+  * being able to invoke NPM with arguments.
   *
-  * Additionally to this, there is some wiring to make 'npm test' run whenever 'sbt test' is run, and to
-  * run 'npm run build' when doing the dist command (which is part of the distTgz command run in Jenkins)
+  * Additionally to this, there is some wiring to make 'npm test' run whenever 'sbt test' is run, and to run 'npm run
+  * build' when doing the dist command (which is part of the distTgz command run in Jenkins)
   */
 object SbtNpm extends AutoPlugin {
 

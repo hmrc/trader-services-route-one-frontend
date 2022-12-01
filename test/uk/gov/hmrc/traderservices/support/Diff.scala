@@ -21,15 +21,18 @@ object Diff {
   def apply[A](left: A, right: A): String =
     new munit.internal.difflib.Diff(prettyPrint(left), prettyPrint(right)).createDiffOnlyReport()
 
-  /**
-    * Pretty prints a Scala value similar to its source represention.
+  /** Pretty prints a Scala value similar to its source represention.
     *
     * Credits: https://gist.github.com/carymrobbins/7b8ed52cd6ea186dbdf8
     *
-    * @param a - The value to pretty print.
-    * @param indentSize - Number of spaces for each indent.
-    * @param maxElementWidth - Largest element size before wrapping.
-    * @param depth - Initial depth to pretty print indents.
+    * @param a
+    *   \- The value to pretty print.
+    * @param indentSize
+    *   \- Number of spaces for each indent.
+    * @param maxElementWidth
+    *   \- Largest element size before wrapping.
+    * @param depth
+    *   \- Initial depth to pretty print indents.
     * @return
     */
   private def prettyPrint(a: Any, indentSize: Int = 2, maxElementWidth: Int = 30, depth: Int = 0): String = {

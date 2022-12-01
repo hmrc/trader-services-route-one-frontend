@@ -35,7 +35,7 @@ lazy val root = (project in file("."))
     Compile / scalafmtOnCompile := true,
     Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
     Test / parallelExecution := false,
-    Test / scalafmtOnCompile := true,
+    Test / scalafmtOnCompile := true
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
@@ -49,7 +49,7 @@ lazy val root = (project in file("."))
       "com.github.ghik" % "silencer-lib" % "1.7.9" % Provided cross CrossVersion.full
     )
   )
-  .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
+  .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
 
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
