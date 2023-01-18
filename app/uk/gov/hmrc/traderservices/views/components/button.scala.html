@@ -21,7 +21,7 @@
 @govukButton(
     Button(
         content = Text(messages(msg)),
-        preventDoubleClick = true,
+        preventDoubleClick = Some(true),
         attributes = Map("id" -> id.getOrElse("send-documents-for-customs-check-submit")) ++ (if(disableAfterClick)Map("data-disable-after-click" -> "true") else Map())
     )
 )

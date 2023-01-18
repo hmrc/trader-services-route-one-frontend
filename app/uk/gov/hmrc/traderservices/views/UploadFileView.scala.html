@@ -100,7 +100,7 @@ context: UploadFileViewContext
     <div>
       @govukButton(Button(
         content = Text(messages("form.upload-file.submit")),
-        preventDoubleClick = true,
+        preventDoubleClick = Some(true),
         classes = "file-upload__submit"
       ))
       <div class="file-upload__spinner ccms-loader hidden"></div>
