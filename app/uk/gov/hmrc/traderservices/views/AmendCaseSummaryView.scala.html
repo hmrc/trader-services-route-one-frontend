@@ -54,7 +54,7 @@
       <div>
         @govukButton(Button(
           content = Text(messages("form.amend-case.summary.continue")),
-          preventDoubleClick = true,       
+          preventDoubleClick = Some(true),
           classes = "case-summary__submit"
         ))
       </div>
