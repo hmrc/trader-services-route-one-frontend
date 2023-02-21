@@ -25,17 +25,38 @@ import uk.gov.hmrc.http._
 
 trait HttpErrorRateMeter {
   val kenshooRegistry: MetricRegistry
-  def meterName[T](serviceName: String, statusCode: Int): String =
-    if (statusCode >= 500) s"Http5xxErrorCount-$serviceName" else s"Http4xxErrorCount-$serviceName"
+  def meterName[T](serviceName: String, statusCode: Int): String = {
+    val group = "http.errors"
+    val codeClass = statusCode / 100 match {
+      case 4 => "4xx"
+      case 5 => "5xx"
+      case _ => "other"
+    }
+    s"$group.$codeClass.$serviceName"
+  }
 
   def countErrors[T](serviceName: String)(future: Future[T])(implicit ec: ExecutionContext): Future[T] =
-    future.andThen {
-      case Success(response: HttpResponse) if response.status >= 400 => record(meterName(serviceName, response.status))
-      case Failure(exception: Upstream5xxResponse) => record(meterName(serviceName, exception.upstreamResponseCode))
-      case Failure(exception: Upstream4xxResponse) => record(meterName(serviceName, exception.upstreamResponseCode))
-      case Failure(exception: HttpException)       => record(meterName(serviceName, exception.responseCode))
-      case Failure(exception: Throwable)           => record(meterName(serviceName, 500))
-    }
+    future.transform(
+      result => {
+        result match {
+          case Success(response: HttpResponse) if response.status >= 400 =>
+            record(meterName(serviceName, response.status))
+          case Success(_) =>
+          // do nothing
+          case Failure(exception: UpstreamErrorResponse) =>
+            record(meterName(serviceName, exception.statusCode))
+          case Failure(exception: HttpException) =>
+            record(meterName(serviceName, exception.responseCode))
+          case Failure(exception) =>
+            record(meterName(serviceName, 500))
+        }
+        result
+      },
+      error => {
+        record(meterName(serviceName, 500))
+        error
+      }
+    )
 
   private def record[T](name: String): Unit = {
     kenshooRegistry.getMeters.getOrDefault(name, kenshooRegistry.meter(name)).mark()
