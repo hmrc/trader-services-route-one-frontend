@@ -320,6 +320,18 @@ class AmendCaseJourneyISpec
           AmendCaseMissingInformationError(incompleteAmendCaseStateModel)
         )
       }
+
+      "display case already submitted page if the amend case was already submitted" in {
+        val state = AmendCaseAlreadySubmitted
+        journey.setState(state)
+        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
+
+        val result = await(request("/add/case-already-submitted").get())
+
+        result.status shouldBe 200
+        result.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
+
+      }
     }
 
     "GET /add/confirmation/receipt" should {
