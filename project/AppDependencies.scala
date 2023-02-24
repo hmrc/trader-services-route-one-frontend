@@ -1,8 +1,10 @@
 import sbt._
 
 object AppDependencies {
+  val playVersion = "6.4.0"
+
   lazy val compileDeps = Seq(
-    "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % "6.4.0",
+    "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % playVersion,
     "uk.gov.hmrc"                  %% "play-fsm"                   % "0.89.0-play-28",
     "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"         % "0.68.0",
     "uk.gov.hmrc"                  %% "json-encryption"            % "4.11.0-play-28",
@@ -14,11 +16,12 @@ object AppDependencies {
 
   def testDeps(scope: String) =
     Seq(
-      "org.scalatest"       %% "scalatest"       % "3.2.8"   % scope,
-      "com.vladsch.flexmark" % "flexmark-all"    % "0.36.8"  % scope,
-      "org.scalameta"       %% "munit"           % "0.7.29"  % scope,
-      "org.scalacheck"      %% "scalacheck"      % "1.15.4"  % scope,
-      "org.scalatestplus"   %% "scalacheck-1-15" % "3.2.8.0" % scope
+      "org.scalatest"       %% "scalatest"              % "3.2.8"     % scope,
+      "com.vladsch.flexmark" % "flexmark-all"           % "0.36.8"    % scope,
+      "org.scalameta"       %% "munit"                  % "0.7.29"    % scope,
+      "org.scalacheck"      %% "scalacheck"             % "1.15.4"    % scope,
+      "org.scalatestplus"   %% "scalacheck-1-15"        % "3.2.8.0"   % scope,
+      "uk.gov.hmrc"         %% "bootstrap-test-play-28" % playVersion % scope
     )
 
   lazy val itDeps = Seq(
