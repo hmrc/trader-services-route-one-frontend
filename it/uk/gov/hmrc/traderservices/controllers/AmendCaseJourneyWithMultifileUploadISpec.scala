@@ -61,6 +61,13 @@ class AmendCaseJourneyWithMultifileUploadISpec
           .getCallFor(WorkInProgressDeadEnd)(FakeRequest())
           .shouldBe(controller.workInProgresDeadEndCall)
       }
+
+      "return amend case already submitted" in {
+        controller
+          .getCallFor(AmendCaseAlreadySubmitted)(FakeRequest())
+          .url
+          .should(endWith("/add/case-already-submitted"))
+      }
     }
 
     "renderState" should {
