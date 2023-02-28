@@ -28,7 +28,7 @@ class CreateCaseJourneyISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
-  import journey.model.State._
+  import journey.model.CreateCaseJourneyState._
 
   implicit val journeyId: JourneyId = JourneyId()
 

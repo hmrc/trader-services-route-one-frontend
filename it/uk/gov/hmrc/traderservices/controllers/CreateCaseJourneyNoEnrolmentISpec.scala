@@ -17,7 +17,7 @@ class CreateCaseJourneyNoEnrolmentISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
-  import journey.model.State._
+  import journey.model.CreateCaseJourneyState._
 
   implicit val journeyId: JourneyId = JourneyId()
 

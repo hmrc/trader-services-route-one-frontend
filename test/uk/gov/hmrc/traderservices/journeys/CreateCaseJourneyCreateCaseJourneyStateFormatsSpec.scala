@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.journeys
 import java.time.LocalDate
 import play.api.libs.json.{Format, JsResultException, Json}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.UnitSpec
@@ -29,7 +29,7 @@ import java.time.LocalTime
 import java.time.ZonedDateTime
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 
-class CreateCaseJourneyStateFormatsSpec extends UnitSpec {
+class CreateCaseJourneyCreateCaseJourneyStateFormatsSpec extends UnitSpec {
 
   implicit val formats: Format[State] = CreateCaseJourneyStateFormats.formats
   val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 30)

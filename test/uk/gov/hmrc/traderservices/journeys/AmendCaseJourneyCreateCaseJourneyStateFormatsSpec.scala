@@ -27,7 +27,7 @@ import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.ZonedDateTime
 import scala.util.Random
 
-class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
+class AmendCaseJourneyCreateCaseJourneyStateFormatsSpec extends UnitSpec {
 
   implicit val formats: Format[State] = AmendCaseJourneyStateFormats.formats
   val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 30)

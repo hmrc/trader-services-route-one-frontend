@@ -37,7 +37,7 @@ class CreateCaseJourneyModelSpec
 
   override val model = CreateCaseJourneyModel
 
-  import model.State._
+  import model.CreateCaseJourneyState._
   import model.Transitions._
 
   "CreateCaseJourneyModel" when {

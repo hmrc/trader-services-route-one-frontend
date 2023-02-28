@@ -14,7 +14,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
-  import journey.model.State._
+  import journey.model.CreateCaseJourneyState._
 
   def uploadMultipleFilesFeature: Boolean = true
   def requireEnrolmentFeature: Boolean = true

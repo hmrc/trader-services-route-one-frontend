@@ -31,7 +31,8 @@ class FrontendModule(val environment: Environment, val configuration: Configurat
     bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
     bind(classOf[CacheRepository]).to(classOf[JourneyCacheRepository])
+    bind(classOf[SessionStateService]).to(classOf[MongoDBCachedCreateCaseJourneyService])
     bind(classOf[CreateCaseJourneyServiceWithHeaderCarrier]).to(classOf[MongoDBCachedCreateCaseJourneyService])
-    bind(classOf[AmendCaseJourneyServiceWithHeaderCarrier]).to(classOf[MongoDBCachedAmendCaseJourneyService])
+//    bind(classOf[AmendCaseJourneyServiceWithHeaderCarrier]).to(classOf[MongoDBCachedAmendCaseJourneyService])
   }
 }

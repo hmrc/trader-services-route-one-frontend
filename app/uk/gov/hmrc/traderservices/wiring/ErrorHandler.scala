@@ -45,7 +45,6 @@ class ErrorHandler @Inject() (
   govUkWrapper: GovukLayoutWrapper,
   html: uk.gov.hmrc.traderservices.views.components.html,
   pageNotFoundErrorView: PageNotFoundErrorView,
-  amendCaseErrorView: AmendCaseErrorView,
   errorView: ErrorView,
   errorOutOfHoursView: ErrorOutOfHoursView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
@@ -87,8 +86,8 @@ class ErrorHandler @Inject() (
     implicit val r: Request[String] = Request(request, "")
     exception match {
       case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments      => Forbidden
-      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
+      case _: InsufficientEnrolments => Forbidden
+//      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
       case _ =>
         Ok(
           if (
@@ -112,7 +111,7 @@ class ErrorHandler @Inject() (
 
   override def notFoundTemplate(implicit request: Request[_]): HtmlFormat.Appendable = pageNotFoundErrorView()
 
-  def externalAmendErrorTemplate()(implicit request: Request[_]): HtmlFormat.Appendable = amendCaseErrorView()
+//  def externalAmendErrorTemplate()(implicit request: Request[_]): HtmlFormat.Appendable = amendCaseErrorView()
 }
 
 object EventTypes {

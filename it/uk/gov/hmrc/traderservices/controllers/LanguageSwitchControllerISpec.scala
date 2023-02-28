@@ -1,6 +1,6 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State.ChooseNewOrExistingCase
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState.ChooseNewOrExistingCase
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.root
 
 import scala.concurrent.ExecutionContext.Implicits.global

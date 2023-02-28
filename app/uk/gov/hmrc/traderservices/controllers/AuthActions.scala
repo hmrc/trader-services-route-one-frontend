@@ -32,7 +32,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
   def toSubscriptionJourney(continueUrl: String): Result
 
   protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(
-    body: ((Option[String], Option[String])) => Future[Result]
+    body: => Future[Result]
   )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(
       Enrolment(serviceName)
@@ -44,16 +44,16 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
           identifier <- enrolment.getIdentifier(identifierKey)
         } yield identifier.value
 
-        id.map(x => body((credentials.map(_.providerId), Some(x))))
+        id.map(_ => body)
           .getOrElse(throw InsufficientEnrolments())
       }
       .recover(handleFailure)
 
   protected def authorisedWithoutEnrolment[A](
-    body: ((Option[String], Option[String])) => Future[Result]
+    body: => Future[Result]
   )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(AuthProviders(GovernmentGateway))
-      .retrieve(credentials)(credentials => body((credentials.map(_.providerId), None)))
+      .retrieve(credentials)(_ => body)
       .recover(handleFailure)
 
   def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {

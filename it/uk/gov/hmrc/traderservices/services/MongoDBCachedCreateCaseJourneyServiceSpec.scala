@@ -10,7 +10,7 @@ class MongoDBCachedCreateCaseJourneyServiceSpec extends AppISpec {
   lazy val service: MongoDBCachedCreateCaseJourneyService =
     app.injector.instanceOf[MongoDBCachedCreateCaseJourneyService]
 
-  import service.model.{State, Transitions}
+  import service.model.{CreateCaseJourneyState, Transitions}
 
   implicit val hc: HeaderCarrier =
     HeaderCarrier()
@@ -18,31 +18,35 @@ class MongoDBCachedCreateCaseJourneyServiceSpec extends AppISpec {
 
   "MongoDBCachedCreateCaseJourneyService" should {
     "apply start transition" in {
-      await(service.apply(Transitions.start)) shouldBe ((State.Start, Nil))
+      await(service.apply(Transitions.start)) shouldBe ((CreateCaseJourneyState.Start, Nil))
     }
 
     "keep breadcrumbs when no change in state" in {
-      service.updateBreadcrumbs(State.Start, State.Start, Nil) shouldBe Nil
+      service.updateBreadcrumbs(CreateCaseJourneyState.Start, CreateCaseJourneyState.Start, Nil) shouldBe Nil
     }
 
     "update breadcrumbs when new state" in {
-      service.updateBreadcrumbs(State.EnterEntryDetails(), State.Start, Nil) shouldBe List(
-        State.Start
+      service.updateBreadcrumbs(
+        CreateCaseJourneyState.EnterEntryDetails(),
+        CreateCaseJourneyState.Start,
+        Nil
+      ) shouldBe List(
+        CreateCaseJourneyState.Start
       )
 
       service.updateBreadcrumbs(
-        State.EnterEntryDetails(),
-        State.ChooseNewOrExistingCase(),
-        List(State.Start)
-      ) shouldBe List(State.ChooseNewOrExistingCase(), State.Start)
+        CreateCaseJourneyState.EnterEntryDetails(),
+        CreateCaseJourneyState.ChooseNewOrExistingCase(),
+        List(CreateCaseJourneyState.Start)
+      ) shouldBe List(CreateCaseJourneyState.ChooseNewOrExistingCase(), CreateCaseJourneyState.Start)
     }
 
     "trim breadcrumbs when returning back to the previous state" in {
       service.updateBreadcrumbs(
-        State.ChooseNewOrExistingCase(),
-        State.EnterEntryDetails(),
-        List(State.ChooseNewOrExistingCase(), State.Start)
-      ) shouldBe List(State.Start)
+        CreateCaseJourneyState.ChooseNewOrExistingCase(),
+        CreateCaseJourneyState.EnterEntryDetails(),
+        List(CreateCaseJourneyState.ChooseNewOrExistingCase(), CreateCaseJourneyState.Start)
+      ) shouldBe List(CreateCaseJourneyState.Start)
     }
   }
 
