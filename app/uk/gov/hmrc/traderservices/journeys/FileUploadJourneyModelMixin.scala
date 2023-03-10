@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
+
 import scala.concurrent.Future
 import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
+
 import scala.concurrent.ExecutionContext
 
 /** Generic file upload journey model mixin. Defines its own states and transitions.
@@ -486,7 +489,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(exitFileUpload: Transition[State])(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
+    )(exitFileUpload: Transition[State])(uploadAnotherFile: Boolean)(implicit rh: RequestHeader, ec: ExecutionContext) =
       Transition[State] { case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
         if (uploadAnotherFile && fileUploads.acceptedCount < maxFileUploadsNumber)
           gotoFileUploadOrUploaded(
@@ -502,7 +505,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     final def removeFileUploadByReference(reference: String)(
       upscanRequest: String => UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(implicit rh: RequestHeader, ec: ExecutionContext) =
       Transition[State] {
         case current: FileUploaded =>
           val updatedFileUploads = current.fileUploads

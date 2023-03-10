@@ -24,6 +24,7 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
@@ -712,42 +713,40 @@ class CreateCaseJourneyController @Inject() (
   final def preferUploadMultipleFiles(implicit rh: RequestHeader): Boolean =
     rh.cookies.get(COOKIE_JSENABLED).isDefined && appConfig.uploadMultipleFilesFeature
 
-  final def successRedirect(implicit rh: RequestHeader) =
+  final def successRedirect(journeyId: String)(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
-      case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
+      case Some(_) => controller.asyncWaitingForFileVerification(journeyId)
       case None    => controller.showWaitingForFileVerification
     })
 
-  final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
-    appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId.get)
+  final def successRedirectWhenUploadingMultipleFiles(journeyId: String)(implicit rh: RequestHeader) =
+    appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId)
 
-  final def errorRedirect(implicit rh: RequestHeader) =
+  final def errorRedirect(journeyId: String)(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
-      case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
+      case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId)
       case None    => controller.markFileUploadAsRejected
     })
 
-  final def upscanRequest(implicit rh: RequestHeader): String => UpscanInitiateRequest =
-    nonce =>
-      UpscanInitiateRequest(
-        callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
-        successRedirect = Some(successRedirect),
-        errorRedirect = Some(errorRedirect),
-        minimumFileSize = Some(1),
-        maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
-        expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
-      )
+  final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
+    UpscanInitiateRequest(
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      successRedirect = Some(successRedirect(currentJourneyId)),
+      errorRedirect = Some(errorRedirect(currentJourneyId)),
+      minimumFileSize = Some(1),
+      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+    )
 
-  final def upscanRequestWhenUploadingMultipleFiles(implicit rh: RequestHeader): String => UpscanInitiateRequest =
-    nonce =>
-      UpscanInitiateRequest(
-        callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
-        successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
-        errorRedirect = Some(errorRedirect),
-        minimumFileSize = Some(1),
-        maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
-        expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
-      )
+  final def upscanRequestWhenUploadingMultipleFiles(nonce: String)(implicit rh: RequestHeader) =
+    UpscanInitiateRequest(
+      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      successRedirect = Some(successRedirectWhenUploadingMultipleFiles(currentJourneyId)),
+      errorRedirect = Some(errorRedirect(currentJourneyId)),
+      minimumFileSize = Some(1),
+      maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
+      expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
+    )
 
   // GET /new/upload-files
   final val showUploadMultipleFiles: Action[AnyContent] =
@@ -768,7 +767,7 @@ class CreateCaseJourneyController @Inject() (
             )
         sessionStateService
           .updateSessionState(sessionStateUpdate)
-          .map(renderUploadRequestJson(uploadId))
+          .map(renderUploadRequestJson(uploadId)(request, _))
       }
     }
 
@@ -822,16 +821,17 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
     Action.async { implicit request =>
-      AsAuthorisedUser {
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((sessionStateService.journeyKey, journeyId))
         UpscanUploadErrorForm.bindFromRequest.fold(
           formWithErrors =>
-            sessionStateService.currentSessionState.map {
+            sessionStateService.currentSessionState(journeyKeyHc, ec).map {
               case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
               case _                          => Redirect(controller.showStart)
             },
           success =>
             sessionStateService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
               .map(acknowledgeFileUploadRedirect)
         )
       }
@@ -859,16 +859,16 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/journey/:journeyId/file-verification
   final def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
     Action.async { implicit request =>
-      AsAuthorisedUser {
+      whenInSession(journeyId) {
 
         /** Initial time to wait for callback arrival. */
         val intervalInMiliseconds: Long = 500
         val timeoutNanoTime: Long =
           System.nanoTime() + INITIAL_CALLBACK_WAIT_TIME_SECONDS * 1000000000L
-
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((sessionStateService.journeyKey, journeyId))
         sessionStateService
           .waitForSessionState[FileUploadState.FileUploaded](intervalInMiliseconds, timeoutNanoTime) {
-            sessionStateService.updateSessionState(FileUploadTransitions.waitForFileVerification)
+            sessionStateService.updateSessionState(FileUploadTransitions.waitForFileVerification)(journeyKeyHc, ec)
           }
           .map(acknowledgeFileUploadRedirect)
 
@@ -884,16 +884,17 @@ class CreateCaseJourneyController @Inject() (
   // GET /new/journey/:journeyId/file-posted
   final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
     Action.async { implicit request =>
-      AsAuthorisedUser {
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((sessionStateService.journeyKey, journeyId))
         UpscanUploadSuccessForm.bindFromRequest.fold(
           formWithErrors =>
-            sessionStateService.currentSessionState.map {
+            sessionStateService.currentSessionState(journeyKeyHc, ec).map {
               case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
               case _                          => Redirect(controller.showStart)
             },
           success =>
             sessionStateService
-              .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))
+              .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
               .map(acknowledgeFileUploadRedirect)
         )
       }
@@ -902,12 +903,16 @@ class CreateCaseJourneyController @Inject() (
   // POST /callback-from-upscan/new/journey/:journeyId/:nonce
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
     Action.async { implicit request =>
-      AsAuthorisedUser {
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((sessionStateService.journeyKey, journeyId))
         Future(request.body.asJson.flatMap(_.asOpt[UpscanNotification]))
           .flatMap {
             case Some(payload) =>
               sessionStateService
-                .updateSessionState(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce))(payload))
+                .updateSessionState(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce))(payload))(
+                  journeyKeyHc,
+                  ec
+                )
                 .map(_ => NoContent)
 
             case None => BadRequest.asFuture
@@ -986,7 +991,7 @@ class CreateCaseJourneyController @Inject() (
     Action.async { implicit request =>
       AsAuthorisedUser {
         sessionStateService.currentSessionState.flatMap {
-          case Some((state, _)) => streamFileFromUspcan(reference)(state)
+          case Some((state, _)) => streamFileFromUspcan(reference)(request, state)
           case None             => NotFound.asFuture
         }
       }
@@ -1563,7 +1568,7 @@ class CreateCaseJourneyController @Inject() (
   private def renderUploadRequestJson(
     uploadId: String
   ) =
-    resultOf {
+    resultWithRequestOf(implicit request => {
       case s: FileUploadState.UploadMultipleFiles =>
         s.fileUploads
           .findReferenceAndUploadRequestForUploadId(uploadId) match {
@@ -1580,7 +1585,7 @@ class CreateCaseJourneyController @Inject() (
         }
 
       case _ => Forbidden
-    }
+    })
 
   private def renderFileVerificationStatusJson(
     reference: String
@@ -1615,7 +1620,7 @@ class CreateCaseJourneyController @Inject() (
   private def streamFileFromUspcan(
     reference: String
   ) =
-    asyncResultOf {
+    asyncResultWithRequestOf(implicit request => {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
@@ -1635,7 +1640,7 @@ class CreateCaseJourneyController @Inject() (
           case _ => Future.successful(NotFound)
         }
       case _ => Future.successful(NotFound)
-    }
+    })
 
   private def acknowledgeFileUploadRedirect =
     resultOf { case state =>

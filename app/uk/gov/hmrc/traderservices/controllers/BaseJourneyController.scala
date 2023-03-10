@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.api.{Configuration, Environment}
-import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
+import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{authorisedEnrolments, credentials}
 import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.auth.core.{AuthProviders, Enrolment, InsufficientEnrolments}
@@ -62,7 +62,7 @@ abstract class BaseJourneyController[S <: SessionStateService](
     Redirect(appConfig.subscriptionJourneyUrl)
 
   final def AsAuthorisedUser(body: => Future[Result])(implicit request: Request[_]): Future[Result] =
-    authorisedWithoutEnrolment(body)
+    authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
 
   final def withUidAndEori(implicit request: Request[_]): Future[(Option[String], Option[String])] =
     authorised(
@@ -186,12 +186,11 @@ abstract class BaseJourneyController[S <: SessionStateService](
     }
   }
 
-  final def whenInSession(
+  final def whenInSession(journeyId: String)(
     body: => Future[Result]
-  )(implicit request: Request[_]): Future[Result] =
+  )(implicit rh: RequestHeader, rc: HeaderCarrier): Future[Result] =
     journeyId match {
-      case None => Future.successful(Redirect(appConfig.govukStartUrl))
-      case _    => body
+      case jid if jid.isEmpty => Future.successful(Redirect(appConfig.govukStartUrl))
+      case _                  => body
     }
-
 }

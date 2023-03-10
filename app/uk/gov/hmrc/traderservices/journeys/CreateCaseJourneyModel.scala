@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.traderservices.models._
 
 import scala.concurrent.Future

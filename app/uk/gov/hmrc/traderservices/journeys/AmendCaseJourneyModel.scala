@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.models._
 
@@ -110,7 +111,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
       upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(typeOfAmendment: TypeOfAmendment)(implicit ec: ExecutionContext) =
+    )(typeOfAmendment: TypeOfAmendment)(implicit rh: RequestHeader, ec: ExecutionContext) =
       Transition[State] { case current @ SelectTypeOfAmendment(model) =>
         val updatedModel = model.copy(typeOfAmendment = Some(typeOfAmendment))
         typeOfAmendment match {
@@ -177,7 +178,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
 
     final def submitedResponseText(uploadMultipleFiles: Boolean)(
       upscanRequest: String => UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(responseText: String)(implicit ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(responseText: String)(implicit rh: RequestHeader, ec: ExecutionContext) =
       Transition[State] {
         case current @ EnterResponseText(model)
             if model.hasTypeOfAmendment(
