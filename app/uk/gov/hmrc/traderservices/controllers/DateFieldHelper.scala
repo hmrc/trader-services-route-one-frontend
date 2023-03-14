@@ -115,21 +115,6 @@ object DateFieldHelper {
         Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-value")))
       else if (!isValidYear(y))
         Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-value")))
-      else if (atLeastTwoOfThree(!d.forall(_.isDigit), !m.forall(_.isDigit), !y.forall(_.isDigit)))
-        Invalid(
-          ValidationError(
-            Seq(
-              s"subfieldFocus=${if (!d.forall(_.isDigit)) "day" else if (!m.forall(_.isDigit)) "month" else "year"}",
-              s"error.$fieldName.all.invalid-digits"
-            )
-          )
-        )
-      else if (!d.forall(_.isDigit))
-        Invalid(ValidationError(Seq("subfieldFocus=day", s"error.$fieldName.day.invalid-digits")))
-      else if (!m.forall(_.isDigit))
-        Invalid(ValidationError(Seq("subfieldFocus=month", s"error.$fieldName.month.invalid-digits")))
-      else if (!y.forall(_.isDigit))
-        Invalid(ValidationError(Seq("subfieldFocus=year", s"error.$fieldName.year.invalid-digits")))
       else Valid
     }
 
