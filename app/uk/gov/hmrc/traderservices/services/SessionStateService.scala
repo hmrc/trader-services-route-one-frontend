@@ -50,7 +50,7 @@ trait SessionStateService extends JourneyModel {
   )(implicit rc: HeaderCarrier, ec: ExecutionContext): Future[(State, List[State])] =
     currentSessionState.flatMap {
       case Some(sb @ (state, _)) if is[State](state) => Future.successful(sb)
-      case _                                         => updateSessionState(transition)
+      case _ => updateSessionState(transition)
     }
 
   /** Modify [[show]] behaviour: Try first rollback to the most recent state of type S and display if found, otherwise
@@ -85,7 +85,7 @@ trait SessionStateService extends JourneyModel {
           }
     }
 
-  private def is[S <: State: ClassTag](state: State): Boolean =
+  def is[S <: State: ClassTag](state: State): Boolean =
     implicitly[ClassTag[S]].runtimeClass.isAssignableFrom(state.getClass)
 
   def updateBreadcrumbs(newState: State, currentState: State, currentBreadcrumbs: List[State]): List[State]

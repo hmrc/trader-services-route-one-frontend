@@ -18,38 +18,6 @@ package uk.gov.hmrc.traderservices.journeys
 
 import scala.concurrent.{ExecutionContext, Future}
 
-///** Transition from one state to the another.
-//  *
-//  * Transition should be always a *pure* function, depending only on its own parameters and the current state. External
-//  * async requests to the upstream services should be provided as a function-type parameters.
-//  */
-//final class Transition private (val apply: PartialFunction[State, Future[State]]) {
-//
-//  /** Composes this transition with the fallback transition which gets applied where this transition is not defined for
-//    * the curent state.
-//    */
-//  def orElse(fallback: Transition): Transition =
-//    Transition(apply.orElse(fallback.apply))
-//
-//  /** Composes this transition with the next transition which gets applied to the result of this transition, if
-//    * successful.
-//    */
-//  def andThen(next: Transition)(implicit ec: ExecutionContext): Transition =
-//    Transition(apply.andThen(_.flatMap(state => next.apply(state))))
-//}
-//
-///** Transition builder helper */
-//protected final object Transition {
-//  def apply(rules: PartialFunction[State, Future[State]]): Transition =
-//    new Transition(rules)
-//}
-//
-//case class TransitionNotAllowed(
-//  state: State,
-//  breadcrumbs: List[State],
-//  transition: Transition
-//) extends Exception
-
 final class Transition[A] private (val apply: PartialFunction[A, Future[A]]) {
 
   /** Composes this transition with the fallback transition which gets applied where this transition is not defined for

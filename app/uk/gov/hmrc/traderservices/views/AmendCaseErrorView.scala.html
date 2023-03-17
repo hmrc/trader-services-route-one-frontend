@@ -14,39 +14,23 @@
  * limitations under the License.
  *@
 
-@**@
-@* * Copyright 2023 HM Revenue & Customs*@
-@* **@
-@* * Licensed under the Apache License, Version 2.0 (the "License");*@
-@* * you may not use this file except in compliance with the License.*@
-@* * You may obtain a copy of the License at*@
-@* **@
-@* *     http://www.apache.org/licenses/LICENSE-2.0*@
-@* **@
-@* * Unless required by applicable law or agreed to in writing, software*@
-@* * distributed under the License is distributed on an "AS IS" BASIS,*@
-@* * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.*@
-@* * See the License for the specific language governing permissions and*@
-@* * limitations under the License.*@
-@* *@
+@import uk.gov.hmrc.traderservices.controllers.routes
+@import uk.gov.hmrc.traderservices.wiring.AppConfig
 
-@*@import uk.gov.hmrc.traderservices.controllers.routes*@
-@*@import uk.gov.hmrc.traderservices.wiring.AppConfig*@
+@this(
+        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
+        html: uk.gov.hmrc.traderservices.views.components.html,
+        appConfig: AppConfig
+)
 
-@*@this(*@
-@*        govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,*@
-@*        html: uk.gov.hmrc.traderservices.views.components.html,*@
-@*        appConfig: AppConfig*@
-@*)*@
+@()(implicit request: Request[_], messages: Messages)
 
-@*@()(implicit request: Request[_], messages: Messages)*@
+@govukLayout(
+  pageTitle("external.update.error.500.title")
+) {
 
-@*@govukLayout(*@
-@*  pageTitle("external.update.error.500.title")*@
-@*) {*@
+  @html.h1(messages("external.update.error.500.heading"))
 
-@*  @html.h1(messages("external.update.error.500.heading"))*@
-
-@*  @html.p { @messages("external.update.error.500.line1") }*@
-@*  @html.p { @Html(messages("external.update.error.500.line2", routes.AmendCaseJourneyController.showEnterCaseReferenceNumber.url)) }*@
-@*}*@
+  @html.p { @messages("external.update.error.500.line1") }
+  @html.p { @Html(messages("external.update.error.500.line2", routes.AmendCaseJourneyController.showEnterCaseReferenceNumber.url)) }
+}
