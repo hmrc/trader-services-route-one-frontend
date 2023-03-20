@@ -396,7 +396,7 @@ object CreateCaseJourneyModel extends FileUploadJourneyModelMixin {
     final def submittedNewOrExistingCaseChoice(newOrExisting: NewOrExistingCase) =
       Transition[State] { case ChooseNewOrExistingCase(_, a, b, c, d, continue) =>
         newOrExisting match {
-          case NewOrExistingCase.New => goto(EnterEntryDetails(a, b, c, d))
+          case NewOrExistingCase.New      => goto(EnterEntryDetails(a, b, c, d))
           case NewOrExistingCase.Existing => goto(TurnToAmendCaseJourney(continue))
         }
 
