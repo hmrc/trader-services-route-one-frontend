@@ -62,7 +62,13 @@ abstract class BaseJourneyController[S <: SessionStateService](
     Redirect(appConfig.subscriptionJourneyUrl)
 
   final def AsAuthorisedUser(body: => Future[Result])(implicit request: Request[_]): Future[Result] =
-    authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
+    if (appConfig.requireEnrolmentFeature) {
+      authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
+    } else {
+      authorised(AuthProviders(GovernmentGateway))
+        .retrieve(credentials)(credentials => body)
+        .recover(handleFailure)
+    }
 
   final def withUidAndEori(implicit request: Request[_]): Future[(Option[String], Option[String])] =
     authorised(
