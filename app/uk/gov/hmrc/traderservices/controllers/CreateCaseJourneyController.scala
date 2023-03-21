@@ -1015,10 +1015,12 @@ class CreateCaseJourneyController @Inject() (
   // POST /new/create-case
   final def createCase: Action[AnyContent] =
     Action.async { implicit request =>
-      withUidAndEori.flatMap { uidAndEori =>
-        createCaseJourneyService
-          .updateSessionState(Transitions.createCase(traderServicesApiConnector.createCase(_))(uidAndEori))
-          .map(sb => Redirect(getCallFor(sb._1)))
+      AsAuthorisedUser {
+        withUidAndEori.flatMap { uidAndEori =>
+          createCaseJourneyService
+            .updateSessionState(Transitions.createCase(traderServicesApiConnector.createCase(_))(uidAndEori))
+            .map(sb => Redirect(getCallFor(sb._1)))
+        }
       }
     }
 

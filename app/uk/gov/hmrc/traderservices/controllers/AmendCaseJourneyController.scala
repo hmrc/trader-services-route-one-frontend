@@ -506,10 +506,12 @@ class AmendCaseJourneyController @Inject() (
   // POST /add/amend-case
   final def amendCase: Action[AnyContent] =
     Action.async { implicit request =>
-      withUidAndEori.flatMap { uidAndEori =>
-        amendCaseJourneyService
-          .updateSessionState(Transitions.amendCase(traderServicesApiConnector.updateCase(_))(uidAndEori))
-          .map(sb => Redirect(getCallFor(sb._1)))
+      AsAuthorisedUser {
+        withUidAndEori.flatMap { uidAndEori =>
+          amendCaseJourneyService
+            .updateSessionState(Transitions.amendCase(traderServicesApiConnector.updateCase(_))(uidAndEori))
+            .map(sb => Redirect(getCallFor(sb._1)))
+        }
       }
     }
 
