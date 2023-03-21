@@ -22,7 +22,7 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthProvider.{GovernmentGateway, PrivilegedApplication}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{authorisedEnrolments, credentials}
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AuthProviders, Enrolment, InsufficientEnrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
@@ -66,25 +66,32 @@ abstract class BaseJourneyController[S <: SessionStateService](
       authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
     } else {
       authorised(AuthProviders(GovernmentGateway))
-        .retrieve(credentials)(credentials => body)
+        .retrieve(credentials)(_ => body)
         .recover(handleFailure)
     }
 
   final def withUidAndEori(implicit request: Request[_]): Future[(Option[String], Option[String])] =
-    authorised(
-      Enrolment(appConfig.authorisedServiceName)
-        and AuthProviders(GovernmentGateway)
-    )
-      .retrieve(credentials and authorisedEnrolments) {
-        case credentials ~ enrolments =>
-          val id = for {
-            enrolment  <- enrolments.getEnrolment(appConfig.authorisedServiceName)
-            identifier <- enrolment.getIdentifier(appConfig.authorisedIdentifierKey)
-          } yield identifier.value
+    if (appConfig.requireEnrolmentFeature) {
+      authorised(
+        Enrolment(appConfig.authorisedServiceName)
+          and AuthProviders(GovernmentGateway)
+      )
+        .retrieve(credentials and authorisedEnrolments) {
+          case credentials ~ enrolments =>
+            val id = for {
+              enrolment  <- enrolments.getEnrolment(appConfig.authorisedServiceName)
+              identifier <- enrolment.getIdentifier(appConfig.authorisedIdentifierKey)
+            } yield identifier.value
 
-          Future.successful(credentials.map(_.providerId), id)
-        case _ => Future.successful(None, None)
-      }
+            Future.successful(credentials.map(_.providerId), id)
+          case _ => Future.successful(None, None)
+        }
+    } else {
+      authorised(AuthProviders(GovernmentGateway))
+        .retrieve(credentials) { case _ =>
+          Future.successful(None, None)
+        }
+    }
 
   /** Dummy action to use only when developing to fill loose-ends. */
   final val actionNotYetImplemented = Action(NotImplemented)
