@@ -35,7 +35,7 @@
   scriptsBlock: Option[Html] = None,
   assetPath: Option[String] = None,
   cspNonce: Option[String] = None
-)(contentBlock: Html)(implicit messages: Messages)
+)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @headerDefault = {
   @headerBlock.getOrElse {

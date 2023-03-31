@@ -35,7 +35,7 @@
   scriptsBlock: Option[Html] = None,
   mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
   mainContentClasses: String = "govuk-grid-column-two-thirds"
-)(contentBlock: Html)(implicit messages: Messages)
+)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @headerDefault = {
   @headerBlock.getOrElse {
