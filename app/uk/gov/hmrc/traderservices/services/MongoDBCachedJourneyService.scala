@@ -16,19 +16,16 @@
 
 package uk.gov.hmrc.traderservices.services
 
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
-import uk.gov.hmrc.crypto.{ApplicationCrypto, CompositeSymmetricCrypto, Protected}
-import uk.gov.hmrc.play.fsm.PersistentJourneyService
-
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
 import play.api.Logger
-import play.api.libs.json.JsValue
+import play.api.libs.json.{Format, JsValue, Json}
+import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Protected}
+import uk.gov.hmrc.play.fsm.{PersistentJourneyService, PlayFsmUtils}
+import uk.gov.hmrc.traderservices.repository.CacheRepository
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.AnsiColor
-import uk.gov.hmrc.play.fsm.PlayFsmUtils
 
 /** Journey persistence service mixin, stores encrypted serialized state using [[JourneyCache]].
   */
@@ -45,7 +42,7 @@ trait MongoDBCachedJourneyService[RequestContext] extends PersistentJourneyServi
 
   case class PersistentState(state: model.State, breadcrumbs: List[model.State])
 
-  implicit lazy val crypto: CompositeSymmetricCrypto = applicationCrypto.JsonCrypto
+  implicit lazy val crypto = applicationCrypto.JsonCrypto
 
   implicit lazy val formats1: Format[model.State] = stateFormats
   implicit lazy val formats2: Format[PersistentState] = Json.format[PersistentState]

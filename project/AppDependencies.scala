@@ -1,14 +1,14 @@
 import sbt._
 
 object AppDependencies {
-  val playVersion = "6.4.0"
+  val playVersion = "7.15.0"
 
   lazy val compileDeps = Seq(
     "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % playVersion,
     "uk.gov.hmrc"                  %% "play-fsm"                   % "0.89.0-play-28",
     "uk.gov.hmrc.mongo"            %% "hmrc-mongo-play-28"         % "0.68.0",
-    "uk.gov.hmrc"                  %% "json-encryption"            % "4.11.0-play-28",
-    "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "6.4.0-play-28",
+    "uk.gov.hmrc"                  %% "json-encryption"            % "5.1.0-play-28",
+    "uk.gov.hmrc"                  %% "play-frontend-hmrc"         % "7.0.0-play-28",
     "com.googlecode.libphonenumber" % "libphonenumber"             % "8.12.31",
     "com.fasterxml.jackson.module" %% "jackson-module-scala"       % "2.14.2",
     "com.sun.mail"                  % "javax.mail"                 % "1.6.2"
