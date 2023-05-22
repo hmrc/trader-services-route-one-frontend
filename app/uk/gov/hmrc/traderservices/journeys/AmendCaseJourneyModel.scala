@@ -116,7 +116,7 @@ object AmendCaseJourneyModel extends FileUploadJourneyModelMixin {
         val updatedModel = model.copy(typeOfAmendment = Some(typeOfAmendment))
         typeOfAmendment match {
           case TypeOfAmendment.WriteResponse =>
-            gotoSummaryIfComplete(EnterResponseText(updatedModel.copy(fileUploads = None)))
+            goto(EnterResponseText(updatedModel.copy(fileUploads = None)))
 
           case TypeOfAmendment.WriteResponseAndUploadDocuments =>
             gotoSummaryIfComplete(EnterResponseText(updatedModel))
