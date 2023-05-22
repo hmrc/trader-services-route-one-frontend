@@ -10,14 +10,13 @@ import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 import uk.gov.hmrc.traderservices.support.TestData
+import uk.gov.hmrc.traderservices.utils.SHA256
 
 class AmendCaseJourneyNoEnrolmentISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
-
-  implicit val journeyId: JourneyId = JourneyId()
 
   val dateTime = LocalDateTime.now()
 
@@ -29,7 +28,7 @@ class AmendCaseJourneyNoEnrolmentISpec
 
     "GET /send-documents-for-customs-check/add/case-reference-number" should {
       "show enter case reference number page" in {
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/case-reference-number").get())
 
@@ -43,7 +42,7 @@ class AmendCaseJourneyNoEnrolmentISpec
     "POST /send-documents-for-customs-check/add/case-reference-number" should {
       "sumbit case reference number and show next page" in {
         journey.setState(EnterCaseReferenceNumber())
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val payload = Map(
           "caseReferenceNumber" -> "PC12010081330XGBNZJO04"
@@ -64,7 +63,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/type-of-amendment").get())
 
@@ -82,7 +81,7 @@ class AmendCaseJourneyNoEnrolmentISpec
             AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
           )
         )
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val payload = Map(
           "typeOfAmendment" -> "WriteResponse"
@@ -109,7 +108,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/write-response").get())
 
@@ -131,7 +130,7 @@ class AmendCaseJourneyNoEnrolmentISpec
             model
           )
         )
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
         val text = Random.alphanumeric.take(1000).mkString
 
         val payload = Map(
@@ -155,7 +154,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/upload-files").get())
 
@@ -175,7 +174,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/upload-files").get())
 
@@ -193,7 +192,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/upload-files").get())
 
@@ -218,7 +217,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/upload-files").get())
 
@@ -247,9 +246,9 @@ class AmendCaseJourneyNoEnrolmentISpec
           fileUploads = FileUploads()
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}/"
+          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/001").post(""))
@@ -327,9 +326,9 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}/"
+          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/002").post(""))
@@ -400,7 +399,7 @@ class AmendCaseJourneyNoEnrolmentISpec
     "GET /add/file-upload" should {
       "show the upload first document page" in {
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}/"
+          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -428,7 +427,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         givenUpscanInitiateSucceeds(callbackUrl)
 
@@ -459,12 +458,12 @@ class AmendCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result1 =
           await(
             requestWithoutJourneyId(
-              s"/add/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+              s"/add/journey/${SHA256.compute(journeyId.value)}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
             ).get()
           )
 
@@ -521,10 +520,10 @@ class AmendCaseJourneyNoEnrolmentISpec
             )
           )
         )
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result1 =
-          await(requestWithoutJourneyId(s"/add/journey/${journeyId.value}/file-verification").get())
+          await(requestWithoutJourneyId(s"/add/journey/${SHA256.compute(journeyId.value)}/file-verification").get())
 
         result1.status shouldBe 202
         result1.body.isEmpty shouldBe true
@@ -601,7 +600,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result1 =
           await(
@@ -656,10 +655,11 @@ class AmendCaseJourneyNoEnrolmentISpec
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
             typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
           ),
-          fileUploads = FileUploads(files = Seq(TestData.acceptedFileUpload))
+          fileUploads = FileUploads(files = Seq(TestData.acceptedFileUpload)),
+          true
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/file-uploaded").get())
 
@@ -700,10 +700,11 @@ class AmendCaseJourneyNoEnrolmentISpec
                 Some(4567890)
               )
             )
-          )
+          ),
+          true
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/file-uploaded").get())
 
@@ -749,7 +750,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").get())
 
@@ -815,7 +816,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           )
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").post(""))
 
@@ -866,7 +867,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/confirmation").get())
 
@@ -916,7 +917,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result =
           await(
@@ -966,7 +967,7 @@ class AmendCaseJourneyNoEnrolmentISpec
           acknowledged = false
         )
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result =
           await(
@@ -1012,7 +1013,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         )
         val state = AmendCaseSummary(fullAmendCaseStateModel)
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/check-your-answers").get())
 
@@ -1032,7 +1033,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         )
         val state = AmendCaseSummary(model)
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/check-your-answers").get())
 
@@ -1074,7 +1075,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         )
         val state = AmendCaseSummary(model)
         journey.setState(state)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
 
         val result = await(request("/add/check-your-answers").get())
 

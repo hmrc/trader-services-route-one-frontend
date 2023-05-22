@@ -14,28 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.support
+package uk.gov.hmrc.traderservices.journeys
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
+trait State
 
-/** Basic in-memory store used to test journeys.
-  */
-trait InMemoryStore[A] {
-
-  private val state: AtomicReference[Option[A]] = new AtomicReference(None)
-
-  def fetch: Option[A] =
-    state.get()
-
-  def save(newState: A): A =
-    state
-      .updateAndGet(new UnaryOperator[Option[A]] {
-        override def apply(t: Option[A]): Option[A] = Some(newState)
-      })
-      .get
-
-  def clear(): Unit =
-    state.set(None)
-
-}
+object State

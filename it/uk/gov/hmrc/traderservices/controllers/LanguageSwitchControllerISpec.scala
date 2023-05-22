@@ -1,6 +1,6 @@
 package uk.gov.hmrc.traderservices.controllers
 
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State.ChooseNewOrExistingCase
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState.Start
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.root
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,7 +20,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = await(request("/language/cymraeg").get())
         result.status shouldBe 200
-        journey.getState shouldBe ChooseNewOrExistingCase()
+        journey.getState shouldBe Start
         result.body should include("Change the language to English")
       }
     }
@@ -32,7 +32,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = await(request("/language/englisg").get())
         result.status shouldBe 200
-        journey.getState shouldBe ChooseNewOrExistingCase()
+        journey.getState shouldBe Start
         result.body should include("Newid yr iaith ir Gymraeg")
       }
     }
@@ -44,7 +44,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val result = await(request("/language/xxx").get())
         result.status shouldBe 200
-        journey.getState shouldBe ChooseNewOrExistingCase()
+        journey.getState shouldBe Start
         result.body should include("Newid yr iaith ir Gymraeg")
       }
     }

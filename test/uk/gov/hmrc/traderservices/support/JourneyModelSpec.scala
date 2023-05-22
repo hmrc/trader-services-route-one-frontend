@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.traderservices.support
 
-import org.scalatest.matchers.MatchResult
-import org.scalatest.matchers.Matcher
-import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.play.fsm.JourneyModel
-
-import scala.concurrent.Await
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import scala.reflect.ClassTag
 import org.scalactic.source
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.Informing
+import org.scalatest.{BeforeAndAfterAll, Informing}
+import org.scalatest.matchers.{MatchResult, Matcher}
+import org.scalatest.matchers.should.Matchers
+import play.api.mvc.AnyContentAsEmpty
+import play.api.test.FakeRequest
+import uk.gov.hmrc.http.{HeaderCarrier, RequestId}
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions
+import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition, TransitionNotAllowed}
+
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.{Duration, _}
 import scala.io.AnsiColor
+import scala.reflect.ClassTag
 
 /** Abstract base of FSM journey specifications.
   *
@@ -43,71 +43,61 @@ import scala.io.AnsiColor
   *
   * given(State_A) .when(transition) .thenFailsWith[SomeExceptionType]
   */
-trait JourneyModelSpec extends TestJourneyService[DummyContext] {
+trait JourneyModelSpec extends TestJourneyService {
   self: Matchers with BeforeAndAfterAll with Informing =>
 
   val model: JourneyModel
 
+  val maxFileUploadsNumber = 10
+
+  def retreatFromFileUpload: Transition[State] = Transitions.backFromFileUpload
+
   implicit val defaultTimeout: FiniteDuration = 5 seconds
   import scala.concurrent.ExecutionContext.Implicits.global
+
+  lazy implicit val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("", "")
+
+  implicit val headerCarrier: HeaderCarrier =
+    HeaderCarrier().copy(requestId = Some(RequestId("bar")), otherHeaders = Seq("X-Client-Id" -> "foo"))
 
   def await[A](future: Future[A])(implicit timeout: Duration): A =
     Await.result(future, timeout)
 
   /** Assumption about the initial state of journey. */
-  case class given[S <: model.State: ClassTag](initialState: S, breadcrumbs: List[model.State] = Nil) {
+  case class given[S <: State: ClassTag](initialState: S, breadcrumbs: List[State] = Nil) {
 
-    final def withBreadcrumbs(breadcrumbs: model.State*): given[S] =
+    final def withBreadcrumbs(breadcrumbs: State*): given[S] =
       given(initialState, breadcrumbs.toList)
 
-    final def when(transition: model.Transition): When = {
+    final def when(transition: Transition[State]): When = {
       Option(initialState) match {
-        case Some(state) => await(save((state, breadcrumbs)))
-        case None        => await(clear)
+        case Some(state) => set(state, breadcrumbs)
+        case None        => clear
       }
-      val resultOrException = await(
+      val resultOrException: Either[Throwable, (State, List[State])] = await(
         apply(transition)
           .map(Right.apply)
-          .recover {
-            case model.TransitionNotAllowed(s, b, _) => Right((s, b))
-            case model.StayInCurrentState            => await(fetch).toRight(model.StayInCurrentState)
-            case exception                           => Left(exception)
+          .recover { case exception =>
+            Left(exception)
           }
       )
       When(initialState, resultOrException)
     }
 
-    final def when(merger: model.Merger[S], state: model.State): When = {
-      Option(initialState) match {
-        case Some(state) => await(save((state, breadcrumbs)))
-        case None        => await(clear)
-      }
-      val resultOrException =
-        await(
-          modify { s: S => merger.apply((s, state)) }
-            .map(Right.apply)
-            .recover {
-              case model.TransitionNotAllowed(s, b, _) => Right((s, b))
-              case model.StayInCurrentState            => await(fetch).toRight(model.StayInCurrentState)
-              case exception                           => Left(exception)
-            }
-        )
-      When(initialState, resultOrException)
-    }
   }
 
   /** State transition result. */
   case class When(
-    initialState: model.State,
-    result: Either[Throwable, (model.State, List[model.State])]
+    initialState: State,
+    result: Either[Throwable, (State, List[State])]
   ) {
 
     /** Asserts that the resulting state of the transition is equal to some expected state. */
-    final def thenGoes(state: model.State)(implicit pos: source.Position): Unit =
+    final def thenGoes(state: State)(implicit pos: source.Position): Unit =
       this should JourneyModelSpec.this.thenGo(state)
 
     /** Asserts that the resulting state of the transition matches some case. */
-    final def thenMatches(statePF: PartialFunction[model.State, Unit])(implicit pos: source.Position): Unit =
+    final def thenMatches(statePF: PartialFunction[State, Unit])(implicit pos: source.Position): Unit =
       this should JourneyModelSpec.this.thenMatch(statePF)
 
     /** Asserts that the transition hasn't change the state. */
@@ -121,7 +111,7 @@ trait JourneyModelSpec extends TestJourneyService[DummyContext] {
   }
 
   /** Asserts that the resulting state of the transition is equal to some expected state. */
-  final def thenGo(state: model.State): Matcher[When] =
+  final def thenGo(state: State): Matcher[When] =
     new Matcher[When] {
       override def apply(result: When): MatchResult =
         result match {
@@ -156,7 +146,7 @@ trait JourneyModelSpec extends TestJourneyService[DummyContext] {
 
   /** Asserts that the resulting state of the transition matches some case. */
   final def thenMatch(
-    statePF: PartialFunction[model.State, Unit]
+    statePF: PartialFunction[State, Unit]
   ): Matcher[When] =
     new Matcher[When] {
       override def apply(result: When): MatchResult =
@@ -228,7 +218,7 @@ trait JourneyModelSpec extends TestJourneyService[DummyContext] {
     info(s"Test suite executed ${getCounter()} state transitions in total.")
   }
 
-  private def nameOf(state: model.State): String = {
+  private def nameOf(state: State): String = {
     val className = state.getClass.getName
     val lastDot = className.lastIndexOf('.')
     val typeName = {

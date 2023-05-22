@@ -18,8 +18,9 @@ package uk.gov.hmrc.traderservices.views
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.traderservices.controllers.routes.AmendCaseJourneyController
+import uk.gov.hmrc.traderservices.controllers.routes
 import uk.gov.hmrc.traderservices.models.AmendCaseModel
+
 import javax.inject.Singleton
 
 @Singleton
@@ -35,7 +36,7 @@ class AmendCaseSummaryHelper extends SummaryListRowHelper with FileUploadsHelper
           value = model.caseReferenceNumber.getOrElse(""),
           valueClasses = Some("case-reference-number"),
           visuallyHiddenText = Some("view.amend-case.summary.caseReferenceNumber"),
-          action = (AmendCaseJourneyController.showEnterCaseReferenceNumber, "site.change")
+          action = (routes.AmendCaseJourneyController.showEnterCaseReferenceNumber, "site.change")
         )
       )
     )
@@ -47,7 +48,7 @@ class AmendCaseSummaryHelper extends SummaryListRowHelper with FileUploadsHelper
       label = "view.amend-case.summary.additionalInfo.type",
       value = messages(model.typeOfAmendment.map(_.viewFormat).getOrElse("")),
       visuallyHiddenText = Some("view.amend-case.summary.additionalInfo.type"),
-      action = (AmendCaseJourneyController.showSelectTypeOfAmendment, "site.change")
+      action = (routes.AmendCaseJourneyController.showSelectTypeOfAmendment, "site.change")
     )
     SummaryList(
       if (responseText.nonEmpty)
@@ -57,7 +58,7 @@ class AmendCaseSummaryHelper extends SummaryListRowHelper with FileUploadsHelper
             label = "view.amend-case.summary.additionalInfo.message",
             value = model.responseText.get,
             visuallyHiddenText = Some("view.amend-case.summary.additionalInfo.message"),
-            action = (AmendCaseJourneyController.showEnterResponseText, "site.change")
+            action = (routes.AmendCaseJourneyController.showEnterResponseText, "site.change")
           )
         )
       else Seq(additionalInfo)

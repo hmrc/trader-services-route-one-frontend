@@ -19,18 +19,18 @@ package uk.gov.hmrc.traderservices.services
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Format
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyModel, CreateCaseJourneyStateFormats}
+import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyModel, CreateCaseJourneyStateFormats, State}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.fsm.PersistentJourneyService
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import akka.actor.ActorSystem
+import com.typesafe.config.Config
 
-trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
+trait CreateCaseJourneyService extends SessionStateService {
 
   val journeyKey = "CreateCaseJourney"
 
-  override val model = CreateCaseJourneyModel
+  val model = CreateCaseJourneyModel
 
   // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
@@ -38,8 +38,8 @@ trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[
       .take(10) // retain last 10 states as a breadcrumbs
 
   override def updateBreadcrumbs(
-    newState: model.State,
-    currentState: model.State,
+    newState: State,
+    currentState: State,
     currentBreadcrumbs: Breadcrumbs
   ): Breadcrumbs =
     if (newState.getClass == currentState.getClass)
@@ -49,21 +49,31 @@ trait CreateCaseJourneyService[RequestContext] extends PersistentJourneyService[
     else currentState :: breadcrumbsRetentionStrategy(currentBreadcrumbs)
 }
 
-trait CreateCaseJourneyServiceWithHeaderCarrier extends CreateCaseJourneyService[HeaderCarrier]
+trait CreateCaseJourneyServiceWithHeaderCarrier extends CreateCaseJourneyService
 
 @Singleton
 case class MongoDBCachedCreateCaseJourneyService @Inject() (
   cacheRepository: CacheRepository,
-  applicationCrypto: ApplicationCrypto,
+  config: Config,
   appConfig: AppConfig,
-  actorSystem: ActorSystem
-) extends MongoDBCachedJourneyService[HeaderCarrier] with CreateCaseJourneyServiceWithHeaderCarrier {
+  actorSystem: ActorSystem,
+  applicationCrypto: ApplicationCrypto
+) extends EncryptedSessionCache[State, HeaderCarrier] with SessionStateService
+    with CreateCaseJourneyServiceWithHeaderCarrier {
 
-  override val stateFormats: Format[model.State] =
+  override val root = model.root
+  override val default: State = root
+
+  override val stateFormats: Format[State] =
     CreateCaseJourneyStateFormats.formats
 
-  override def getJourneyId(hc: HeaderCarrier): Option[String] =
+  def getJourneyId(hc: HeaderCarrier): Option[String] =
     hc.extraHeaders.find(_._1 == journeyKey).map(_._2)
 
-  override val traceFSM: Boolean = appConfig.traceFSM
+  final val baseKeyProvider: KeyProvider = KeyProvider(config)
+
+  override final val keyProviderFromContext: HeaderCarrier => KeyProvider =
+    hc => KeyProvider(baseKeyProvider, None)
+
+  override val trace: Boolean = appConfig.traceFSM
 }

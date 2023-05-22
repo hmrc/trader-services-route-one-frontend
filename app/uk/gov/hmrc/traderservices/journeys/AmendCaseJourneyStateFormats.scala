@@ -17,14 +17,11 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.libs.json._
-import uk.gov.hmrc.play.fsm.JsonStateFormats
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.models.AmendCaseModel
 
-object AmendCaseJourneyStateFormats
-    extends FileUploadJourneyStateFormats(AmendCaseJourneyModel) with JsonStateFormats[State] {
+object AmendCaseJourneyStateFormats extends FileUploadJourneyStateFormats(AmendCaseJourneyModel) with StateFormats {
 
   val enterCaseReferenceNumberFormat = Json.format[EnterCaseReferenceNumber]
   val selectTypeOfAmendmentFormat = Json.format[SelectTypeOfAmendment]
@@ -70,4 +67,5 @@ object AmendCaseJourneyStateFormats
       case "WorkInProgressDeadEnd"     => JsSuccess(WorkInProgressDeadEnd)
       case _                           => JsError(s"Unknown state name $stateName")
     }
+
 }

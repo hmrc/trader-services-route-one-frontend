@@ -1,48 +1,35 @@
 package uk.gov.hmrc.traderservices.controllers
 
+import akka.actor.ActorSystem
+import com.github.tomakehurst.wiremock.client.WireMock
+import com.typesafe.config.Config
+import play.api.http.{HeaderNames, MimeTypes}
 import play.api.libs.json._
-import play.api.libs.ws.DefaultWSCookie
-import play.api.mvc.Session
-import uk.gov.hmrc.crypto.{ApplicationCrypto, PlainText}
-import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyStateFormats
+import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest}
+import play.api.mvc._
+import play.api.test.FakeRequest
+import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.http.SessionKeys.authToken
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionId, SessionKeys}
+import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServicesResult}
+import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyStateFormats, State}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, MongoDBCachedJourneyService}
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, EncryptedSessionCache, KeyProvider, MongoDBCachedAmendCaseJourneyService}
+import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
+import uk.gov.hmrc.traderservices.utils.SHA256
+import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import play.api.libs.json.JsValue
-import play.api.libs.json.JsObject
-import play.api.libs.json.Json
-import akka.actor.ActorSystem
-import com.github.tomakehurst.wiremock.client.WireMock
-import uk.gov.hmrc.traderservices.stubs.PdfGeneratorStubs
-import uk.gov.hmrc.traderservices.support.TestData
-import play.api.http.HeaderNames
-import uk.gov.hmrc.traderservices.support.StateMatchers
-import play.api.libs.json.JsString
-import play.api.http.MimeTypes
-import play.api.libs.ws.StandaloneWSRequest
-import play.api.test.FakeRequest
-import play.api.mvc.Call
-import play.api.mvc.Request
-import play.api.mvc.Cookie
-import play.api.mvc.AnyContent
-import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.traderservices.connectors.FileTransferResult
-import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
 class AmendCaseJourneyISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
-
-  implicit val journeyId: JourneyId = JourneyId()
 
   val dateTime = LocalDateTime.now()
 
@@ -55,7 +42,7 @@ class AmendCaseJourneyISpec
     "user not enrolled for HMRC-XYZ" should {
       "be redirected to the subscription journey" in {
         journey.setState(Start)
-        givenAuthorisedWithoutEnrolments
+        givenAuthorisedWithoutEnrolments()
         givenDummySubscriptionUrl
         val result = await(request("/").get())
         result.status shouldBe 200
@@ -78,13 +65,13 @@ class AmendCaseJourneyISpec
 
     "successRedirect" should {
       "return /file-verification when jsenabled cookie NOT set" in {
-        controller.successRedirect(FakeRequest()) should endWith(
+        controller.successRedirect(journeyId.value)(FakeRequest()) should endWith(
           "/send-documents-for-customs-check/add/file-verification"
         )
       }
 
       "return /journey/:journeyId/file-verification when jsenabled cookie set" in {
-        controller.successRedirect(
+        controller.successRedirect(journeyId.value)(
           fakeRequest(Cookie(controller.COOKIE_JSENABLED, "true"))
         ) should endWith(
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/file-verification"
@@ -94,13 +81,13 @@ class AmendCaseJourneyISpec
 
     "errorRedirect" should {
       "return /file-rejected when jsenabled cookie NOT set" in {
-        controller.errorRedirect(FakeRequest()) should endWith(
+        controller.errorRedirect(journeyId.value)(FakeRequest()) should endWith(
           "/send-documents-for-customs-check/add/file-rejected"
         )
       }
 
       "return /journey/:journeyId/file-rejected when jsenabled cookie set" in {
-        controller.errorRedirect(
+        controller.errorRedirect(journeyId.value)(
           fakeRequest(Cookie(controller.COOKIE_JSENABLED, "true"))
         ) should endWith(
           s"/send-documents-for-customs-check/add/journey/${journeyId.value}/file-rejected"
@@ -582,7 +569,8 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/001").post(""))
@@ -652,7 +640,8 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/002").post(""))
@@ -720,7 +709,8 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/file-upload").get())
@@ -814,7 +804,7 @@ class AmendCaseJourneyISpec
         val result1 =
           await(
             requestWithoutJourneyId(
-              s"/add/journey/${journeyId.value}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
+              s"/add/journey/${SHA256.compute(journeyId.value)}/file-rejected?key=11370e18-6e24-453e-b45a-76d3e32ea33d&errorCode=ABC123&errorMessage=ABC+123"
             ).get()
           )
 
@@ -868,7 +858,7 @@ class AmendCaseJourneyISpec
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result1 =
-          await(requestWithoutJourneyId(s"/add/journey/${journeyId.value}/file-verification").get())
+          await(requestWithoutJourneyId(s"/add/journey/${SHA256.compute(journeyId.value)}/file-verification").get())
 
         result1.status shouldBe 202
         result1.body.isEmpty shouldBe true
@@ -995,7 +985,8 @@ class AmendCaseJourneyISpec
             Seq(
               TestData.acceptedFileUpload
             )
-          )
+          ),
+          true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1036,7 +1027,8 @@ class AmendCaseJourneyISpec
                 Some(4567890)
               )
             )
-          )
+          ),
+          true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1052,7 +1044,8 @@ class AmendCaseJourneyISpec
       "show file upload summary view" in {
         val state = FileUploaded(
           exampleAmendCaseModel,
-          fileUploads = FileUploads(files = for (i <- 1 to 10) yield TestData.acceptedFileUpload)
+          fileUploads = FileUploads(files = for (i <- 1 to 10) yield TestData.acceptedFileUpload),
+          true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -1079,7 +1072,8 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(
@@ -1134,7 +1128,7 @@ class AmendCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
         result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
-        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads))),
+        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
 
       "show check-your-anwers page when no and files number below the limit" in {
@@ -1155,7 +1149,7 @@ class AmendCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
         result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
-        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads))),
+        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
 
       "show check-your-anwers page when no and files number above the limit" in {
@@ -1176,7 +1170,7 @@ class AmendCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
         result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
-        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads))),
+        journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
     }
 
@@ -1500,7 +1494,7 @@ class AmendCaseJourneyISpec
         val result =
           await(
             requestWithoutJourneyId(
-              s"/add/journey/${journeyId.value}/file-posted?key=11370e18-6e24-453e-b45a-76d3e32ea33d&bucket=foo"
+              s"/add/journey/${SHA256.compute(journeyId.value)}/file-posted?key=11370e18-6e24-453e-b45a-76d3e32ea33d&bucket=foo"
             ).get()
           )
 
@@ -1575,7 +1569,7 @@ class AmendCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/callback-from-upscan/add/journey/${journeyId.value}/$nonce")
+            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/$nonce")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -1642,7 +1636,7 @@ class AmendCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/callback-from-upscan/add/journey/${journeyId.value}/$nonce")
+            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/$nonce")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -1699,7 +1693,7 @@ class AmendCaseJourneyISpec
         )
         val result =
           await(
-            request(s"/callback-from-upscan/add/journey/${journeyId.value}/${Nonce.random}")
+            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/${Nonce.random}")
               .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
               .post(
                 Json.obj(
@@ -1763,28 +1757,39 @@ class AmendCaseJourneyISpec
 
 trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
+  implicit val journeyId: JourneyId = JourneyId()
+
   val exampleAmendCaseModel = AmendCaseModel(
     caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
     typeOfAmendment = Some(TypeOfAmendment.UploadDocuments)
   )
+
+  implicit val hc: HeaderCarrier =
+    HeaderCarrier(authorization = Some(Authorization(authToken)), sessionId = Some(SessionId(journeyId.value)))
 
   import play.api.i18n._
   implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
 
   lazy val controller = app.injector.instanceOf[AmendCaseJourneyController]
 
+  trait TestMongoDBCachedAmendCaseJourneyService extends MongoDBCachedAmendCaseJourneyService
+
   // define test service capable of manipulating journey state
-  lazy val journey = new TestJourneyService[JourneyId]
-    with AmendCaseJourneyService[JourneyId] with MongoDBCachedJourneyService[JourneyId] {
+  lazy val journey = new TestJourneyService
+    with AmendCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] {
 
     override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
     override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
-    override lazy val applicationCrypto = app.injector.instanceOf[ApplicationCrypto]
+    lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
-    override val stateFormats: Format[model.State] =
-      AmendCaseJourneyStateFormats.formats
+    override lazy val keyProviderFromContext: HeaderCarrier => KeyProvider =
+      hc => KeyProvider(keyProvider, None)
 
-    override def getJourneyId(journeyId: JourneyId): Option[String] = Some(journeyId.value)
+    override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)
+
+    override val stateFormats: Format[State] = AmendCaseJourneyStateFormats.formats
+    override val root: State = model.root
+    override val default: State = root
   }
 
   final def fakeRequest(cookies: Cookie*)(implicit
@@ -1802,14 +1807,17 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
+        .encodeAsCookie(Session(Map(SessionKeys.sessionId -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
     wsClient
       .url(s"$baseUrl$path")
       .withCookies(
-        DefaultWSCookie(
-          sessionCookie.name,
-          sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
-        )
+        Seq(
+          DefaultWSCookie(
+            sessionCookie.name,
+            sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
+          ),
+          DefaultWSCookie(SessionKeys.sessionId, journeyId.value)
+        ): _*
       )
   }
 
@@ -1818,7 +1826,7 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   ): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
-        .encodeAsCookie(Session(Map(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
+        .encodeAsCookie(Session(Map(SessionKeys.sessionId -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
 
     wsClient
       .url(s"$baseUrl$path")

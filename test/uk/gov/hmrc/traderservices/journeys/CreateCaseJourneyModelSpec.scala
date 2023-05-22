@@ -19,11 +19,11 @@ package uk.gov.hmrc.traderservices.journeys
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import uk.gov.hmrc.traderservices.connectors.{ApiError, TraderServicesCaseResponse, TraderServicesResult, UpscanInitiateRequest, UpscanInitiateResponse}
+import uk.gov.hmrc.traderservices.connectors._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{CreateCaseJourneyState, FileUploadHostData}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.{start => _, _}
 import uk.gov.hmrc.traderservices.models.ImportFreightType.Air
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.JourneyModelSpec
@@ -37,7 +37,9 @@ class CreateCaseJourneyModelSpec
 
   override val model = CreateCaseJourneyModel
 
-  import model.State._
+  val root: State = CreateCaseJourneyState.Start
+
+  import model.CreateCaseJourneyState._
   import model.Transitions._
 
   "CreateCaseJourneyModel" when {

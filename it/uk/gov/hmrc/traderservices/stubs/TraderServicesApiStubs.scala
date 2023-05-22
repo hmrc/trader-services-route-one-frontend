@@ -39,7 +39,7 @@ trait TraderServicesApiStubs {
        |      "fileTransferResults": [
        |        {"upscanReference":"foo1","success":true,"httpStatus":201,"transferredAt":"2021-04-18T12:07:36"}
        |      ]
-       |  } 
+       |  }
        |}""".stripMargin
 
   def createCaseApiErrorResponseBody(errorCode: String, errorMessage: String): String =
@@ -48,7 +48,7 @@ trait TraderServicesApiStubs {
        |  "error": {
        |      "errorCode": "$errorCode",
        |      "errorMessage": "$errorMessage"
-       |  } 
+       |  }
        |}""".stripMargin
 
   def givenCreateCaseApiRequestSucceeds(): StubMapping =

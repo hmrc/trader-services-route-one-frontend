@@ -14,28 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.support
+package uk.gov.hmrc.traderservices.services
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
+object Breadcrumbs {
 
-/** Basic in-memory store used to test journeys.
-  */
-trait InMemoryStore[A] {
-
-  private val state: AtomicReference[Option[A]] = new AtomicReference(None)
-
-  def fetch: Option[A] =
-    state.get()
-
-  def save(newState: A): A =
-    state
-      .updateAndGet(new UnaryOperator[Option[A]] {
-        override def apply(t: Option[A]): Option[A] = Some(newState)
-      })
-      .get
-
-  def clear(): Unit =
-    state.set(None)
-
+  final def updateBreadcrumbs[A](
+    newState: A,
+    currentState: A,
+    currentBreadcrumbs: List[A],
+    isTransient: A => Boolean
+  ): List[A] =
+    if (isTransient(currentState))
+      currentBreadcrumbs
+    else if (newState.getClass == currentState.getClass)
+      currentBreadcrumbs
+    else if (currentBreadcrumbs.nonEmpty && currentBreadcrumbs.head.getClass() == newState.getClass())
+      currentBreadcrumbs.tail
+    else currentState :: currentBreadcrumbs.take(3)
 }

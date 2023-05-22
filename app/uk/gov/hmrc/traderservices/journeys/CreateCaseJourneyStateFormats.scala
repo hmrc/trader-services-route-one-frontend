@@ -17,14 +17,11 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.libs.json._
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.State._
-import uk.gov.hmrc.play.fsm.JsonStateFormats
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
 
-object CreateCaseJourneyStateFormats
-    extends FileUploadJourneyStateFormats(CreateCaseJourneyModel) with JsonStateFormats[State] {
+object CreateCaseJourneyStateFormats extends FileUploadJourneyStateFormats(CreateCaseJourneyModel) with StateFormats {
 
   val enterEntryDetailsFormat = Json.format[EnterEntryDetails]
   val chooseNewOrExistingCaseFormat = Json.format[ChooseNewOrExistingCase]

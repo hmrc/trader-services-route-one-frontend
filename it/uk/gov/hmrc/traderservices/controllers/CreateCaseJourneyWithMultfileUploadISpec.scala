@@ -2,10 +2,12 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
+import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
-import uk.gov.hmrc.traderservices.models.{ExportContactInfo, _}
+import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.TestData
+import uk.gov.hmrc.traderservices.utils.SHA256
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -13,14 +15,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
 
+  import journey.model.CreateCaseJourneyState._
   import journey.model.FileUploadState._
-  import journey.model.State._
 
   def uploadMultipleFilesFeature: Boolean = true
   def requireEnrolmentFeature: Boolean = true
   def requireOptionalTransportFeature: Boolean = false
-
-  implicit val journeyId: JourneyId = JourneyId()
 
   "CreateCaseJourneyController" when {
 
@@ -176,7 +176,8 @@ class CreateCaseJourneyWithMultfileUploadISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
@@ -227,7 +228,8 @@ class CreateCaseJourneyWithMultfileUploadISpec
           )
         )
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${journeyId.value}"
+          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/new/journey/${SHA256
+              .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 

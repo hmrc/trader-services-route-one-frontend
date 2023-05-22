@@ -1,6 +1,8 @@
 package uk.gov.hmrc.traderservices.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionId}
 import uk.gov.hmrc.traderservices.support.WireMockSupport
 
 trait AuthStubs {
@@ -20,7 +22,11 @@ trait AuthStubs {
 
   case class Enrolment(serviceName: String, identifierName: String, identifierValue: String)
 
-  def givenAuthorisedForEnrolment(enrolment: Enrolment): AuthStubs = {
+  def givenAuthorisedForEnrolment(
+    enrolment: Enrolment,
+    journeyKey: String = "",
+    journeyKeyValue: String = ""
+  ): AuthStubs = {
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(1)
@@ -66,7 +72,7 @@ trait AuthStubs {
     this
   }
 
-  def givenAuthorisedWithoutEnrolments: AuthStubs = {
+  def givenAuthorisedWithoutEnrolments(journeyKey: String = "", journeyKeyValue: String = ""): AuthStubs = {
     stubFor(
       post(urlEqualTo("/auth/authorise"))
         .atPriority(1)
