@@ -65,33 +65,15 @@ abstract class BaseJourneyController[S <: SessionStateService](
     if (appConfig.requireEnrolmentFeature) {
       authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
     } else {
-      authorised(AuthProviders(GovernmentGateway))
-        .retrieve(credentials)(_ => body)
-        .recover(handleFailure)
+      authorisedWithoutEnrolment(body)
     }
 
   final def withUidAndEori(implicit request: Request[_]): Future[(Option[String], Option[String])] =
-    if (appConfig.requireEnrolmentFeature) {
-      authorised(
-        Enrolment(appConfig.authorisedServiceName)
-          and AuthProviders(GovernmentGateway)
-      )
-        .retrieve(credentials and authorisedEnrolments) {
-          case credentials ~ enrolments =>
-            val id = for {
-              enrolment  <- enrolments.getEnrolment(appConfig.authorisedServiceName)
-              identifier <- enrolment.getIdentifier(appConfig.authorisedIdentifierKey)
-            } yield identifier.value
-
-            Future.successful(credentials.map(_.providerId), id)
-          case _ => Future.successful(None, None)
-        }
-    } else {
-      authorised(AuthProviders(GovernmentGateway))
-        .retrieve(credentials) { case _ =>
-          Future.successful(None, None)
-        }
-    }
+    authorisedWithUidAndEori(
+      appConfig.requireEnrolmentFeature,
+      appConfig.authorisedServiceName,
+      appConfig.authorisedIdentifierKey
+    )
 
   /** Dummy action to use only when developing to fill loose-ends. */
   final val actionNotYetImplemented = Action(NotImplemented)

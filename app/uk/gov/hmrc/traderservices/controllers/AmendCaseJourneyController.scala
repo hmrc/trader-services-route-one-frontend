@@ -40,7 +40,6 @@ import scala.reflect.ClassTag
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
-  sessionStateService: SessionStateService,
   amendCaseJourneyService: AmendCaseJourneyServiceWithHeaderCarrier,
   views: uk.gov.hmrc.traderservices.views.AmendCaseViews,
   traderServicesApiConnector: TraderServicesApiConnector,

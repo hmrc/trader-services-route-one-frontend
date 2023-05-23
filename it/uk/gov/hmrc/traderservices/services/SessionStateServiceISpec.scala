@@ -16,7 +16,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
-class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecSetup {
+class SessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   override lazy val cacheRepository: CacheRepository =
     app.injector.instanceOf[CacheRepository]
@@ -117,7 +117,7 @@ class MongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecS
 }
 
 /** Tests scenario when cache repository findById returns nothing. */
-class IgnoringMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecSetup {
+class IgnoringSessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   override lazy val cacheRepository: CacheRepository =
     new CacheRepository(
@@ -198,7 +198,7 @@ class IgnoringMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServi
 }
 
 /** Tests scenario when cache repository findById returns an object missing journeyId key. */
-class ForgetfulMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecSetup {
+class ForgetfulSessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   override lazy val cacheRepository: CacheRepository =
     new CacheRepository(
@@ -280,7 +280,7 @@ class ForgetfulMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServ
 }
 
 /** Tests scenario when cache repository findById returns an object with invalid entity format. */
-class InvalidMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecSetup {
+class InvalidSessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   // Invalid state format
   override val stateFormats: Format[Int] =
@@ -387,7 +387,7 @@ class InvalidMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServic
 }
 
 /** Tests scenario when cache repository findById throws an exception. */
-class BrokenMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyServiceISpecSetup {
+class BrokenSessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   class BrokenServiceException extends Exception
 
@@ -479,7 +479,7 @@ class BrokenMongoDBCachedJourneyServiceISpec extends MongoDBCachedJourneyService
 
 }
 
-trait MongoDBCachedJourneyServiceISpecSetup extends AppISpec {
+trait SessionStateServiceISpecSetup extends AppISpec {
 
   def cacheRepository: CacheRepository
 
@@ -509,10 +509,10 @@ trait MongoDBCachedJourneyServiceISpecSetup extends AppISpec {
     override val journeyKey: String = "TestJourney"
 
     override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository = MongoDBCachedJourneyServiceISpecSetup.this.cacheRepository
+    override lazy val cacheRepository = SessionStateServiceISpecSetup.this.cacheRepository
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
     override lazy val keyProviderFromContext: String => KeyProvider = _ => keyProvider
-    override val stateFormats: Format[Int] = MongoDBCachedJourneyServiceISpecSetup.this.stateFormats
+    override val stateFormats: Format[Int] = SessionStateServiceISpecSetup.this.stateFormats
     override def getJourneyId(journeyId: String): Option[String] = Option(journeyId)
     override val default: Int = 0
 

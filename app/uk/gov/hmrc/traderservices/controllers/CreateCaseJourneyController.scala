@@ -42,7 +42,6 @@ import scala.reflect.ClassTag
 
 @Singleton
 class CreateCaseJourneyController @Inject() (
-  sessionStateService: SessionStateService,
   createCaseJourneyService: CreateCaseJourneyServiceWithHeaderCarrier,
   views: uk.gov.hmrc.traderservices.views.CreateCaseViews,
   traderServicesApiConnector: TraderServicesApiConnector,

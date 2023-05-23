@@ -20,7 +20,7 @@ import play.api.mvc.{Request, Result}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals._
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 import uk.gov.hmrc.traderservices.support.CallOps
@@ -48,6 +48,33 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
           .getOrElse(throw InsufficientEnrolments())
       }
       .recover(handleFailure)
+
+  protected def authorisedWithUidAndEori(
+    requireEnrolmentFeature: Boolean,
+    serviceName: String,
+    identifierKey: String
+  )(implicit request: Request[_], hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[String], Option[String])] =
+    if (requireEnrolmentFeature) {
+      authorised(
+        Enrolment(serviceName)
+          and AuthProviders(GovernmentGateway)
+      )
+        .retrieve(credentials and authorisedEnrolments) {
+          case credentials ~ enrolments =>
+            val id = for {
+              enrolment  <- enrolments.getEnrolment(serviceName)
+              identifier <- enrolment.getIdentifier(identifierKey)
+            } yield identifier.value
+
+            Future.successful(credentials.map(_.providerId), id)
+          case _ => Future.successful(None, None)
+        }
+    } else {
+      authorised(AuthProviders(GovernmentGateway))
+        .retrieve(credentials) { case _ =>
+          Future.successful(None, None)
+        }
+    }
 
   protected def authorisedWithoutEnrolment[A](
     body: => Future[Result]
