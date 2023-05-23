@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
-import uk.gov.hmrc.play.fsm.JourneyModel
+import play.api.mvc.RequestHeader
+import uk.gov.hmrc.traderservices.connectors.{UpscanInitiateRequest, UpscanInitiateResponse}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateRequest
-import scala.concurrent.Future
-import uk.gov.hmrc.traderservices.connectors.UpscanInitiateResponse
-import scala.concurrent.ExecutionContext
+
+import scala.concurrent.{ExecutionContext, Future}
 
 /** Generic file upload journey model mixin. Defines its own states and transitions.
   *
@@ -36,7 +35,6 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
   type FileUploadHostData
 
-  trait State
   trait IsTransient
 
   /** Maximum number of files to upload. */
@@ -46,7 +44,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
   final val minStatusOverwriteGapInMilliseconds: Long = 1000
 
   /** Implement to enable backward transition. */
-  def retreatFromFileUpload: Transition
+  def retreatFromFileUpload: Transition[State]
 
   /** Marker trait of permitted entry states. */
   trait CanEnterFileUpload extends State {
@@ -129,7 +127,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       })
 
     final val toUploadMultipleFiles =
-      Transition {
+      Transition[State] {
         case current: UploadMultipleFiles =>
           goto(current.copy(fileUploads = current.fileUploads.onlyAccepted))
 
@@ -149,7 +147,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     final def initiateNextFileUpload(uploadId: String)(
       upscanRequest: String => UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
-      Transition { case state: UploadMultipleFiles =>
+      Transition[State] { case state: UploadMultipleFiles =>
         if (
           !state.fileUploads.hasUploadId(uploadId) &&
           state.fileUploads.initiatedOrAcceptedCount < maxFileUploadsNumber
@@ -176,7 +174,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
     final def initiateFileUpload(
       upscanRequest: String => UpscanInitiateRequest
     )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
-      Transition {
+      Transition[State] {
         case state: CanEnterFileUpload =>
           gotoFileUploadOrUploaded(
             state.hostData,
@@ -228,7 +226,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       }
 
     final def markUploadAsRejected(error: S3UploadError) =
-      Transition {
+      Transition[State] {
         case current @ UploadFile(
               hostData,
               reference,
@@ -255,7 +253,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       }
 
     final def markUploadAsPosted(receipt: S3UploadSuccess) =
-      Transition { case current @ UploadMultipleFiles(hostData, fileUploads) =>
+      Transition[State] { case current @ UploadMultipleFiles(hostData, fileUploads) =>
         val now = Timestamp.now
         val updatedFileUploads =
           fileUploads.copy(files = fileUploads.files.map {
@@ -337,7 +335,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     /** Transition when file has been uploaded and should wait for verification. */
     final val waitForFileVerification =
-      Transition {
+      Transition[State] {
         /** Change file status to posted and wait. */
         case current @ UploadFile(
               hostData,
@@ -447,7 +445,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
           case u => u
         })
 
-      Transition {
+      Transition[State] {
         case current @ WaitingForFileVerification(
               hostData,
               reference,
@@ -488,8 +486,8 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(exitFileUpload: Transition)(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
-      Transition { case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
+    )(exitFileUpload: Transition[State])(uploadAnotherFile: Boolean)(implicit rh: RequestHeader, ec: ExecutionContext) =
+      Transition[State] { case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
         if (uploadAnotherFile && fileUploads.acceptedCount < maxFileUploadsNumber)
           gotoFileUploadOrUploaded(
             hostData,
@@ -504,8 +502,8 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     final def removeFileUploadByReference(reference: String)(
       upscanRequest: String => UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
-      Transition {
+    )(upscanInitiate: UpscanInitiateApi)(implicit rh: RequestHeader, ec: ExecutionContext) =
+      Transition[State] {
         case current: FileUploaded =>
           val updatedFileUploads = current.fileUploads
             .copy(files = current.fileUploads.files.filterNot(_.reference == reference))
@@ -524,7 +522,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       }
 
     final val backToFileUploaded =
-      Transition {
+      Transition[State] {
         case s: FileUploadState =>
           if (s.fileUploads.nonEmpty)
             goto(FileUploaded(s.hostData, s.fileUploads, acknowledged = true))

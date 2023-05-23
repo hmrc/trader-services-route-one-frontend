@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.support
+package uk.gov.hmrc.traderservices.utils
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.function.UnaryOperator
+import java.security.MessageDigest
 
-/** Basic in-memory store used to test journeys.
-  */
-trait InMemoryStore[A] {
+object SHA256 {
 
-  private val state: AtomicReference[Option[A]] = new AtomicReference(None)
+  final def compute(value: String): String = {
+    val digest = MessageDigest.getInstance("SHA-256")
+    digest.update(value.toCharArray().map(_.toByte))
+    convertBytesToHex(digest.digest())
+  }
 
-  def fetch: Option[A] =
-    state.get()
-
-  def save(newState: A): A =
-    state
-      .updateAndGet(new UnaryOperator[Option[A]] {
-        override def apply(t: Option[A]): Option[A] = Some(newState)
-      })
-      .get
-
-  def clear(): Unit =
-    state.set(None)
+  private def convertBytesToHex(bytes: Array[Byte]): String = {
+    val sb = new StringBuilder
+    for (b <- bytes)
+      sb.append(String.format("%02x", Byte.box(b)))
+    sb.toString
+  }
 
 }

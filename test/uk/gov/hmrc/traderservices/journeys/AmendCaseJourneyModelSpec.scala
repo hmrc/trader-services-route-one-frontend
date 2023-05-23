@@ -24,7 +24,7 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{start => _, _}
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{State, UpdateCaseApi}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support._
 
@@ -37,6 +37,8 @@ class AmendCaseJourneyModelSpec
     extends AnyWordSpec with Matchers with BeforeAndAfterAll with JourneyModelSpec with TestData {
 
   override val model = AmendCaseJourneyModel
+
+  val root: State = Start
 
   "AmendCaseJourneyModel" when {
     "at state Start" should {

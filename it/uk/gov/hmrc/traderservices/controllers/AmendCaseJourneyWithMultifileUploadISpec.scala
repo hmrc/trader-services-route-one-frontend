@@ -13,8 +13,6 @@ class AmendCaseJourneyWithMultifileUploadISpec
   import journey.model.FileUploadState._
   import journey.model.State._
 
-  implicit val journeyId: JourneyId = JourneyId()
-
   val dateTime = LocalDateTime.now()
 
   override def uploadMultipleFilesFeature: Boolean = true

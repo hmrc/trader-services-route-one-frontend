@@ -1,34 +1,34 @@
 package uk.gov.hmrc.traderservices.support
 
+import uk.gov.hmrc.traderservices.journeys.State
+import uk.gov.hmrc.traderservices.services.SessionStateService
+
 import java.util.concurrent.atomic.AtomicReference
-
-import uk.gov.hmrc.play.fsm.PersistentJourneyService
-
 import scala.concurrent.{ExecutionContext, Future}
 
 /** Basic in-memory implementation of the journey service, facilitates integration testing without MongoDB.
   */
-trait InMemoryJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
+trait InMemoryJourneyService[RequestContext] extends SessionStateService {
 
   private val state = new AtomicReference[Option[StateAndBreadcrumbs]](None)
 
-  override protected def fetch(implicit
+  protected def fetch(implicit
     requestContext: RequestContext,
     ec: ExecutionContext
-  ): Future[Option[(model.State, List[model.State])]] =
+  ): Future[Option[(State, List[State])]] =
     Future.successful(
       state.get
     )
 
-  override protected def save(
-    s: (model.State, List[model.State])
-  )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[(model.State, List[model.State])] =
+  protected def save(
+    s: (State, List[State])
+  )(implicit requestContext: RequestContext, ec: ExecutionContext): Future[(State, List[State])] =
     Future {
       state.set(Some(s))
       s
     }
 
-  override def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
+  def clear(implicit requestContext: RequestContext, ec: ExecutionContext): Future[Unit] =
     Future {
       state.set(None)
     }

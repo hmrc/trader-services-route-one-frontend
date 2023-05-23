@@ -20,6 +20,7 @@ import play.api.libs.json.{Format, JsResultException, Json}
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.{AmendCaseAlreadySubmitted, AmendCaseConfirmation, AmendCaseMissingInformationError, AmendCaseSummary, EnterCaseReferenceNumber, EnterResponseText, SelectTypeOfAmendment, Start, WorkInProgressDeadEnd}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
@@ -27,7 +28,7 @@ import uk.gov.hmrc.traderservices.support.JsonFormatTest
 import java.time.ZonedDateTime
 import scala.util.Random
 
-class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
+class AmendCaseJourneyCreateCaseJourneyStateFormatsSpec extends UnitSpec {
 
   implicit val formats: Format[State] = AmendCaseJourneyStateFormats.formats
   val generatedAt = java.time.LocalDateTime.of(2018, 12, 11, 10, 20, 30)
@@ -36,39 +37,39 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
     "serialize and deserialize state" in new JsonFormatTest[State](info) {
       validateJsonFormat(
         """{"state":"Start"}""",
-        State.Start
+        Start
       )
       validateJsonFormat(
         """{"state":"WorkInProgressDeadEnd"}""",
-        State.WorkInProgressDeadEnd
+        WorkInProgressDeadEnd
       )
       validateJsonFormat(
         """{"state":"EnterCaseReferenceNumber","properties":{"model":{}}}""",
-        State.EnterCaseReferenceNumber()
+        EnterCaseReferenceNumber()
       )
       validateJsonFormat(
         """{"state":"EnterCaseReferenceNumber","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
-        State.EnterCaseReferenceNumber(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
+        EnterCaseReferenceNumber(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
         """{"state":"SelectTypeOfAmendment","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04"}}}""",
-        State.SelectTypeOfAmendment(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
+        SelectTypeOfAmendment(AmendCaseModel(Some("PC12010081330XGBNZJO04")))
       )
       validateJsonFormat(
         """{"state":"EnterResponseText","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
-        State.EnterResponseText(
+        EnterResponseText(
           AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
         )
       )
       validateJsonFormat(
         """{"state":"AmendCaseSummary","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
-        State.AmendCaseSummary(
+        AmendCaseSummary(
           AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
         )
       )
       validateJsonFormat(
         """{"state":"AmendCaseMissingInformationError","properties":{"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"WriteResponse"}}}""",
-        State.AmendCaseMissingInformationError(
+        AmendCaseMissingInformationError(
           AmendCaseModel(Some("PC12010081330XGBNZJO04"), Some(TypeOfAmendment.WriteResponse))
         )
       )
@@ -78,7 +79,7 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
            |"uploadedFiles":[{"upscanReference":"foo-bar-ref-1","downloadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com?1235676","uploadTimestamp":"2018-04-24T09:30:00Z","checksum":"396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100","fileName":"test.pdf","fileMimeType":"application/pdf","fileSize":4567890}],
            |"model":{"caseReferenceNumber":"PC12010081330XGBNZJO04","typeOfAmendment":"UploadDocuments"},
            |"result":{"caseId":"PC12010081330XGBNZJO04","generatedAt":"${generatedAt.toString}","fileTransferResults":[]}}}""".stripMargin,
-        State.AmendCaseConfirmation(
+        AmendCaseConfirmation(
           Seq(
             UploadedFile(
               "foo-bar-ref-1",
@@ -315,7 +316,7 @@ class AmendCaseJourneyStateFormatsSpec extends UnitSpec {
 
       validateJsonFormat(
         """{"state":"AmendCaseAlreadySubmitted"}""".stripMargin,
-        State.AmendCaseAlreadySubmitted
+        AmendCaseAlreadySubmitted
       )
     }
 

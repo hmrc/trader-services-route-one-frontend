@@ -17,22 +17,26 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import akka.actor.{ActorSystem, Scheduler}
+import com.fasterxml.jackson.core.JsonParseException
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
+import uk.gov.hmrc.traderservices.journeys.{State, Transition}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
+import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyServiceWithHeaderCarrier, SessionStateService}
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.reflect.ClassTag
 
 @Singleton
 class AmendCaseJourneyController @Inject() (
@@ -65,66 +69,128 @@ class AmendCaseJourneyController @Inject() (
 
   implicit val scheduler: Scheduler = actorSystem.scheduler
 
+  private def handleGet[S <: State: ClassTag](
+    transition: Transition[State]
+  )(implicit request: Request[_], ec: ExecutionContext): Future[Result] =
+    amendCaseJourneyService.updateSessionState(transition).map {
+      case (state: State, breadcrumbs) if amendCaseJourneyService.is[S](state) => renderState(state, breadcrumbs, None)
+      case other                                                               => Redirect(getCallFor(other._1))
+    }
+
   // GET /
   final val showStart: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .apply(Transitions.start)
-      .display
-      .andCleanBreadcrumbs()
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService
+          .updateSessionState(Transitions.start)
+          .map { case (state, breadcrumbs) =>
+            renderState(state, breadcrumbs, None)
+          }
+          .andThen { case _ => amendCaseJourneyService.cleanBreadcrumbs }
+      }
+    }
 
   // GET /add/case-reference-number
   final val showEnterCaseReferenceNumber: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.EnterCaseReferenceNumber]
-      .orApply(Transitions.enterCaseReferenceNumber)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[EnterCaseReferenceNumber](Transitions.enterCaseReferenceNumber)
+      }
+    }
 
   // POST /add/case-reference-number
   final val submitCaseReferenceNumber: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm(EnterCaseReferenceNumberForm)
-      .apply(Transitions.submitedCaseReferenceNumber)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        EnterCaseReferenceNumberForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(Transitions.submitedCaseReferenceNumber(success))
+              .map(sb => Redirect(getCallFor(sb._1)))
+        )
+      }
+    }
 
   // GET /add/type-of-amendment
   final val showSelectTypeOfAmendment: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.SelectTypeOfAmendment]
-      .orApply(Transitions.backToSelectTypeOfAmendment)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[SelectTypeOfAmendment](Transitions.backToSelectTypeOfAmendment)
+      }
+    }
 
   // POST /add/type-of-amendment
   final val submitTypeOfAmendment: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm(TypeOfAmendmentForm)
-      .applyWithRequest(implicit request =>
-        Transitions.submitedTypeOfAmendment(preferUploadMultipleFiles)(upscanRequest)(
-          upscanInitiateConnector.initiate(_)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        TypeOfAmendmentForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(
+                Transitions.submitedTypeOfAmendment(preferUploadMultipleFiles)(upscanRequest)(
+                  upscanInitiateConnector.initiate(_)
+                )(success)
+              )
+              .map(sb => Redirect(getCallFor(sb._1)))
         )
-      )
+      }
+    }
 
   // GET /add/write-response
   final val showEnterResponseText: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.EnterResponseText]
-      .orApply(Transitions.backToEnterResponseText)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[EnterResponseText](Transitions.backToEnterResponseText)
+      }
+    }
 
   // POST /add/write-response
   final val submitResponseText: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm(ResponseTextForm)
-      .applyWithRequest(implicit request =>
-        Transitions.submitedResponseText(preferUploadMultipleFiles)(upscanRequest)(upscanInitiateConnector.initiate(_))
-      )
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        ResponseTextForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(
+                Transitions.submitedResponseText(preferUploadMultipleFiles)(upscanRequest)(
+                  upscanInitiateConnector.initiate(_)
+                )(success)
+              )
+              .map(sb => Redirect(getCallFor(sb._1)))
+        )
+      }
+    }
 
   // GET 	/add/check-your-answers
   final val showAmendCaseSummary: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.AmendCaseSummary]
-      .orApply(Transitions.toAmendSummary)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[AmendCaseSummary](Transitions.toAmendSummary)
+      }
+    }
 
   // GET /new/export/missing-information
   final val showAmendCaseMissingInformationError: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.AmendCaseMissingInformationError]
-      .orApply(Transitions.backToAmendCaseMissingInformationError)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[AmendCaseMissingInformationError](Transitions.backToAmendCaseMissingInformationError)
+      }
+    }
 
   // ----------------------- FILES UPLOAD -----------------------
 
@@ -138,26 +204,26 @@ class AmendCaseJourneyController @Inject() (
   final def preferUploadMultipleFiles(implicit rh: RequestHeader): Boolean =
     rh.cookies.get(COOKIE_JSENABLED).isDefined && appConfig.uploadMultipleFilesFeature
 
-  final def successRedirect(implicit rh: RequestHeader) =
+  final def successRedirect(journeyId: String)(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
-      case Some(_) => controller.asyncWaitingForFileVerification(journeyId.get)
+      case Some(_) => controller.asyncWaitingForFileVerification(journeyId)
       case None    => controller.showWaitingForFileVerification
     })
 
   final def successRedirectWhenUploadingMultipleFiles(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId.get)
 
-  final def errorRedirect(implicit rh: RequestHeader) =
+  final def errorRedirect(journeyId: String)(implicit rh: RequestHeader) =
     appConfig.baseExternalCallbackUrl + (rh.cookies.get(COOKIE_JSENABLED) match {
-      case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId.get)
+      case Some(_) => controller.asyncMarkFileUploadAsRejected(journeyId)
       case None    => controller.markFileUploadAsRejected
     })
 
   final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
       callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
-      successRedirect = Some(successRedirect),
-      errorRedirect = Some(errorRedirect),
+      successRedirect = Some(successRedirect(currentJourneyId)),
+      errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
       maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
@@ -167,7 +233,7 @@ class AmendCaseJourneyController @Inject() (
     UpscanInitiateRequest(
       callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
       successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
-      errorRedirect = Some(errorRedirect),
+      errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
       maximumFileSize = Some(appConfig.fileFormats.maxFileSizeMb * 1024 * 1024),
       expectedContentType = Some(appConfig.fileFormats.approvedFileTypes)
@@ -175,66 +241,130 @@ class AmendCaseJourneyController @Inject() (
 
   // GET /add/upload-files
   final val showUploadMultipleFiles: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .apply(FileUploadTransitions.toUploadMultipleFiles)
-      .redirectOrDisplayIf[FileUploadState.UploadMultipleFiles]
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[FileUploadState.UploadMultipleFiles](FileUploadTransitions.toUploadMultipleFiles)
+      }
+    }
 
   // POST /add/upload-files/initialise/:uploadId
   final def initiateNextFileUpload(uploadId: String): Action[AnyContent] =
-    whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        FileUploadTransitions
-          .initiateNextFileUpload(uploadId)(upscanRequestWhenUploadingMultipleFiles)(
-            upscanInitiateConnector.initiate(_)
-          )
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        val sessionStateUpdate =
+          FileUploadTransitions
+            .initiateNextFileUpload(uploadId)(upscanRequestWhenUploadingMultipleFiles)(
+              upscanInitiateConnector.initiate(_)
+            )
+        amendCaseJourneyService
+          .updateSessionState(sessionStateUpdate)
+          .map(renderUploadRequestJson(uploadId)(request, _))
       }
-      .displayUsing(renderUploadRequestJson(uploadId))
+    }
 
   // GET /add/file-upload
   final val showFileUpload: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        FileUploadTransitions
-          .initiateFileUpload(upscanRequest)(upscanInitiateConnector.initiate(_))
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[FileUploadState.UploadFile](
+          FileUploadTransitions
+            .initiateFileUpload(upscanRequest)(upscanInitiateConnector.initiate(_))
+        )
       }
-      .redirectOrDisplayIf[FileUploadState.UploadFile]
+    }
 
   // GET /add/file-rejected
   final val markFileUploadAsRejected: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.markUploadAsRejected)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        UpscanUploadErrorForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+              .map(sb => Redirect(getCallFor(sb._1)))
+        )
+      }
+    }
 
   // POST /new/file-rejected
   final val markFileUploadAsRejectedAsync: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(acknowledgeFileUploadRedirect)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        UpscanUploadErrorForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+              .map(acknowledgeFileUploadRedirect)
+        )
+      }
+    }
 
   // GET /add/journey/:journeyId/file-rejected
   final def asyncMarkFileUploadAsRejected(journeyId: String): Action[AnyContent] =
-    actions
-      .bindForm(UpscanUploadErrorForm)
-      .apply(FileUploadTransitions.markUploadAsRejected)
-      .displayUsing(acknowledgeFileUploadRedirect)
+    Action.async { implicit request =>
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
+        UpscanUploadErrorForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
+              .map(acknowledgeFileUploadRedirect)
+        )
+      }
+    }
 
   // GET /add/file-verification
   final val showWaitingForFileVerification: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .waitForStateThenRedirect[FileUploadState.FileUploaded](INITIAL_CALLBACK_WAIT_TIME_SECONDS)
-      .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
-      .redirectOrDisplayIf[FileUploadState.WaitingForFileVerification]
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+
+        /** Initial time to wait for callback arrival. */
+        val intervalInMiliseconds: Long = 500
+        val timeoutNanoTime: Long =
+          System.nanoTime() + INITIAL_CALLBACK_WAIT_TIME_SECONDS * 1000000000L
+
+        amendCaseJourneyService
+          .waitForSessionState[FileUploadState.FileUploaded](intervalInMiliseconds, timeoutNanoTime) {
+            amendCaseJourneyService.updateSessionState(FileUploadTransitions.waitForFileVerification)
+          }
+          .map(response => renderState(response._1, response._2, None))
+
+      }
+    }
 
   // GET /add/journey/:journeyId/file-verification
   final def asyncWaitingForFileVerification(journeyId: String): Action[AnyContent] =
-    actions
-      .waitForStateAndDisplayUsing[FileUploadState.FileUploaded](
-        INITIAL_CALLBACK_WAIT_TIME_SECONDS,
-        acknowledgeFileUploadRedirect
-      )
-      .orApplyOnTimeout(FileUploadTransitions.waitForFileVerification)
-      .displayUsing(acknowledgeFileUploadRedirect)
+    Action.async { implicit request =>
+      whenInSession(journeyId) {
+
+        /** Initial time to wait for callback arrival. */
+        val intervalInMiliseconds: Long = 500
+        val timeoutNanoTime: Long =
+          System.nanoTime() + INITIAL_CALLBACK_WAIT_TIME_SECONDS * 1000000000L
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
+        amendCaseJourneyService
+          .waitForSessionState[FileUploadState.FileUploaded](intervalInMiliseconds, timeoutNanoTime) {
+            amendCaseJourneyService.updateSessionState(FileUploadTransitions.waitForFileVerification)(journeyKeyHc, ec)
+          }
+          .map(acknowledgeFileUploadRedirect)
+
+      }
+    }
 
   // OPTIONS
   final def preflightUpload(journeyId: String): Action[AnyContent] =
@@ -244,99 +374,192 @@ class AmendCaseJourneyController @Inject() (
 
   // GET /new/journey/:journeyId/file-posted
   final def asyncMarkFileUploadAsPosted(journeyId: String): Action[AnyContent] =
-    actions
-      .bindForm(UpscanUploadSuccessForm)
-      .apply(FileUploadTransitions.markUploadAsPosted)
-      .displayUsing(acknowledgeFileUploadRedirect)
+    Action.async { implicit request =>
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
+        UpscanUploadSuccessForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
+              .map(acknowledgeFileUploadRedirect)
+        )
+      }
+    }
 
   // POST /callback-from-upscan/add/journey/:journeyId/:nonce
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
-    actions
-      .parseJsonWithFallback[UpscanNotification](BadRequest)
-      .apply(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce)))
-      .transform {
-        case r if r.header.status < 400 => NoContent
+    Action.async { implicit request =>
+      whenInSession(journeyId) {
+        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
+        Future(request.body.asJson.flatMap(_.asOpt[UpscanNotification]))
+          .flatMap {
+            case Some(payload) =>
+              amendCaseJourneyService
+                .updateSessionState(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce))(payload))(
+                  journeyKeyHc,
+                  ec
+                )
+                .map(_ => NoContent)
+
+            case None => BadRequest.asFuture
+          }
+          .recover {
+            case e: JsonParseException => BadRequest(e.getMessage())
+            case e                     => InternalServerError
+          }
       }
-      .recover { case e =>
-        InternalServerError
-      }
+    }
 
   // GET /add/file-uploaded
   final val showFileUploaded: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[FileUploadState.FileUploaded]
-      .orApply(FileUploadTransitions.backToFileUploaded)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        handleGet[FileUploadState.FileUploaded](FileUploadTransitions.backToFileUploaded)
+      }
+    }
 
   // POST /add/file-uploaded
   final val submitUploadAnotherFileChoice: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .bindForm[Boolean](UploadAnotherFileChoiceForm)
-      .applyWithRequest { implicit request =>
-        FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(upscanInitiateConnector.initiate(_))(
-          Transitions.toAmendSummary
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        UploadAnotherFileChoiceForm.bindFromRequest.fold(
+          formWithErrors =>
+            amendCaseJourneyService.currentSessionState.map {
+              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+              case _                          => Redirect(controller.showStart)
+            },
+          success =>
+            amendCaseJourneyService
+              .updateSessionState(
+                FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(
+                  upscanInitiateConnector.initiate(_)
+                )(
+                  Transitions.toAmendSummary
+                )(success)
+              )
+              .map(sb => Redirect(getCallFor(sb._1)))
         )
       }
+    }
 
   // GET /add/file-uploaded/:reference/remove
   final def removeFileUploadByReference(reference: String): Action[AnyContent] =
-    whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
-          upscanInitiateConnector.initiate(_)
-        )
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService
+          .updateSessionState(
+            FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
+              upscanInitiateConnector.initiate(_)
+            )
+          )
+          .map { case (state, breadcrumbs) =>
+            renderState(state, breadcrumbs, None)
+          }
       }
+    }
 
   // POST /add/file-uploaded/:reference/remove
   final def removeFileUploadByReferenceAsync(reference: String): Action[AnyContent] =
-    whenAuthorisedAsUser
-      .applyWithRequest { implicit request =>
-        FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
-          upscanInitiateConnector.initiate(_)
-        )
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        val sessionStateUpdate =
+          FileUploadTransitions.removeFileUploadByReference(reference)(upscanRequest)(
+            upscanInitiateConnector.initiate(_)
+          )
+        amendCaseJourneyService
+          .updateSessionState(sessionStateUpdate)
+          .map(renderFileRemovalStatusJson(reference))
       }
-      .displayUsing(renderFileRemovalStatusJson(reference))
+    }
 
   // GET /add/file-uploaded/:reference/:fileName
   final def previewFileUploadByReference(reference: String, fileName: String): Action[AnyContent] =
-    whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(streamFileFromUspcan(reference))
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService.currentSessionState.flatMap {
+          case Some((state, _)) => streamFileFromUspcan(reference)(request, state)
+          case None             => NotFound.asFuture
+        }
+      }
+    }
 
   // GET /add/file-verification/:reference/status
   final def checkFileVerificationStatus(reference: String): Action[AnyContent] =
-    whenAuthorisedAsUser.showCurrentState
-      .displayUsing(renderFileVerificationStatus(reference))
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService.currentSessionState.map {
+          case Some(sab) =>
+            renderFileVerificationStatus(reference)(request, sab)
+          case None => NotFound
+        }
+      }
+    }
 
   // ----------------------- CONFIRMATION -----------------------
 
   // POST /add/amend-case
   final def amendCase: Action[AnyContent] =
-    whenAuthorisedAsUserWithUidAndEori
-      .applyWithRequest { implicit request => uidAndEori =>
-        Transitions.amendCase(traderServicesApiConnector.updateCase(_))(uidAndEori)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        withUidAndEori.flatMap { uidAndEori =>
+          amendCaseJourneyService
+            .updateSessionState(Transitions.amendCase(traderServicesApiConnector.updateCase(_))(uidAndEori))
+            .map(sb => Redirect(getCallFor(sb._1)))
+        }
       }
+    }
 
   // GET /add/confirmation
   final def showAmendCaseConfirmation: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.AmendCaseConfirmation]
-      .orRollback
-      .andCleanBreadcrumbs() // forget journey history
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService
+          .rollback[AmendCaseConfirmation]()
+          .map {
+            case (state: AmendCaseConfirmation, breadcrumbs) => renderState(state, breadcrumbs, None)
+            case _                                           => Redirect(getCallFor(root))
+          }
+          .andThen { case _ => amendCaseJourneyService.cleanBreadcrumbs }
+      }
+    }
 
   // GET /add/confirmation/receipt
   final def downloadAmendCaseConfirmationReceipt: Action[AnyContent] =
-    whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(renderConfirmationReceiptHtml)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService.currentSessionState.flatMap {
+          case Some((state, _)) => renderConfirmationReceiptHtml(request, state)
+          case None             => NotFound.asFuture
+        }
+      }
+    }
 
   // GET /add/confirmation/receipt/pdf/:fileName
   final def downloadAmendCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
-    whenAuthorisedAsUser.showCurrentState
-      .displayAsyncUsing(renderConfirmationReceiptPdf)
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService.currentSessionState.flatMap {
+          case Some((state, _)) => renderConfirmationReceiptPdf(request, state)
+          case None             => NotFound.asFuture
+        }
+      }
+    }
 
   // GET /add/case-already-submitted
   final val showAmendCaseAlreadySubmitted: Action[AnyContent] =
-    whenAuthorisedAsUser
-      .show[State.AmendCaseAlreadySubmitted.type]
-      .orRollback
+    Action.async { implicit request =>
+      AsAuthorisedUser {
+        amendCaseJourneyService.rollback[AmendCaseAlreadySubmitted.type]().map {
+          case (state: AmendCaseAlreadySubmitted.type, breadcrumbs) => renderState(state, breadcrumbs, None)
+          case _                                                    => Redirect(getCallFor(root))
+        }
+      }
+    }
 
   /** Function from the `State` to the `Call` (route), used by play-fsm internally to create redirects.
     */
@@ -383,11 +606,11 @@ class AmendCaseJourneyController @Inject() (
 
     }
 
-  import uk.gov.hmrc.play.fsm.OptionalFormOps._
+  import uk.gov.hmrc.traderservices.support.OptionalFormOps._
 
   /** Function from the `State` to the `Result`, used by play-fsm internally to render the actual content.
     */
-  final override def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
+  final def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
   ): Result =
     state match {
@@ -536,7 +759,7 @@ class AmendCaseJourneyController @Inject() (
   private def renderUploadRequestJson(
     uploadId: String
   ) =
-    Renderer.simple {
+    resultWithRequestOf(implicit request => {
       case s: FileUploadState.UploadMultipleFiles =>
         s.fileUploads
           .findReferenceAndUploadRequestForUploadId(uploadId) match {
@@ -553,36 +776,34 @@ class AmendCaseJourneyController @Inject() (
         }
 
       case _ => Forbidden
-    }
+    })
 
   private def renderFileVerificationStatus(
     reference: String
   ) =
-    Renderer.withRequest { implicit request =>
-      {
-        case s: FileUploadState =>
-          s.fileUploads.files.find(_.reference == reference) match {
-            case Some(file) =>
-              Ok(
-                Json.toJson(
-                  FileVerificationStatus(
-                    file,
-                    uploadFileViewContext,
-                    controller.previewFileUploadByReference(_, _),
-                    appConfig.fileFormats.maxFileSizeMb
-                  )
+    resultWithRequestOf(implicit request => {
+      case s: FileUploadState =>
+        s.fileUploads.files.find(_.reference == reference) match {
+          case Some(file) =>
+            Ok(
+              Json.toJson(
+                FileVerificationStatus(
+                  file,
+                  uploadFileViewContext,
+                  controller.previewFileUploadByReference(_, _),
+                  appConfig.fileFormats.maxFileSizeMb
                 )
               )
-            case None => NotFound
-          }
-        case _ => NotFound
-      }
-    }
+            )
+          case None => NotFound
+        }
+      case _ => NotFound
+    })
 
   private def renderFileRemovalStatusJson(
     reference: String
   ) =
-    Renderer.simple {
+    resultOf {
       case s: FileUploadState => NoContent
       case _                  => BadRequest
     }
@@ -590,7 +811,7 @@ class AmendCaseJourneyController @Inject() (
   private def streamFileFromUspcan(
     reference: String
   ) =
-    AsyncRenderer.simple {
+    asyncResultWithRequestOf(implicit request => {
       case s: FileUploadState =>
         s.fileUploads.files.find(_.reference == reference) match {
           case Some(file: FileUpload.Accepted) =>
@@ -611,9 +832,9 @@ class AmendCaseJourneyController @Inject() (
         }
       case _ => Future.successful(NotFound)
 
-    }
+    })
 
-  private lazy val acknowledgeFileUploadRedirect = Renderer.simple { case state =>
+  private lazy val acknowledgeFileUploadRedirect = resultOf { case state =>
     (state match {
       case _: FileUploadState.UploadMultipleFiles        => Created
       case _: FileUploadState.FileUploaded               => Created
@@ -623,7 +844,7 @@ class AmendCaseJourneyController @Inject() (
   }
 
   private val renderConfirmationReceiptHtml =
-    AsyncRenderer.withRequest(implicit request => {
+    asyncResultWithRequestOf(implicit request => {
       case AmendCaseConfirmation(
             uploadedFiles,
             model,
@@ -647,7 +868,7 @@ class AmendCaseJourneyController @Inject() (
     })
 
   private val renderConfirmationReceiptPdf =
-    AsyncRenderer.withRequest(implicit request => {
+    asyncResultWithRequestOf(implicit request => {
       case AmendCaseConfirmation(
             uploadedFiles,
             model,
@@ -671,6 +892,24 @@ class AmendCaseJourneyController @Inject() (
 
       case _ => Future.successful(BadRequest)
     })
+
+  private def resultOf(
+    f: PartialFunction[State, Result]
+  ): ((State, List[State])) => Result =
+    (stateAndBreadcrumbs: (State, List[State])) =>
+      f.applyOrElse(stateAndBreadcrumbs._1, (_: State) => play.api.mvc.Results.NotImplemented)
+
+  private def resultWithRequestOf(
+    f: Request[_] => PartialFunction[State, Result]
+  ): (Request[_], (State, List[State])) => Result =
+    (request: Request[_], stateAndBreadcrumbs: (State, List[State])) =>
+      f(request).applyOrElse(stateAndBreadcrumbs._1, (_: State) => play.api.mvc.Results.NotImplemented)
+
+  private def asyncResultWithRequestOf(
+    f: Request[_] => PartialFunction[State, Future[Result]]
+  ): (Request[_], State) => Future[Result] = { (request: Request[_], state: State) =>
+    f(request)(state)
+  }
 }
 
 object AmendCaseJourneyController {

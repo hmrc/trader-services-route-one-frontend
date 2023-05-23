@@ -98,7 +98,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   /** Retrieves current state for the journeyId/journeyKey or None. */
   final def fetch(implicit requestContext: C, ec: ExecutionContext): Future[Option[T]] =
-    getJourneyId match {
+    getJourneyId(requestContext) match {
       case Some(journeyId) =>
         stateCacheActor
           .ask(replyTo => (journeyId, Get, replyTo))
@@ -120,7 +120,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   /** Saves provided state under the journeyId/journeyKey */
   final def save(input: T)(implicit requestContext: C, ec: ExecutionContext): Future[T] =
-    getJourneyId match {
+    getJourneyId(requestContext) match {
       case Some(journeyId) =>
         stateCacheActor
           .ask(replyTo => (journeyId, Store(input), replyTo))
@@ -141,7 +141,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   /** Removes journeyId/journeyKey */
   final def clear()(implicit requestContext: C, ec: ExecutionContext): Future[Unit] =
-    getJourneyId match {
+    getJourneyId(requestContext) match {
       case Some(journeyId) =>
         stateCacheActor
           .ask(replyTo => (journeyId, Delete, replyTo))

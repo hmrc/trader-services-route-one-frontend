@@ -16,53 +16,50 @@
 
 package uk.gov.hmrc.traderservices.support
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration.Duration
-import uk.gov.hmrc.play.fsm.PersistentJourneyService
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState.Start
+import uk.gov.hmrc.traderservices.journeys.{FileUploadJourneyModelMixin, State, Transition}
+import uk.gov.hmrc.traderservices.services.Breadcrumbs
+
 import java.util.concurrent.atomic.AtomicInteger
+import scala.concurrent.{ExecutionContext, Future}
 
-trait TestJourneyService[RequestContext] extends PersistentJourneyService[RequestContext] {
+trait TestJourneyService extends FileUploadJourneyModelMixin {
 
-  override val journeyKey: String = "TestJourney"
+  val journeyKey: String = "TestJourney"
 
   private val counter: AtomicInteger = new AtomicInteger(0)
 
-  val storage = new InMemoryStore[(model.State, List[model.State])] {}
+  val storage = new InMemoryStore[(State, List[State])] {}
 
-  override def apply(
-    transition: model.Transition
-  )(implicit rc: RequestContext, ec: ExecutionContext): Future[StateAndBreadcrumbs] = {
-    counter.incrementAndGet()
-    super.apply(transition)(rc, ec)
-  }
+  def apply(
+    transition: Transition[State]
+  )(implicit ec: ExecutionContext): Future[(State, List[State])] =
+    storage.fetch
+      .map { case (state, breadcrumbs) =>
+        transition.apply
+          .applyOrElse(
+            state,
+            (_: State) => Future.successful(state)
+          )
+          .map { endState =>
+            storage.save(
+              (
+                endState,
+                Breadcrumbs
+                  .updateBreadcrumbs(endState, state, breadcrumbs, (s: State) => s.isInstanceOf[IsTransient])
+              )
+            )
+          }
+      }
+      .getOrElse(Future.successful((Start, Nil)))
 
-  override def fetch(implicit
-    hc: RequestContext,
-    ec: ExecutionContext
-  ): Future[Option[(model.State, List[model.State])]] = storage.fetch
+  def set(state: State, breadcrumbs: List[State]): Unit =
+    storage.save((state, breadcrumbs))
 
-  override def save(
-    state: (model.State, List[model.State])
-  )(implicit hc: RequestContext, ec: ExecutionContext): Future[(model.State, List[model.State])] =
-    storage.save(state)
+  def get: Option[(State, List[State])] =
+    storage.fetch
 
-  def set(state: model.State, breadcrumbs: List[model.State])(implicit
-    headerCarrier: RequestContext,
-    timeout: Duration,
-    ec: ExecutionContext
-  ): Unit =
-    Await.result(save((state, breadcrumbs)), timeout)
-
-  def get(implicit
-    headerCarrier: RequestContext,
-    timeout: Duration,
-    ec: ExecutionContext
-  ): Option[StateAndBreadcrumbs] =
-    Await.result(fetch, timeout)
-
-  override def clear(implicit hc: RequestContext, ec: ExecutionContext): Future[Unit] =
+  def clear: Future[Unit] =
     Future.successful(storage.clear())
 
   def getCounter(): Int = counter.get()
