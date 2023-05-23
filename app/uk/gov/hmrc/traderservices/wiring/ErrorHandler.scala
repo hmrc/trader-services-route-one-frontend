@@ -31,7 +31,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.traderservices.connectors.TraderServicesAmendApiError
 import uk.gov.hmrc.traderservices.models.DateTimeHelper
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
-import uk.gov.hmrc.traderservices.views.html.{ErrorOutOfHoursView, ErrorView, PageNotFoundErrorView}
+import uk.gov.hmrc.traderservices.views.html.{AmendCaseErrorView, ErrorOutOfHoursView, ErrorView, PageNotFoundErrorView}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -45,6 +45,7 @@ class ErrorHandler @Inject() (
   govUkWrapper: GovukLayoutWrapper,
   html: uk.gov.hmrc.traderservices.views.components.html,
   pageNotFoundErrorView: PageNotFoundErrorView,
+  amendCaseErrorView: AmendCaseErrorView,
   errorView: ErrorView,
   errorOutOfHoursView: ErrorOutOfHoursView
 )(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
@@ -86,8 +87,8 @@ class ErrorHandler @Inject() (
     implicit val r: Request[String] = Request(request, "")
     exception match {
       case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
-      case _: InsufficientEnrolments => Forbidden
-//      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
+      case _: InsufficientEnrolments      => Forbidden
+      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
       case _ =>
         Ok(
           if (
@@ -111,7 +112,7 @@ class ErrorHandler @Inject() (
 
   override def notFoundTemplate(implicit request: Request[_]): HtmlFormat.Appendable = pageNotFoundErrorView()
 
-//  def externalAmendErrorTemplate()(implicit request: Request[_]): HtmlFormat.Appendable = amendCaseErrorView()
+  def externalAmendErrorTemplate()(implicit request: Request[_]): HtmlFormat.Appendable = amendCaseErrorView()
 }
 
 object EventTypes {
