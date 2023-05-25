@@ -30,6 +30,7 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.{Duration, _}
 import scala.io.AnsiColor
 import scala.reflect.ClassTag
+import scala.language.{implicitConversions, postfixOps}
 
 /** Abstract base of FSM journey specifications.
   *

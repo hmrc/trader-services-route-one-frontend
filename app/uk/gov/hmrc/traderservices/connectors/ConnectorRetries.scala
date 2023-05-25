@@ -26,7 +26,7 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 
-trait Retries {
+trait ConnectorRetries {
 
   protected def actorSystem: ActorSystem
 
