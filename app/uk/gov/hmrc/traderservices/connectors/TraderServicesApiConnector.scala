@@ -36,7 +36,7 @@ class TraderServicesApiConnector @Inject() (
   http: HttpGet with HttpPost,
   metrics: Metrics,
   val actorSystem: ActorSystem
-) extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor with Retries {
+) extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor with ConnectorRetries {
 
   val baseUrl: String = appConfig.traderServicesApiBaseUrl
   val createCaseApiPath = appConfig.createCaseApiPath

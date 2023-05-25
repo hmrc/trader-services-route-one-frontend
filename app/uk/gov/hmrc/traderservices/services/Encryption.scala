@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets
 import java.security.Key
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 object Encryption {
@@ -101,7 +101,7 @@ object KeyProvider {
 
     val previousEncryptionKeys: Seq[String] =
       Try(config.getStringList("json.encryption.previousKeys"))
-        .map(_.asScala)
+        .map(_.asScala.toSeq)
         .getOrElse(Seq.empty)
 
     KeyProvider(currentEncryptionKey +: previousEncryptionKeys)

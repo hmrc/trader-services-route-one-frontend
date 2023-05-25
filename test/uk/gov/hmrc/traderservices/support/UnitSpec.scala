@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.traderservices.support
 
-import java.nio.charset.Charset
-
 import akka.stream.Materializer
 import akka.util.ByteString
+import org.scalatest.OptionValues
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 
+import java.nio.charset.Charset
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.language.implicitConversions
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.OptionValues
-import org.scalatest.wordspec.AnyWordSpec
+import scala.language.{implicitConversions, postfixOps}
 
 trait UnitSpec extends AnyWordSpec with Matchers with OptionValues {
 

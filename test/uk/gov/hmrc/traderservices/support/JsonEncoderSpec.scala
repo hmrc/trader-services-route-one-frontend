@@ -25,6 +25,7 @@ import scala.collection.convert.AsJavaConverters
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.core.OutputStreamAppender
+
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
@@ -51,7 +52,7 @@ class JsonEncoderSpec extends UnitSpec with AsJavaConverters {
       encoder.decodeMessage(node, """json{"foo":"bar"}""")
       node.get("route1") shouldBe new ObjectNode(
         jnf,
-        mapAsJavaMap(Map("foo" -> new TextNode("bar")))
+        asJava(Map("foo" -> new TextNode("bar")))
       )
       node.get("message") shouldBe new TextNode("""{"foo":"bar"}""")
     }

@@ -8,6 +8,7 @@ import play.api.{Application, Configuration}
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
+import scala.language.{implicitConversions, postfixOps}
 
 abstract class NonAuthPageISpec(config: (String, Any)*) extends ServerISpec with GuiceOneServerPerSuite {
 

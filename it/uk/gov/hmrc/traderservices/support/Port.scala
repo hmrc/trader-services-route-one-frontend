@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.support
 import annotation.tailrec
 import java.net.ServerSocket
 import play.api.Logger
+import scala.language.{implicitConversions, postfixOps}
 
 object Port {
   val rnd = new scala.util.Random

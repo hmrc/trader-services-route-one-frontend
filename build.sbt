@@ -17,7 +17,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "trader-services-route-one-frontend",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.12.15",
+    scalaVersion := "2.13.8",
     PlayKeys.playDefaultPort := 9379,
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
@@ -47,7 +47,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.9" cross CrossVersion.full),
       "com.github.ghik" % "silencer-lib" % "1.7.9" % Provided cross CrossVersion.full
-    )
+    ),
+    libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
   )
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
