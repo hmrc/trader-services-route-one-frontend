@@ -36,6 +36,8 @@ lazy val root = (project in file("."))
     Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
     Test / parallelExecution := false,
     Test / scalafmtOnCompile := true
+    asdfasdfasdfas
+      asdfasdfa
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)
