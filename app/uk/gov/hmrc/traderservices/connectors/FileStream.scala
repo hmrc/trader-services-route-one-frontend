@@ -68,10 +68,10 @@ trait FileStream {
               )
               .withHeaders(contentDispositionForMimeType(fileName, fileMimeType))
           else
-            throw new Exception(s"Error status ${httpResponse.status} when accessing $url")
+            throw new Exception(s"Error status ${httpResponse.status} when accessing file stream url")
 
         case (_, (Failure(error), url)) =>
-          throw new Exception(s"Error when accessing $url: ${error.getMessage()}.")
+          throw new Exception(s"Error when accessing file stream url: ${error.getMessage()}.")
       }
 
 }
