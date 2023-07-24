@@ -37,7 +37,7 @@
         classes = if(isPageHeading) "govuk-label--xl" else ""
     ),
     hint = hint.map(hintKey => Hint(
-        content = HtmlContent(messages(hintKey))
+        content = Text(messages(hintKey))
     )),
     value = form(name).value,
     errorMessage = form(name).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
