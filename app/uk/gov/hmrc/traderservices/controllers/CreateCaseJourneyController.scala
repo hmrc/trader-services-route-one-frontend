@@ -17,7 +17,6 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import akka.actor.{ActorSystem, Scheduler}
-import com.fasterxml.jackson.core.JsonParseException
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -30,7 +29,7 @@ import uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
 import uk.gov.hmrc.traderservices.journeys.{State, Transition}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyServiceWithHeaderCarrier, SessionStateService}
+import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -730,7 +729,9 @@ class CreateCaseJourneyController @Inject() (
 
   final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + internal.routes.UpscanCallBackController
+        .callbackFromUpscan(currentJourneyId, nonce)
+        .url,
       successRedirect = Some(successRedirect(currentJourneyId)),
       errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
@@ -740,7 +741,9 @@ class CreateCaseJourneyController @Inject() (
 
   final def upscanRequestWhenUploadingMultipleFiles(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + internal.routes.UpscanCallBackController
+        .callbackFromUpscan(currentJourneyId, nonce)
+        .url,
       successRedirect = Some(successRedirectWhenUploadingMultipleFiles(currentJourneyId)),
       errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
@@ -897,30 +900,6 @@ class CreateCaseJourneyController @Inject() (
               .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
               .map(acknowledgeFileUploadRedirect)
         )
-      }
-    }
-
-  // POST /callback-from-upscan/new/journey/:journeyId/:nonce
-  final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
-    Action.async { implicit request =>
-      whenInSession(journeyId) {
-        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((createCaseJourneyService.journeyKey, journeyId))
-        Future(request.body.asJson.flatMap(_.asOpt[UpscanNotification]))
-          .flatMap {
-            case Some(payload) =>
-              createCaseJourneyService
-                .updateSessionState(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce))(payload))(
-                  journeyKeyHc,
-                  ec
-                )
-                .map(_ => NoContent)
-
-            case None => BadRequest.asFuture
-          }
-          .recover {
-            case e: JsonParseException => BadRequest(e.getMessage())
-            case e                     => InternalServerError
-          }
       }
     }
 
@@ -1545,7 +1524,7 @@ class CreateCaseJourneyController @Inject() (
         Ok(
           views.caseAlreadyExistsView(
             caseReferenceId,
-//            routes.AmendCaseJourneyController.showStart temporarily commented for testing
+            //            routes.AmendCaseJourneyController.showStart temporarily commented for testing
             routes.CreateCaseJourneyController.showStart
           )
         )

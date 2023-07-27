@@ -248,7 +248,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments()
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
+          s"/internal/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/001").post(""))
@@ -328,7 +328,7 @@ class AmendCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments()
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
+          s"/internal/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         givenUpscanInitiateSucceeds(callbackUrl)
 
         val result = await(request("/add/upload-files/initialise/002").post(""))
@@ -399,7 +399,7 @@ class AmendCaseJourneyNoEnrolmentISpec
     "GET /add/file-upload" should {
       "show the upload first document page" in {
         val callbackUrl =
-          s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
+          s"/internal/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/"
         val state = UploadFile(
           AmendCaseModel(
             caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
