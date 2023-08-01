@@ -70,9 +70,6 @@ trait AppConfig {
   def betaFeedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
 
-  def reportProblemUrl(implicit request: RequestHeader): String =
-    s"$contactHost/contact/problem_reports_nonjs?newTab=true&service=$contactFormServiceIdentifier&backUrl=$requestUri"
-
   val signOutUrl: String
 
   val researchBannerUrl: String
