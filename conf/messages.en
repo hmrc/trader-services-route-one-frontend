@@ -71,8 +71,8 @@ global.error.404.line3=<a class="govuk-link" href="{0}">Send your documents for 
 
 global.error.500.title=Sorry, there is a problem with the service
 global.error.500.heading=Sorry, there is a problem with the service
-global.error.500.line1=Try again. If the issue persists and you need help, you can <a class="govuk-link" target="_blank" rel="noopener noreferrer" href="{0}">report the problem (opens in a new window or tab)</a>. We will respond to you within two working days. 
-global.error.500.line2=If you’ve entered any information, we have not saved your answers.
+global.error.500.line1=Try again. If the issue persists and you need help, you can report the problem using the link at the bottom of this page. HMRC will respond to you within two working days.
+global.error.500.line2=If you have entered any information, it has not been saved.
 
 global.ooh.error.500.line1=Try again. If the issue persists, please email your documents to <a href="mailto:nch@hmrc.gov.uk" class="govuk-link">nch@hmrc.gov.uk</a> instead. 
 global.ooh.error.500.line2=If you’ve entered any information, we have not saved your answers.
