@@ -1,7 +1,7 @@
 import sbt._
 
 object AppDependencies {
-  val playVersion = "7.15.0"
+  val playVersion = "7.22.0"
 
   lazy val compileDeps = Seq(
     "uk.gov.hmrc"                  %% "bootstrap-frontend-play-28" % playVersion,
