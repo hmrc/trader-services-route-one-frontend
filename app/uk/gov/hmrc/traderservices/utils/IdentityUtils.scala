@@ -24,15 +24,15 @@ object IdentityUtils {
 
     @tailrec
     def simpleNameOf(clazz: Class[_], suffix: String): String = {
-      val name = clazz.getName()
+      val name = clazz.getName
       val id = normalize(name)
       if (name.contains("$anon$"))
-        simpleNameOf(entity.getClass().getSuperclass(), combine(id, suffix))
+        simpleNameOf(entity.getClass.getSuperclass, combine(id, suffix))
       else
         combine(id, suffix)
     }
 
-    simpleNameOf(entity.getClass(), "")
+    simpleNameOf(entity.getClass, "")
   }
 
   final def normalize(name: String): String = {
@@ -47,9 +47,9 @@ object IdentityUtils {
   }
 
   @inline final def combine(a: String, b: String): String =
-    if (a.isEmpty())
+    if (a.isEmpty)
       b
-    else if (b.isEmpty())
+    else if (b.isEmpty)
       a
     else
       s"$a:$b"

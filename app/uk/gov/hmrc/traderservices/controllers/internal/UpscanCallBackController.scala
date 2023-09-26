@@ -16,14 +16,10 @@
 
 package uk.gov.hmrc.traderservices.controllers.internal
 
-import akka.actor.{ActorSystem, Scheduler}
-import com.fasterxml.jackson.core.JsonParseException
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Request}
-import play.api.{Configuration, Environment}
+import org.bson.json.JsonParseException
+import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.traderservices.connectors.{FileStream, FrontendAuthConnector}
-import uk.gov.hmrc.traderservices.controllers.BaseJourneyController
-import uk.gov.hmrc.traderservices.journeys.State
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.traderservices.models.{Nonce, UpscanNotification}
 import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -35,27 +31,16 @@ import scala.concurrent.{ExecutionContext, Future}
 class UpscanCallBackController @Inject() (
   createCaseJourneyService: CreateCaseJourneyServiceWithHeaderCarrier,
   appConfig: AppConfig,
-  authConnector: FrontendAuthConnector,
-  environment: Environment,
-  configuration: Configuration,
-  controllerComponents: MessagesControllerComponents,
-  val actorSystem: ActorSystem
+  val controllerComponents: MessagesControllerComponents
 )(implicit ec: ExecutionContext)
-    extends BaseJourneyController(
-      createCaseJourneyService,
-      controllerComponents,
-      appConfig,
-      authConnector,
-      environment,
-      configuration
-    ) with FileStream {
+    extends FrontendBaseController {
 
   import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel._
 
   // POST /callback-from-upscan/new/journey/:journeyId/:nonce
   final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
     Action.async { implicit request =>
-      whenInSession(journeyId) {
+      whenInSession(journeyId, appConfig) {
         val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((createCaseJourneyService.journeyKey, journeyId))
         Future(request.body.asJson.flatMap(_.asOpt[UpscanNotification]))
           .flatMap {
@@ -67,7 +52,7 @@ class UpscanCallBackController @Inject() (
                 )
                 .map(_ => NoContent)
 
-            case None => BadRequest.asFuture
+            case None => Future.successful(BadRequest)
           }
           .recover {
             case e: JsonParseException => BadRequest(e.getMessage)
@@ -76,8 +61,4 @@ class UpscanCallBackController @Inject() (
       }
     }
 
-  /** Function mapping FSM states to the endpoint calls. This function is invoked internally when the result of an
-    * action is to *redirect* to some state.
-    */
-  override def getCallFor(state: State)(implicit request: Request[_]): Call = ???
 }
