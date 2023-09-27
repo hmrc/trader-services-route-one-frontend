@@ -17,25 +17,30 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+
 import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.idFunctor
+import uk.gov.hmrc.play.bootstrap.binders.{OnlyRelative, RedirectUrl}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 class SignOutController @Inject() (controllerComponents: MessagesControllerComponents, appConfig: AppConfig)
     extends FrontendController(controllerComponents) {
 
-  def signOut(continueUrl: Option[String]): Action[AnyContent] =
+  def signOut(continueUrl: Option[RedirectUrl]): Action[AnyContent] =
     Action { _ =>
       continueUrl match {
         case Some(url) =>
-          Redirect(appConfig.signOutUrl, Map("continue" -> Seq(url)))
+          Redirect(appConfig.signOutUrl, Map("continue" -> Seq(url.get(OnlyRelative).url)))
         case _ =>
           Redirect(appConfig.signOutUrl, Map("continue" -> Seq(appConfig.exitSurveyUrl)))
       }
     }
 
   def signOutTimeout(): Action[AnyContent] =
-    signOut(continueUrl = Some(appConfig.baseExternalCallbackUrl + routes.SessionController.showTimeoutPage.url))
+    signOut(continueUrl =
+      Some(RedirectUrl(appConfig.baseExternalCallbackUrl + routes.SessionController.showTimeoutPage.url))
+    )
 
   def signOutNoSurvey: Action[AnyContent] =
     Action { _ =>

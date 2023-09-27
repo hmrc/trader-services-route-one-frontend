@@ -1,5 +1,6 @@
 import sbt.Def
 import sbt.Tests.{Group, SubProcess}
+import play.sbt.routes.RoutesKeys
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 lazy val scoverageSettings = {
@@ -36,6 +37,9 @@ lazy val root = (project in file("."))
     Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
     Test / parallelExecution := false,
     Test / scalafmtOnCompile := true
+  )
+  .settings(
+    RoutesKeys.routesImport += "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
   )
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(itSettings): _*)

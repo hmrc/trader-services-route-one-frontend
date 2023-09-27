@@ -123,7 +123,7 @@ GET        /add/case-already-submitted                              @uk.gov.hmrc
 GET        /timedout                                                @uk.gov.hmrc.traderservices.controllers.SessionController.showTimeoutPage
 GET        /keep-alive                                              @uk.gov.hmrc.traderservices.controllers.SessionController.keepAlive
 
-GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[String] ?= None)
+GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[RedirectUrl] ?= None)
 GET        /sign-out/timeout                                        @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutTimeout
 GET        /sign-out-no-survey                                      @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
 
