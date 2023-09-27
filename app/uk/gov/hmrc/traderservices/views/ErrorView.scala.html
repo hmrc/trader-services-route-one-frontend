@@ -14,12 +14,9 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.traderservices.wiring.AppConfig
-
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
-        html: uk.gov.hmrc.traderservices.views.components.html,
-        appConfig: AppConfig
+        html: uk.gov.hmrc.traderservices.views.components.html
 )
 
 @()(implicit request: Request[_], messages: Messages)
@@ -30,7 +27,7 @@
 
   @html.h1(messages("global.error.500.heading"))
 
-  @html.p { @Html(messages("global.error.500.line1", appConfig.reportProblemUrl)) }
+  @html.p { @Html(messages("global.error.500.line1")) }
   @html.p { @messages("global.error.500.line2") }
 
 }
