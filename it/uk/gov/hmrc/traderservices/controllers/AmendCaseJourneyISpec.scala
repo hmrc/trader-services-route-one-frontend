@@ -569,7 +569,7 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+          appConfig.baseInternalCallbackUrl + s"/internal/callback-from-upscan/add/journey/${SHA256
               .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
@@ -640,7 +640,7 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+          appConfig.baseInternalCallbackUrl + s"/internal/callback-from-upscan/add/journey/${SHA256
               .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
@@ -709,7 +709,7 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+          appConfig.baseInternalCallbackUrl + s"/internal/callback-from-upscan/add/journey/${SHA256
               .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
@@ -1072,7 +1072,7 @@ class AmendCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
         val callbackUrl =
-          appConfig.baseInternalCallbackUrl + s"/send-documents-for-customs-check/callback-from-upscan/add/journey/${SHA256
+          appConfig.baseInternalCallbackUrl + s"/internal/callback-from-upscan/add/journey/${SHA256
               .compute(journeyId.value)}"
         givenUpscanInitiateSucceeds(callbackUrl)
 
@@ -1515,217 +1515,6 @@ class AmendCaseJourneyISpec
       }
     }
 
-    "POST /callback-from-upscan/add/journey/:journeyId" should {
-      "return 400 if callback body invalid" in {
-        val nonce = Nonce.random
-        journey.setState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            )
-          )
-        )
-        val result =
-          await(
-            request(s"/callback-from-upscan/add/journey/${journeyId.value}/$nonce")
-              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-              .post(
-                Json.obj(
-                  "reference" -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c")
-                )
-              )
-          )
-
-        result.status shouldBe 400
-        journey.getState should beState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            )
-          )
-        )
-      }
-
-      "modify file status to Accepted and return 204" in {
-        val nonce = Nonce.random
-        journey.setState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            )
-          )
-        )
-        val result =
-          await(
-            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/$nonce")
-              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-              .post(
-                Json.obj(
-                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
-                  "fileStatus"  -> JsString("READY"),
-                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
-                  "uploadDetails" -> Json.obj(
-                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
-                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
-                    "fileName"        -> JsString("foo.pdf"),
-                    "fileMimeType"    -> JsString("application/pdf"),
-                    "size"            -> JsNumber(1)
-                  )
-                )
-              )
-          )
-
-        result.status shouldBe 204
-        journey.getState should beState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Accepted(
-                  nonce,
-                  Timestamp.Any,
-                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
-                  "https://foo.bar/XYZ123/foo.pdf",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "foo.pdf",
-                  "application/pdf",
-                  Some(1)
-                )
-              )
-            )
-          )
-        )
-      }
-
-      "keep file status Accepted and return 204" in {
-        val nonce = Nonce.random
-        journey.setState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Accepted(
-                  nonce,
-                  Timestamp.Any,
-                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
-                  "https://foo.bar/XYZ123/foo.pdf",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "foo.pdf",
-                  "application/pdf",
-                  Some(1)
-                )
-              )
-            )
-          )
-        )
-        val result =
-          await(
-            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/$nonce")
-              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-              .post(
-                Json.obj(
-                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
-                  "fileStatus"  -> JsString("READY"),
-                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
-                  "uploadDetails" -> Json.obj(
-                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
-                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
-                    "fileName"        -> JsString("foo.pdf"),
-                    "fileMimeType"    -> JsString("application/pdf"),
-                    "size"            -> JsNumber(1)
-                  )
-                )
-              )
-          )
-
-        result.status shouldBe 204
-        journey.getState should beState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Accepted(
-                  nonce,
-                  Timestamp.Any,
-                  "2b72fe99-8adf-4edb-865e-622ae710f77c",
-                  "https://foo.bar/XYZ123/foo.pdf",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "foo.pdf",
-                  "application/pdf",
-                  Some(1)
-                )
-              )
-            )
-          )
-        )
-      }
-
-      "change nothing if nonce not matching" in {
-        val nonce = Nonce.random
-        journey.setState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            )
-          )
-        )
-        val result =
-          await(
-            request(s"/callback-from-upscan/add/journey/${SHA256.compute(journeyId.value)}/${Nonce.random}")
-              .withHttpHeaders(HeaderNames.CONTENT_TYPE -> MimeTypes.JSON)
-              .post(
-                Json.obj(
-                  "reference"   -> JsString("2b72fe99-8adf-4edb-865e-622ae710f77c"),
-                  "fileStatus"  -> JsString("READY"),
-                  "downloadUrl" -> JsString("https://foo.bar/XYZ123/foo.pdf"),
-                  "uploadDetails" -> Json.obj(
-                    "uploadTimestamp" -> JsString("2018-04-24T09:30:00Z"),
-                    "checksum"        -> JsString("396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100"),
-                    "fileName"        -> JsString("foo.pdf"),
-                    "fileMimeType"    -> JsString("application/pdf"),
-                    "size"            -> JsNumber(1)
-                  )
-                )
-              )
-          )
-
-        result.status shouldBe 204
-        journey.getState should beState(
-          UploadMultipleFiles(
-            exampleAmendCaseModel,
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(nonce, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            )
-          )
-        )
-      }
-    }
-
     "OPTIONS /add/journey/:journeyId/file-rejected" should {
       "return 201 with access control header" in {
         val result =
@@ -1804,12 +1593,17 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
       .withCookies(cookies: _*)
       .withSession(journey.journeyKey -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")
 
-  final def request(path: String)(implicit journeyId: JourneyId): StandaloneWSRequest = {
+  final def request(path: String, isInternalUrl: Boolean = false)(implicit
+    journeyId: JourneyId
+  ): StandaloneWSRequest = {
     val sessionCookie =
       sessionCookieBaker
         .encodeAsCookie(Session(Map(SessionKeys.sessionId -> journeyId.value, SessionKeys.authToken -> "Bearer XYZ")))
+
+    val baseUrlPath = if (isInternalUrl) baseInternalUrl else baseUrl
+
     wsClient
-      .url(s"$baseUrl$path")
+      .url(s"$baseUrlPath$path")
       .withCookies(
         Seq(
           DefaultWSCookie(

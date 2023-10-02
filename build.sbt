@@ -1,6 +1,7 @@
 import play.sbt.routes.RoutesKeys
 import sbt.Def
 import sbt.Tests.{Group, SubProcess}
+import play.sbt.routes.RoutesKeys
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 lazy val scoverageSettings = {

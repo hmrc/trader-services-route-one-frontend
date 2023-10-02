@@ -221,7 +221,9 @@ class AmendCaseJourneyController @Inject() (
 
   final def upscanRequest(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + internal.routes.UpscanCallBackAmendCaseController
+        .callbackFromUpscan(currentJourneyId, nonce)
+        .url,
       successRedirect = Some(successRedirect(currentJourneyId)),
       errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
@@ -231,7 +233,9 @@ class AmendCaseJourneyController @Inject() (
 
   final def upscanRequestWhenUploadingMultipleFiles(nonce: String)(implicit rh: RequestHeader) =
     UpscanInitiateRequest(
-      callbackUrl = appConfig.baseInternalCallbackUrl + controller.callbackFromUpscan(currentJourneyId, nonce).url,
+      callbackUrl = appConfig.baseInternalCallbackUrl + internal.routes.UpscanCallBackAmendCaseController
+        .callbackFromUpscan(currentJourneyId, nonce)
+        .url,
       successRedirect = Some(successRedirectWhenUploadingMultipleFiles),
       errorRedirect = Some(errorRedirect(currentJourneyId)),
       minimumFileSize = Some(1),
@@ -388,30 +392,6 @@ class AmendCaseJourneyController @Inject() (
               .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
               .map(acknowledgeFileUploadRedirect)
         )
-      }
-    }
-
-  // POST /callback-from-upscan/add/journey/:journeyId/:nonce
-  final def callbackFromUpscan(journeyId: String, nonce: String): Action[AnyContent] =
-    Action.async { implicit request =>
-      whenInSession(journeyId) {
-        val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
-        Future(request.body.asJson.flatMap(_.asOpt[UpscanNotification]))
-          .flatMap {
-            case Some(payload) =>
-              amendCaseJourneyService
-                .updateSessionState(FileUploadTransitions.upscanCallbackArrived(Nonce(nonce))(payload))(
-                  journeyKeyHc,
-                  ec
-                )
-                .map(_ => NoContent)
-
-            case None => BadRequest.asFuture
-          }
-          .recover {
-            case e: JsonParseException => BadRequest(e.getMessage())
-            case e                     => InternalServerError
-          }
       }
     }
 

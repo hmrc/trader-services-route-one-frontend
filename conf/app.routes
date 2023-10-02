@@ -75,8 +75,6 @@ GET        /new/file-uploaded/:reference/remove                     @uk.gov.hmrc
 + nocsrf
 POST       /new/file-uploaded/:reference/remove                     @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.removeFileUploadByReferenceAsync(reference: String)
 GET        /new/file-uploaded/:reference/:fileName                  @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.previewFileUploadByReference(reference: String, fileName: String)
-+ nocsrf
-POST       /callback-from-upscan/new/journey/:journeyId/:nonce      @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.callbackFromUpscan(journeyId: String, nonce: String)
 
 POST       /new/create-case                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /new/confirmation                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
@@ -114,8 +112,6 @@ GET        /add/file-uploaded/:reference/remove                     @uk.gov.hmrc
 + nocsrf
 POST       /add/file-uploaded/:reference/remove                     @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.removeFileUploadByReferenceAsync(reference: String)
 GET        /add/file-uploaded/:reference/:fileName                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.previewFileUploadByReference(reference: String, fileName: String)
-+ nocsrf
-POST       /callback-from-upscan/add/journey/:journeyId/:nonce      @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.callbackFromUpscan(journeyId: String, nonce: String)
 GET        /add/check-your-answers                                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseSummary
 GET        /add/missing-information                                 @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseMissingInformationError
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
