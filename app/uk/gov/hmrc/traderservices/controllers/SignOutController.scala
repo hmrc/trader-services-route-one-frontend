@@ -38,9 +38,12 @@ class SignOutController @Inject() (controllerComponents: MessagesControllerCompo
     }
 
   def signOutTimeout(): Action[AnyContent] =
-    signOut(continueUrl =
-      Some(RedirectUrl(appConfig.baseExternalCallbackUrl + routes.SessionController.showTimeoutPage.url))
-    )
+    Action { _ =>
+      Redirect(
+        appConfig.signOutUrl,
+        Map("continue" -> Seq(appConfig.baseExternalCallbackUrl + routes.SessionController.showTimeoutPage.url))
+      )
+    }
 
   def signOutNoSurvey: Action[AnyContent] =
     Action { _ =>
