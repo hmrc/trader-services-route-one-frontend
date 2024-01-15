@@ -43,7 +43,13 @@ module.exports = function (env) {
       ]
     },
     plugins: [
-      new ESLintPlugin()
+      new ESLintPlugin({
+        files: 'app/**/*.ts',
+        "overrideConfig": {
+          "extends": "eslint:recommended",
+          "rules": { }
+        }
+      })
     ],
     output: env.output
   }
