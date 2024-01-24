@@ -23,14 +23,14 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.codahale.metrics.MetricRegistry
 
 trait AverageResponseTimer {
-  val kenshooRegistry: MetricRegistry
+  val metricRegistry: MetricRegistry
 
   def timer[T](serviceName: String)(function: => Future[T])(implicit ec: ExecutionContext): Future[T] = {
     val start = System.nanoTime()
     function.andThen { case _ =>
       val duration = Duration(System.nanoTime() - start, NANOSECONDS)
-      kenshooRegistry.getTimers
-        .getOrDefault(timerName(serviceName), kenshooRegistry.timer(timerName(serviceName)))
+      metricRegistry.getTimers
+        .getOrDefault(timerName(serviceName), metricRegistry.timer(timerName(serviceName)))
         .update(duration.length, duration.unit)
       Logger(getClass).debug(
         s"kenshoo-event::timer::${timerName(serviceName)}::duration:{'length':${duration.length}, 'unit':${duration.unit}}"

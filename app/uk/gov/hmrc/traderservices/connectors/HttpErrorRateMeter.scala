@@ -24,7 +24,7 @@ import com.codahale.metrics.MetricRegistry
 import uk.gov.hmrc.http._
 
 trait HttpErrorRateMeter {
-  val kenshooRegistry: MetricRegistry
+  val metricRegistry: MetricRegistry
   def meterName[T](serviceName: String, statusCode: Int): String =
     if (statusCode >= 500) s"Http5xxErrorCount-$serviceName" else s"Http4xxErrorCount-$serviceName"
 
@@ -37,7 +37,7 @@ trait HttpErrorRateMeter {
     }
 
   private def record[T](name: String): Unit = {
-    kenshooRegistry.getMeters.getOrDefault(name, kenshooRegistry.meter(name)).mark()
+    metricRegistry.getMeters.getOrDefault(name, metricRegistry.meter(name)).mark()
     Logger(getClass).debug(s"kenshoo-event::meter::$name::recorded")
   }
 }

@@ -17,9 +17,9 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import java.net.URL
@@ -36,7 +36,7 @@ class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet wit
   val upscanInitiatev2Path = "/upscan/v2/initiate"
   val userAgent = "trader-services-route-one-frontend"
 
-  override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
+  override val metricRegistry: MetricRegistry = metrics.defaultRegistry
 
   def initiate(
     request: UpscanInitiateRequest

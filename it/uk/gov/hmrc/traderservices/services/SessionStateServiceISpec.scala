@@ -14,7 +14,7 @@ import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{Duration, DurationLong, FiniteDuration}
 
 class SessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
@@ -487,6 +487,8 @@ trait SessionStateServiceISpecSetup extends AppISpec {
     new MongoComponent {
       override def client: MongoClient = null
       override def database: MongoDatabase = null
+
+      override def initTimeout: FiniteDuration = 5.seconds
     }
 
   val stateFormats: Format[Int] =

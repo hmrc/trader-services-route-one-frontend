@@ -6,7 +6,7 @@ import uk.gov.hmrc.traderservices.support.UnitSpec
 class HttpErrorRateMeterSpec extends UnitSpec {
 
   class TestHttpErrorRateMeter extends HttpErrorRateMeter {
-    override val kenshooRegistry: MetricRegistry = new MetricRegistry()
+    override val metricRegistry: MetricRegistry = new MetricRegistry()
   }
 
   val testHttpErrorRateMeter = new TestHttpErrorRateMeter()
