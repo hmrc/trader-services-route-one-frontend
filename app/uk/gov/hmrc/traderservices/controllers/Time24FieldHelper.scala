@@ -18,10 +18,8 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import play.api.data.Mapping
-import java.time.format.DateTimeFormatter
 
 import play.api.data.Forms.{mapping, of, optional}
-import play.api.data.Mapping
 import play.api.data.format.Formats._
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 import scala.annotation.tailrec
