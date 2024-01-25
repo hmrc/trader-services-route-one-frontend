@@ -33,6 +33,7 @@ class forms @Inject() (
   val inputCheckboxes: uk.gov.hmrc.traderservices.views.html.components.inputCheckboxes,
   val inputRadio: uk.gov.hmrc.traderservices.views.html.components.inputRadio,
   val inputTime: uk.gov.hmrc.traderservices.views.html.components.inputTime,
+  val textarea: uk.gov.hmrc.traderservices.views.html.components.textarea,
   val inputCharacterCount: uk.gov.hmrc.traderservices.views.html.components.InputCharacterCount
 ) {
 
