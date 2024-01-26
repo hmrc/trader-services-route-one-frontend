@@ -17,7 +17,6 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import akka.actor.{ActorSystem, Scheduler}
-import com.fasterxml.jackson.core.JsonParseException
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -29,7 +28,7 @@ import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.{State, Transition}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyServiceWithHeaderCarrier, SessionStateService}
+import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -102,17 +101,19 @@ class AmendCaseJourneyController @Inject() (
   final val submitCaseReferenceNumber: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        EnterCaseReferenceNumberForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(Transitions.submitedCaseReferenceNumber(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        EnterCaseReferenceNumberForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(Transitions.submitedCaseReferenceNumber(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -128,21 +129,23 @@ class AmendCaseJourneyController @Inject() (
   final val submitTypeOfAmendment: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        TypeOfAmendmentForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(
-                Transitions.submitedTypeOfAmendment(preferUploadMultipleFiles)(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        TypeOfAmendmentForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(
+                  Transitions.submitedTypeOfAmendment(preferUploadMultipleFiles)(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -158,21 +161,23 @@ class AmendCaseJourneyController @Inject() (
   final val submitResponseText: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ResponseTextForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(
-                Transitions.submitedResponseText(preferUploadMultipleFiles)(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ResponseTextForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(
+                  Transitions.submitedResponseText(preferUploadMultipleFiles)(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -281,17 +286,19 @@ class AmendCaseJourneyController @Inject() (
   final val markFileUploadAsRejected: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -299,17 +306,19 @@ class AmendCaseJourneyController @Inject() (
   final val markFileUploadAsRejectedAsync: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -318,17 +327,19 @@ class AmendCaseJourneyController @Inject() (
     Action.async { implicit request =>
       whenInSession(journeyId) {
         val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -381,17 +392,19 @@ class AmendCaseJourneyController @Inject() (
     Action.async { implicit request =>
       whenInSession(journeyId) {
         val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((amendCaseJourneyService.journeyKey, journeyId))
-        UpscanUploadSuccessForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadSuccessForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -407,23 +420,25 @@ class AmendCaseJourneyController @Inject() (
   final val submitUploadAnotherFileChoice: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UploadAnotherFileChoiceForm.bindFromRequest.fold(
-          formWithErrors =>
-            amendCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            amendCaseJourneyService
-              .updateSessionState(
-                FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(
-                  Transitions.toAmendSummary
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        UploadAnotherFileChoiceForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              amendCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              amendCaseJourneyService
+                .updateSessionState(
+                  FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(
+                    Transitions.toAmendSummary
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 

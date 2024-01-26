@@ -19,7 +19,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "trader-services-route-one-frontend",
     organization := "uk.gov.hmrc",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.12",
     PlayKeys.playDefaultPort := 9379,
     TwirlKeys.templateImports ++= Seq(
       "play.twirl.api.HtmlFormat",
@@ -28,7 +28,6 @@ lazy val root = (project in file("."))
       "uk.gov.hmrc.traderservices.views.ViewHelpers._"
     ),
     libraryDependencies ++= AppDependencies(),
-    publishingSettings,
     scoverageSettings,
     majorVersion := 0,
     WebpackKeys.webpack / WebpackKeys.outputFileName := "javascripts/application.min.js",
@@ -50,8 +49,8 @@ lazy val root = (project in file("."))
     // Make sure you only exclude warnings for the project directories, i.e. make builds reproducible
     scalacOptions += s"-P:silencer:sourceRoots=${baseDirectory.value.getCanonicalPath}",
     libraryDependencies ++= Seq(
-      compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.9" cross CrossVersion.full),
-      "com.github.ghik" % "silencer-lib" % "1.7.9" % Provided cross CrossVersion.full
+      compilerPlugin("com.github.ghik" % "silencer-plugin" % "1.7.14" cross CrossVersion.full),
+      "com.github.ghik" % "silencer-lib" % "1.7.14" % Provided cross CrossVersion.full
     ),
     libraryDependencySchemes ++= Seq("org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always)
   )

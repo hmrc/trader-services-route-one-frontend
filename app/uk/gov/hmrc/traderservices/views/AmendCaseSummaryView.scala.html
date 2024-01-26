@@ -52,11 +52,10 @@
         <span class="case-summary__spinner ccms-loader"></span>
       </p>
       <div>
-        @govukButton(Button(
-          content = Text(messages("form.amend-case.summary.continue")),
-          preventDoubleClick = Some(true),
+        @html.button(
+          msg = "form.amend-case.summary.continue",
           classes = "case-summary__submit"
-        ))
+        )
       </div>
     }
 }

@@ -103,17 +103,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitNewOrExistingCaseChoice: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        NewOrExistingCaseForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedNewOrExistingCaseChoice(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        NewOrExistingCaseForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedNewOrExistingCaseChoice(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -129,17 +131,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitEntryDetails: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        EntryDetailsForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedEntryDetails(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        EntryDetailsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedEntryDetails(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -157,21 +161,23 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsRequestTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportRequestTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedExportQuestionsAnswerRequestType(appConfig.requireOptionalTransportFeature)(
-                  success
+        ExportRequestTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions.submittedExportQuestionsAnswerRequestType(appConfig.requireOptionalTransportFeature)(
+                    success
+                  )
                 )
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -187,19 +193,22 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsRouteTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportRouteTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedExportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature)(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ExportRouteTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions
+                    .submittedExportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature)(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -215,17 +224,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsReasonAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportReasonForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedExportQuestionsAnswerReason(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ExportReasonForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedExportQuestionsAnswerReason(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -241,17 +252,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportHasPriorityGoodsForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedExportQuestionsAnswerHasPriorityGoods(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ExportHasPriorityGoodsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedExportQuestionsAnswerHasPriorityGoods(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -267,17 +280,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportPriorityGoodsForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedExportQuestionsAnswerWhichPriorityGoods(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ExportPriorityGoodsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedExportQuestionsAnswerWhichPriorityGoods(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -293,21 +308,23 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsFreightTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportFreightTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedExportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature)(
-                  success
+        ExportFreightTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions.submittedExportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature)(
+                    success
+                  )
                 )
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -325,7 +342,8 @@ class CreateCaseJourneyController @Inject() (
       AsAuthorisedUser {
         createCaseJourneyService.currentSessionState.flatMap {
           case Some((state, breadcrumbs)) =>
-            mandatoryExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state)).bindFromRequest
+            mandatoryExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state))
+              .bindFromRequest()
               .fold(
                 formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
                 success =>
@@ -352,7 +370,8 @@ class CreateCaseJourneyController @Inject() (
       AsAuthorisedUser {
         createCaseJourneyService.currentSessionState.flatMap {
           case Some((state, breadcrumbs)) =>
-            optionalExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state)).bindFromRequest
+            optionalExportVesselDetailsForm(extractArrivalDate(state), extractExportRequestType(state))
+              .bindFromRequest()
               .fold(
                 formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
                 success =>
@@ -377,21 +396,23 @@ class CreateCaseJourneyController @Inject() (
   final val submitExportQuestionsContactInfoAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ExportContactForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedExportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ExportContactForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions.submittedExportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -425,17 +446,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsRequestTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportRequestTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedImportQuestionsAnswersRequestType(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportRequestTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedImportQuestionsAnswersRequestType(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -451,19 +474,22 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsRouteTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportRouteTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedImportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature)(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportRouteTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions
+                    .submittedImportQuestionsAnswerRouteType(appConfig.requireOptionalTransportFeature)(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -479,17 +505,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsReasonAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportReasonForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedImportQuestionsAnswerReason(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportReasonForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedImportQuestionsAnswerReason(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -505,17 +533,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsHasPriorityGoodsAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportHasPriorityGoodsForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedImportQuestionsAnswerHasPriorityGoods(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportHasPriorityGoodsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedImportQuestionsAnswerHasPriorityGoods(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -531,17 +561,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsWhichPriorityGoodsAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportPriorityGoodsForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedImportQuestionsAnswerWhichPriorityGoods(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportPriorityGoodsForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedImportQuestionsAnswerWhichPriorityGoods(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -557,17 +589,19 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsALVSAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportHasALVSForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(Transitions.submittedImportQuestionsAnswerHasALVS(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportHasALVSForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(Transitions.submittedImportQuestionsAnswerHasALVS(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -583,21 +617,23 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsFreightTypeAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportFreightTypeForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedImportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature)(
-                  success
+        ImportFreightTypeForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions.submittedImportQuestionsAnswerFreightType(appConfig.requireOptionalTransportFeature)(
+                    success
+                  )
                 )
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -615,13 +651,15 @@ class CreateCaseJourneyController @Inject() (
       AsAuthorisedUser {
         createCaseJourneyService.currentSessionState.flatMap {
           case Some((state, breadcrumbs)) =>
-            mandatoryImportVesselDetailsForm(extractArrivalDate(state)).bindFromRequest.fold(
-              formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
-              success =>
-                createCaseJourneyService
-                  .updateSessionState(Transitions.submittedImportQuestionsMandatoryVesselDetails(success))
-                  .map(sb => Redirect(getCallFor(sb._1)))
-            )
+            mandatoryImportVesselDetailsForm(extractArrivalDate(state))
+              .bindFromRequest()
+              .fold(
+                formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
+                success =>
+                  createCaseJourneyService
+                    .updateSessionState(Transitions.submittedImportQuestionsMandatoryVesselDetails(success))
+                    .map(sb => Redirect(getCallFor(sb._1)))
+              )
           case _ => Future.successful(Redirect(controller.showStart))
         }
       }
@@ -641,13 +679,15 @@ class CreateCaseJourneyController @Inject() (
       AsAuthorisedUser {
         createCaseJourneyService.currentSessionState.flatMap {
           case Some((state, breadcrumbs)) =>
-            optionalImportVesselDetailsForm(extractArrivalDate(state)).bindFromRequest.fold(
-              formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
-              success =>
-                createCaseJourneyService
-                  .updateSessionState(Transitions.submittedImportQuestionsOptionalVesselDetails(success))
-                  .map(sb => Redirect(getCallFor(sb._1)))
-            )
+            optionalImportVesselDetailsForm(extractArrivalDate(state))
+              .bindFromRequest()
+              .fold(
+                formWithErrors => Future.successful(renderState(state, breadcrumbs, Some(formWithErrors))),
+                success =>
+                  createCaseJourneyService
+                    .updateSessionState(Transitions.submittedImportQuestionsOptionalVesselDetails(success))
+                    .map(sb => Redirect(getCallFor(sb._1)))
+              )
           case _ => Future.successful(Redirect(controller.showStart))
         }
       }
@@ -665,21 +705,23 @@ class CreateCaseJourneyController @Inject() (
   final val submitImportQuestionsContactInfoAnswer: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        ImportContactForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                Transitions.submittedImportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        ImportContactForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  Transitions.submittedImportQuestionsContactInfo(preferUploadMultipleFiles)(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -789,17 +831,19 @@ class CreateCaseJourneyController @Inject() (
   final val markFileUploadAsRejected: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 
@@ -807,17 +851,19 @@ class CreateCaseJourneyController @Inject() (
   final val markFileUploadAsRejectedAsync: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -826,17 +872,19 @@ class CreateCaseJourneyController @Inject() (
     Action.async { implicit request =>
       whenInSession(journeyId) {
         val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((createCaseJourneyService.journeyKey, journeyId))
-        UpscanUploadErrorForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadErrorForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsRejected(success))(journeyKeyHc, ec)
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -889,17 +937,19 @@ class CreateCaseJourneyController @Inject() (
     Action.async { implicit request =>
       whenInSession(journeyId) {
         val journeyKeyHc: HeaderCarrier = hc.withExtraHeaders((createCaseJourneyService.journeyKey, journeyId))
-        UpscanUploadSuccessForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
-              .map(acknowledgeFileUploadRedirect)
-        )
+        UpscanUploadSuccessForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState(journeyKeyHc, ec).map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(FileUploadTransitions.markUploadAsPosted(success))(journeyKeyHc, ec)
+                .map(acknowledgeFileUploadRedirect)
+          )
       }
     }
 
@@ -915,23 +965,25 @@ class CreateCaseJourneyController @Inject() (
   final val submitUploadAnotherFileChoice: Action[AnyContent] =
     Action.async { implicit request =>
       AsAuthorisedUser {
-        UploadAnotherFileChoiceForm.bindFromRequest.fold(
-          formWithErrors =>
-            createCaseJourneyService.currentSessionState.map {
-              case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
-              case _                          => Redirect(controller.showStart)
-            },
-          success =>
-            createCaseJourneyService
-              .updateSessionState(
-                FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(
-                  upscanInitiateConnector.initiate(_)
-                )(
-                  Transitions.toSummary
-                )(success)
-              )
-              .map(sb => Redirect(getCallFor(sb._1)))
-        )
+        UploadAnotherFileChoiceForm
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              createCaseJourneyService.currentSessionState.map {
+                case Some((state, breadcrumbs)) => renderState(state, breadcrumbs, Some(formWithErrors))
+                case _                          => Redirect(controller.showStart)
+              },
+            success =>
+              createCaseJourneyService
+                .updateSessionState(
+                  FileUploadTransitions.submitedUploadAnotherFileChoice(upscanRequest)(
+                    upscanInitiateConnector.initiate(_)
+                  )(
+                    Transitions.toSummary
+                  )(success)
+                )
+                .map(sb => Redirect(getCallFor(sb._1)))
+          )
       }
     }
 

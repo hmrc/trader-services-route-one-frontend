@@ -63,11 +63,10 @@
       <span class="case-summary__spinner ccms-loader"></span>
     </p>
     <div>
-      @govukButton(Button(
-        content = Text(messages("form.import-questions.summary.continue")),
-        preventDoubleClick = Some(true),
+      @html.button(
+        msg = "form.import-questions.summary.continue",
         classes = "case-summary__submit"
-      ))
+      )
     </div>
   }
 }

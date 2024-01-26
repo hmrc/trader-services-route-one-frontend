@@ -29,7 +29,11 @@
 
     @html.p { @messages("view.missing-information.description") }
 
-    <a href="@{continueAction.url}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">
-        @messages("view.missing-information.continue")
-    </a>
+    @html.button(
+      msg = "view.missing-information.continue",
+      href = Some(continueAction.url)
+    )
+<!--    <a href="@{continueAction.url}" role="button" draggable="false" class="govuk-button" data-module="govuk-button">-->
+<!--        @messages("view.missing-information.continue")-->
+<!--    </a>-->
 }

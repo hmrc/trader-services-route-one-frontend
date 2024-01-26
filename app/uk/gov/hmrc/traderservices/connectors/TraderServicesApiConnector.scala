@@ -17,15 +17,16 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import java.net.URL
-
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
+
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 import akka.actor.ActorSystem
+import uk.gov.hmrc.play.bootstrap.metrics.Metrics
+
 import scala.concurrent.duration._
 
 /** Connects to the backend trader-services-route-one service API.
@@ -42,7 +43,7 @@ class TraderServicesApiConnector @Inject() (
   val createCaseApiPath = appConfig.createCaseApiPath
   val updateCaseApiPath = appConfig.updateCaseApiPath
 
-  override val kenshooRegistry: MetricRegistry = metrics.defaultRegistry
+  override val metricRegistry: MetricRegistry = metrics.defaultRegistry
 
   def createCase(
     request: TraderServicesCreateCaseRequest

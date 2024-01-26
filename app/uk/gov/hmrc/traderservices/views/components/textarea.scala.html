@@ -31,7 +31,6 @@
     inputType: String = "text",
     attributes: Map[String, String] = Map.empty,
     rows: Int = 5,
-    countMessageClasses: String = "",
     spellcheck: Option[Boolean] = None,
     describedBy: Option[String] = None
 )(implicit messages: Messages)
@@ -55,6 +54,5 @@
     classes = classes.getOrElse(""),
     autocomplete = autocomplete,
     attributes = attributes,
-    countMessageClasses = countMessageClasses,
     spellcheck = spellcheck
 ))
