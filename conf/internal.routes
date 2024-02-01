@@ -1,6 +1,5 @@
 # internal (backchannel) routes
 # endpoint to receive upscan notification
-+ nocsrf
 POST       /callback-from-upscan/new/journey/:journeyId/:nonce      @uk.gov.hmrc.traderservices.controllers.internal.UpscanCallBackController.callbackFromUpscan(journeyId: String, nonce: String)
-+ nocsrf
+
 POST       /callback-from-upscan/add/journey/:journeyId/:nonce      @uk.gov.hmrc.traderservices.controllers.internal.UpscanCallBackAmendCaseController.callbackFromUpscan(journeyId: String, nonce: String)
