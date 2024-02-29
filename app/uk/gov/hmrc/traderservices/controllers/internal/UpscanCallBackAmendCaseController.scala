@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.traderservices.controllers.internal
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import org.bson.json.JsonParseException
 import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.traderservices.models.{Nonce, UpscanNotification}
-import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import javax.inject.{Inject, Singleton}

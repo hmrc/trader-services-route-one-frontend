@@ -18,12 +18,12 @@ package uk.gov.hmrc.traderservices.journeys
 
 import java.time.LocalDate
 import play.api.libs.json.{Format, JsResultException, Json}
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState.{AnswerExportQuestionsContactInfo, AnswerExportQuestionsFreightType, AnswerExportQuestionsHasPriorityGoods, AnswerExportQuestionsMandatoryVesselInfo, AnswerExportQuestionsOptionalVesselInfo, AnswerExportQuestionsRequestType, AnswerExportQuestionsRouteType, AnswerExportQuestionsWhichPriorityGoods, AnswerImportQuestionsALVS, AnswerImportQuestionsContactInfo, AnswerImportQuestionsFreightType, AnswerImportQuestionsHasPriorityGoods, AnswerImportQuestionsMandatoryVesselInfo, AnswerImportQuestionsOptionalVesselInfo, AnswerImportQuestionsRequestType, AnswerImportQuestionsRouteType, AnswerImportQuestionsWhichPriorityGoods, CaseAlreadyExists, CaseAlreadySubmitted, ChooseNewOrExistingCase, CreateCaseConfirmation, EnterEntryDetails, ExportQuestionsMissingInformationError, ExportQuestionsSummary, ImportQuestionsMissingInformationError, ImportQuestionsSummary, Start, TurnToAmendCaseJourney, WorkInProgressDeadEnd}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 import java.time.LocalTime

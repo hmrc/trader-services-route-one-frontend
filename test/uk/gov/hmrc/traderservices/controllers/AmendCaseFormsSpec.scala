@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models.TypeOfAmendment
 import uk.gov.hmrc.traderservices.support.FormValidator
 import scala.util.Random
-import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class AmendCaseFormsSpec extends UnitSpec with FormValidator {
 

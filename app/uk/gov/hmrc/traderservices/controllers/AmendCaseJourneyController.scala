@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import akka.actor.{ActorSystem, Scheduler}
+import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json
@@ -24,11 +24,9 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.{State, Transition}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -600,8 +598,6 @@ class AmendCaseJourneyController @Inject() (
         workInProgresDeadEndCall
 
     }
-
-  import uk.gov.hmrc.traderservices.support.OptionalFormOps._
 
   /** Function from the `State` to the `Result`, used by play-fsm internally to render the actual content.
     */

@@ -24,7 +24,7 @@ import akka.NotUsed
 import akka.http.scaladsl.Http
 import play.api.mvc.Result
 import akka.http.scaladsl.model.HttpMethods
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import play.api.mvc.Results
 import scala.util.Failure
 import scala.util.Success

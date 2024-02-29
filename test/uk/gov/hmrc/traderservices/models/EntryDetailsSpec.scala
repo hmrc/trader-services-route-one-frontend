@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import java.time.LocalDate
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
+import java.time.LocalDate
 
 class EntryDetailsSpec extends UnitSpec with EntryDetailsTestData {
 

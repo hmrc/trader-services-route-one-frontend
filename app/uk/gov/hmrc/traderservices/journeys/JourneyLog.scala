@@ -17,9 +17,6 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.Logger
-import uk.gov.hmrc.traderservices.connectors.TraderServicesCreateCaseRequest
-import uk.gov.hmrc.traderservices.connectors.TraderServicesCaseResponse
-import uk.gov.hmrc.traderservices.connectors.TraderServicesUpdateCaseRequest
 import play.api.libs.json.Json
 import uk.gov.hmrc.traderservices.models._
 import play.api.libs.json.Writes

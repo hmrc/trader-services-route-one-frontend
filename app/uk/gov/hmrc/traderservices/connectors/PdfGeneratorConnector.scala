@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.connectors
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 import akka.http.scaladsl.model.HttpRequest

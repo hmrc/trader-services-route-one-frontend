@@ -21,7 +21,6 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.traderservices.models.{ExportFreightType, ExportPriorityGoods, ExportQuestions, ExportRequestType, ExportRouteType}
-import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import play.api.mvc.Call

@@ -22,15 +22,15 @@ import play.api.libs.json._
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.mongo.cache.DataKey
-import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
-import akka.actor.ActorRef
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
+import org.apache.pekko.actor.ActorRef
 import akka.util.Timeout
 import java.util.concurrent.TimeUnit
-import akka.actor.Stash
+import org.apache.pekko.actor.Stash
 import scala.concurrent.duration.Duration
-import akka.actor.PoisonPill
+import org.apache.pekko.actor.PoisonPill
 import java.util.UUID
 import akka.pattern.ExplicitAskSupport
 

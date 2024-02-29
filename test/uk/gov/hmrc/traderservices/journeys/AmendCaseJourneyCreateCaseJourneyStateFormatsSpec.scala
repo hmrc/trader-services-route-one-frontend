@@ -17,12 +17,12 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.libs.json.{Format, JsResultException, Json}
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.{AmendCaseAlreadySubmitted, AmendCaseConfirmation, AmendCaseMissingInformationError, AmendCaseSummary, EnterCaseReferenceNumber, EnterResponseText, SelectTypeOfAmendment, Start, WorkInProgressDeadEnd}
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 import java.time.ZonedDateTime

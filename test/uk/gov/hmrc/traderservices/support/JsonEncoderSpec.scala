@@ -25,6 +25,7 @@ import scala.collection.convert.AsJavaConverters
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.core.OutputStreamAppender
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
 import java.io.OutputStream
 import java.nio.ByteBuffer

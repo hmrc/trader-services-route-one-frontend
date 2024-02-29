@@ -23,7 +23,7 @@ import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyModel, AmendCaseJour
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.repository.CacheRepository
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.Config
 
 trait AmendCaseJourneyService extends SessionStateService {

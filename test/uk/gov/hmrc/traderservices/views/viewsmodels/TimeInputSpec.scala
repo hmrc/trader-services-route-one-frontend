@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.traderservices.support
 
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.views.viewmodels.TimeInput
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import scala.util.Random
 import play.api.libs.json.Json
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
 class TimestampSpec extends UnitSpec {
 

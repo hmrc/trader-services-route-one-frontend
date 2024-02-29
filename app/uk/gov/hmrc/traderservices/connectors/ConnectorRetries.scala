@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import akka.pattern.after
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}

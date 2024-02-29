@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json._
-import uk.gov.hmrc.traderservices.support.UnitSpec
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
 class QuestionsAnswersFormatSpec extends UnitSpec {
 

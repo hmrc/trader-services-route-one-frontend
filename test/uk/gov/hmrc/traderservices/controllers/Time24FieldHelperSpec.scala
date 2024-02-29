@@ -19,12 +19,12 @@ package uk.gov.hmrc.traderservices.controllers
 import java.time.LocalTime
 
 import uk.gov.hmrc.traderservices.controllers.Time24FieldHelper._
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import java.time.LocalTime
 import uk.gov.hmrc.traderservices.support.FormMappingMatchers
 import play.api.data.validation.Valid
 import play.api.data.validation.ValidationError
 import play.api.data.validation.Invalid
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
 class Time24FieldHelperSpec extends UnitSpec with FormMappingMatchers {
 

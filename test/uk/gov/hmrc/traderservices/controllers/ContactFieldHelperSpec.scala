@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import uk.gov.hmrc.traderservices.support.{FormMatchers, UnitSpec}
+import uk.gov.hmrc.traderservices.support.{FormMatchers}
 import play.api.data.validation.Valid
 import play.api.data.validation.Invalid
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 
 class ContactFieldHelperSpec extends UnitSpec with FormMatchers {
 

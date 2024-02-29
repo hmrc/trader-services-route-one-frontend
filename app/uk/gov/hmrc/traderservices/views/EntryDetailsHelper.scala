@@ -18,7 +18,6 @@ package uk.gov.hmrc.traderservices.views
 
 import uk.gov.hmrc.traderservices.models.EntryDetails
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.i18n.Messages
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.Improvements
 

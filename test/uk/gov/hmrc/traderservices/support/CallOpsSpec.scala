@@ -17,9 +17,9 @@
 package uk.gov.hmrc.traderservices.support
 
 import java.io.File
-
 import com.typesafe.config._
 import play.api.{Configuration, Environment, Mode}
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.CallOps.localFriendlyUrl
 
 class CallOpsSpec extends UnitSpec {

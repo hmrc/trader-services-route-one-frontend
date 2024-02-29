@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import play.api.data.FormError
-import uk.gov.hmrc.traderservices.support.UnitSpec
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models.VesselDetails
 import uk.gov.hmrc.traderservices.support.FormMatchers
 import java.time.LocalDateTime

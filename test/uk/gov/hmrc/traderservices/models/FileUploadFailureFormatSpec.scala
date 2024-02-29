@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
+import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 class FileUploadFailureFormatSpec extends UnitSpec {

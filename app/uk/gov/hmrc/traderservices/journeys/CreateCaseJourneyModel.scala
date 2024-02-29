@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
-import uk.gov.hmrc.traderservices.connectors._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Rules.isVesselDetailsAnswerMandatory
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities

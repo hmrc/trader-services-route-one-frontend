@@ -23,7 +23,6 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 import uk.gov.hmrc.traderservices.models.{ImportFreightType, ImportPriorityGoods, ImportQuestions, ImportRequestType, ImportRouteType}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
-import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
 import play.api.mvc.Call
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel
 
