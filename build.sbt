@@ -48,24 +48,14 @@ lazy val root = (project in file("."))
   )
   .disablePlugins(JUnitXmlReportPlugin) // Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
+  .configs(Test)
 
-
-lazy val itSettings: Seq[Def.Setting[_]] =
-  Defaults.itSettings ++ Seq(
-    Keys.fork := false,
-    unmanagedSourceDirectories := Seq(baseDirectory.value / "it"),
-    parallelExecution := false,
-    testGrouping := oneForkedJvmPerTest((IntegrationTest / definedTests).value),
-    javaOptions += "-Djava.locale.providers=CLDR,JRE"
-  )
 
 lazy val it = project
   .enablePlugins(PlayScala)
   .dependsOn(root % "test->test") // the "test->test" allows reusing test code and test dependencies
-  .settings(itSettings)
+  .settings(DefaultBuildSettings.itSettings(true) ++ Seq(
+    Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
+    Test / parallelExecution := false
+  ))
   .settings(libraryDependencies ++= AppDependencies.testDeps)
-
-def oneForkedJvmPerTest(tests: Seq[TestDefinition]): Seq[Group] =
-  tests.map { test =>
-    new Group(test.name, Seq(test), SubProcess(ForkOptions().withRunJVMOptions(Vector(s"-Dtest.name=${test.name}"))))
-  }
