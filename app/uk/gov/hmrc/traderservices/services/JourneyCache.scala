@@ -26,13 +26,16 @@ import org.apache.pekko.actor.Actor
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.actor.Props
 import org.apache.pekko.actor.ActorRef
-import akka.util.Timeout
+
 import java.util.concurrent.TimeUnit
 import org.apache.pekko.actor.Stash
+
 import scala.concurrent.duration.Duration
 import org.apache.pekko.actor.PoisonPill
+import org.apache.pekko.pattern.{ExplicitAskSupport, pipe}
+import org.apache.pekko.util.Timeout
+
 import java.util.UUID
-import akka.pattern.ExplicitAskSupport
 
 /** Generic short-term journey state store based on hmrc-mongo cache. Internally employs an actor to make writes and
   * reads sequential per each journeyId.
@@ -206,7 +209,6 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   /** A worker actor asserting sequential writes and reads for some journeyId. */
   final class StateCacheWorkerActor(journeyId: String) extends Actor with Stash {
-    import akka.pattern.pipe
 
     implicit final val ec: ExecutionContext = context.system.dispatcher
 

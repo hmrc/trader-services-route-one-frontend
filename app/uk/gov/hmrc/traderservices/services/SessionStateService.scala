@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.services
 
 import org.apache.pekko.actor.Scheduler
-import akka.pattern.FutureTimeoutSupport
+import org.apache.pekko.pattern.FutureTimeoutSupport
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition}
 

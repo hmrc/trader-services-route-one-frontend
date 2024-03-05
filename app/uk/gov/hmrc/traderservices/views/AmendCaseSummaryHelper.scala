@@ -18,6 +18,7 @@ package uk.gov.hmrc.traderservices.views
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.traderservices.controllers.routes
 import uk.gov.hmrc.traderservices.models.AmendCaseModel
 
 import javax.inject.Singleton

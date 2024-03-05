@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import org.apache.pekko.actor.ActorSystem
-import akka.pattern.after
+import org.apache.pekko.pattern.after
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.play.http.logging.Mdc

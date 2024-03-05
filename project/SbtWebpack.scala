@@ -46,6 +46,8 @@ object SbtWebpack extends AutoPlugin {
     WebpackKeys.configFile := (Assets / sourceDirectory).value / "webpack.config.js",
     WebpackKeys.sourceDirs := Seq((Assets / sourceDirectory).value),
     WebpackKeys.nodeModulesPath := new File("./node_modules"),
+    WebpackKeys.outputFileName := "javascripts/application.min.js",
+    WebpackKeys.entries := Seq("assets:javascripts/index.ts"),
     WebpackKeys.webpack := task
       .dependsOn(Assets / WebKeys.webModules)
       .dependsOn(NpmKeys.npmInstall)

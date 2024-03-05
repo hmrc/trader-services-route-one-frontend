@@ -16,7 +16,9 @@
 
 @import uk.gov.hmrc.traderservices.models.{EntryDetails, ImportQuestions, VesselDetails, ImportContactInfo, FileUploads}
 @import uk.gov.hmrc.traderservices.views.ImportQuestionsViewContext
-@@this(
+@import uk.gov.hmrc.traderservices.controllers.routes.CreateCaseJourneyController
+
+@this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         govukButton: GovukButton,

@@ -24,9 +24,12 @@ import play.api.mvc._
 import play.api.{Configuration, Environment}
 import play.mvc.Http.HeaderNames
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.traderservices.connectors._
+import uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController._
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
 import uk.gov.hmrc.traderservices.journeys.{State, Transition}
 import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.services.CreateCaseJourneyServiceWithHeaderCarrier
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
@@ -1224,6 +1227,8 @@ class CreateCaseJourneyController @Inject() (
         workInProgresDeadEndCall
 
     }
+
+  import uk.gov.hmrc.traderservices.support.OptionalFormOps._
 
   /** Function from the `State` to the `Result`, to render the actual content.
     */

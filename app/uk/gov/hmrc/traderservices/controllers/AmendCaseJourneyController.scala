@@ -30,6 +30,8 @@ import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import uk.gov.hmrc.traderservices.views.UploadFileViewContext
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import uk.gov.hmrc.traderservices.connectors._
+import uk.gov.hmrc.traderservices.services.AmendCaseJourneyServiceWithHeaderCarrier
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -598,6 +600,8 @@ class AmendCaseJourneyController @Inject() (
         workInProgresDeadEndCall
 
     }
+
+  import uk.gov.hmrc.traderservices.support.OptionalFormOps._
 
   /** Function from the `State` to the `Result`, used by play-fsm internally to render the actual content.
     */

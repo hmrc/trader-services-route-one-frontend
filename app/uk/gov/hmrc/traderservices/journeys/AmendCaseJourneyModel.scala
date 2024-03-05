@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.journeys
 
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.traderservices.models._
-
+import uk.gov.hmrc.traderservices.connectors._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Failure
 import scala.util.Success
