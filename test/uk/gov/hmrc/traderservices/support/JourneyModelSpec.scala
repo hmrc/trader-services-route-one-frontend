@@ -22,7 +22,7 @@ import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.matchers.should.Matchers
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import test.uk.gov.hmrc.traderservices.support.{Diff, TestJourneyService}
+import uk.gov.hmrc.traderservices.support.{Diff, TestJourneyService}
 import uk.gov.hmrc.http.{HeaderCarrier, RequestId}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions
 import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition, TransitionNotAllowed}

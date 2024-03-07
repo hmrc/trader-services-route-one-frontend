@@ -20,7 +20,7 @@ import org.scalacheck.Gen
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import uk.gov.hmrc.traderservices.support.Generators
 import org.scalactic.anyvals.PosInt
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class JourneyLogSpec extends UnitSpec with ScalaCheckPropertyChecks {
 

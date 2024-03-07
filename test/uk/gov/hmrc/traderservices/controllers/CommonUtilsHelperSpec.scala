@@ -18,9 +18,10 @@ package uk.gov.hmrc.traderservices.controllers
 
 import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
+
 import java.time.LocalDateTime
 import play.api.i18n._
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class CommonUtilsHelperSpec extends UnitSpec {
 

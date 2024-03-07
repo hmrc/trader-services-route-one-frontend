@@ -20,11 +20,10 @@ import org.scalacheck.Gen
 import org.scalacheck.Shrink.shrinkAny
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import play.api.data.validation.{Invalid, Valid}
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.controllers.FormFieldMappings._
 import uk.gov.hmrc.traderservices.generators.FormFieldGenerators
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.support.FormMappingMatchers
+import uk.gov.hmrc.traderservices.support.{FormMappingMatchers, UnitSpec}
 
 import java.time.{LocalDate, LocalTime}
 

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import java.time.ZonedDateTime
 
 class DateTimeHelperSpec extends UnitSpec {

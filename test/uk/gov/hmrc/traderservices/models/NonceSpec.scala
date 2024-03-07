@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.models
 
 import scala.util.Random
 import play.api.libs.json.Json
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class NonceSpec extends UnitSpec {
 

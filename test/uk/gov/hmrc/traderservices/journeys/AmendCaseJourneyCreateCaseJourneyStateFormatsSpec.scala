@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.journeys
 
 import play.api.libs.json.{Format, JsResultException, Json}
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState

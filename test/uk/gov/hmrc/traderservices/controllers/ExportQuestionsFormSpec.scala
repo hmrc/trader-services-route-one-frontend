@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models.{ExportContactInfo, ExportFreightType, ExportPriorityGoods, ExportRequestType, ExportRouteType}
-import uk.gov.hmrc.traderservices.support.FormValidator
+import uk.gov.hmrc.traderservices.support.{FormValidator, UnitSpec}
 
 class ExportQuestionsFormSpec extends UnitSpec with FormValidator {
 

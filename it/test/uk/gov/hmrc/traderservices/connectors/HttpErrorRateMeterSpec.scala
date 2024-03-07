@@ -1,7 +1,7 @@
 package test.uk.gov.hmrc.traderservices.connectors
 
 import com.codahale.metrics.MetricRegistry
-import test.uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.connectors.HttpErrorRateMeter
 
 class HttpErrorRateMeterSpec extends UnitSpec {
