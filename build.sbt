@@ -1,9 +1,7 @@
+import SbtNpm.autoImport.NpmKeys.packageJsonDirectory
 import play.sbt.routes.RoutesKeys
-import sbt.Def
-import sbt.Tests.{Group, SubProcess}
-import play.sbt.routes.RoutesKeys
+import sbt.Keys
 import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.*
 
 ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / majorVersion := 0
@@ -32,10 +30,32 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= AppDependencies(),
     scoverageSettings,
-    WebpackKeys.webpack / WebpackKeys.outputFileName := "javascripts/application.min.js",
-    WebpackKeys.webpack / WebpackKeys.entries := Seq("assets:javascripts/index.ts"),
+    WebpackKeys.configurations := Seq(
+      WebpackConfig(
+        id = "js",
+        configFilePath = "webpack.javascript.config.js",
+        includeFilter = "*.js" || "*.ts",
+        inputs = Seq("javascripts/index.ts"),
+        output = "javascripts/application.min.js"
+      ),
+      WebpackConfig(
+        id = "css",
+        configFilePath = "webpack.stylesheet.config.js",
+        includeFilter = "*.scss" || "*.sass" || "*.css",
+        inputs = Seq("stylesheets/application.scss"),
+        output = "stylesheets/application.css"
+      ),
+      WebpackConfig(
+        id = "print",
+        configFilePath = "webpack.stylesheet.config.js",
+        includeFilter = "*.scss" || "*.sass" || "*.css",
+        inputs = Seq("stylesheets/print.scss"),
+        output = "stylesheets/print.css"
+      )
+    ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     Compile / scalafmtOnCompile := true,
+    Test / unmanagedSourceDirectories += baseDirectory.value / "test",
     Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
     Test / parallelExecution := false,
     Test / scalafmtOnCompile := true
@@ -51,11 +71,14 @@ lazy val root = (project in file("."))
   .configs(Test)
 
 
-lazy val it = project
-  .enablePlugins(PlayScala)
-  .dependsOn(root % "test->test") // the "test->test" allows reusing test code and test dependencies
-  .settings(DefaultBuildSettings.itSettings(true) ++ Seq(
-    Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
-    Test / parallelExecution := false
-  ))
-  .settings(libraryDependencies ++= AppDependencies.testDeps)
+  lazy val it = project
+    .enablePlugins(PlayScala)
+    .disablePlugins(SbtNpm, SbtWebpack)
+    .dependsOn(root % "test->test") // the "test->test" allows reusing test code and test dependencies
+    .settings(DefaultBuildSettings.itSettings(true) ++ Seq(
+      Test / Keys.fork := false,
+      Test / javaOptions += "-Djava.locale.providers=CLDR,JRE",
+      Test / parallelExecution := false
+    ))
+    .settings(libraryDependencies ++= AppDependencies.testDeps)
+

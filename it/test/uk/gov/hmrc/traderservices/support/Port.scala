@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package test.uk.gov.hmrc.traderservices.support
+package uk.gov.hmrc.traderservices.support
 
 import annotation.tailrec
 import java.net.ServerSocket

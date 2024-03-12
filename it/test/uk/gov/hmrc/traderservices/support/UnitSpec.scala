@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package test.uk.gov.hmrc.traderservices.support
+package uk.gov.hmrc.traderservices.support
 
-import akka.stream.Materializer
-import akka.util.ByteString
+import org.scalatest.wordspec.AnyWordSpec
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.util.ByteString
 import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
 

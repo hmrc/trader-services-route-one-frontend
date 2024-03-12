@@ -10,7 +10,7 @@ module.exports = function (env) {
     },
     watch: false,
     devtool: 'source-map',
-    entry: Object.values(env.entry),
+    entry: env.entry ? Object.values(env.entry) : [],
     resolve: {
       extensions: ['.js', '.ts'],
       alias: {
@@ -38,19 +38,34 @@ module.exports = function (env) {
         },
         {
           test: /\.ts$/,
-          exclude: /node_modules|legacy/
+          exclude: /node_modules|legacy/,
+          loader: ESLintPlugin.loader
         }
       ]
     },
-    plugins: [
-      new ESLintPlugin({
-        files: 'app/**/*.ts',
-        "overrideConfig": {
-          "extends": "eslint:recommended",
-          "rules": { }
-        }
-      })
-    ],
-    output: env.output
+    output: env.output,
+    plugins: [new ESLintPlugin({ fix: false })],
+    stats: {
+      moduleAssets: true,
+      relatedAssets: true,
+      nestedModules: true,
+      runtimeModules: true,
+      dependentModules: true,
+      groupAssetsByPath: true,
+      groupModulesByPath: true,
+      children: true,
+      chunks: false,
+      modules: true,
+      outputPath: true,
+      providedExports: false,
+      reasons: false,
+      source: true,
+      chunkGroupChildren: true,
+      chunkRelations: true,
+      modulesSpace: 100,
+      assetsSpace: 100,
+      chunkModulesSpace: 100,
+      nestedModulesSpace: 100,
+    }
   }
 };

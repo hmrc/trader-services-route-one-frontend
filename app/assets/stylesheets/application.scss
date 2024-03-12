@@ -1,8 +1,9 @@
 $images-path: "../images";
 $govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
 $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
-@import "lib/govuk-frontend/govuk/all";
-@import "lib/hmrc-frontend/hmrc/all";
+
+@import "webjars/lib/govuk-frontend/govuk/all";
+@import "webjars/lib/hmrc-frontend/hmrc/all";
 
 @import "global/overrides";
 
@@ -17,8 +18,18 @@ $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/h
 @import "components/receipt";
 @import "components/case-summary";
 
-.js-enabled #confirmation-heading-no-js{display: none;}
-.js-enabled #confirmation-heading{display: inline-block;}
+.js-enabled #confirmation-heading-no-js {
+  display: none;
+}
 
-#print-receipt{display: none;}
-.js-enabled #print-receipt{display: inline-block; }
+.js-enabled #confirmation-heading {
+  display: inline-block;
+}
+
+#print-receipt {
+  display: none;
+}
+
+.js-enabled #print-receipt {
+  display: inline-block;
+}

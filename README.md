@@ -9,16 +9,16 @@ Features:
 
 ## Running the tests
 
-    sbt test it:test
+    sbt test it/test
 
 ## Running the tests with coverage
 
-    sbt clean coverageOn test it:test coverageReport
+    sbt clean coverageOn test it/test coverageReport
 
 ## Running the app locally
 
-    sm --start TRADER_SERVICES_ALL
-    sm --stop TRADER_SERVICES_ROUTE_ONE_FRONTEND 
+    sm2 --start TRADER_SERVICES_ALL
+    sm2 --stop TRADER_SERVICES_ROUTE_ONE_FRONTEND 
     sbt run
 
 It should then be listening on port 9379
