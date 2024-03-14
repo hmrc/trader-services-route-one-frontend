@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.traderservices.models.{EntryDetails, QuestionsAnswers, UploadedFile}
 
 /** @param entryDetails
@@ -41,5 +41,5 @@ case class TraderServicesCreateCaseRequest(
 )
 
 object TraderServicesCreateCaseRequest {
-  implicit val formats = Json.format[TraderServicesCreateCaseRequest]
+  implicit val formats: OFormat[TraderServicesCreateCaseRequest] = Json.format[TraderServicesCreateCaseRequest]
 }

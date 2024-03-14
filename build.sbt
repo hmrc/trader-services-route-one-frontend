@@ -1,4 +1,3 @@
-import SbtNpm.autoImport.NpmKeys.packageJsonDirectory
 import play.sbt.routes.RoutesKeys
 import sbt.Keys
 import uk.gov.hmrc.DefaultBuildSettings
