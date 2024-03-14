@@ -79,10 +79,8 @@ class JsonEncoderSpec extends UnitSpec with AsJavaConverters with LogCapturing {
       appender.setContext(context)
       val buf = ByteBuffer.allocateDirect(1024)
       val out = new OutputStream {
-        override def write(b: Int): Unit = {
-          println(b.toHexString)
+        override def write(b: Int): Unit =
           buf.put(b.toByte)
-        }
       }
       appender.setOutputStream(out)
       val encoder = new JsonEncoder()

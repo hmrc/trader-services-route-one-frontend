@@ -88,7 +88,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
       toSubscriptionJourney(continueUrl)
 
-    case _: AuthorisationException ⇒
+    case _: AuthorisationException =>
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
       toGGLogin(continueUrl)
   }

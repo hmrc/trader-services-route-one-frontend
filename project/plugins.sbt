@@ -12,5 +12,3 @@ addSbtPlugin("uk.gov.hmrc" % "sbt-distributables" % "2.5.0")
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
-
-addDependencyTreePlugin

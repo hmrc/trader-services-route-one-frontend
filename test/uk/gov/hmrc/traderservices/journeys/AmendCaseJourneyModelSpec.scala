@@ -24,7 +24,7 @@ import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadTransitions._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State._
 import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.Transitions._
-import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.{State, UpdateCaseApi}
+import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.UpdateCaseApi
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.support._
 
