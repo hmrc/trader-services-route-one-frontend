@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.traderservices.connectors
 
-import akka.stream.scaladsl.Flow
-import akka.http.scaladsl.model.HttpRequest
+import org.apache.pekko.stream.scaladsl.Flow
+import org.apache.pekko.http.scaladsl.model.HttpRequest
 import scala.util.Try
-import akka.http.scaladsl.model.HttpResponse
-import akka.NotUsed
-import akka.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.HttpResponse
+import org.apache.pekko.NotUsed
+import org.apache.pekko.http.scaladsl.Http
 import play.api.mvc.Result
-import akka.http.scaladsl.model.HttpMethods
-import akka.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.HttpMethods
+import org.apache.pekko.actor.ActorSystem
 import play.api.mvc.Results
 import scala.util.Failure
 import scala.util.Success
-import akka.stream.scaladsl.Source
+import org.apache.pekko.stream.scaladsl.Source
 import scala.concurrent.Future
 
 trait FileStream {

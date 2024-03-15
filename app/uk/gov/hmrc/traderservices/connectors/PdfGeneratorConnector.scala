@@ -18,17 +18,14 @@ package uk.gov.hmrc.traderservices.connectors
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.traderservices.wiring.AppConfig
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.HttpMethods
+import org.apache.pekko.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethods, HttpRequest}
 import play.api.mvc.Result
-import akka.http.scaladsl.model.HttpEntity
-import akka.http.scaladsl.model.ContentTypes
 import play.api.libs.json.Json
 import play.api.http.HeaderNames
-import akka.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import uk.gov.hmrc.http.{HeaderNames => MdtpHeaderNames}
 
 @Singleton

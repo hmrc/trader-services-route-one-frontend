@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.services
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
 import uk.gov.hmrc.traderservices.journeys.Transition

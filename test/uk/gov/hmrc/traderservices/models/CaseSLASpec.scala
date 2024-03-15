@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import java.time.LocalDateTime
-
 import uk.gov.hmrc.traderservices.support.UnitSpec
+
+import java.time.LocalDateTime
 
 class CaseSLASpec extends UnitSpec {
 

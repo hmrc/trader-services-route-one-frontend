@@ -24,7 +24,7 @@ import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 
 import scala.concurrent.duration._

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers.internal
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import org.bson.json.JsonParseException
 import play.api.mvc._
 import uk.gov.hmrc.http.HeaderCarrier

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.traderservices.models
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import scala.util.Random
 import play.api.libs.json.Json
+import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class TimestampSpec extends UnitSpec {
 
@@ -27,31 +27,31 @@ class TimestampSpec extends UnitSpec {
       Json.stringify(Json.toJson(Timestamp(7))) shouldBe "7"
       Json.parse("7").as[Timestamp].value shouldBe 7
 
-      for (i <- Stream.continually(Random.nextLong).take(1000))
+      for (i <- LazyList.continually(Random.nextLong).take(1000))
         Json.parse(Json.stringify(Json.toJson(Timestamp(i)))).as[Timestamp] shouldBe Timestamp(i)
     }
 
     "compare always to itself" in {
-      for (i <- Stream.continually(Random.nextLong).take(1000))
+      for (i <- LazyList.continually(Random.nextLong).take(1000))
         Timestamp(i) shouldBe Timestamp(i)
     }
 
     "compare always to AnyTimestamp" in {
-      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+      for (i <- LazyList.continually(Random.nextLong).take(1000)) {
         Timestamp(i) shouldBe Timestamp.Any
         Timestamp.Any shouldBe Timestamp(i)
       }
     }
 
     "do not compare to next Timestamp" in {
-      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+      for (i <- LazyList.continually(Random.nextLong).take(1000)) {
         Timestamp(i) should not be (Timestamp(i + 1))
         Timestamp(i) should not be (Timestamp(i - 1))
       }
     }
 
     "do not compare to other entities" in {
-      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+      for (i <- LazyList.continually(Random.nextLong).take(1000)) {
         Timestamp(i) should not be s"$i"
         Timestamp(i) should not be (i.toInt)
       }
@@ -72,7 +72,7 @@ class TimestampSpec extends UnitSpec {
     }
 
     "have stable and unique hash code" in {
-      for (i <- Stream.continually(Random.nextLong).take(1000)) {
+      for (i <- LazyList.continually(Random.nextLong).take(1000)) {
         Timestamp(i).hashCode shouldBe i.toInt
         Timestamp(i).hashCode should not be (Timestamp(i + 1).hashCode)
         Timestamp(i).hashCode should not be (Timestamp(i - 1).hashCode)

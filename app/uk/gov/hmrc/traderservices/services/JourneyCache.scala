@@ -22,17 +22,20 @@ import play.api.libs.json._
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.mongo.cache.DataKey
-import akka.actor.Actor
-import akka.actor.ActorSystem
-import akka.actor.Props
-import akka.actor.ActorRef
-import akka.util.Timeout
+import org.apache.pekko.actor.Actor
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.actor.Props
+import org.apache.pekko.actor.ActorRef
+
 import java.util.concurrent.TimeUnit
-import akka.actor.Stash
+import org.apache.pekko.actor.Stash
+
 import scala.concurrent.duration.Duration
-import akka.actor.PoisonPill
+import org.apache.pekko.actor.PoisonPill
+import org.apache.pekko.pattern.{ExplicitAskSupport, pipe}
+import org.apache.pekko.util.Timeout
+
 import java.util.UUID
-import akka.pattern.ExplicitAskSupport
 
 /** Generic short-term journey state store based on hmrc-mongo cache. Internally employs an actor to make writes and
   * reads sequential per each journeyId.
@@ -206,7 +209,6 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
 
   /** A worker actor asserting sequential writes and reads for some journeyId. */
   final class StateCacheWorkerActor(journeyId: String) extends Actor with Stash {
-    import akka.pattern.pipe
 
     implicit final val ec: ExecutionContext = context.system.dispatcher
 

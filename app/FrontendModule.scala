@@ -15,7 +15,6 @@
  */
 
 import com.google.inject.AbstractModule
-import play.api.{Configuration, Environment}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
@@ -23,7 +22,7 @@ import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.repository.{CacheRepository, JourneyCacheRepository}
 import uk.gov.hmrc.traderservices.services._
 
-class FrontendModule(val environment: Environment, val configuration: Configuration) extends AbstractModule {
+class FrontendModule() extends AbstractModule {
 
   override def configure(): Unit = {
 

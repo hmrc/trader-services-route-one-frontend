@@ -17,8 +17,8 @@
 package uk.gov.hmrc.traderservices.views.viewmodels
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
 import uk.gov.hmrc.govukfrontend.views.html.components._
+import play.api.libs.json.{Reads, Writes, __}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.CommonJsonFormats._
 
 case class TimeInput(
@@ -54,7 +54,7 @@ object TimeInput {
         (__ \ "showSelectPeriod").readWithDefault[Boolean](defaultObject.showSelectPeriod)
     )(TimeInput.apply _)
 
-  implicit lazy val jsonWrites: OWrites[TimeInput] =
+  implicit lazy val jsonWrites: Writes[TimeInput] =
     (
       (__ \ "id").write[String] and
         (__ \ "namePrefix").writeNullable[String] and

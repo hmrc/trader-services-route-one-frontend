@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models._
-import uk.gov.hmrc.traderservices.support.FormValidator
+import uk.gov.hmrc.traderservices.support.{FormValidator, UnitSpec}
 
 class FileUploadFormsSpec extends UnitSpec with FormValidator {
 

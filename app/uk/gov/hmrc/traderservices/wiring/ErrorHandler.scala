@@ -25,10 +25,11 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.auth.core.{InsufficientEnrolments, NoActiveSession}
 import uk.gov.hmrc.http.{JsValidationException, NotFoundException}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.bootstrap.config.{AuthRedirects, HttpAuditEvent}
+import uk.gov.hmrc.play.bootstrap.config.HttpAuditEvent
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.traderservices.connectors.TraderServicesAmendApiError
+import uk.gov.hmrc.traderservices.controllers.AuthRedirects
 import uk.gov.hmrc.traderservices.models.DateTimeHelper
 import uk.gov.hmrc.traderservices.views.html.templates.{ErrorTemplate, GovukLayoutWrapper}
 import uk.gov.hmrc.traderservices.views.html.{AmendCaseErrorView, ErrorOutOfHoursView, ErrorView, PageNotFoundErrorView}

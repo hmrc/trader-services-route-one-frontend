@@ -17,7 +17,8 @@
 package uk.gov.hmrc.traderservices.models
 
 import play.api.libs.json._
-import uk.gov.hmrc.traderservices.support.{JsonFormatTest, UnitSpec}
+import uk.gov.hmrc.traderservices.support.UnitSpec
+import uk.gov.hmrc.traderservices.support.JsonFormatTest
 
 import java.time.ZonedDateTime
 

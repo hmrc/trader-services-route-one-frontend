@@ -24,11 +24,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.journeys.State
-import uk.gov.hmrc.traderservices.services.SessionStateService
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import uk.gov.hmrc.traderservices.services.SessionStateService
+import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 
 import scala.concurrent.{ExecutionContext, Future}
 

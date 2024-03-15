@@ -22,7 +22,6 @@ import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, _}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.config.AuthRedirects
 import uk.gov.hmrc.traderservices.support.CallOps
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -89,7 +88,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
       toSubscriptionJourney(continueUrl)
 
-    case _: AuthorisationException ⇒
+    case _: AuthorisationException =>
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)
       toGGLogin(continueUrl)
   }

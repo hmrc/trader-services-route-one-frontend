@@ -17,20 +17,20 @@
 package uk.gov.hmrc.traderservices.support
 
 import org.scalactic.source
-import org.scalatest.{BeforeAndAfterAll, Informing}
-import org.scalatest.matchers.{MatchResult, Matcher}
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.matchers.{MatchResult, Matcher}
+import org.scalatest.{BeforeAndAfterAll, Informing}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.{HeaderCarrier, RequestId}
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.Transitions
-import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition, TransitionNotAllowed}
+import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition}
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.{Duration, _}
+import scala.concurrent.{Await, Future}
 import scala.io.AnsiColor
-import scala.reflect.ClassTag
 import scala.language.{implicitConversions, postfixOps}
+import scala.reflect.ClassTag
 
 /** Abstract base of FSM journey specifications.
   *

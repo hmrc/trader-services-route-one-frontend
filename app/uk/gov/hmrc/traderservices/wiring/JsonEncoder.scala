@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.wiring
 
 import ch.qos.logback.classic.spi.{ILoggingEvent, ThrowableProxyUtil}
 import ch.qos.logback.core.encoder.EncoderBase
-import com.fasterxml.jackson.core.JsonGenerator.Feature
+import com.fasterxml.jackson.core.json.JsonWriteFeature.ESCAPE_NON_ASCII
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.typesafe.config.ConfigFactory
@@ -27,12 +27,12 @@ import play.api.Logger
 
 import java.net.InetAddress
 import java.nio.charset.StandardCharsets
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try}
 
 class JsonEncoder extends EncoderBase[ILoggingEvent] {
 
-  private val mapper = new ObjectMapper().configure(Feature.ESCAPE_NON_ASCII, true)
+  private val mapper = new ObjectMapper().configure(ESCAPE_NON_ASCII.mappedFeature(), true)
 
   lazy val appName: String = Try(ConfigFactory.load().getString("appName")) match {
     case Success(name) => name

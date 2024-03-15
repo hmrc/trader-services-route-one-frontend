@@ -17,11 +17,10 @@
 package uk.gov.hmrc.traderservices.controllers
 
 import java.time.LocalDate
-
 import play.api.data.FormError
-import uk.gov.hmrc.traderservices.support.UnitSpec
 import uk.gov.hmrc.traderservices.models.{EPU, EntryDetails, EntryNumber}
-import uk.gov.hmrc.traderservices.support.FormMatchers
+import uk.gov.hmrc.traderservices.support.{FormMatchers, UnitSpec}
+
 import java.time.temporal.ChronoField
 
 class EntryDetailsFormSpec extends UnitSpec with FormMatchers {

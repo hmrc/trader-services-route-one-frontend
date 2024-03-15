@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import akka.actor.{ActorSystem, Scheduler}
+import org.apache.pekko.actor.{ActorSystem, Scheduler}
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json.Json

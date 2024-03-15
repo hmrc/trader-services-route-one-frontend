@@ -1,5 +1,5 @@
 const path = require('path');
-const webpackConfig = require('./webpack.config.js');
+const webpackConfig = require('./webpack.javascript.config.js');
 process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 module.exports = function (config) {
