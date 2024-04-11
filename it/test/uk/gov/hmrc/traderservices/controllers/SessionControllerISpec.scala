@@ -49,6 +49,15 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       }
     }
 
+    "user enters on signout link with redirect url which is non relative" should {
+      "will be on the error page for internal server error" in {
+        givenSignOutWithContinueToFeedbackSurvey()
+        val result = await(requestWithoutJourneyId("/sign-out?continueUrl=https://www.google.com").get())
+        result.status shouldBe 200
+        result.body should include("Sorry, there is a problem with the service")
+      }
+    }
+
     "GET /sign-out-no-survey" should {
       "redirect to the feedback survey" in {
         givenSignOut()
