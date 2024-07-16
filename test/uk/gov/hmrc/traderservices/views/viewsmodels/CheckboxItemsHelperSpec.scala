@@ -14,20 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.traderservices.views
+package uk.gov.hmrc.traderservices.views.viewsmodels
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.data.Form
 import play.api.data.Forms._
-import uk.gov.hmrc.traderservices.views.CheckboxItemsHelper
-import play.api.data.Form
 import play.api.i18n.{Messages, MessagesApi}
+import play.api.test.Helpers
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.traderservices.models.EnumerationFormats
-import org.mockito.scalatest.MockitoSugar
-import play.api.test.Helpers
-import play.api.test.Helpers.stubMessagesApi
+import uk.gov.hmrc.traderservices.views.CheckboxItemsHelper
 
 class CheckboxItemsHelperSpec extends AnyFlatSpec with Matchers with CheckboxItemsHelper {
   implicit val messagesAPI: MessagesApi = Helpers.stubMessagesApi()
@@ -39,7 +36,7 @@ class CheckboxItemsHelperSpec extends AnyFlatSpec with Matchers with CheckboxIte
   }
 
   implicit val enumFormats: EnumerationFormats[TestEnum.Value] = new EnumerationFormats[TestEnum.Value] {
-    override val values: Set[TestEnum.Value] = TestEnum.values.toSet
+    override val values: Set[TestEnum.Value] = TestEnum.values
     override def keyOf(value: TestEnum.Value): Option[String] = Some(value.toString)
     override def valueOf(key: String): Option[TestEnum.Value] = TestEnum.values.find(_.toString == key)
   }
@@ -72,7 +69,3 @@ class CheckboxItemsHelperSpec extends AnyFlatSpec with Matchers with CheckboxIte
     result.filterNot(_.value == "testVal2").foreach(_.checked shouldBe false)
   }
 }
-
-
-
-
