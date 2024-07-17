@@ -49,5 +49,41 @@ class CommonUtilsHelperSpec extends UnitSpec {
       implicit val m: Messages = MessagesImpl(Lang("cy"), messagesApi)
       LocalDateTime.parse("2021-03-25T16:01").ddMMYYYYAtTimeFormat shouldBe "25 Mawrth 2021 am 16:01"
     }
+
+    "foldNonEmpty should work correctly for non-empty strings" in {
+      val nonEmptyOption: Option[String] = Some("timestamp")
+      val result = nonEmptyOption.foldNonEmpty("Empty")(_ + " is provided")
+      result mustBe "timestamp is provided"
+    }
+
+    "foldNonEmpty should work correctly for empty strings" in {
+      val emptyOption: Option[String] = Some("")
+      val result = emptyOption.foldNonEmpty("Empty")(_ + " is provided")
+      result mustBe "Empty"
+    }
+
+    "foldNonEmpty should work correctly for None" in {
+      val noneOption: Option[String] = None
+      val result = noneOption.foldNonEmpty("Empty")(_ + " World")
+      result mustBe "Empty"
+    }
+
+    "getNonEmptyOrElse should return the string for non-empty options" in {
+      val nonEmptyOption: Option[String] = Some("timestamp")
+      val result = nonEmptyOption.getNonEmptyOrElse("Default")
+      result mustBe "timestamp"
+    }
+
+    "getNonEmptyOrElse should return the default for empty strings" in {
+      val emptyOption: Option[String] = Some("")
+      val result = emptyOption.getNonEmptyOrElse("Default")
+      result mustBe "Default"
+    }
+
+    "getNonEmptyOrElse should return the default for None" in {
+      val noneOption: Option[String] = None
+      val result = noneOption.getNonEmptyOrElse("Default")
+      result mustBe "Default"
+    }
   }
 }
