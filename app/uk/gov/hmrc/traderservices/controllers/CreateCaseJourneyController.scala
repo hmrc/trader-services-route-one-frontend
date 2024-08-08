@@ -46,7 +46,6 @@ class CreateCaseJourneyController @Inject() (
   traderServicesApiConnector: TraderServicesApiConnector,
   upscanInitiateConnector: UpscanInitiateConnector,
   uploadFileViewContext: UploadFileViewContext,
-  pdfGeneratorConnector: PdfGeneratorConnector,
   printStylesheet: ReceiptStylesheet,
   appConfig: AppConfig,
   authConnector: FrontendAuthConnector,
@@ -1080,17 +1079,6 @@ class CreateCaseJourneyController @Inject() (
       }
     }
 
-  // GET /new/confirmation/receipt/pdf/:fileName
-  final def downloadCreateCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
-    Action.async { implicit request =>
-      AsAuthorisedUser {
-        createCaseJourneyService.currentSessionState.flatMap {
-          case Some((state, _)) => renderConfirmationReceiptPdf(request, state)
-          case None             => NotFound.asFuture
-        }
-      }
-    }
-
   // GET /new/case-already-exists
   final val showCaseAlreadyExists: Action[AnyContent] =
     Action.async { implicit request =>
@@ -1234,7 +1222,8 @@ class CreateCaseJourneyController @Inject() (
     */
   final def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
-  ): Result =
+  ): Result = {
+    println("===============renderState================" + state)
     state match {
 
       case Start =>
@@ -1556,6 +1545,7 @@ class CreateCaseJourneyController @Inject() (
             TraderServicesResult(caseReferenceId, generatedAt, _),
             caseSLA
           ) =>
+        println("================================test")
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
@@ -1565,9 +1555,6 @@ class CreateCaseJourneyController @Inject() (
             generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             caseSLA,
             controller.downloadCreateCaseConfirmationReceipt,
-            controller.downloadCreateCaseConfirmationReceiptAsPdf(
-              s"Document_receipt_${entryDetails.entryNumber.value}.pdf"
-            ),
             controller.showStart
           )
         )
@@ -1591,6 +1578,7 @@ class CreateCaseJourneyController @Inject() (
       case _ => NotImplemented
 
     }
+  }
 
   private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
@@ -1709,35 +1697,6 @@ class CreateCaseJourneyController @Inject() (
             HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${entryDetails.entryNumber.value}.html""""
           )
         )
-
-      case _ => Future.successful(BadRequest)
-    })
-
-  private val renderConfirmationReceiptPdf =
-    asyncResultWithRequestOf(implicit request => {
-      case CreateCaseConfirmation(
-            entryDetails,
-            _,
-            uploadedFiles,
-            TraderServicesResult(caseReferenceId, generatedAt, _),
-            caseSLA
-          ) =>
-        printStylesheet.content
-          .map(stylesheet =>
-            views
-              .createCaseConfirmationReceiptView(
-                caseReferenceId,
-                entryDetails,
-                uploadedFiles,
-                generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
-                caseSLA,
-                stylesheet
-              )
-              .body
-          )
-          .flatMap(
-            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${entryDetails.entryNumber.value}.pdf")
-          )
 
       case _ => Future.successful(BadRequest)
     })

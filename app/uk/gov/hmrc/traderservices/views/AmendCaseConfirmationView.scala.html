@@ -27,7 +27,7 @@
         appConfig: AppConfig
 )
 
-@(caseReferenceId: String, uploadedFiles: Seq[UploadedFile], responseText: Option[String], generatedAt: String, downloadHtmlCall: Call, downloadPdfCall:Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, uploadedFiles: Seq[UploadedFile], responseText: Option[String], generatedAt: String, downloadHtmlCall: Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
 
 @govukLayout2(
   pageTitle = pageTitle("view.amend-case-confirmation.title"),

@@ -45,7 +45,6 @@ class AmendCaseJourneyController @Inject() (
   upscanInitiateConnector: UpscanInitiateConnector,
   uploadFileViewContext: UploadFileViewContext,
   printStylesheet: ReceiptStylesheet,
-  pdfGeneratorConnector: PdfGeneratorConnector,
   appConfig: AppConfig,
   authConnector: FrontendAuthConnector,
   environment: Environment,
@@ -534,17 +533,6 @@ class AmendCaseJourneyController @Inject() (
       }
     }
 
-  // GET /add/confirmation/receipt/pdf/:fileName
-  final def downloadAmendCaseConfirmationReceiptAsPdf(fileName: String): Action[AnyContent] =
-    Action.async { implicit request =>
-      AsAuthorisedUser {
-        amendCaseJourneyService.currentSessionState.flatMap {
-          case Some((state, _)) => renderConfirmationReceiptPdf(request, state)
-          case None             => NotFound.asFuture
-        }
-      }
-    }
-
   // GET /add/case-already-submitted
   final val showAmendCaseAlreadySubmitted: Action[AnyContent] =
     Action.async { implicit request =>
@@ -733,9 +721,6 @@ class AmendCaseJourneyController @Inject() (
             model.responseText,
             generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
             controller.downloadAmendCaseConfirmationReceipt,
-            controller.downloadAmendCaseConfirmationReceiptAsPdf(
-              s"Document_receipt_$caseReferenceNumber.pdf"
-            ),
             routes.CreateCaseJourneyController.showStart
           )
         )
@@ -858,32 +843,6 @@ class AmendCaseJourneyController @Inject() (
             HeaderNames.CONTENT_DISPOSITION -> s"""attachment; filename="Document_receipt_${model.caseReferenceNumber.get}.html""""
           )
         )
-
-      case _ => Future.successful(BadRequest)
-    })
-
-  private val renderConfirmationReceiptPdf =
-    asyncResultWithRequestOf(implicit request => {
-      case AmendCaseConfirmation(
-            uploadedFiles,
-            model,
-            TraderServicesResult(caseReferenceNumber, generatedAt, _)
-          ) =>
-        printStylesheet.content
-          .map(stylesheet =>
-            views
-              .amendCaseConfirmationReceiptView(
-                model.caseReferenceNumber.get,
-                uploadedFiles,
-                model.responseText,
-                generatedAt.asLondonClockTime.ddMMYYYYAtTimeFormat,
-                stylesheet
-              )
-              .body
-          )
-          .flatMap(
-            pdfGeneratorConnector.convertHtmlToPdf(_, s"Document_receipt_${model.caseReferenceNumber.get}.pdf")
-          )
 
       case _ => Future.successful(BadRequest)
     })
