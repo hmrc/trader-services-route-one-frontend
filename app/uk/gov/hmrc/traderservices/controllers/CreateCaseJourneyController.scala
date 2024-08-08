@@ -1222,8 +1222,7 @@ class CreateCaseJourneyController @Inject() (
     */
   final def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
     request: Request[_]
-  ): Result = {
-    println("===============renderState================" + state)
+  ): Result =
     state match {
 
       case Start =>
@@ -1545,7 +1544,6 @@ class CreateCaseJourneyController @Inject() (
             TraderServicesResult(caseReferenceId, generatedAt, _),
             caseSLA
           ) =>
-        println("================================test")
         Ok(
           views.createCaseConfirmationView(
             caseReferenceId,
@@ -1578,7 +1576,6 @@ class CreateCaseJourneyController @Inject() (
       case _ => NotImplemented
 
     }
-  }
 
   private def linkToSummary(questionsAnswers: QuestionsAnswers): Call =
     questionsAnswers match {
