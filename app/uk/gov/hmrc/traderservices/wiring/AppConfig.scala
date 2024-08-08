@@ -41,7 +41,6 @@ trait AppConfig {
   val authBaseUrl: String
   val traderServicesApiBaseUrl: String
   val upscanInitiateBaseUrl: String
-  val pdfGeneratorServiceBaseUrl: String
 
   val createCaseApiPath: String
   val updateCaseApiPath: String
@@ -99,7 +98,6 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val authBaseUrl: String = config.baseUrl("auth")
   override val traderServicesApiBaseUrl: String = config.baseUrl("trader-services-api")
   override val upscanInitiateBaseUrl: String = config.baseUrl("upscan-initiate")
-  override val pdfGeneratorServiceBaseUrl: String = config.baseUrl("pdf-generator-service")
 
   override val createCaseApiPath: String =
     config.getConfString(
