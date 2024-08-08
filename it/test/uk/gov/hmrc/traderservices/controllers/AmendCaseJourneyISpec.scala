@@ -25,7 +25,7 @@ import play.api.libs.json._
 import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest}
 import play.api.mvc._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
 import uk.gov.hmrc.crypto.PlainText
@@ -45,7 +45,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 class AmendCaseJourneyISpec
-    extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
+    extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
@@ -381,54 +381,6 @@ class AmendCaseJourneyISpec
         result.body should include(
           s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
-
-        journey.getState shouldBe state
-      }
-    }
-
-    "GET /add/confirmation/receipt/pdf/test.pdf" should {
-      "download the confirmation receipt as pdf" in {
-        val state = AmendCaseConfirmation(
-          Seq(
-            UploadedFile(
-              "foo-bar-ref-1",
-              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-              "test.pdf",
-              "application/pdf",
-              Some(4567890)
-            )
-          ),
-          AmendCaseModel(
-            caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
-            responseText = Some("foo bar"),
-            typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)
-          ),
-          TraderServicesResult("PC12010081330XGBNZJO04", generatedAt)
-        )
-        journey.setState(state)
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
-        WireMock.stubFor(
-          WireMock
-            .get(WireMock.urlEqualTo("/send-documents-for-customs-check/assets/stylesheets/download-receipt.css"))
-            .willReturn(WireMock.aResponse.withBody(""))
-        )
-
-        val pdfContent = Array.ofDim[Byte](7777)
-        Random.nextBytes(pdfContent)
-        givenPdfGenerationSucceeds(pdfContent)
-
-        val result = await(request("/add/confirmation/receipt/pdf/test.pdf").get)
-
-        result.status shouldBe 200
-        result.header("Content-Type") shouldBe Some("application/pdf")
-        result.header("Content-Disposition") shouldBe Some(
-          """attachment; filename="Document_receipt_PC12010081330XGBNZJO04.pdf""""
-        )
-
-        result.bodyAsBytes.toArray shouldBe pdfContent
 
         journey.getState shouldBe state
       }

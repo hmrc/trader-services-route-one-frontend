@@ -36,7 +36,6 @@ case class TestAppConfig(
   override val authBaseUrl: String = wireMockBaseUrl
   override val traderServicesApiBaseUrl: String = wireMockBaseUrl
   override val upscanInitiateBaseUrl: String = wireMockBaseUrl
-  override val pdfGeneratorServiceBaseUrl: String = wireMockBaseUrl
 
   override val createCaseApiPath: String = "/create-case"
   override val updateCaseApiPath: String = "/update-case"

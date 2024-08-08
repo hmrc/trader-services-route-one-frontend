@@ -18,13 +18,13 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
-import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.models._
 
 import java.time.LocalDateTime
 
 class AmendCaseJourneyWithMultifileUploadISpec
-    extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
+    extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
   import journey.model.State._
