@@ -24,7 +24,7 @@ import play.api.libs.json._
 import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest}
 import play.api.mvc._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
 import uk.gov.hmrc.crypto.PlainText
@@ -47,7 +47,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 class CreateCaseJourneyISpec
-    extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
+    extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.FileUploadState._
 
@@ -935,8 +935,8 @@ class CreateCaseJourneyISpec
               vesselDetails = Some(
                 VesselDetails(
                   vesselName = Some("Foo Bar"),
-                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime)
                 )
               )
             )
@@ -1043,8 +1043,8 @@ class CreateCaseJourneyISpec
               vesselDetails = Some(
                 VesselDetails(
                   vesselName = Some("Foo Bar"),
-                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime)
                 )
               )
             )
@@ -1950,8 +1950,8 @@ class CreateCaseJourneyISpec
               vesselDetails = Some(
                 VesselDetails(
                   vesselName = Some("Foo Bar"),
-                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime)
                 )
               )
             )
@@ -2039,8 +2039,8 @@ class CreateCaseJourneyISpec
               vesselDetails = Some(
                 VesselDetails(
                   vesselName = Some("Foo Bar"),
-                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate()),
-                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime())
+                  dateOfArrival = Some(dateTimeOfArrival.toLocalDate),
+                  timeOfArrival = Some(dateTimeOfArrival.toLocalTime)
                 )
               )
             )
@@ -2457,7 +2457,7 @@ class CreateCaseJourneyISpec
         result1.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
         result1.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
-        val result2 = await(request("/new/import/check-your-answers").get)
+        val result2 = await(request("/new/import/check-your-answers").get())
 
         result2.status shouldBe 200
         result2.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
@@ -2507,53 +2507,6 @@ class CreateCaseJourneyISpec
         result.body should include(
           s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
-
-        journey.getState shouldBe state
-      }
-    }
-
-    "GET /new/confirmation/receipt/pdf/test.pdf" should {
-      "download the confirmation receipt as pdf" in {
-
-        val state = CreateCaseConfirmation(
-          TestData.exportEntryDetails,
-          TestData.fullExportQuestions(dateTimeOfArrival),
-          Seq(
-            UploadedFile(
-              "foo-123",
-              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-              "test.pdf",
-              "application/pdf",
-              Some(4567890)
-            )
-          ),
-          TraderServicesResult("ABC01234567890", generatedAt),
-          CaseSLA(Some(generatedAt.plusHours(2)))
-        )
-        journey.setState(state)
-        givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-
-        WireMock.stubFor(
-          WireMock
-            .get(WireMock.urlEqualTo("/send-documents-for-customs-check/assets/stylesheets/download-receipt.css"))
-            .willReturn(WireMock.aResponse.withBody(""))
-        )
-
-        val pdfContent = Array.ofDim[Byte](7777)
-        Random.nextBytes(pdfContent)
-        givenPdfGenerationSucceeds(pdfContent)
-
-        val result = await(request("/new/confirmation/receipt/pdf/test.pdf").get)
-
-        result.status shouldBe 200
-        result.header("Content-Type") shouldBe Some("application/pdf")
-        result.header("Content-Disposition") shouldBe Some(
-          """attachment; filename="Document_receipt_Z00000Z.pdf""""
-        )
-
-        result.bodyAsBytes.toArray shouldBe pdfContent
 
         journey.getState shouldBe state
       }
@@ -2887,17 +2840,15 @@ class CreateCaseJourneyISpec
         result.body should include(htmlEscapedPageTitle("view.upload-file.waiting"))
         result.body should include(htmlEscapedMessage("view.upload-file.waiting"))
 
-        journey.getState shouldBe (
-          WaitingForFileVerification(
-            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
-            "2b72fe99-8adf-4edb-865e-622ae710f77c",
-            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
-            FileUploads(files =
-              Seq(
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
+        journey.getState shouldBe WaitingForFileVerification(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          "2b72fe99-8adf-4edb-865e-622ae710f77c",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
             )
           )
         )
@@ -2930,30 +2881,28 @@ class CreateCaseJourneyISpec
 
         result1.status shouldBe 204
         result1.body.isEmpty shouldBe true
-        journey.getState shouldBe (
-          UploadFile(
-            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
-            "11370e18-6e24-453e-b45a-76d3e32ea33d",
-            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUploads(files =
-              Seq(
-                FileUpload.Rejected(
-                  Nonce.Any,
-                  Timestamp.Any,
-                  "11370e18-6e24-453e-b45a-76d3e32ea33d",
-                  S3UploadError(
-                    key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
-                    errorCode = "ABC123",
-                    errorMessage = "ABC 123"
-                  )
-                ),
-                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
-            ),
-            Some(
-              FileTransmissionFailed(
-                S3UploadError("11370e18-6e24-453e-b45a-76d3e32ea33d", "ABC123", "ABC 123", None, None)
-              )
+        journey.getState shouldBe UploadFile(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUploads(files =
+            Seq(
+              FileUpload.Rejected(
+                Nonce.Any,
+                Timestamp.Any,
+                "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                S3UploadError(
+                  key = "11370e18-6e24-453e-b45a-76d3e32ea33d",
+                  errorCode = "ABC123",
+                  errorMessage = "ABC 123"
+                )
+              ),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
+            )
+          ),
+          Some(
+            FileTransmissionFailed(
+              S3UploadError("11370e18-6e24-453e-b45a-76d3e32ea33d", "ABC123", "ABC 123", None, None)
             )
           )
         )
@@ -2982,17 +2931,15 @@ class CreateCaseJourneyISpec
 
         result1.status shouldBe 202
         result1.body.isEmpty shouldBe true
-        journey.getState shouldBe (
-          WaitingForFileVerification(
-            FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
-            "11370e18-6e24-453e-b45a-76d3e32ea33d",
-            UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
-            FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
-                FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
-              )
+        journey.getState shouldBe WaitingForFileVerification(
+          FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
+          "11370e18-6e24-453e-b45a-76d3e32ea33d",
+          UploadRequest(href = "https://s3.bucket", fields = Map("callbackUrl" -> "https://foo.bar/callback")),
+          FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "11370e18-6e24-453e-b45a-76d3e32ea33d"),
+              FileUpload.Posted(Nonce.Any, Timestamp.Any, "2b72fe99-8adf-4edb-865e-622ae710f77c")
             )
           )
         )
@@ -3103,7 +3050,7 @@ class CreateCaseJourneyISpec
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files = Seq(TestData.acceptedFileUpload)),
-          true
+          acknowledged = true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -3145,7 +3092,7 @@ class CreateCaseJourneyISpec
               )
             )
           ),
-          true
+          acknowledged = true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -3161,8 +3108,8 @@ class CreateCaseJourneyISpec
       "show file upload summary view" in {
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
-          fileUploads = FileUploads(files = for (i <- 1 to 10) yield TestData.acceptedFileUpload),
-          true
+          fileUploads = FileUploads(files = for (_ <- 1 to 10) yield TestData.acceptedFileUpload),
+          acknowledged = true
         )
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
@@ -3182,7 +3129,7 @@ class CreateCaseJourneyISpec
 
       "show upload a file view for export when yes and number of files below the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3230,7 +3177,7 @@ class CreateCaseJourneyISpec
 
       "show upload a file view for import when yes and number of files below the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3278,7 +3225,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for export when yes and files number limit has been reached" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3306,7 +3253,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for import when yes and files number limit has been reached" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3334,7 +3281,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for export when no and files number below the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3362,7 +3309,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for import when no and files number below the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 until FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3390,7 +3337,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for export when no and files number above the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3418,7 +3365,7 @@ class CreateCaseJourneyISpec
 
       "show check-your-anwers page for import when no and files number above the limit" in {
 
-        val fileUploads = FileUploads(files = for (i <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
+        val fileUploads = FileUploads(files = for (_ <- 1 to FILES_LIMIT) yield TestData.acceptedFileUpload)
         val state = FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads
@@ -3831,7 +3778,7 @@ class CreateCaseJourneyISpec
 
 trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
-  val authToken = UUID.randomUUID.toString
+  val authToken: String = UUID.randomUUID.toString
 
   implicit val journeyId: JourneyId = JourneyId()
 
@@ -3842,23 +3789,23 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   import play.api.i18n._
   implicit val messages: Messages = MessagesImpl(Lang("en"), app.injector.instanceOf[MessagesApi])
 
-  val dateTime = LocalDateTime.now()
-  val dateTimeOfArrival = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
+  val dateTime: LocalDateTime = LocalDateTime.now()
+  val dateTimeOfArrival: LocalDateTime = dateTime.plusDays(1).truncatedTo(ChronoUnit.MINUTES)
 
-  val today = LocalDate.now
-  val (y, m, d) = (today.getYear(), today.getMonthValue(), today.getDayOfMonth())
+  val today: LocalDate = LocalDate.now
+  val (y, m, d) = (today.getYear, today.getMonthValue, today.getDayOfMonth)
 
-  lazy val controller = app.injector.instanceOf[CreateCaseJourneyController]
+  lazy val controller: CreateCaseJourneyController = app.injector.instanceOf[CreateCaseJourneyController]
 
-  lazy val journey = new support.TestJourneyService with CreateCaseJourneyService
+  lazy val journey: TestJourneyService with CreateCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] = new support.TestJourneyService with CreateCaseJourneyService
   with EncryptedSessionCache[State, HeaderCarrier] {
 
     override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
+    override lazy val cacheRepository: CacheRepository = app.injector.instanceOf[CacheRepository]
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
     override lazy val keyProviderFromContext: HeaderCarrier => KeyProvider =
-      hc => KeyProvider(keyProvider, None)
+      _ => KeyProvider(keyProvider, None)
 
     override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)
 
@@ -3915,10 +3862,10 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
       .url(s"$baseUrl$path")
       .withHttpHeaders(HeaderNames.AUTHORIZATION -> "Bearer token", journey.journeyKey -> journeyId.value)
       .withCookies(
-        (cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
+        cookies.map(c => DefaultWSCookie(c._1, c._2)) :+ DefaultWSCookie(
           sessionCookie.name,
           sessionCookieCrypto.crypto.encrypt(PlainText(sessionCookie.value)).value
-        )): _*
+        ): _*
       )
   }
 

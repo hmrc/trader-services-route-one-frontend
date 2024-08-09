@@ -29,29 +29,6 @@ lazy val root = (project in file("."))
     ),
     libraryDependencies ++= AppDependencies(),
     scoverageSettings,
-    WebpackKeys.configurations := Seq(
-      WebpackConfig(
-        id = "js",
-        configFilePath = "webpack.javascript.config.js",
-        includeFilter = "*.js" || "*.ts",
-        inputs = Seq("javascripts/index.ts"),
-        output = "javascripts/application.min.js"
-      ),
-      WebpackConfig(
-        id = "css",
-        configFilePath = "webpack.stylesheet.config.js",
-        includeFilter = "*.scss" || "*.sass" || "*.css",
-        inputs = Seq("stylesheets/application.scss"),
-        output = "stylesheets/application.css"
-      ),
-      WebpackConfig(
-        id = "print",
-        configFilePath = "webpack.stylesheet.config.js",
-        includeFilter = "*.scss" || "*.sass" || "*.css",
-        inputs = Seq("stylesheets/print.scss"),
-        output = "stylesheets/print.css"
-      )
-    ),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
     Compile / scalafmtOnCompile := true,
     Test / unmanagedSourceDirectories += baseDirectory.value / "test",

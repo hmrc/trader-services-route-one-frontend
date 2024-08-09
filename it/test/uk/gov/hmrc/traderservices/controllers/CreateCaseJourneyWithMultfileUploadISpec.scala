@@ -18,7 +18,7 @@ package uk.gov.hmrc.traderservices.controllers
 
 import play.api.mvc.Cookie
 import play.api.test.FakeRequest
-import uk.gov.hmrc.traderservices.stubs.{PdfGeneratorStubs, TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.TestData
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.traderservices.controllers.routes
@@ -30,7 +30,7 @@ import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class CreateCaseJourneyWithMultfileUploadISpec
-    extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs with PdfGeneratorStubs {
+    extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
   import journey.model.CreateCaseJourneyState._
   import journey.model.FileUploadState._

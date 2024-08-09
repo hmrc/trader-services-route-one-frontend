@@ -79,7 +79,6 @@ GET        /new/file-uploaded/:reference/:fileName                  @uk.gov.hmrc
 POST       /new/create-case                                         @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.createCase
 GET        /new/confirmation                                        @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCreateCaseConfirmation
 GET        /new/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.downloadCreateCaseConfirmationReceipt
-GET        /new/confirmation/receipt/pdf/:fileName                  @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.downloadCreateCaseConfirmationReceiptAsPdf(fileName: String)
 GET        /new/case-already-exists                                 @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCaseAlreadyExists
 GET        /new/case-already-submitted                              @uk.gov.hmrc.traderservices.controllers.CreateCaseJourneyController.showCaseAlreadySubmitted
 
@@ -117,7 +116,6 @@ GET        /add/missing-information                                 @uk.gov.hmrc
 POST       /add/amend-case                                          @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.amendCase
 GET        /add/confirmation                                        @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseConfirmation
 GET        /add/confirmation/receipt                                @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceipt
-GET        /add/confirmation/receipt/pdf/:fileName                  @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.downloadAmendCaseConfirmationReceiptAsPdf(fileName: String)
 GET        /add/case-already-submitted                              @uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyController.showAmendCaseAlreadySubmitted
 
 GET        /timedout                                                @uk.gov.hmrc.traderservices.controllers.SessionController.showTimeoutPage
