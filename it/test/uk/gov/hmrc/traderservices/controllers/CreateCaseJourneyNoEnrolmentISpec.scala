@@ -2319,6 +2319,10 @@ class CreateCaseJourneyNoEnrolmentISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
         result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body should include(htmlEscapedMessage("common.feedback.title"))
+        result.body should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body should include(htmlEscapedMessage("common.feedback.link"))
+        result.body should include(htmlEscapedMessage("common.feedback.p2"))
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.exportEntryDetails,
           TestData.fullExportQuestions(dateTimeOfArrival),
