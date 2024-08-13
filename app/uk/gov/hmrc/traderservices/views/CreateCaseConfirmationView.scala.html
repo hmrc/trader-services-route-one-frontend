@@ -21,6 +21,8 @@
 @import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
+@import components.ExitSurvey
+
 
 @this(
         govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
@@ -80,12 +82,6 @@
       }
     }
 
-    @html.p {
-      @html.a(
-        link = appConfig.exitSurveyUrl,
-        messageKey = "view.create-case-confirmation.feedback"
-      )
-    }
     <div id="confirmation-heading" hidden>
     @html.h2("view.create-case-confirmation.print-receipts.heading")
     </div>
@@ -126,5 +122,8 @@
     @html.p {
       @Html(messages("view.create-case-confirmation.footnote"))
     }
+
   </div>
+  ExitSurvey()
+
 }
