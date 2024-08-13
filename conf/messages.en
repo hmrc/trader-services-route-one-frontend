@@ -665,3 +665,8 @@ form.import-questions.reason-text.hint.description1=You must include a reason wh
 form.import-questions.reason-text.hint.list.cancel=cancel an import request
 form.import-questions.reason-text.hint.list.submit=submit a Route 3 declaration
 form.import-questions.reason-text.hint.description2=Do not include personal or financial information, like credit cards or business account details.
+
+common.feedback.title = Before you go
+common.feedback.p1 = Your feedback helps us make our service better.
+common.feedback.link = Take a short survey
+common.feedback.p2 = to share your feedback on this service.

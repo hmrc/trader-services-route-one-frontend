@@ -21,7 +21,7 @@
 @import uk.gov.hmrc.traderservices.models.QuestionsAnswers
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
-@import components.ExitSurvey
+@import helpers._
 
 
 @this(
@@ -29,7 +29,8 @@
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
         context: CaseConfirmationViewContext,
-        appConfig: AppConfig
+        appConfig: AppConfig,
+        exitSurvey:ExitSurvey
 )
 
 @(caseReferenceId: String, entryDetails: EntryDetails, questionAnswers: QuestionsAnswers, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, downloadHtmlCall: Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
@@ -122,8 +123,8 @@
     @html.p {
       @Html(messages("view.create-case-confirmation.footnote"))
     }
-
+      @exitSurvey()
   </div>
-  ExitSurvey()
+
 
 }
