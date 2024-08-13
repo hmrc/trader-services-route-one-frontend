@@ -15,12 +15,15 @@
  *@
 
 @import uk.gov.hmrc.traderservices.wiring.AppConfig
+@import helpers._
+
 
 @this(
         govukLayout: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
-        appConfig: AppConfig
+        appConfig: AppConfig,
+        exitSurvey:ExitSurvey
 )
 
 @(caseReferenceId: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
@@ -42,4 +45,5 @@
     @html.p {
       @Html(messages("view.case-already-exists.description.3"))
     }
+    @exitSurvey()
 }

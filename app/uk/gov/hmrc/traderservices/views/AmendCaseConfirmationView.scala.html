@@ -18,13 +18,15 @@
 @import uk.gov.hmrc.traderservices.models.UploadedFile
 @import uk.gov.hmrc.traderservices.views.CaseConfirmationViewContext
 @import uk.gov.hmrc.traderservices.views.html.partials
+@import helpers._
 
 @this(
         govukLayout2: uk.gov.hmrc.traderservices.views.html.templates.GovukLayoutWrapper2,
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html,
         context: CaseConfirmationViewContext,
-        appConfig: AppConfig
+        appConfig: AppConfig,
+        exitSurvey:ExitSurvey
 )
 
 @(caseReferenceId: String, uploadedFiles: Seq[UploadedFile], responseText: Option[String], generatedAt: String, downloadHtmlCall: Call, restartCall: Call)(implicit request: Request[_], messages: Messages)
@@ -53,13 +55,6 @@
 
     @html.p {
       @messages("view.amend-case-confirmation.next.description")
-    }
-
-    @html.p {
-      @html.a(
-        link = appConfig.exitSurveyUrl,
-        messageKey = "view.amend-case-confirmation.feedback"
-      )
     }
     <div id="confirmation-heading" hidden>
         @html.h2("view.amend-case-confirmation.info.heading", classes = "govuk-heading-m")
@@ -97,5 +92,6 @@
     @html.p {
       @Html(messages("view.amend-case-confirmation.footnote"))
     }
+      @exitSurvey()
   </div>
 }
