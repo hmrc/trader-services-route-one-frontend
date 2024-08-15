@@ -893,6 +893,10 @@ class AmendCaseJourneyNoEnrolmentISpec
         result.body should include(
           s"${htmlEscapedMessage("view.amend-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
         )
+        result.body should include(htmlEscapedMessage("common.feedback.title"))
+        result.body should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body should include(htmlEscapedMessage("common.feedback.link"))
+        result.body should include(htmlEscapedMessage("common.feedback.p2"))
         journey.getState shouldBe state
       }
     }

@@ -552,3 +552,8 @@ form.import-questions.reason-text.hint.description1=Mae’n rhaid i chi gynnwys 
 form.import-questions.reason-text.hint.list.cancel=canslo cais mewnforio
 form.import-questions.reason-text.hint.list.submit=cyflwyno datganiad Llwybr 3
 form.import-questions.reason-text.hint.description2=Peidiwch â chynnwys gwybodaeth bersonol nac ariannol, megis manylion cardiau credyd neu fanylion cyfrif busnes.
+
+common.feedback.title = Cyn i chi fynd
+common.feedback.p1 = Mae’ch adborth yn ein helpu i wella ein gwasanaeth.
+common.feedback.link = Llenwch ein harolwg
+common.feedback.p2 = i rannu’ch adborth ar y gwasanaeth.

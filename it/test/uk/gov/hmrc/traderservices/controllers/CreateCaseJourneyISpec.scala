@@ -2369,6 +2369,10 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
         result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        result.body should include(htmlEscapedMessage("common.feedback.title"))
+        result.body should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body should include(htmlEscapedMessage("common.feedback.link"))
+        result.body should include(htmlEscapedMessage("common.feedback.p2"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
       }
@@ -2389,6 +2393,10 @@ class CreateCaseJourneyISpec
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
         result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        result.body should include(htmlEscapedMessage("common.feedback.title"))
+        result.body should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body should include(htmlEscapedMessage("common.feedback.link"))
+        result.body should include(htmlEscapedMessage("common.feedback.p2"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
       }
