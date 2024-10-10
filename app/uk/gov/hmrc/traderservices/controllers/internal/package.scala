@@ -16,18 +16,15 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
+import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
-import play.api.mvc.{RequestHeader, Result}
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
 import scala.concurrent.Future
 
 package object internal {
 
-  final def whenInSession(journeyId: String, appConfig: AppConfig)(
-    body: => Future[Result]
-  )(implicit rh: RequestHeader, rc: HeaderCarrier): Future[Result] =
+  final def whenInSession(journeyId: String, appConfig: AppConfig)(body: => Future[Result]): Future[Result] =
     journeyId match {
       case jid if jid.isEmpty => Future.successful(Redirect(appConfig.govukStartUrl))
       case _                  => body

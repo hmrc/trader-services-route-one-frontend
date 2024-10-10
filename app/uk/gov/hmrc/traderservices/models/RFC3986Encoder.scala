@@ -28,8 +28,8 @@ object RFC3986Encoder {
     val bytes = StandardCharsets.UTF_8.encode(
       CharBuffer.wrap(
         string
-          .replaceAllLiterally("%", "%25")
-          .replaceAllLiterally("+", "%2B")
+          .replace("%", "%25")
+          .replace("+", "%2B")
       )
     )
     val sb = new StringBuffer(bytes.limit())

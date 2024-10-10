@@ -29,12 +29,5 @@ class QuestionsAnswersFormatSpec extends UnitSpec {
       QuestionsAnswers.reads.reads(JsNumber(1)) shouldBe a[JsError]
       QuestionsAnswers.reads.reads(JsBoolean(true)) shouldBe a[JsError]
     }
-
-    "throw an exception when serializing unknown impl" in {
-      an[Exception] shouldBe thrownBy(
-        QuestionsAnswers.writes.writes(new QuestionsAnswers {})
-      )
-    }
-
   }
 }

@@ -52,7 +52,7 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
     requireEnrolmentFeature: Boolean,
     serviceName: String,
     identifierKey: String
-  )(implicit request: Request[_], hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[String], Option[String])] =
+  )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[String], Option[String])] =
     if (requireEnrolmentFeature) {
       authorised(
         Enrolment(serviceName)
@@ -65,14 +65,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
               identifier <- enrolment.getIdentifier(identifierKey)
             } yield identifier.value
 
-            Future.successful(credentials.map(_.providerId), id)
-          case _ => Future.successful(None, None)
+            Future.successful((credentials.map(_.providerId), id))
+          case _ => Future.successful((None, None))
         }
     } else {
       authorised(AuthProviders(GovernmentGateway))
-        .retrieve(credentials) { case _ =>
-          Future.successful(None, None)
-        }
+        .retrieve(credentials)(_ => Future.successful((None, None)))
     }
 
   protected def authorisedWithoutEnrolment[A](

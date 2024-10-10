@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.traderservices.journeys
 
-import play.api.mvc.RequestHeader
-import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.connectors.{UpscanInitiateRequest, UpscanInitiateResponse}
+import uk.gov.hmrc.traderservices.models._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -486,7 +485,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
       upscanRequest: String => UpscanInitiateRequest
     )(
       upscanInitiate: UpscanInitiateApi
-    )(exitFileUpload: Transition[State])(uploadAnotherFile: Boolean)(implicit rh: RequestHeader, ec: ExecutionContext) =
+    )(exitFileUpload: Transition[State])(uploadAnotherFile: Boolean)(implicit ec: ExecutionContext) =
       Transition[State] { case current @ FileUploaded(hostData, fileUploads, acknowledged) =>
         if (uploadAnotherFile && fileUploads.acceptedCount < maxFileUploadsNumber)
           gotoFileUploadOrUploaded(
@@ -502,7 +501,7 @@ trait FileUploadJourneyModelMixin extends JourneyModel {
 
     final def removeFileUploadByReference(reference: String)(
       upscanRequest: String => UpscanInitiateRequest
-    )(upscanInitiate: UpscanInitiateApi)(implicit rh: RequestHeader, ec: ExecutionContext) =
+    )(upscanInitiate: UpscanInitiateApi)(implicit ec: ExecutionContext) =
       Transition[State] {
         case current: FileUploaded =>
           val updatedFileUploads = current.fileUploads

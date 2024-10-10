@@ -37,7 +37,7 @@ object Generators {
       value.exists(set.contains)
   }
 
-  final val upperCaseChar = Gen.oneOf("ABCDEFGHIJKLMNOPRSUWXYZ".toCharArray())
+  final val upperCaseChar = Gen.oneOf("ABCDEFGHIJKLMNOPRSUWXYZ".toIndexedSeq)
 
   final def nonEmptyString(maxSize: Int, noOfSpaces: Int = 0): Gen[String] =
     Gen

@@ -27,13 +27,6 @@
 
 @(form: Form[Boolean], fileUploads: FileUploads, postAction: Call, previewFileCall: (String,String) => Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
 
-@conditionalContent = {
-  @html.p(
-    content = Html(messages("form.file-uploaded.uploadAnotherFile.noConditional")),
-    classes = "govuk-body govuk-!-padding-bottom-4 govuk-!-padding-top-4"
-  )
-}
-
 @govukLayout(
   pageTitle(if(fileUploads.isSingle) "view.file-uploaded.singular.title" else "view.file-uploaded.plural.title", form, fileUploads.acceptedCount),
   backLink = Some(backLink.url)) {

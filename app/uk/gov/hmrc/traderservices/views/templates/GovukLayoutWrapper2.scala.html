@@ -79,7 +79,7 @@
     data-countdown="@appConfig.countdown"
     data-keep-alive-url="@routes.SessionController.keepAlive"
     data-sign-out-url="@{
-        appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout.url
+        appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout().url
     }"/>
 }
 }

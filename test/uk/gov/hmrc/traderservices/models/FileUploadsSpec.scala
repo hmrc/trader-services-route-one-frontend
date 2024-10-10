@@ -162,15 +162,15 @@ class FileUploadsSpec extends UnitSpec {
         case _                                   => "foo"
       }) shouldBe "Chrysanthemum.jpg"
 
-      ("""C:\Users\Public\Pictures\Sample \u1213Pictures\Chrysanthemum.jpg""" match {
+      ("""C:\Users\Public\Pictures\Sample ሓPictures\Chrysanthemum.jpg""" match {
         case FileUpload.isWindowPathHaving(name) => name
         case _                                   => "foo"
       }) shouldBe "Chrysanthemum.jpg"
 
-      ("""C:\Users\Public\Pictures\Sample \u1213Pictures\C\u1213hrysanthemum.jpg""" match {
+      ("""C:\Users\Public\Pictures\Sample ሓPictures\Cሓhrysanthemum.jpg""" match {
         case FileUpload.isWindowPathHaving(name) => name
         case _                                   => "foo"
-      }) shouldBe "C\u1213hrysanthemum.jpg"
+      }) shouldBe "Cሓhrysanthemum.jpg"
 
       ("""D:\Desktop\My Best Pictures\Chrysanthemum.png""" match {
         case FileUpload.isWindowPathHaving(name) => name
@@ -207,14 +207,14 @@ class FileUploadsSpec extends UnitSpec {
         """C:\Users\Public\Pictures\Sample Pictures\Chrysanthemum.jpg"""
       ) shouldBe "Chrysanthemum.jpg"
       FileUpload.sanitizeFileName(
-        """C:\Users\Public\Pictures\Sample \u1213Pictures\Chrysanthemum.jpg"""
+        """C:\Users\Public\Pictures\Sample ሓPictures\Chrysanthemum.jpg"""
       ) shouldBe "Chrysanthemum.jpg"
       FileUpload.sanitizeFileName(
-        """C:\Users\Public\Pictures\Sample \u1213Pictures\Chrysanthemum\u1213jpg"""
-      ) shouldBe "Chrysanthemum\u1213jpg"
+        """C:\Users\Public\Pictures\Sample ሓPictures\Chrysanthemumሓjpg"""
+      ) shouldBe "Chrysanthemumሓjpg"
       FileUpload.sanitizeFileName(
-        """C:\Users\Public\Pictures\Sample \u1213Pictures\0000Chry*[(anth]?)emum\u1213jpg"""
-      ) shouldBe "0000Chry*[(anth]?)emum\u1213jpg"
+        """C:\Users\Public\Pictures\Sample ሓPictures\0000Chry*[(anth]?)emumሓjpg"""
+      ) shouldBe "0000Chry*[(anth]?)emumሓjpg"
     }
 
     "count accepted" in {

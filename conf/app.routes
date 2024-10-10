@@ -122,7 +122,7 @@ GET        /timedout                                                @uk.gov.hmrc
 GET        /keep-alive                                              @uk.gov.hmrc.traderservices.controllers.SessionController.keepAlive
 
 GET        /sign-out                                                @uk.gov.hmrc.traderservices.controllers.SignOutController.signOut(continueUrl: Option[RedirectUrl] ?= None)
-GET        /sign-out/timeout                                        @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutTimeout
+GET        /sign-out/timeout                                        @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutTimeout()
 GET        /sign-out-no-survey                                      @uk.gov.hmrc.traderservices.controllers.SignOutController.signOutNoSurvey
 
 GET        /language/:lang                                          @uk.gov.hmrc.traderservices.controllers.LanguageSwitchController.switchToLanguage(lang: String)

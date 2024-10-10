@@ -1,8 +1,8 @@
 $images-path: "../images";
-$govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
-$hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
+$govuk-assets-path: "/send-documents-for-customs-check/hmrc-frontend/assets/govuk/";
+$hmrc-assets-path: "/send-documents-for-customs-check/hmrc-frontend/assets/";
 
-@import "webjars/lib/govuk-frontend/govuk/all";
+@import "webjars/lib/govuk-frontend/dist/govuk/all";
 @import "webjars/lib/hmrc-frontend/hmrc/all";
 
 @import "global/overrides";

@@ -177,9 +177,7 @@ abstract class BaseJourneyController[S <: SessionStateService](
     }
   }
 
-  final def whenInSession(journeyId: String)(
-    body: => Future[Result]
-  )(implicit rh: RequestHeader, rc: HeaderCarrier): Future[Result] =
+  final def whenInSession(journeyId: String)(body: => Future[Result]): Future[Result] =
     journeyId match {
       case jid if jid.isEmpty => Future.successful(Redirect(appConfig.govukStartUrl))
       case _                  => body

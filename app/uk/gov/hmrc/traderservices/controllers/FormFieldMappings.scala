@@ -33,7 +33,7 @@ object FormFieldMappings {
   val normalizedText: Mapping[String] = of[String].transform(_.replaceAll("\\s", ""), identity)
   val uppercaseNormalizedText: Mapping[String] = normalizedText.transform(_.toUpperCase, identity)
   val validDomain: String = """.*@([a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]{2,4})+)"""
-  val nonAllowedCharTypes =
+  private val nonAllowedCharTypes: List[Byte] =
     List(Character.CONTROL, Character.SURROGATE, Character.FORMAT, Character.PRIVATE_USE)
 
   def nonEmpty(fieldName: String): Constraint[String] =
@@ -146,6 +146,8 @@ object FormFieldMappings {
 
   val exportRouteTypeMapping: Mapping[ExportRouteType] = enumMapping[ExportRouteType]("exportRouteType")
 
+  private def isValidChar(c: Int): Boolean = !nonAllowedCharTypes.contains(getType(c))
+
   val exportReasonTextMapping: Mapping[String] = text
     .verifying(
       first(
@@ -153,7 +155,7 @@ object FormFieldMappings {
         constraint[String]("export.reason-text", "invalid-length", _.length <= 1000)
       )
     )
-    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
+    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || isValidChar(c)), identity)
 
   val importReasonTextMapping: Mapping[String] = text
     .verifying(
@@ -162,7 +164,7 @@ object FormFieldMappings {
         constraint[String]("import.reason-text", "invalid-length", _.length <= 1000)
       )
     )
-    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
+    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || isValidChar(c)), identity)
 
   val importRouteTypeMapping: Mapping[ImportRouteType] = enumMapping[ImportRouteType]("importRouteType")
 
@@ -276,7 +278,7 @@ object FormFieldMappings {
             "\\s{2,128}",
             " "
           )
-          .filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
+          .filter(c => (c == 0x09 || c == 0x0a) || isValidChar(c)),
         identity[String]
       )
       .verifying(
@@ -313,7 +315,7 @@ object FormFieldMappings {
             "\\s{2,128}",
             " "
           )
-          .filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))),
+          .filter(c => (c == 0x09 || c == 0x0a) || isValidChar(c)),
         identity[String]
       )
       .verifying(
@@ -367,5 +369,5 @@ object FormFieldMappings {
         constraint[String]("responseText", "invalid-length", _.length <= 1000)
       )
     )
-    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || !nonAllowedCharTypes.contains(getType(c))), identity)
+    .transform(_.filter(c => (c == 0x09 || c == 0x0a) || isValidChar(c)), identity)
 }

@@ -759,7 +759,7 @@ class CreateCaseJourneyController @Inject() (
       case None    => controller.showWaitingForFileVerification
     })
 
-  final def successRedirectWhenUploadingMultipleFiles(journeyId: String)(implicit rh: RequestHeader) =
+  final def successRedirectWhenUploadingMultipleFiles(journeyId: String) =
     appConfig.baseExternalCallbackUrl + controller.asyncMarkFileUploadAsPosted(journeyId)
 
   final def errorRedirect(journeyId: String)(implicit rh: RequestHeader) =
@@ -1058,7 +1058,7 @@ class CreateCaseJourneyController @Inject() (
     Action.async { implicit request =>
       AsAuthorisedUser {
         createCaseJourneyService
-          .rollback[CreateCaseJourneyState.CreateCaseConfirmation]
+          .rollback[CreateCaseJourneyState.CreateCaseConfirmation]()
           .map {
             case (state: CreateCaseJourneyState.CreateCaseConfirmation, breadcrumbs) =>
               renderState(state, breadcrumbs, None)
@@ -1729,12 +1729,6 @@ class CreateCaseJourneyController @Inject() (
   ): (Request[_], (State, List[State])) => Result =
     (request: Request[_], stateAndBreadcrumbs: (State, List[State])) =>
       f(request).applyOrElse(stateAndBreadcrumbs._1, (_: State) => play.api.mvc.Results.NotImplemented)
-
-  private def asyncResultOf(
-    f: PartialFunction[State, Future[Result]]
-  ): State => Future[Result] = { (state: State) =>
-    f(state)
-  }
 
   private def asyncResultWithRequestOf(
     f: Request[_] => PartialFunction[State, Future[Result]]

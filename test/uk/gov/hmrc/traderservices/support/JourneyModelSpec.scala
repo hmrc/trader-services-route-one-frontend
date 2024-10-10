@@ -29,7 +29,7 @@ import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition}
 import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
 import scala.io.AnsiColor
-import scala.language.{implicitConversions, postfixOps}
+import scala.language.postfixOps
 import scala.reflect.ClassTag
 
 /** Abstract base of FSM journey specifications.
@@ -65,7 +65,7 @@ trait JourneyModelSpec extends TestJourneyService {
     Await.result(future, timeout)
 
   /** Assumption about the initial state of journey. */
-  case class given[S <: State: ClassTag](initialState: S, breadcrumbs: List[State] = Nil) {
+  case class `given`[S <: State: ClassTag](initialState: S, breadcrumbs: List[State] = Nil) {
 
     final def withBreadcrumbs(breadcrumbs: State*): given[S] =
       given(initialState, breadcrumbs.toList)
@@ -215,9 +215,8 @@ trait JourneyModelSpec extends TestJourneyService {
     }
 
   // Delete the temp file
-  override def afterAll() {
+  override def afterAll(): Unit =
     info(s"Test suite executed ${getCounter()} state transitions in total.")
-  }
 
   private def nameOf(state: State): String = {
     val className = state.getClass.getName

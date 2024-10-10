@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.wiring
 import com.google.inject.ImplementedBy
 import play.api.i18n.Lang
 import play.api.mvc.{Call, RequestHeader}
-import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
+import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import javax.inject.Inject
@@ -63,8 +63,8 @@ trait AppConfig {
   val contactHost: String
   val contactFormServiceIdentifier: String
   val exitSurveyUrl: String
-  def requestUri(implicit request: RequestHeader): String =
-    SafeRedirectUrl(baseExternalCallbackUrl + request.uri).encodedUrl
+  private def requestUri(implicit request: RequestHeader): String =
+    url"$baseExternalCallbackUrl + ${request.uri}".toString
 
   def betaFeedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
