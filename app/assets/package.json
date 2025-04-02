@@ -9,6 +9,9 @@
     "test": "node_modules/karma/bin/karma start --single-run",
     "test-watch": "node_modules/karma/bin/karma start"
   },
+  "engines": {
+    "npm": ">=9.0.0"
+  },
   "author": "HMRC",
   "license": "Apache-2.0",
   "browserslist": [
