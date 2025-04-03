@@ -14,6 +14,14 @@
   "browserslist": [
     "defaults"
   ],
+  "overrides": {
+    "braces": "3.0.3",
+    "follow-redirects": "1.15.4",
+    "handlebars": "4.7.7",
+    "semver": "7.5.2",
+    "io-parser": "4.2.1",
+    "word-wrap": "1.2.4"
+  },
   "dependencies": {
     "isomorphic-fetch": "3.0.0",
     "mdn-polyfills": "5.20.0",
