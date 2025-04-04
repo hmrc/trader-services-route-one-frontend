@@ -3,12 +3,11 @@ import sbt._
 object AppDependencies {
   val bootstrapVersion = "8.6.0"
   private val playVersion      = "30"
-  private val mongoVersion     = "1.9.0"
 
   lazy val compileDeps = Seq(
     "uk.gov.hmrc"                   %% s"bootstrap-frontend-play-$playVersion"    % bootstrapVersion,
     "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "8.5.0",
-    "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % mongoVersion,
+    "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % "2.6.0",
     "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "7.6.0",
     "com.googlecode.libphonenumber" % "libphonenumber"                            % "8.13.47",
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.14.2",

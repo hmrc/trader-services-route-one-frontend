@@ -29,7 +29,7 @@ import uk.gov.hmrc.traderservices.journeys.{JourneyModel, State, Transition}
 import scala.concurrent.duration.{Duration, _}
 import scala.concurrent.{Await, Future}
 import scala.io.AnsiColor
-import scala.language.{implicitConversions, postfixOps}
+import scala.language.postfixOps
 import scala.reflect.ClassTag
 
 /** Abstract base of FSM journey specifications.

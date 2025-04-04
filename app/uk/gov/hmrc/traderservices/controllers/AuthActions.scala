@@ -66,12 +66,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
             } yield identifier.value
 
             Future.successful(credentials.map(_.providerId), id)
-          case _ => Future.successful(None, None)
+          case _ => Future.successful((None, None))
         }
     } else {
       authorised(AuthProviders(GovernmentGateway))
         .retrieve(credentials) { case _ =>
-          Future.successful(None, None)
+          Future.successful((None, None))
         }
     }
 

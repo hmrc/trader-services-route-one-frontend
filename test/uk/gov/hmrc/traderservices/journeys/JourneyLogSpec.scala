@@ -24,7 +24,7 @@ import uk.gov.hmrc.traderservices.support.UnitSpec
 
 class JourneyLogSpec extends UnitSpec with ScalaCheckPropertyChecks {
 
-  implicit override val generatorDrivenConfig =
+  implicit override val generatorDrivenConfig: PropertyCheckConfiguration =
     PropertyCheckConfiguration(minSuccessful = PosInt(100))
 
   "JourneyLog" should {
