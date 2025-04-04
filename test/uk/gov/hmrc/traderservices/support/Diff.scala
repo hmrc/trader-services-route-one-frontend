@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ object Diff {
           "\t" -> "\\t",
           "\"" -> "\\\""
         )
-        '"' + replaceMap.foldLeft(s) { case (acc, (c, r)) => acc.replace(c, r) } + '"'
+        s"\"${replaceMap.foldLeft(s) { case (acc, (c, r)) => acc.replace(c, r) }}\""
       // For an empty Seq just use its normal String representation.
       case xs: Seq[_] if xs.isEmpty => xs.toString()
       case xs: Seq[_]               =>

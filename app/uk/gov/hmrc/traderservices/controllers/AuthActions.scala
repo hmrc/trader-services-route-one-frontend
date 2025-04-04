@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,12 +66,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
             } yield identifier.value
 
             Future.successful(credentials.map(_.providerId), id)
-          case _ => Future.successful(None, None)
+          case _ => Future.successful((None, None))
         }
     } else {
       authorised(AuthProviders(GovernmentGateway))
         .retrieve(credentials) { case _ =>
-          Future.successful(None, None)
+          Future.successful((None, None))
         }
     }
 

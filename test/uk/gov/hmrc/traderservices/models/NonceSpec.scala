@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ class NonceSpec extends UnitSpec {
       Nonce(0).toString shouldBe "AAAAAA=="
       Nonce("AAAAAA==").value shouldBe 0
 
-      for (i <- LazyList.continually(Random.nextInt).take(1000))
+      for (i <- LazyList.continually(Random.nextInt()).take(1000))
         Nonce(Nonce(i).toString) shouldBe Nonce(i)
     }
 
@@ -35,31 +35,31 @@ class NonceSpec extends UnitSpec {
       Json.stringify(Json.toJson(Nonce(7))) shouldBe "7"
       Json.parse("7").as[Nonce].value shouldBe 7
 
-      for (i <- LazyList.continually(Random.nextInt).take(1000))
+      for (i <- LazyList.continually(Random.nextInt()).take(1000))
         Json.parse(Json.stringify(Json.toJson(Nonce(i)))).as[Nonce] shouldBe Nonce(i)
     }
 
     "compare always to itself" in {
-      for (i <- LazyList.continually(Random.nextInt).take(1000))
+      for (i <- LazyList.continually(Random.nextInt()).take(1000))
         Nonce(i) shouldBe Nonce(i)
     }
 
     "compare always to AnyNonce" in {
-      for (i <- LazyList.continually(Random.nextInt).take(1000)) {
+      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
         Nonce(i) shouldBe Nonce.Any
         Nonce.Any shouldBe Nonce(i)
       }
     }
 
     "do not compare to next Nonce" in {
-      for (i <- LazyList.continually(Random.nextInt).take(1000)) {
+      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
         Nonce(i) should not be (Nonce(i + 1))
         Nonce(i) should not be (Nonce(i - 1))
       }
     }
 
     "do not compare to other entities" in {
-      for (i <- LazyList.continually(Random.nextInt).take(1000)) {
+      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
         Nonce(i) should not be s"$i"
         Nonce(i) should not be (i.toInt)
       }
@@ -71,7 +71,7 @@ class NonceSpec extends UnitSpec {
     }
 
     "have stable and unique hash code" in {
-      for (i <- LazyList.continually(Random.nextInt).take(1000)) {
+      for (i <- LazyList.continually(Random.nextInt()).take(1000)) {
         Nonce(i).hashCode shouldBe i.toInt
         Nonce(i).hashCode should not be (Nonce(i + 1).hashCode)
         Nonce(i).hashCode should not be (Nonce(i - 1).hashCode)
