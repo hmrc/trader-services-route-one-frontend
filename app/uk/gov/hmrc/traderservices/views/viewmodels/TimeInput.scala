@@ -19,7 +19,7 @@ package uk.gov.hmrc.traderservices.views.viewmodels
 import play.api.libs.functional.syntax._
 import uk.gov.hmrc.govukfrontend.views.html.components._
 import play.api.libs.json.{Reads, Writes, __}
-import uk.gov.hmrc.govukfrontend.views.viewmodels.CommonJsonFormats._
+import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 
 case class TimeInput(
   id: String = "",
@@ -28,7 +28,7 @@ case class TimeInput(
   periodSelectItems: Seq[SelectItem] = Seq.empty,
   hint: Option[Hint] = None,
   errorMessage: Option[ErrorMessage] = None,
-  formGroupClasses: String = "",
+  formGroup: FormGroup = FormGroup.empty,
   fieldset: Option[Fieldset] = None,
   classes: String = "",
   attributes: Map[String, String] = Map.empty,
@@ -47,7 +47,7 @@ object TimeInput {
         (__ \ "periodSelectItems").readWithDefault[Seq[SelectItem]](defaultObject.periodSelectItems) and
         (__ \ "hint").readNullable[Hint] and
         (__ \ "errorMessage").readNullable[ErrorMessage] and
-        readsFormGroupClasses and
+        (__ \ "formGroup").readWithDefault[FormGroup](defaultObject.formGroup) and
         (__ \ "fieldset").readNullable[Fieldset] and
         (__ \ "classes").readWithDefault[String](defaultObject.classes) and
         (__ \ "attributes").readWithDefault[Map[String, String]](defaultObject.attributes) and
@@ -62,7 +62,7 @@ object TimeInput {
         (__ \ "periodSelectItems").write[Seq[SelectItem]] and
         (__ \ "hint").writeNullable[Hint] and
         (__ \ "errorMessage").writeNullable[ErrorMessage] and
-        writesFormGroupClasses and
+        (__ \ "formGroup").write[FormGroup] and
         (__ \ "fieldset").writeNullable[Fieldset] and
         (__ \ "classes").write[String] and
         (__ \ "attributes").write[Map[String, String]] and

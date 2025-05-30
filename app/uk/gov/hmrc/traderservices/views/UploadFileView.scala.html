@@ -86,7 +86,6 @@ context: UploadFileViewContext
       ),
       hint = None,
       errorMessage = maybeUploadError.map(context.toFormError).map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*)))),
-      formGroupClasses = "",
       classes = "",
       attributes = Map(
         "accept" -> appConfig.fileFormats.approvedFileExtensions,

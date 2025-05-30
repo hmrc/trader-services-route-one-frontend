@@ -44,8 +44,8 @@ class forms @Inject() (
     _formWithCSRF.apply(
       action,
       (Seq(
-        'id         -> "send-documents-for-customs-check-form",
-        'novalidate -> "novalidate"
+        Symbol("id")         -> "send-documents-for-customs-check-form",
+        Symbol("novalidate") -> "novalidate"
       ) ++ args): _*
     )(body)
 }
