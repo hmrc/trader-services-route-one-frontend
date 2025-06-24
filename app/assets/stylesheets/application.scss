@@ -2,7 +2,7 @@ $images-path: "../images";
 $govuk-assets-path: "/send-documents-for-customs-check/assets/lib/govuk-frontend/govuk/assets/";
 $hmrc-assets-path: "/send-documents-for-customs-check/assets/lib/hmrc-frontend/hmrc/";
 
-@import "webjars/lib/govuk-frontend/govuk/all";
+@import "webjars/lib/govuk-frontend/dist/govuk/index";
 @import "webjars/lib/hmrc-frontend/hmrc/all";
 
 @import "global/overrides";

@@ -6,9 +6,9 @@ object AppDependencies {
 
   lazy val compileDeps = Seq(
     "uk.gov.hmrc"                   %% s"bootstrap-frontend-play-$playVersion"    % bootstrapVersion,
-    "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "8.5.0",
+    "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "12.1.0",
     "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % "2.6.0",
-    "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "7.6.0",
+    "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "8.2.0",
     "com.googlecode.libphonenumber" % "libphonenumber"                            % "8.13.47",
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.14.2",
     "com.sun.mail"                  % "javax.mail"                                % "1.6.2",

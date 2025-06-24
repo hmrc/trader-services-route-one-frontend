@@ -16,24 +16,35 @@
 
 package uk.gov.hmrc.traderservices.support
 
+import uk.gov.hmrc.govukfrontend.views.viewmodels.FormGroup
 import uk.gov.hmrc.traderservices.views.viewmodels.TimeInput
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
 import uk.gov.hmrc.govukfrontend.views.viewmodels.errormessage.ErrorMessage
 
 class TimeInputSpec extends UnitSpec {
 
-  "TimeInputSpec" should {
-    "serialize and deserialize" in new JsonFormatTest[TimeInput](info) {
+  "serialize and deserialize" when {
+
+    "json and object are completely empty" in new JsonFormatTest[TimeInput](info) {
+
       validateJsonReads(
         """{}""",
         TimeInput()
       )
+    }
+
+    "json structure is set but fields are empty" in new JsonFormatTest[TimeInput](info) {
+
       validateJsonFormat(
-        """{"id":"","items":[],"periodSelectItems":[],"formGroup":{"classes":""},"classes":"","attributes":{},"showSelectPeriod":true}""",
-        TimeInput()
+        """{"id":"","items":[],"periodSelectItems":[],"formGroup":{"classes":"","attributes":{}},"classes":"","attributes":{},"showSelectPeriod":true}""",
+        TimeInput(formGroup = FormGroup(Some("")))
       )
+    }
+
+    "json structure is set but fields are empty and object has id" in new JsonFormatTest[TimeInput](info) {
+
       validateJsonFormat(
-        """{"id":"foo","items":[],"periodSelectItems":[],"formGroup":{"classes":""},"classes":"","attributes":{},"showSelectPeriod":true}""",
+        """{"id":"foo","items":[],"periodSelectItems":[],"formGroup":{"classes":"","attributes":{}},"classes":"","attributes":{},"showSelectPeriod":true}""",
         TimeInput(
           id = "foo",
           namePrefix = None,
@@ -41,15 +52,19 @@ class TimeInputSpec extends UnitSpec {
           periodSelectItems = Seq.empty,
           hint = None,
           errorMessage = None,
-          formGroupClasses = "",
+          formGroup = FormGroup(Some("")),
           fieldset = None,
           classes = "",
           attributes = Map.empty,
           showSelectPeriod = true
         )
       )
+    }
+
+    "json structure is populated" in new JsonFormatTest[TimeInput](info) {
+
       validateJsonFormat(
-        """{"id":"foo","namePrefix":"bar","items":[],"periodSelectItems":[],"hint":{"classes":"a b c","attributes":{}},"errorMessage":{"id":"error_1","classes":"","attributes":{},"visuallyHiddenText":"Error"},"formGroup":{"classes":"abc cde"},"classes":"aaa bbb","attributes":{"a":"1"},"showSelectPeriod":true}""",
+        """{"id":"foo","namePrefix":"bar","items":[],"periodSelectItems":[],"hint":{"classes":"a b c","attributes":{}},"errorMessage":{"id":"error_1","classes":"","attributes":{},"visuallyHiddenText":"Error"},"formGroup":{"classes":"abc cde","attributes":{}},"classes":"aaa bbb","attributes":{"a":"1"},"showSelectPeriod":true}""",
         TimeInput(
           id = "foo",
           namePrefix = Some("bar"),
@@ -57,7 +72,7 @@ class TimeInputSpec extends UnitSpec {
           periodSelectItems = Seq.empty,
           hint = Some(Hint(classes = "a b c")),
           errorMessage = Some(ErrorMessage(id = Some("error_1"))),
-          formGroupClasses = "abc cde",
+          formGroup = FormGroup(classes = Some("abc cde")),
           fieldset = None,
           classes = "aaa bbb",
           attributes = Map("a" -> "1"),

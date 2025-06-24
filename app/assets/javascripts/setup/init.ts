@@ -1,10 +1,10 @@
-import GOVUKFrontend from 'webjars/lib/govuk-frontend/govuk/all.js';
+import { initAll } from 'webjars/lib/govuk-frontend/dist/govuk/govuk-frontend.min.js';
 import HMRCFrontend from 'webjars/lib/hmrc-frontend/hmrc/all.js';
 
 export default function
 
   init(): void {
-  GOVUKFrontend.initAll();
+  initAll();
   HMRCFrontend.initAll();
 
   document.cookie = 'jsenabled=true; path=/';
