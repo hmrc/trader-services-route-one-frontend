@@ -1440,7 +1440,7 @@ class AmendCaseJourneyISpec
             request("/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf")
               .get()
           )
-        result.status shouldBe 200
+        result.status shouldBe 500
         result.body should include(htmlEscapedPageTitle("global.error.500.title"))
         result.body should include(htmlEscapedMessage("global.error.500.heading"))
         journey.getState shouldBe state
