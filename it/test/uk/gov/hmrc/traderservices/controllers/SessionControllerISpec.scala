@@ -53,7 +53,7 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       "will be on the error page for internal server error" in {
         givenSignOutWithContinueToFeedbackSurvey()
         val result = await(requestWithoutJourneyId("/sign-out?continueUrl=https://www.google.com").get())
-        result.status shouldBe 200
+        result.status shouldBe 500
         result.body should include("Sorry, there is a problem with the service")
       }
     }

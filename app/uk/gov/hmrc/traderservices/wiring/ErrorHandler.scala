@@ -89,19 +89,17 @@ class ErrorHandler @Inject() (
     exception match {
       case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments      => Forbidden
-      case _: TraderServicesAmendApiError => Ok(externalAmendErrorTemplate())
+      case _: TraderServicesAmendApiError => InternalServerError(externalAmendErrorTemplate())
       case _ =>
-        Ok(
+        InternalServerError(
           if (
             DateTimeHelper.isWorkingHours(
               DateTimeHelper.londonTime,
               appConfig.workingHourStart,
               appConfig.workingHourEnd
             )
-          )
-            errorView()
-          else
-            errorOutOfHoursView()
+          ) errorView()
+          else errorOutOfHoursView()
         )
     }
   }
