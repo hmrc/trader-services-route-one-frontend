@@ -630,13 +630,12 @@ time.period.pm=pm
 # -----------------------------------------------------------
 view.timedout.title=For your security, we signed you out
 view.timedout.heading=For your security, we signed you out
-view.timedout.description=We did not save your answers.
+view.timedout.description=We saved your answers for 1 hour.
 view.timedout.signIn=Sign in
 
 skip.link=Skip to main content
 
 view.timedout.dialog.message=For your security, we will sign you out in
-view.timedout.dialog.message.suffix=We will not save your answers.
 
 # Export Reason Form
 # ----------------------------------------------------------
