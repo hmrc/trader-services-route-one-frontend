@@ -636,7 +636,6 @@ view.timedout.signIn=Sign in
 skip.link=Skip to main content
 
 view.timedout.dialog.message=For your security, we will sign you out in
-view.timedout.dialog.message.suffix=We will not save your answers.
 
 # Export Reason Form
 # ----------------------------------------------------------
