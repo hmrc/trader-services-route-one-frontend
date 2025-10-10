@@ -27,7 +27,7 @@
         context: ExportQuestionsViewContext
 )
 
-@(entryDetails: EntryDetails, exportQuestions: ExportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, exportQuestions: ExportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 @govukLayout(
     pageTitle("view.export-questions.summary.title"),
     backLink = Some(backLink.url)) {

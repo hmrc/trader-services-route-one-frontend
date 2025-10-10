@@ -45,7 +45,7 @@
         mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
         mainContentClasses: String = "govuk-grid-column-two-thirds",
         hasPrintReceipt: Boolean = false
-)(contentBlock: Html)(implicit request: Request[_], messages: Messages)
+)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @head = {
 @hmrcTrackingConsentSnippet()

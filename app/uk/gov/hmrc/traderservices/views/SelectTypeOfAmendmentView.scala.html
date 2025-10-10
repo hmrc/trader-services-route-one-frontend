@@ -24,7 +24,7 @@
         context: AmendCaseViewContext
 )
 
-@(form: Form[TypeOfAmendment], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[TypeOfAmendment], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
     pageTitle("view.type-of-amendment.title",form),

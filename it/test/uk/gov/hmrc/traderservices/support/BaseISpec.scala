@@ -20,7 +20,7 @@ import org.apache.pekko.stream.Materializer
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Result
+import play.api.mvc.{RequestHeader, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.HtmlFormat
@@ -93,7 +93,7 @@ abstract class BaseISpec
   final def htmlEscapedPageTitleWithError(key: String, args: String*): String =
     htmlEscapedMessage("error.browser.title.prefix", args: _*) + " " + htmlEscapedPageTitle(key)
 
-  implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
+  implicit def hc(implicit request: RequestHeader = FakeRequest()): HeaderCarrier =
     HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
 }

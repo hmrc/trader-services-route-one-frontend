@@ -94,7 +94,6 @@ class JsonEncoderSpec extends UnitSpec with AsJavaConverters with LogCapturing {
       val array = Array.ofDim[Byte](buf.limit())
       buf.get(array)
       val log = new String(array)
-      println(log)
       log.contains(expected) shouldBe true
       buf.clear()
     }

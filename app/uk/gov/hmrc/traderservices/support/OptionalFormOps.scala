@@ -17,8 +17,7 @@
 package uk.gov.hmrc.traderservices.support
 
 import play.api.data.Form
-import play.api.mvc.Request
-import play.api.mvc.Flash
+import play.api.mvc.{Flash, RequestHeader}
 
 /** Extension methods for Option[Form[_]]. */
 object OptionalFormOps {
@@ -35,7 +34,7 @@ object OptionalFormOps {
       emptyForm: Form[T],
       maybeFillWith: Option[T] = None,
       unrelatedFormKeys: Set[String] = knownUnrelatedFlashKeys
-    )(implicit request: Request[_]): Form[T] =
+    )(implicit request: RequestHeader): Form[T] =
       formWithErrors
         .map(_.asInstanceOf[Form[T]])
         .getOrElse {

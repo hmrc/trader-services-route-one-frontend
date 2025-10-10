@@ -57,14 +57,14 @@ abstract class BaseJourneyController[S <: SessionStateService](
   final def toSubscriptionJourney(continueUrl: String): Result =
     Redirect(appConfig.subscriptionJourneyUrl)
 
-  final def AsAuthorisedUser(body: => Future[Result])(implicit request: Request[_]): Future[Result] =
+  final def AsAuthorisedUser(body: => Future[Result])(implicit request: RequestHeader): Future[Result] =
     if (appConfig.requireEnrolmentFeature) {
       authorisedWithEnrolment(appConfig.authorisedServiceName, appConfig.authorisedIdentifierKey)(body)
     } else {
       authorisedWithoutEnrolment(body)
     }
 
-  final def withUidAndEori(implicit request: Request[_]): Future[(Option[String], Option[String])] =
+  final def withUidAndEori(implicit request: RequestHeader): Future[(Option[String], Option[String])] =
     authorisedWithUidAndEori(
       appConfig.requireEnrolmentFeature,
       appConfig.authorisedServiceName,
@@ -111,68 +111,68 @@ abstract class BaseJourneyController[S <: SessionStateService](
   /** Function mapping FSM states to the endpoint calls. This function is invoked internally when the result of an
     * action is to *redirect* to some state.
     */
-  def getCallFor(state: State)(implicit request: Request[_]): Call
+  def getCallFor(state: State)(implicit request: RequestHeader): Call
 
   /** Returns a call to the most recent state found in breadcrumbs, otherwise returns a call to the root state.
     */
-  final def backLinkFor(breadcrumbs: Breadcrumbs)(implicit request: Request[_]): Call =
+  final def backLinkFor(breadcrumbs: Breadcrumbs)(implicit request: RequestHeader): Call =
     breadcrumbs.headOption
       .map(getCallFor)
       .getOrElse(getCallFor(journeyService.root))
 
-  type Renderer = Request[_] => (State, Breadcrumbs, Option[Form[_]]) => Result
-  type AsyncRenderer = Request[_] => (State, Breadcrumbs, Option[Form[_]]) => Future[Result]
+  type Renderer = RequestHeader => (State, Breadcrumbs, Option[Form[_]]) => Result
+  type AsyncRenderer = RequestHeader => (State, Breadcrumbs, Option[Form[_]]) => Future[Result]
 
   object Renderer {
     final def simple(f: PartialFunction[State, Result]): Renderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f.applyOrElse(state, (_: State) => play.api.mvc.Results.NotImplemented)
     }
 
-    final def withRequest(f: Request[_] => PartialFunction[State, Result]): Renderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+    final def withRequest(f: RequestHeader => PartialFunction[State, Result]): Renderer = {
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request).applyOrElse(state, (_: State) => play.api.mvc.Results.NotImplemented)
     }
 
     final def withRequestAndForm(
-      f: Request[_] => Option[Form[_]] => PartialFunction[State, Result]
+      f: RequestHeader => Option[Form[_]] => PartialFunction[State, Result]
     ): Renderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request)(formWithErrors)(state)
     }
 
     final def apply(
-      f: Request[_] => Breadcrumbs => Option[Form[_]] => PartialFunction[State, Result]
+      f: RequestHeader => Breadcrumbs => Option[Form[_]] => PartialFunction[State, Result]
     ): Renderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request)(breadcrumbs)(formWithErrors)(state)
     }
   }
 
   object AsyncRenderer {
     final def simple(f: PartialFunction[State, Future[Result]]): AsyncRenderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(state)
     }
 
     final def withRequest(
-      f: Request[_] => PartialFunction[State, Future[Result]]
+      f: RequestHeader => PartialFunction[State, Future[Result]]
     ): AsyncRenderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request)(state)
     }
 
     final def withRequestAndForm(
-      f: Request[_] => Option[Form[_]] => PartialFunction[State, Future[Result]]
+      f: RequestHeader => Option[Form[_]] => PartialFunction[State, Future[Result]]
     ): AsyncRenderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request)(formWithErrors)(state)
     }
 
     final def apply(
-      f: Request[_] => Breadcrumbs => Option[Form[_]] => PartialFunction[State, Future[Result]]
+      f: RequestHeader => Breadcrumbs => Option[Form[_]] => PartialFunction[State, Future[Result]]
     ): AsyncRenderer = {
-      (request: Request[_]) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
+      (request: RequestHeader) => (state: State, breadcrumbs: Breadcrumbs, formWithErrors: Option[Form[_]]) =>
         f(request)(breadcrumbs)(formWithErrors)(state)
     }
   }

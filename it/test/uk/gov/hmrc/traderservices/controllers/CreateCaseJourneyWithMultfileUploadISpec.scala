@@ -20,14 +20,13 @@ import play.api.mvc.Cookie
 import play.api.test.FakeRequest
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support.TestData
-import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.traderservices.controllers.routes
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.utils.SHA256
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
+import TestImplicits._
 
 class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -206,7 +205,9 @@ class CreateCaseJourneyWithMultfileUploadISpec
 
         val result = await(
           requestWithCookies("/new/import/contact-information", controller.COOKIE_JSENABLED -> "true")
+            .withFollowRedirects(false)
             .post(payload)
+            .flatMap(_.redirectCall(requestWithCookies(_, controller.COOKIE_JSENABLED -> "true")))
         )
 
         result.status shouldBe 200
@@ -258,7 +259,9 @@ class CreateCaseJourneyWithMultfileUploadISpec
 
         val result = await(
           requestWithCookies("/new/export/contact-information", controller.COOKIE_JSENABLED -> "true")
+            .withFollowRedirects(false)
             .post(payload)
+            .flatMap(_.redirectCall(requestWithCookies(_, controller.COOKIE_JSENABLED -> "true")))
         )
 
         result.status shouldBe 200

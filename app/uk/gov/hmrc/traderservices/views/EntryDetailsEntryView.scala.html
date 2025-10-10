@@ -24,7 +24,7 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[EntryDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[EntryDetails], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @entryNumberHint = {
 @messages("form.entry-details.entryNumber.hint")

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import play.api.mvc.{Request, Result}
+import play.api.mvc.{RequestHeader, Result}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve._
@@ -30,9 +30,9 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
   def toSubscriptionJourney(continueUrl: String): Result
 
-  protected def authorisedWithEnrolment[A](serviceName: String, identifierKey: String)(
+  protected def authorisedWithEnrolment(serviceName: String, identifierKey: String)(
     body: => Future[Result]
-  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
+  )(implicit request: RequestHeader, hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(
       Enrolment(serviceName)
         and AuthProviders(GovernmentGateway)
@@ -52,7 +52,11 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
     requireEnrolmentFeature: Boolean,
     serviceName: String,
     identifierKey: String
-  )(implicit request: Request[_], hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[String], Option[String])] =
+  )(implicit
+    request: RequestHeader,
+    hc: HeaderCarrier,
+    ec: ExecutionContext
+  ): Future[(Option[String], Option[String])] =
     if (requireEnrolmentFeature) {
       authorised(
         Enrolment(serviceName)
@@ -77,12 +81,12 @@ trait AuthActions extends AuthorisedFunctions with AuthRedirects {
 
   protected def authorisedWithoutEnrolment[A](
     body: => Future[Result]
-  )(implicit request: Request[A], hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
+  )(implicit request: RequestHeader, hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
     authorised(AuthProviders(GovernmentGateway))
       .retrieve(credentials)(_ => body)
       .recover(handleFailure)
 
-  def handleFailure(implicit request: Request[_]): PartialFunction[Throwable, Result] = {
+  def handleFailure(implicit request: RequestHeader): PartialFunction[Throwable, Result] = {
 
     case InsufficientEnrolments(_) =>
       val continueUrl = CallOps.localFriendlyUrl(env, config)(request.uri, request.host)

@@ -19,7 +19,7 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("global.error.500.title")

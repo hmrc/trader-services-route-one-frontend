@@ -49,7 +49,7 @@ class ErrorHandler @Inject() (
   amendCaseErrorView: AmendCaseErrorView,
   errorView: ErrorView,
   errorOutOfHoursView: ErrorOutOfHoursView
-)(implicit val config: Configuration, ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
+)(implicit val config: Configuration, val ec: ExecutionContext, appConfig: uk.gov.hmrc.traderservices.wiring.AppConfig)
     extends FrontendErrorHandler with AuthRedirects with ErrorAuditing {
   private val logger = Logger(getClass)
 
@@ -79,14 +79,14 @@ class ErrorHandler @Inject() (
           ),
           ex
         )
-        Future.successful(resolveError(request, exception))
+        resolveError(request, exception)
       case _ => super.onServerError(request, exception)
     }
 
-  override def resolveError(request: RequestHeader, exception: Throwable): Result = {
+  override def resolveError(request: RequestHeader, exception: Throwable): Future[Result] = {
     auditServerError(request, exception)
     implicit val r: Request[String] = Request(request, "")
-    exception match {
+    Future.successful(exception match {
       case _: NoActiveSession => toGGLogin(if (isDevEnv) s"http://${request.host}${request.uri}" else s"${request.uri}")
       case _: InsufficientEnrolments      => Forbidden
       case _: TraderServicesAmendApiError => InternalServerError(externalAmendErrorTemplate())
@@ -101,17 +101,18 @@ class ErrorHandler @Inject() (
           ) errorView()
           else errorOutOfHoursView()
         )
-    }
+    })
   }
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit
-    request: Request[_]
+    request: RequestHeader
   ) =
-    new ErrorTemplate(govUkWrapper, html)(pageTitle, heading, message)
+    Future.successful(new ErrorTemplate(govUkWrapper, html)(pageTitle, heading, message))
 
-  override def notFoundTemplate(implicit request: Request[_]): HtmlFormat.Appendable = pageNotFoundErrorView()
+  override def notFoundTemplate(implicit request: RequestHeader) = Future.successful(pageNotFoundErrorView())
 
-  def externalAmendErrorTemplate()(implicit request: Request[_]): HtmlFormat.Appendable = amendCaseErrorView()
+  def externalAmendErrorTemplate()(implicit request: RequestHeader): HtmlFormat.Appendable =
+    amendCaseErrorView()
 }
 
 object EventTypes {

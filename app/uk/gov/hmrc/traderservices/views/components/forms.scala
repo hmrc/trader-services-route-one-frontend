@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.views.components
 
 import javax.inject.{Inject, Singleton}
-import play.api.mvc.Request
+import play.api.mvc.RequestHeader
 import play.api.i18n.Messages
 import play.twirl.api.Html
 
@@ -38,7 +38,7 @@ class forms @Inject() (
 ) {
 
   def formWithCSRF(action: play.api.mvc.Call, args: (Symbol, String)*)(body: => Html)(implicit
-    request: Request[_],
+    request: RequestHeader,
     messages: Messages
   ) =
     _formWithCSRF.apply(

@@ -24,7 +24,7 @@
         context: ExportQuestionsViewContext
 )
 
-@(form: Form[ExportRouteType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ExportRouteType], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(pageTitle("view.export-questions.routeType.title",form), backLink = Some(backLink.url)) {
 

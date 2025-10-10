@@ -22,7 +22,7 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[ImportContactInfo], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportContactInfo], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @contactNumberHint = {
     @messages("form.import-questions.contactNumber.hint")

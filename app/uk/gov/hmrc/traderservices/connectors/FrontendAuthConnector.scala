@@ -19,10 +19,12 @@ package uk.gov.hmrc.traderservices.connectors
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.traderservices.wiring.AppConfig
-import uk.gov.hmrc.http.HttpPost
+import uk.gov.hmrc.http.client.HttpClientV2
 
 @Singleton
-class FrontendAuthConnector @Inject() (appConfig: AppConfig, val http: HttpPost) extends PlayAuthConnector {
+class FrontendAuthConnector @Inject() (appConfig: AppConfig, val http: HttpClientV2) extends PlayAuthConnector {
 
   override val serviceUrl: String = appConfig.authBaseUrl
+
+  override def httpClientV2: HttpClientV2 = http
 }

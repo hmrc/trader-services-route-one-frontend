@@ -30,7 +30,7 @@ appConfig: AppConfig,
 context: UploadFileViewContext
 )
 
-@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], exportRequestType: Option[ExportRequestType], successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(uploadRequest: UploadRequest, fileUploads: FileUploads, maybeUploadError: Option[FileUploadError], exportRequestType: Option[ExportRequestType], successAction: Call, failureAction: Call, checkStatusAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle(if(fileUploads.isEmpty) "view.upload-file.first.title" else "view.upload-file.next.title", maybeUploadError.isDefined),

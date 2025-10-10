@@ -25,7 +25,7 @@
         context: CaseConfirmationViewContext
 )
 
-@(caseReferenceId: String, entryDetails: EntryDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, stylesheet: String)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, entryDetails: EntryDetails, uploadedFiles:Seq[UploadedFile], generatedAt: String, caseSLA: CaseSLA, stylesheet: String)(implicit request: RequestHeader, messages: Messages)
 
 <html lang="en">
   <head>
