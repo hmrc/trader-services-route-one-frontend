@@ -310,8 +310,6 @@ class InvalidSessionStateServiceISpec extends SessionStateServiceISpecSetup {
 
   def encryptedState: JsValue = encrypt(-5, List(-4, -3, -2, -1))
 
-  println(encryptedState)
-
   override lazy val cacheRepository: CacheRepository =
     new CacheRepository(
       dummyMongoComponent,

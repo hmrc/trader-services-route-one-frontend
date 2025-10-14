@@ -25,7 +25,7 @@
         context: FileUploadedViewContext
 )
 
-@(form: Form[Boolean], fileUploads: FileUploads, postAction: Call, previewFileCall: (String,String) => Call, removeFileCall: String => Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[Boolean], fileUploads: FileUploads, postAction: Call, previewFileCall: (String,String) => Call, removeFileCall: String => Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @conditionalContent = {
   @html.p(

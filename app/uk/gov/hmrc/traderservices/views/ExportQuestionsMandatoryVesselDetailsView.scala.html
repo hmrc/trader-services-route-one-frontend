@@ -25,7 +25,7 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[VesselDetails], postAction: Call, isC1601orC1603: Boolean, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[VesselDetails], postAction: Call, isC1601orC1603: Boolean, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 @exportDate = @{
     if(isC1601orC1603) {
         forms.inputDate(

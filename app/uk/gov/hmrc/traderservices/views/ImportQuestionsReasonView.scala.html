@@ -19,7 +19,7 @@
         forms: uk.gov.hmrc.traderservices.views.components.forms,
         html: uk.gov.hmrc.traderservices.views.components.html
 )
-@(form: Form[String], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[String], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @inputRadioHint = {
 @html.p {

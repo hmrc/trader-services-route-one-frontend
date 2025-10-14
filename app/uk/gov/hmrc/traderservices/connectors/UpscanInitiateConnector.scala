@@ -17,8 +17,10 @@
 package uk.gov.hmrc.traderservices.connectors
 
 import com.codahale.metrics.MetricRegistry
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 
@@ -29,12 +31,11 @@ import scala.concurrent.{ExecutionContext, Future}
 /** Connects to the upscan-initiate service API.
   */
 @Singleton
-class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet with HttpPost, metrics: Metrics)
+class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpClientV2, metrics: Metrics)
     extends HttpAPIMonitor {
 
   val baseUrl: String = appConfig.upscanInitiateBaseUrl
   val upscanInitiatev2Path = "/upscan/v2/initiate"
-  val userAgent = "trader-services-route-one-frontend"
 
   override val metricRegistry: MetricRegistry = metrics.defaultRegistry
 
@@ -43,10 +44,9 @@ class UpscanInitiateConnector @Inject() (appConfig: AppConfig, http: HttpGet wit
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[UpscanInitiateResponse] =
     monitor(s"ConsumedAPI-upscan-v2-initiate-POST") {
       http
-        .POST[UpscanInitiateRequest, UpscanInitiateResponse](
-          new URL(baseUrl + upscanInitiatev2Path).toExternalForm,
-          request
-        )
+        .post(new URL(new URL(baseUrl + upscanInitiatev2Path).toExternalForm))
+        .withBody(Json.toJson(request))
+        .execute[UpscanInitiateResponse]
         .recoverWith { case e: Throwable =>
           Future.failed(UpscanInitiateError(e))
         }

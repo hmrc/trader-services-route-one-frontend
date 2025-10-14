@@ -26,8 +26,6 @@ import javax.inject.Inject
 import scala.concurrent.duration.Duration
 
 object AppConfig {
-  val vesselArrivalConstraintMonths = 6
-
   case class FileFormats(maxFileSizeMb: Int, approvedFileTypes: String, approvedFileExtensions: String)
 }
 

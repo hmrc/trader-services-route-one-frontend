@@ -23,7 +23,7 @@
         appConfig: AppConfig
 )
 
-@(restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(restartCall: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("view.case-already-submitted.title"),

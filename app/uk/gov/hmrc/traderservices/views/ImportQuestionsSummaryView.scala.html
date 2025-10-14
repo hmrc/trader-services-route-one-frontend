@@ -26,7 +26,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(entryDetails: EntryDetails, importQuestions: ImportQuestions, fileUploads: FileUploads, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.summary.title"),

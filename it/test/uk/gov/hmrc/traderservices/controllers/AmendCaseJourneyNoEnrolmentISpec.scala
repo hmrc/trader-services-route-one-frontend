@@ -27,6 +27,7 @@ import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 import uk.gov.hmrc.traderservices.utils.SHA256
+import TestImplicits._
 
 class AmendCaseJourneyNoEnrolmentISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -64,7 +65,12 @@ class AmendCaseJourneyNoEnrolmentISpec
           "caseReferenceNumber" -> "PC12010081330XGBNZJO04"
         )
 
-        val result = await(request("/add/case-reference-number").post(payload))
+        val result = await(
+          request("/add/case-reference-number")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe SelectTypeOfAmendment(
@@ -103,7 +109,12 @@ class AmendCaseJourneyNoEnrolmentISpec
           "typeOfAmendment" -> "WriteResponse"
         )
 
-        val result = await(request("/add/type-of-amendment").post(payload))
+        val result = await(
+          request("/add/type-of-amendment")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe EnterResponseText(
@@ -153,7 +164,11 @@ class AmendCaseJourneyNoEnrolmentISpec
           "responseText" -> text
         )
 
-        val result = await(request("/add/write-response").post(payload))
+        val result = await(
+          request("/add/write-response")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_))))
 
         result.status shouldBe 200
         journey.getState shouldBe AmendCaseSummary(model.copy(responseText = Some(text)))

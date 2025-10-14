@@ -29,6 +29,7 @@ import java.time.temporal.{ChronoField, ChronoUnit}
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+import TestImplicits._
 
 class CreateCaseJourneyNoEnrolmentISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -46,7 +47,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(Start)
         givenAuthorisedWithoutEnrolments()
 
-        val result = await(request("/").get())
+        val result = await(
+          request("/")
+            .withFollowRedirects(false)
+            .get()
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
@@ -78,7 +84,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "newOrExistingCase" -> "New"
         )
 
-        val result = await(request("/new-or-existing").post(payload))
+        val result = await(
+          request("/new-or-existing")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
@@ -94,7 +105,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "newOrExistingCase" -> "Existing"
         )
 
-        val result = await(request("/new-or-existing").post(payload))
+        val result = await(
+          request("/new-or-existing")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
@@ -170,7 +186,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "entryNumber"     -> "A11111X"
         )
 
-        val result = await(request("/new/entry-details").post(payload))
+        val result = await(
+          request("/new/entry-details")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
@@ -195,7 +216,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "entryNumber"     -> "111111X"
         )
 
-        val result = await(request("/new/entry-details").post(payload))
+        val result = await(
+          request("/new/entry-details")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe AnswerImportQuestionsRequestType(
@@ -261,7 +287,13 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("requestType" -> "New")
 
-        val result = await(request("/new/export/request-type").post(payload))
+        val result = await(
+          request("/new/export/request-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_))
+            )
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
@@ -329,7 +361,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route2")
 
-        val result = await(request("/new/export/route-type").post(payload))
+        val result = await(
+          request("/new/export/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
@@ -355,7 +392,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route3")
 
-        val result = await(request("/new/export/route-type").post(payload))
+        val result = await(
+          request("/new/export/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
@@ -381,7 +423,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route2")
 
-        val result = await(request("/new/export/route-type").post(payload))
+        val result = await(
+          request("/new/export/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
@@ -503,7 +550,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         givenAuthorisedWithoutEnrolments()
 
         val payload = Map("reasonText" -> "bankrupt")
-        val result = await(request("/new/export/reason").post(payload))
+        val result = await(
+          request("/new/export/reason")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
@@ -546,7 +598,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("hasPriorityGoods" -> "yes")
 
-        val result = await(request("/new/export/has-priority-goods").post(payload))
+        val result = await(
+          request("/new/export/has-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
@@ -579,7 +636,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("hasPriorityGoods" -> "no")
 
-        val result = await(request("/new/export/has-priority-goods").post(payload))
+        val result = await(
+          request("/new/export/has-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
@@ -654,7 +716,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("priorityGoods" -> "LiveAnimals")
 
-        val result = await(request("/new/export/which-priority-goods").post(payload))
+        val result = await(
+          request("/new/export/which-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
@@ -734,7 +801,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("freightType" -> "RORO")
 
-        val result = await(request("/new/export/transport-type").post(payload))
+        val result = await(
+          request("/new/export/transport-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
@@ -770,7 +842,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("freightType" -> "Air")
 
-        val result = await(request("/new/export/transport-type").post(payload))
+        val result = await(
+          request("/new/export/transport-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
@@ -895,7 +972,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "timeOfDeparture.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
-        val result = await(request("/new/export/transport-information-required").post(payload))
+        val result = await(
+          request("/new/export/transport-information-required")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
 
@@ -1001,7 +1083,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "timeOfDeparture.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
-        val result = await(request("/new/export/transport-information").post(payload))
+        val result = await(
+          request("/new/export/transport-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
@@ -1045,7 +1132,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map[String, String]()
 
-        val result = await(request("/new/export/transport-information").post(payload))
+        val result = await(
+          request("/new/export/transport-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
@@ -1142,7 +1234,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         val payload = Map(
           "contactEmail" -> "someone@email.com"
         )
-        val result = await(request("/new/export/contact-information").post(payload))
+        val result = await(
+          request("/new/export/contact-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
@@ -1267,7 +1364,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("requestType" -> "New")
 
-        val result = await(request("/new/import/request-type").post(payload))
+        val result = await(
+          request("/new/import/request-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
@@ -1315,7 +1417,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route6")
 
-        val result = await(request("/new/import/route-type").post(payload))
+        val result = await(
+          request("/new/import/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
@@ -1343,7 +1450,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route3")
 
-        val result = await(request("/new/import/route-type").post(payload))
+        val result = await(
+          request("/new/import/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
@@ -1371,7 +1483,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("routeType" -> "Route6")
 
-        val result = await(request("/new/import/route-type").post(payload))
+        val result = await(
+          request("/new/import/route-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
@@ -1469,7 +1586,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         journey.setState(state)
         givenAuthorisedWithoutEnrolments()
         val payload = Map("reasonText" -> "bankrupt")
-        val result = await(request("/new/import/reason").post(payload))
+        val result = await(
+          request("/new/import/reason")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
@@ -1512,7 +1634,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("hasPriorityGoods" -> "yes")
 
-        val result = await(request("/new/import/has-priority-goods").post(payload))
+        val result = await(
+          request("/new/import/has-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
@@ -1542,7 +1669,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("hasPriorityGoods" -> "no")
 
-        val result = await(request("/new/import/has-priority-goods").post(payload))
+        val result = await(
+          request("/new/import/has-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
@@ -1594,7 +1726,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("priorityGoods" -> "LiveAnimals")
 
-        val result = await(request("/new/import/which-priority-goods").post(payload))
+        val result = await(
+          request("/new/import/which-priority-goods")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
@@ -1647,7 +1784,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
           val payload = Map("hasALVS" -> { if (hasALVS) "yes" else "no" })
 
-          val result = await(request("/new/import/automatic-licence-verification").post(payload))
+          val result = await(
+            request("/new/import/automatic-licence-verification")
+              .withFollowRedirects(false)
+              .post(payload)
+              .flatMap(_.redirectCall(request(_)))
+          )
 
           result.status shouldBe 200
           result.body should include(
@@ -1709,7 +1851,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("freightType" -> "RORO")
 
-        val result = await(request("/new/import/transport-type").post(payload))
+        val result = await(
+          request("/new/import/transport-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
 
@@ -1741,7 +1888,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map("freightType" -> "Maritime")
 
-        val result = await(request("/new/import/transport-type").post(payload))
+        val result = await(
+          request("/new/import/transport-type")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
 
@@ -1812,7 +1964,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "timeOfArrival.minutes" -> f"${dateTimeOfArrival.get(ChronoField.MINUTE_OF_HOUR)}%02d"
         )
 
-        val result = await(request("/new/import/transport-information").post(payload))
+        val result = await(
+          request("/new/import/transport-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
 
@@ -1854,7 +2011,12 @@ class CreateCaseJourneyNoEnrolmentISpec
 
         val payload = Map[String, String]()
 
-        val result = await(request("/new/import/transport-information").post(payload))
+        val result = await(
+          request("/new/import/transport-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
 
@@ -1920,7 +2082,12 @@ class CreateCaseJourneyNoEnrolmentISpec
           "contactEmail" -> "someone@email.com"
         )
 
-        val result = await(request("/new/import/contact-information").post(payload))
+        val result = await(
+          request("/new/import/contact-information")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
@@ -2314,7 +2481,12 @@ class CreateCaseJourneyNoEnrolmentISpec
         givenAuthorisedWithoutEnrolments()
         givenCreateCaseApiRequestSucceedsWithoutEori()
 
-        val result = await(request("/new/create-case").post(""))
+        val result = await(
+          request("/new/create-case")
+            .withFollowRedirects(false)
+            .post("")
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))

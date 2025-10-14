@@ -24,7 +24,7 @@
         html: uk.gov.hmrc.traderservices.views.components.html
 )
 
-@(form: Form[VesselDetails], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[VesselDetails], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("view.import-questions.vessel-details.title",form),

@@ -71,7 +71,7 @@ class CreateCaseJourneyController @Inject() (
 
   private def handleGet[S <: State: ClassTag](
     transition: Transition[State]
-  )(implicit request: Request[_], ec: ExecutionContext): Future[Result] =
+  )(implicit request: RequestHeader, ec: ExecutionContext): Future[Result] =
     createCaseJourneyService.updateSessionState(transition).map {
       case (state: State, breadcrumbs) if createCaseJourneyService.is[S](state) => renderState(state, breadcrumbs, None)
       case other                                                                => Redirect(getCallFor(other._1))
@@ -1105,7 +1105,7 @@ class CreateCaseJourneyController @Inject() (
 
   /** Function from the `State` to the `Call` (route), used by play-fsm internally to create redirects.
     */
-  final override def getCallFor(state: State)(implicit request: Request[_]): Call =
+  final override def getCallFor(state: State)(implicit request: RequestHeader): Call =
     state match {
       case Start =>
         controller.showStart
@@ -1221,7 +1221,7 @@ class CreateCaseJourneyController @Inject() (
   /** Function from the `State` to the `Result`, to render the actual content.
     */
   final def renderState(state: State, breadcrumbs: List[State], formWithErrors: Option[Form[_]])(implicit
-    request: Request[_]
+    request: RequestHeader
   ): Result =
     state match {
 
@@ -1725,9 +1725,9 @@ class CreateCaseJourneyController @Inject() (
       f.applyOrElse(stateAndBreadcrumbs._1, (_: State) => play.api.mvc.Results.NotImplemented)
 
   private def resultWithRequestOf(
-    f: Request[_] => PartialFunction[State, Result]
-  ): (Request[_], (State, List[State])) => Result =
-    (request: Request[_], stateAndBreadcrumbs: (State, List[State])) =>
+    f: RequestHeader => PartialFunction[State, Result]
+  ): (RequestHeader, (State, List[State])) => Result =
+    (request: RequestHeader, stateAndBreadcrumbs: (State, List[State])) =>
       f(request).applyOrElse(stateAndBreadcrumbs._1, (_: State) => play.api.mvc.Results.NotImplemented)
 
   private def asyncResultOf(
@@ -1737,8 +1737,8 @@ class CreateCaseJourneyController @Inject() (
   }
 
   private def asyncResultWithRequestOf(
-    f: Request[_] => PartialFunction[State, Future[Result]]
-  ): (Request[_], State) => Future[Result] = { (request: Request[_], state: State) =>
+    f: RequestHeader => PartialFunction[State, Future[Result]]
+  ): (RequestHeader, State) => Future[Result] = { (request: RequestHeader, state: State) =>
     f(request)(state)
   }
 }

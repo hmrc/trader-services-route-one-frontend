@@ -41,7 +41,7 @@ context: UploadFileViewContext
   markFileRejected: Call,
   exportRequestType: Option[ExportRequestType],
   continueAction: Call,
-  backLink: Call)(implicit request: Request[_], messages: Messages)
+  backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("view.upload-multiple-files.title"),

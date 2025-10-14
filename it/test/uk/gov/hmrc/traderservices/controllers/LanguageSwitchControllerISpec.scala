@@ -20,6 +20,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJour
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.root
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import TestImplicits._
 
 class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
 
@@ -34,7 +35,13 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(root)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val result = await(request("/language/cymraeg").get())
+        val result = await(
+          request("/language/cymraeg")
+            .withFollowRedirects(false)
+            .get()
+            .flatMap(_.redirectCall(request(_).withFollowRedirects(false)))
+            .flatMap(_.redirectCall(requestWithCookies(_, "PLAY_LANG"-> "cy")))
+        )
         result.status shouldBe 200
         journey.getState shouldBe Start
         result.body should include("Change the language to English")
@@ -46,7 +53,13 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(root)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val result = await(request("/language/englisg").get())
+        val result = await(
+          request("/language/english")
+            .withFollowRedirects(false)
+            .get()
+            .flatMap(_.redirectCall(request(_).withFollowRedirects(false)))
+            .flatMap(_.redirectCall(request(_)))
+        )
         result.status shouldBe 200
         journey.getState shouldBe Start
         result.body should include("Newid yr iaith ir Gymraeg")
@@ -58,7 +71,13 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         implicit val journeyId: JourneyId = JourneyId()
         journey.setState(root)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
-        val result = await(request("/language/xxx").get())
+        val result = await(
+          request("/language/xxx")
+            .withFollowRedirects(false)
+            .get()
+            .flatMap(_.redirectCall(request(_).withFollowRedirects(false)))
+            .flatMap(_.redirectCall(request(_)))
+        )
         result.status shouldBe 200
         journey.getState shouldBe Start
         result.body should include("Newid yr iaith ir Gymraeg")

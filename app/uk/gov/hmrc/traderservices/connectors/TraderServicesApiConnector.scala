@@ -25,6 +25,8 @@ import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 import org.apache.pekko.actor.ActorSystem
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.metrics.Metrics
 
 import scala.concurrent.duration._
@@ -34,7 +36,7 @@ import scala.concurrent.duration._
 @Singleton
 class TraderServicesApiConnector @Inject() (
   appConfig: AppConfig,
-  http: HttpGet with HttpPost,
+  http: HttpClientV2,
   metrics: Metrics,
   val actorSystem: ActorSystem
 ) extends ReadSuccessOrFailure[TraderServicesCaseResponse] with HttpAPIMonitor with ConnectorRetries {
@@ -51,10 +53,9 @@ class TraderServicesApiConnector @Inject() (
     retry(1.second, 2.seconds)(TraderServicesCaseResponse.shouldRetry, TraderServicesCaseResponse.errorMessage) {
       monitor(s"ConsumedAPI-trader-services-create-case-api-POST") {
         http
-          .POST[TraderServicesCreateCaseRequest, TraderServicesCaseResponse](
-            new URL(baseUrl + createCaseApiPath).toExternalForm,
-            request
-          )
+          .post(new URL(new URL(baseUrl + createCaseApiPath).toExternalForm))
+          .withBody(Json.toJson(request))
+          .execute[TraderServicesCaseResponse]
           .recoverWith { case e: Throwable =>
             Future.failed(TraderServicesApiError(e))
           }
@@ -66,10 +67,9 @@ class TraderServicesApiConnector @Inject() (
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TraderServicesCaseResponse] =
     monitor(s"ConsumedAPI-trader-services-update-case-api-POST") {
       http
-        .POST[TraderServicesUpdateCaseRequest, TraderServicesCaseResponse](
-          new URL(baseUrl + updateCaseApiPath).toExternalForm,
-          request
-        )
+        .post(new URL(new URL(baseUrl + updateCaseApiPath).toExternalForm))
+        .withBody(Json.toJson(request))
+        .execute[TraderServicesCaseResponse]
         .recoverWith { case e: Throwable =>
           Future.failed(TraderServicesAmendApiError(e))
         }

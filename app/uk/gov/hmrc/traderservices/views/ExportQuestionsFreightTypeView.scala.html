@@ -24,7 +24,7 @@
         context: ExportQuestionsViewContext
 )
 
-@(form: Form[ExportFreightType], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ExportFreightType], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(pageTitle("view.export-questions.freightType.title",form), backLink = Some(backLink.url)) {
 

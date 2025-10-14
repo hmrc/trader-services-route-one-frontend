@@ -24,7 +24,7 @@
         context: ImportQuestionsViewContext
 )
 
-@(form: Form[ImportPriorityGoods], postAction: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(form: Form[ImportPriorityGoods], postAction: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(pageTitle("view.import-questions.whichPriorityGoods.title",form), backLink =
         Some(backLink.url)) {

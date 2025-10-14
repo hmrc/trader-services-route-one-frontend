@@ -16,8 +16,6 @@
 
 import com.google.inject.AbstractModule
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.bootstrap.http.DefaultHttpClient
 import uk.gov.hmrc.traderservices.connectors.FrontendAuthConnector
 import uk.gov.hmrc.traderservices.repository.{CacheRepository, JourneyCacheRepository}
 import uk.gov.hmrc.traderservices.services._
@@ -25,9 +23,6 @@ import uk.gov.hmrc.traderservices.services._
 class FrontendModule() extends AbstractModule {
 
   override def configure(): Unit = {
-
-    bind(classOf[HttpGet]).to(classOf[DefaultHttpClient])
-    bind(classOf[HttpPost]).to(classOf[DefaultHttpClient])
     bind(classOf[AuthConnector]).to(classOf[FrontendAuthConnector])
     bind(classOf[CacheRepository]).to(classOf[JourneyCacheRepository])
     bind(classOf[SessionStateService]).to(classOf[MongoDBCachedCreateCaseJourneyService])

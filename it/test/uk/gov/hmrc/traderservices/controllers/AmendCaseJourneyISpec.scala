@@ -16,33 +16,32 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.util.ByteString
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.typesafe.config.Config
-import play.api.http.{HeaderNames, MimeTypes}
+import org.apache.pekko.actor.ActorSystem
+import play.api.http.HeaderNames
 import play.api.libs.json._
 import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest}
 import play.api.mvc._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
-import uk.gov.hmrc.traderservices.support
-import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService}
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.SessionKeys.authToken
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionId, SessionKeys}
 import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServicesResult}
-import uk.gov.hmrc.traderservices.controllers.{AmendCaseJourneyController, routes}
 import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyStateFormats, State}
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, EncryptedSessionCache, KeyProvider, MongoDBCachedAmendCaseJourneyService}
+import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
+import uk.gov.hmrc.traderservices.support
+import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData}
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
+import TestImplicits._
 
 class AmendCaseJourneyISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
@@ -136,7 +135,12 @@ class AmendCaseJourneyISpec
           "caseReferenceNumber" -> "PC12010081330XGBNZJO04"
         )
 
-        val result = await(request("/add/case-reference-number").post(payload))
+        val result = await(
+          request("/add/case-reference-number")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe SelectTypeOfAmendment(
@@ -175,7 +179,12 @@ class AmendCaseJourneyISpec
           "typeOfAmendment" -> "WriteResponse"
         )
 
-        val result = await(request("/add/type-of-amendment").post(payload))
+        val result = await(
+          request("/add/type-of-amendment")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe EnterResponseText(
@@ -225,7 +234,12 @@ class AmendCaseJourneyISpec
           "responseText" -> text
         )
 
-        val result = await(request("/add/write-response").post(payload))
+        val result = await(
+          request("/add/write-response")
+            .withFollowRedirects(false)
+            .post(payload)
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState shouldBe AmendCaseSummary(model.copy(responseText = Some(text)))
@@ -270,7 +284,12 @@ class AmendCaseJourneyISpec
           text
         )
 
-        val result = await(request("/add/amend-case").post(""))
+        val result = await(
+          request("/add/amend-case")
+            .withFollowRedirects(false)
+            .post("")
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState should beState(
@@ -319,7 +338,12 @@ class AmendCaseJourneyISpec
           text
         )
 
-        val result = await(request("/add/amend-case").post(""))
+        val result = await(
+          request("/add/amend-case")
+            .withFollowRedirects(false)
+            .post("")
+            .flatMap(_.redirectCall(request(_)))
+        )
 
         result.status shouldBe 200
         journey.getState should beState(
@@ -1049,7 +1073,9 @@ class AmendCaseJourneyISpec
 
         val result = await(
           request("/add/file-uploaded")
+            .withFollowRedirects(false)
             .post(Map("uploadAnotherFile" -> "yes"))
+            .flatMap(_.redirectCall(request(_)))
         )
 
         result.status shouldBe 200
@@ -1092,7 +1118,9 @@ class AmendCaseJourneyISpec
 
         val result = await(
           request("/add/file-uploaded")
+            .withFollowRedirects(false)
             .post(Map("uploadAnotherFile" -> "yes"))
+            .flatMap(_.redirectCall(request(_)))
         )
 
         result.status shouldBe 200
@@ -1113,7 +1141,9 @@ class AmendCaseJourneyISpec
 
         val result = await(
           request("/add/file-uploaded")
+            .withFollowRedirects(false)
             .post(Map("uploadAnotherFile" -> "no"))
+            .flatMap(_.redirectCall(request(_)))
         )
 
         result.status shouldBe 200
@@ -1134,7 +1164,9 @@ class AmendCaseJourneyISpec
 
         val result = await(
           request("/add/file-uploaded")
+            .withFollowRedirects(false)
             .post(Map("uploadAnotherFile" -> "no"))
+            .flatMap(_.redirectCall(request(_)))
         )
 
         result.status shouldBe 200
@@ -1163,9 +1195,10 @@ class AmendCaseJourneyISpec
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
         val result = await(
-          request(
-            "/add/file-rejected?key=2b72fe99-8adf-4edb-865e-622ae710f77c&errorCode=EntityTooLarge&errorMessage=Entity+Too+Large"
-          ).get()
+          request("/add/file-rejected?key=2b72fe99-8adf-4edb-865e-622ae710f77c&errorCode=EntityTooLarge&errorMessage=Entity+Too+Large")
+            .withFollowRedirects(false)
+            .get()
+            .flatMap(_.redirectCall(request(_)))
         )
 
         result.status shouldBe 200

@@ -23,7 +23,7 @@
         appConfig: AppConfig
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@()(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("external.update.error.500.title")

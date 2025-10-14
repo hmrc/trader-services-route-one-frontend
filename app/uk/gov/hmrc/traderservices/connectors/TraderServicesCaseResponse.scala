@@ -42,7 +42,6 @@ case class TraderServicesCaseResponse(
   result: Option[TraderServicesResult] = None
 ) {
   def isSuccess: Boolean = result.isDefined
-  def hasError: Boolean = error.isDefined
 }
 
 object TraderServicesCaseResponse {

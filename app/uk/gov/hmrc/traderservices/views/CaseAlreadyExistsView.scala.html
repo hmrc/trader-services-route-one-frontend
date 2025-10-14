@@ -26,7 +26,7 @@
         exitSurvey:ExitSurvey
 )
 
-@(caseReferenceId: String, restartCall: Call)(implicit request: Request[_], messages: Messages)
+@(caseReferenceId: String, restartCall: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
   pageTitle("view.case-already-exists.title"),

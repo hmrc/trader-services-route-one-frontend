@@ -26,7 +26,7 @@
         helper: AmendCaseSummaryHelper
 )
 
-@(model: AmendCaseModel, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: Request[_], messages: Messages)
+@(model: AmendCaseModel, postAction: Call, fileUploadLink: Call, backLink: Call)(implicit request: RequestHeader, messages: Messages)
 
 @govukLayout(
     pageTitle("view.amend-case.summary.title"),
