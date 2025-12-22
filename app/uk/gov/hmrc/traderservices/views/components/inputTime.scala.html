@@ -74,6 +74,6 @@
         SelectItem(value = Some("PM"), text = messages("time.period.pm"), selected = form(s"$id.period").value.contains("PM"))
     ),
     hint = hintText.map(hint => Hint(content = Text(messages(hint)))),
-    errorMessage = form(id).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args:_*)))),
+    errorMessage = form(id).error.map(err => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(err.message, err.args:_*)))),
     showSelectPeriod = showSelectPeriod
 ))
