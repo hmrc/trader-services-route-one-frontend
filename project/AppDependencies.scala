@@ -1,7 +1,7 @@
 import sbt._
 
 object AppDependencies {
-  val bootstrapVersion = "10.6.0"
+  val bootstrapVersion = "10.7.0"
   private val playVersion      = "30"
 
   val mailDependencies: Seq[ModuleID] = Seq(
