@@ -43,24 +43,24 @@ class AmendCaseJourneyModelSpec
   "AmendCaseJourneyModel" when {
     "at state Start" should {
       "go to Start when start" in {
-        given(Start) when start should thenGo(Start)
+        Given(Start) when start should thenGo(Start)
       }
 
       "go to EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
-        given(Start) when enterCaseReferenceNumber should thenGo(EnterCaseReferenceNumber())
+        Given(Start) when enterCaseReferenceNumber should thenGo(EnterCaseReferenceNumber())
       }
     }
 
     "at state EnterCaseReferenceNumber" should {
       "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
-        given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber should thenGo(
+        Given(EnterCaseReferenceNumber()) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber()
         )
       }
 
       "stay at EnterCaseReferenceNumber when enterCaseReferenceNumber and keep former answers" in {
         val model = AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
-        given(
+        Given(
           EnterCaseReferenceNumber(model)
         ) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber(model)
@@ -68,7 +68,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to SelectTypeOfAmendment when submited case reference number" in {
-        given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(
+        Given(EnterCaseReferenceNumber()) when submitedCaseReferenceNumber(
           "PC12010081330XGBNZJO04"
         ) should thenGo(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
@@ -81,7 +81,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           EnterCaseReferenceNumber(model)
         ).withBreadcrumbs() when toAmendSummary should thenGo(
           AmendCaseSummary(model)
@@ -94,7 +94,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           EnterCaseReferenceNumber(model)
         ).withBreadcrumbs() when toAmendSummary should thenGo(
           AmendCaseSummary(model)
@@ -104,7 +104,7 @@ class AmendCaseJourneyModelSpec
 
     "at state SelectTypeOfAmendment" should {
       "go to EnterResponseText when submited type of amendment WriteResponse" in {
-        given(
+        Given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.WriteResponse
@@ -125,7 +125,7 @@ class AmendCaseJourneyModelSpec
           typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
           fileUploads = Some(nonEmptyFileUploads)
         )
-        given(
+        Given(
           SelectTypeOfAmendment(model)
         ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
@@ -135,7 +135,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to EnterResponseText when submited type of amendment WriteResponseAndUploadDocuments" in {
-        given(
+        Given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.WriteResponseAndUploadDocuments
@@ -150,7 +150,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to UploadMultipleFiles when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched on" in {
-        given(
+        Given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(uploadMultipleFiles = true)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.UploadDocuments
@@ -166,7 +166,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to UploadFile when submited type of amendment UploadDocuments and uploadMultipleFiles feature switched off" in {
-        given(
+        Given(
           SelectTypeOfAmendment(AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04")))
         ) when submitedTypeOfAmendment(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           TypeOfAmendment.UploadDocuments
@@ -195,7 +195,7 @@ class AmendCaseJourneyModelSpec
 
       "retreat to EnterCaseReferenceNumber when enterCaseReferenceNumber" in {
         val model = AmendCaseModel(caseReferenceNumber = Some("PC12010081330XGBNZJO04"))
-        given(
+        Given(
           SelectTypeOfAmendment(model)
         ) when enterCaseReferenceNumber should thenGo(
           EnterCaseReferenceNumber(model)
@@ -210,7 +210,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           EnterResponseText(model)
         ) when submitedResponseText(uploadMultipleFiles = false)(testUpscanRequest)(mockUpscanInitiate)(
           responseText
@@ -219,7 +219,7 @@ class AmendCaseJourneyModelSpec
 
       "goto EnterCaseReferenceNumber when submitted response text in WriteResponse mode but case reference number is missing" in {
         val responseText = Random.alphanumeric.take(1000).mkString
-        given(
+        Given(
           EnterResponseText(
             AmendCaseModel(
               caseReferenceNumber = None,
@@ -241,7 +241,7 @@ class AmendCaseJourneyModelSpec
 
       "goto SelectTypeOfAmendment when submitted response text in WriteResponse mode but type of amendment is missing" in {
         val responseText = Random.alphanumeric.take(1000).mkString
-        given(
+        Given(
           EnterResponseText(
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -263,7 +263,7 @@ class AmendCaseJourneyModelSpec
 
       "goto UploadMultipleFiles when submited response text in WriteResponseAndUploadDocuments mode and uploadMultipleFiles feature switched on" in {
         val responseText = Random.alphanumeric.take(1000).mkString
-        given(
+        Given(
           EnterResponseText(
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -286,7 +286,7 @@ class AmendCaseJourneyModelSpec
 
       "goto UploadFile when submited response text in WriteResponseAndUploadDocuments mode and uploadMultipleFiles feature switched off" in {
         val responseText = Random.alphanumeric.take(1000).mkString
-        given(
+        Given(
           EnterResponseText(
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -321,7 +321,7 @@ class AmendCaseJourneyModelSpec
 
       "fail when submited response text in UploadDocuments mode" in {
         val responseText = Random.alphanumeric.take(1000).mkString
-        given(
+        Given(
           EnterResponseText(
             AmendCaseModel(
               caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
@@ -340,7 +340,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           EnterResponseText(model)
         ) when backToSelectTypeOfAmendment should thenGo(
           SelectTypeOfAmendment(model)
@@ -352,7 +352,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = None
         )
-        given(
+        Given(
           EnterResponseText(model)
         ) when backToSelectTypeOfAmendment should thenGo(
           SelectTypeOfAmendment(model)
@@ -384,7 +384,7 @@ class AmendCaseJourneyModelSpec
 
     "at state UploadMultipleFiles" should {
       "go to AmendCaseSummary when non-empty file uploads and toAmendSummary transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads
@@ -398,7 +398,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to AmendCaseSummary when empty file uploads and toAmendSummary transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel
               .copy(typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments)),
@@ -414,7 +414,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "stay when toUploadMultipleFiles transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
@@ -449,7 +449,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads()
@@ -474,7 +474,7 @@ class AmendCaseJourneyModelSpec
           (0 until (maxFileUploadsNumber - 1))
             .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
         ) + FileUpload.Rejected(Nonce(9), Timestamp(9), "foo-bar-ref-9", S3UploadError("a", "b", "c"))
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             fileUploads
@@ -495,7 +495,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "do nothing when initiateNextFileUpload with existing uploadId" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             nonEmptyFileUploads +
@@ -515,7 +515,7 @@ class AmendCaseJourneyModelSpec
           (0 until maxFileUploadsNumber)
             .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
         )
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             fileUploads
@@ -529,7 +529,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "mark file upload as POSTED when markUploadAsPosted transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -565,11 +565,11 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(state)
+        Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(state)
       }
 
       "overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -617,11 +617,11 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(state)
+        Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(state)
       }
 
       "mark file upload as REJECTED when markUploadAsRejected transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -654,7 +654,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when markUploadAsRejected transition and already in REJECTED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -703,7 +703,7 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when markUploadAsRejected(
+        Given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
@@ -719,13 +719,13 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when markUploadAsRejected(
+        Given(state) when markUploadAsRejected(
           S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
         ) should thenGo(state)
       }
 
       "update file upload status to ACCEPTED when positive upscanCallbackArrived transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -773,7 +773,7 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when upscanCallbackArrived(Nonce(4))(
+        Given(state) when upscanCallbackArrived(Nonce(4))(
           UpscanFileReady(
             reference = "foo-bar-ref-4",
             downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
@@ -789,7 +789,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -837,7 +837,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -875,7 +875,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -921,7 +921,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -973,7 +973,7 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when upscanCallbackArrived(Nonce(4))(
+        Given(state) when upscanCallbackArrived(Nonce(4))(
           UpscanFileFailed(
             reference = "foo-bar-ref-4",
             failureDetails = UpscanNotification.FailureDetails(
@@ -985,7 +985,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when negative upscanCallbackArrived transition and upload already in FAILED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1035,7 +1035,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "overwrite upload status when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1087,7 +1087,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "remove file upload when removeFileUploadByReference transition and reference exists" in {
-        given(
+        Given(
           UploadMultipleFiles(
             fullAmendCaseStateModel,
             FileUploads(files =
@@ -1145,25 +1145,25 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
+        Given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
           mockUpscanInitiate
         ) should thenGo(state)
       }
 
       "go back to SelectTypeOfAmendment when backToSelectTypeOfAmendment" in {
-        given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
+        Given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
           .when(backToSelectTypeOfAmendment)
           .thenGoes(SelectTypeOfAmendment(fullAmendCaseStateModel.copy(fileUploads = Some(nonEmptyFileUploads))))
       }
 
       "go back to EnterResponseText when backToEnterResponseText" in {
-        given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
+        Given(UploadMultipleFiles(fullAmendCaseStateModel, nonEmptyFileUploads))
           .when(backToEnterResponseText)
           .thenGoes(EnterResponseText(fullAmendCaseStateModel.copy(fileUploads = Some(nonEmptyFileUploads))))
       }
 
       "go back to SelectTypeOfAmendment when backFromFileUpload and undefined typeOfAmendment" in {
-        given(UploadMultipleFiles(fullAmendCaseStateModel.copy(typeOfAmendment = None), nonEmptyFileUploads))
+        Given(UploadMultipleFiles(fullAmendCaseStateModel.copy(typeOfAmendment = None), nonEmptyFileUploads))
           .when(backFromFileUpload)
           .thenGoes(
             SelectTypeOfAmendment(
@@ -1176,7 +1176,7 @@ class AmendCaseJourneyModelSpec
 
     "at state UploadFile" should {
       "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
-        given(
+        Given(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-2",
@@ -1253,7 +1253,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to FileUploaded when waitForFileVerification and accepted already" in {
-        given(
+        Given(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-3",
@@ -1320,7 +1320,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to UploadFile when waitForFileVerification and file upload already rejected" in {
-        given(
+        Given(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-4",
@@ -1401,7 +1401,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
-        given(
+        Given(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1436,7 +1436,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
-        given(
+        Given(
           UploadFile(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1505,7 +1505,7 @@ class AmendCaseJourneyModelSpec
             FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
           )
 
-        given(state) when markUploadAsRejected(
+        Given(state) when markUploadAsRejected(
           S3UploadError(
             key = "foo-bar-ref-1",
             errorCode = "a",
@@ -1567,11 +1567,11 @@ class AmendCaseJourneyModelSpec
             )
           )
         )
-        given(state) when waitForFileVerification should thenGo(state)
+        Given(state) when waitForFileVerification should thenGo(state)
       }
 
       "go to UploadFile when waitForFileVerification and reference unknown" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-2",
@@ -1612,7 +1612,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to FileUploaded when waitForFileVerification and file already accepted" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1646,7 +1646,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "go to UploadFile when waitForFileVerification and file already failed" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1705,7 +1705,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "goto FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1741,7 +1741,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "goto UploadFile when upscanCallbackArrived and failed, and reference matches" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1796,7 +1796,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1853,7 +1853,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "retreat to FileUploaded when some files has been uploaded already" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1908,7 +1908,7 @@ class AmendCaseJourneyModelSpec
       }
 
       "retreat to EnterResponseText when none file has been uploaded yet" in {
-        given(
+        Given(
           WaitingForFileVerification(
             fullAmendCaseStateModel,
             "foo-bar-ref-1",
@@ -1967,13 +1967,13 @@ class AmendCaseJourneyModelSpec
           acknowledged = false
         )
 
-        given(state) when
+        Given(state) when
           waitForFileVerification should
           thenGo(state.copy(acknowledged = true))
       }
 
       "goto AmendCaseSummary when continue after files uploaded" in {
-        given(
+        Given(
           FileUploaded(
             fullAmendCaseStateModel,
             someFileUploads,
@@ -1990,7 +1990,7 @@ class AmendCaseJourneyModelSpec
             TraderServicesCaseResponse(correlationId = "", error = Some(ApiError("", Some(""))))
           )
         }
-        given(
+        Given(
           FileUploaded(
             fullAmendCaseStateModel,
             someFileUploads,
@@ -2010,7 +2010,7 @@ class AmendCaseJourneyModelSpec
             )
           )
         }
-        given(
+        Given(
           FileUploaded(
             fullAmendCaseStateModel,
             someFileUploads,
@@ -2038,7 +2038,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           AmendCaseSummary(model)
         ) when amendCase(updateCaseApi)(uidAndEori) should
           thenGo(
@@ -2059,7 +2059,7 @@ class AmendCaseJourneyModelSpec
             )
           )
         }
-        given(
+        Given(
           AmendCaseSummary(fullAmendCaseStateModel)
         ) when amendCase(updateCaseApi)(uidAndEori) should
           thenGo(
@@ -2087,7 +2087,7 @@ class AmendCaseJourneyModelSpec
           fileUploads = Some(someFileUploads)
         )
 
-        given(
+        Given(
           AmendCaseSummary(model)
         ) when amendCase(updateCaseApi)(uidAndEori) should
           thenGo(
@@ -2114,7 +2114,7 @@ class AmendCaseJourneyModelSpec
           typeOfAmendment = Some(TypeOfAmendment.UploadDocuments),
           fileUploads = None
         )
-        given(
+        Given(
           AmendCaseSummary(model)
         ) when amendCase(updateCaseApi)(uidAndEori) should
           thenGo(
@@ -2132,7 +2132,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           AmendCaseSummary(model)
         )
           .when(amendCase(updateCaseApi)(uidAndEori))
@@ -2154,7 +2154,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           AmendCaseSummary(model)
         )
           .when(amendCase(updateCaseApi)(uidAndEori))
@@ -2167,7 +2167,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(AmendCaseSummary(model))
+        Given(AmendCaseSummary(model))
           .when(backToEnterResponseText)
           .thenGoes(EnterResponseText(model))
       }
@@ -2179,7 +2179,7 @@ class AmendCaseJourneyModelSpec
           typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
           fileUploads = Some(nonEmptyFileUploads)
         )
-        given(AmendCaseSummary(model))
+        Given(AmendCaseSummary(model))
           .when(backToEnterResponseText)
           .thenGoes(EnterResponseText(model))
       }
@@ -2191,7 +2191,7 @@ class AmendCaseJourneyModelSpec
           typeOfAmendment = Some(TypeOfAmendment.WriteResponseAndUploadDocuments),
           fileUploads = Some(nonEmptyFileUploads)
         )
-        given(AmendCaseSummary(model))
+        Given(AmendCaseSummary(model))
           .when(backToAmendCaseMissingInformationError)
           .thenGoes(AmendCaseMissingInformationError(model))
       }
@@ -2205,7 +2205,7 @@ class AmendCaseJourneyModelSpec
           caseReferenceNumber = Some("PC12010081330XGBNZJO04"),
           typeOfAmendment = Some(TypeOfAmendment.WriteResponse)
         )
-        given(
+        Given(
           AmendCaseConfirmation(
             Seq.empty,
             model,

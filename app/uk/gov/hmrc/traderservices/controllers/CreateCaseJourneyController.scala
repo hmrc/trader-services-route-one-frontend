@@ -1058,7 +1058,7 @@ class CreateCaseJourneyController @Inject() (
     Action.async { implicit request =>
       AsAuthorisedUser {
         createCaseJourneyService
-          .rollback[CreateCaseJourneyState.CreateCaseConfirmation]
+          .rollback[CreateCaseJourneyState.CreateCaseConfirmation]()
           .map {
             case (state: CreateCaseJourneyState.CreateCaseConfirmation, breadcrumbs) =>
               renderState(state, breadcrumbs, None)
@@ -1756,7 +1756,7 @@ object CreateCaseJourneyController {
       "epu"         -> epuMapping,
       "entryNumber" -> entryNumberMapping,
       "entryDate"   -> entryDateMapping
-    )(EntryDetails.apply)(EntryDetails.unapply)
+    )(EntryDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
   val ExportRequestTypeForm = Form[ExportRequestType](
@@ -1788,7 +1788,7 @@ object CreateCaseJourneyController {
       "contactName"   -> exportContactNameMapping,
       "contactEmail"  -> exportContactEmailMapping,
       "contactNumber" -> exportContactNumberMapping
-    )(ExportContactInfo.apply)(ExportContactInfo.unapply)
+    )(ExportContactInfo.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
   val ImportRequestTypeForm = Form[ImportRequestType](
@@ -1824,7 +1824,7 @@ object CreateCaseJourneyController {
       "contactName"   -> importContactNameMapping,
       "contactEmail"  -> importContactEmailMapping,
       "contactNumber" -> importContactNumberMapping
-    )(ImportContactInfo.apply)(ImportContactInfo.unapply)
+    )(ImportContactInfo.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
   val MandatoryImportVesselDetailsForm = mandatoryImportVesselDetailsForm(None)
@@ -1836,7 +1836,7 @@ object CreateCaseJourneyController {
         "dateOfArrival" -> mandatoryDateOfArrivalMapping
           .verifying(dateOfArrivalRangeConstraint(entryDate)),
         "timeOfArrival" -> mandatoryTimeOfArrivalMapping
-      )(VesselDetails.apply)(VesselDetails.unapply)
+      )(VesselDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
 
   val OptionalImportVesselDetailsForm = optionalImportVesselDetailsForm(None)
@@ -1848,7 +1848,7 @@ object CreateCaseJourneyController {
         "dateOfArrival" -> optionalDateOfArrivalMapping
           .verifying(dateOfArrivalRangeConstraint(entryDate)),
         "timeOfArrival" -> optionalTimeOfArrivalMapping
-      )(VesselDetails.apply)(VesselDetails.unapply)
+      )(VesselDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
 
   val MandatoryExportVesselDetailsForm = mandatoryExportVesselDetailsForm(None, None)
@@ -1871,7 +1871,7 @@ object CreateCaseJourneyController {
         "vesselName" -> mandatoryVesselNameMapping,
         dateMapping,
         timeMapping
-      )(VesselDetails.apply)(VesselDetails.unapply)
+      )(VesselDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
   }
 
@@ -1896,7 +1896,7 @@ object CreateCaseJourneyController {
         "vesselName" -> optionalVesselNameMapping,
         dateMapping,
         timeMapping
-      )(VesselDetails.apply)(VesselDetails.unapply)
+      )(VesselDetails.apply)(o => Some(Tuple.fromProductTyped(o)))
     )
   }
 
@@ -1908,7 +1908,7 @@ object CreateCaseJourneyController {
     mapping(
       "key"    -> nonEmptyText,
       "bucket" -> optional(nonEmptyText)
-    )(S3UploadSuccess.apply)(S3UploadSuccess.unapply)
+    )(S3UploadSuccess.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
   val UpscanUploadErrorForm = Form[S3UploadError](
@@ -1918,6 +1918,6 @@ object CreateCaseJourneyController {
       "errorMessage"   -> text,
       "errorRequestId" -> optional(text),
       "errorResource"  -> optional(text)
-    )(S3UploadError.apply)(S3UploadError.unapply)
+    )(S3UploadError.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 }

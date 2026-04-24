@@ -79,7 +79,6 @@ context: UploadFileViewContext
     @govukFileUpload(FileUpload(
       name = "file",
       id = "file",
-      value = Some(""),
       describedBy = None,
       label = Label(
         content = Text(messages(if(fileUploads.isEmpty) "view.upload-file.first.fileLabel" else "view.upload-file.next.fileLabel"))

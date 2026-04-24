@@ -890,7 +890,7 @@ object AmendCaseJourneyController {
     mapping(
       "key"    -> nonEmptyText,
       "bucket" -> optional(nonEmptyText)
-    )(S3UploadSuccess.apply)(S3UploadSuccess.unapply)
+    )(S3UploadSuccess.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
   val UpscanUploadErrorForm = Form[S3UploadError](
@@ -900,7 +900,7 @@ object AmendCaseJourneyController {
       "errorMessage"   -> text,
       "errorRequestId" -> optional(text),
       "errorResource"  -> optional(text)
-    )(S3UploadError.apply)(S3UploadError.unapply)
+    )(S3UploadError.apply)(o => Some(Tuple.fromProductTyped(o)))
   )
 
 }

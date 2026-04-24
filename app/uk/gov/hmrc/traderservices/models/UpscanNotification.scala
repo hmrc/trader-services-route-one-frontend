@@ -105,7 +105,7 @@ object UpscanNotification {
         (__ \ "checksum").write[String] and
         (__ \ "fileName").write[String] and
         (__ \ "fileMimeType").write[String] and
-        (__ \ "size").writeNullable[Int])(unlift(UploadDetails.unapply))
+        (__ \ "size").writeNullable[Int])(o => Tuple.fromProductTyped(o))
     )
 
     def decodeMimeEncodedWord(word: String): String =

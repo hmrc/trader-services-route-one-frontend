@@ -42,10 +42,10 @@ import java.util.UUID
   */
 trait JourneyCache[T, C] extends ExplicitAskSupport {
 
-  val actorSystem: ActorSystem
-  val journeyKey: String
-  val cacheRepository: CacheRepository
-  val format: Format[T]
+  def actorSystem: ActorSystem
+  def journeyKey: String
+  def cacheRepository: CacheRepository
+  def format: Format[T]
 
   val maxWorkerLifespanMinutes: Int = 30
   val timeoutSeconds: Int = 300
@@ -71,7 +71,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
     getJourneyId match {
       case Some(journeyId) =>
         stateCacheActor
-          .ask(replyTo => (journeyId, Modify(modification, default), replyTo))
+          .ask(replyTo => (journeyId, Modify(modification.asInstanceOf[Any => Future[Any]], default), replyTo))
           .flatMap {
             case Right(entity: Any) =>
               Future.successful(entity.asInstanceOf[T])
@@ -246,7 +246,7 @@ trait JourneyCache[T, C] extends ExplicitAskSupport {
             }
             .flatMap { entity =>
               modification
-                .apply(entity.asInstanceOf[T])
+                .apply(entity)
                 .flatMap { newEntity =>
                   cacheRepository
                     .put[T](journeyId)(DataKey(journeyKey), newEntity.asInstanceOf[T])(format)
@@ -313,7 +313,7 @@ object JourneyCache {
   case object Get
   case object Delete
   case class Store(entity: Any)
-  case class Modify[T](modification: T => Future[T], default: T)
+  case class Modify[T](modification: Any => Future[T], default: T)
   case class Result(value: Any, replyTo: ActorRef)
   case object Ready
   case object LifeEnd
