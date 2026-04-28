@@ -36,12 +36,12 @@ import scala.concurrent.Future
 class CreateCaseJourneyModelSpec
     extends AnyWordSpec with Matchers with BeforeAndAfterAll with JourneyModelSpec with TestData {
 
-  override val model = CreateCaseJourneyModel
+  override val model: CreateCaseJourneyModel.type = CreateCaseJourneyModel
 
-  val root: State = CreateCaseJourneyState.Start
+  val root: State = CreateCaseJourneyModel.CreateCaseJourneyState.Start
 
-  import model.CreateCaseJourneyState._
-  import model.Transitions._
+  import CreateCaseJourneyModel.CreateCaseJourneyState._
+  import CreateCaseJourneyModel.Transitions._
 
   "CreateCaseJourneyModel" when {
     "at state Start" should {
@@ -2720,7 +2720,7 @@ class CreateCaseJourneyModelSpec
       }
 
       "go to CreateCaseConfirmation when createCase and all answers completed" in {
-        val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
+        val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
@@ -2774,7 +2774,7 @@ class CreateCaseJourneyModelSpec
       }
 
       "go to ExportQuestionsMissingInformationError when createCase and some answers missing" in {
-        val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
+        val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
@@ -2797,7 +2797,7 @@ class CreateCaseJourneyModelSpec
       }
 
       "go to CaseAlreadyExists when createCase but case already exists" in {
-        val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
+        val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
           Future.successful(
             TraderServicesCaseResponse(
               correlationId = "",
@@ -2898,6 +2898,7 @@ class CreateCaseJourneyModelSpec
               )
             )
           )
+        }
         Given(
           ImportQuestionsSummary(
             ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
@@ -2920,1805 +2921,743 @@ class CreateCaseJourneyModelSpec
             FileUploads(files = Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
           )
         )
-        }
+      }
+    }
 
-        "go to CreateCaseConfirmation when createCase" in {
-          val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
-            Future.successful(
-              TraderServicesCaseResponse(
-                correlationId = "",
-                result = Some(TraderServicesResult("A1234567890", generatedAt))
-              )
-            )
-          }
-          Given(
-            ImportQuestionsSummary(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers,
-                Some(
-                  FileUploads(files =
-                    Seq(
-                      FileUpload.Accepted(
-                        Nonce(1),
-                        Timestamp.Any,
-                        "foo-bar-ref-1",
-                        "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                        ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                        "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                        "test.pdf",
-                        "application/pdf",
-                        Some(4567890)
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
-            CreateCaseConfirmation(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Seq(
-                UploadedFile(
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              ),
-              TraderServicesResult("A1234567890", generatedAt),
-              CaseSLA(Some(generatedAt.plusHours(2)))
-            )
+    "go to CreateCaseConfirmation when createCase" in {
+      val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
+        Future.successful(
+          TraderServicesCaseResponse(
+            correlationId = "",
+            result = Some(TraderServicesResult("A1234567890", generatedAt))
           )
-        }
-
-        "go to ImportQuestionsMissingInformationError when createCase and some answers missing" in {
-          val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
-            Future.successful(
-              TraderServicesCaseResponse(
-                correlationId = "",
-                result = Some(TraderServicesResult("A1234567890", generatedAt))
-              )
-            )
-          }
-          val model = ImportQuestionsStateModel(
+        )
+      }
+      Given(
+        ImportQuestionsSummary(
+          ImportQuestionsStateModel(
             importEntryDetails,
-            completeImportQuestionsAnswers.copy(requestType = None),
+            completeImportQuestionsAnswers,
             Some(
-              FileUploads(files = Seq(acceptedFileUpload))
-            )
-          )
-          Given(
-            ImportQuestionsSummary(model)
-          ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
-            ImportQuestionsMissingInformationError(model)
-          )
-        }
-
-        "go to CaseAlreadyExists when createCase but case already exists" in {
-          val mockCreateCaseApi: CreateCaseApi = { (request: CreateCaseRequest) =>
-            Future.successful(
-              TraderServicesCaseResponse(
-                correlationId = "",
-                error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
-              )
-            )
-          }
-          Given(
-            ImportQuestionsSummary(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers,
-                Some(
-                  FileUploads(files =
-                    Seq(
-                      FileUpload.Accepted(
-                        Nonce(1),
-                        Timestamp.Any,
-                        "foo-bar-ref-1",
-                        "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                        ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                        "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                        "test.pdf",
-                        "application/pdf",
-                        Some(4567890)
-                      )
-                    )
+              FileUploads(files =
+                Seq(
+                  FileUpload.Accepted(
+                    Nonce(1),
+                    Timestamp.Any,
+                    "foo-bar-ref-1",
+                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                    "test.pdf",
+                    "application/pdf",
+                    Some(4567890)
                   )
                 )
               )
             )
-          ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
-            CaseAlreadyExists("A1234567890")
           )
-        }
-
-        "go back to AnswerImportQuestionsContactInfo" in {
-          val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
-          Given(ImportQuestionsSummary(model))
-            .when(backToAnswerImportQuestionsContactInfo)
-            .thenGoes(AnswerImportQuestionsContactInfo(model))
-        }
-
-        "stay when backToAnswerExportQuestionsContactInfo" in {
-          val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
-          Given(ImportQuestionsSummary(model))
-            .when(backToAnswerExportQuestionsContactInfo)
-            .thenGoes(ImportQuestionsSummary(model))
-        }
-
-        "go back to ImportQuestionsMissingInformationError" in {
-          val model =
-            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers.copy(routeType = None))
-          Given(ImportQuestionsSummary(model))
-            .when(backToImportQuestionsMissingInformationError)
-            .thenGoes(ImportQuestionsMissingInformationError(model))
-        }
-
-        "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
-          val model =
-            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
-          Given(ImportQuestionsSummary(model))
-            .when(backToFileUploaded)
-            .thenGoes(
-              FileUploaded(
-                FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-                nonEmptyFileUploads,
-                acknowledged = true
-              )
+        )
+      ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+        CreateCaseConfirmation(
+          importEntryDetails,
+          completeImportQuestionsAnswers,
+          Seq(
+            UploadedFile(
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
             )
-        }
+          ),
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+      )
+    }
 
-        "go back to AnswerImportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
-          val model =
-            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, None)
-          Given(ImportQuestionsSummary(model))
-            .when(backToFileUploaded)
-            .thenGoes(AnswerImportQuestionsContactInfo(model))
-        }
+    "go to ImportQuestionsMissingInformationError when createCase and some answers missing" in {
+      val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
+        Future.successful(
+          TraderServicesCaseResponse(
+            correlationId = "",
+            result = Some(TraderServicesResult("A1234567890", generatedAt))
+          )
+        )
       }
+      val model = ImportQuestionsStateModel(
+        importEntryDetails,
+        completeImportQuestionsAnswers.copy(requestType = None),
+        Some(
+          FileUploads(files = Seq(acceptedFileUpload))
+        )
+      )
+      Given(
+        ImportQuestionsSummary(model)
+      ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+        ImportQuestionsMissingInformationError(model)
+      )
+    }
 
-      "at state UploadMultipleFiles" should {
-        "go back to AnswerExportQuestionsContactInfo when backToAnswerExportQuestionsContactInfo" in {
-          val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
-              nonEmptyFileUploads
-            )
+    "go to CaseAlreadyExists when createCase but case already exists" in {
+      val mockCreateCaseApi: CreateCaseApi = { (request: TraderServicesCreateCaseRequest) =>
+        Future.successful(
+          TraderServicesCaseResponse(
+            correlationId = "",
+            error = Some(ApiError(errorCode = "409", errorMessage = Some("A1234567890")))
           )
-            .when(backToAnswerExportQuestionsContactInfo)
-            .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
-        }
-
-        "go to Start when backToAnswerExportQuestionsContactInfo but has import answers" in {
-          val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          )
-            .when(backToAnswerExportQuestionsContactInfo)
-            .thenGoes(Start)
-        }
-
-        "go back to AnswerImportQuestionsContactInfo when backToAnswerImportQuestionsContactInfo" in {
-          val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          )
-            .when(backToAnswerImportQuestionsContactInfo)
-            .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
-        }
-
-        "go to Start when backToAnswerImportQuestionsContactInfo but has export answers" in {
-          val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          )
-            .when(backToAnswerImportQuestionsContactInfo)
-            .thenGoes(Start)
-        }
-
-        "go back to AnswerExportQuestionsContactInfo when backFromFileUpload" in {
-          val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          )
-            .when(backFromFileUpload)
-            .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
-        }
-
-        "go back to AnswerImportQuestionsContactInfo when backFromFileUpload" in {
-          val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          )
-            .when(backFromFileUpload)
-            .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
-        }
-
-        "go to ImportQuestionsSummary when non-empty file uploads and toSummary" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          ) when toSummary should thenGo(
-            ImportQuestionsSummary(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers,
-                Some(nonEmptyFileUploads)
-              )
-            )
-          )
-        }
-
-        "go to ExportQuestionsSummary when non-empty file uploads and toSummary" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              nonEmptyFileUploads
-            )
-          ) when toSummary should thenGo(
-            ExportQuestionsSummary(
-              ExportQuestionsStateModel(
-                exportEntryDetails,
-                completeExportQuestionsAnswers,
-                Some(nonEmptyFileUploads)
-              )
-            )
-          )
-        }
-
-        "stay and filter accepted uploads when export and toUploadMultipleFiles transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
-                .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
-                Nonce(4),
-                Timestamp.Any,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-            )
-          ) when toUploadMultipleFiles should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              nonEmptyFileUploads + FileUpload.Accepted(
-                Nonce(4),
-                Timestamp.Any,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-            )
-          )
-        }
-
-        "stay and filter accepted uploads when import and toUploadMultipleFiles transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
-                .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
-                Nonce(4),
-                Timestamp.Any,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-            )
-          ) when toUploadMultipleFiles should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              nonEmptyFileUploads + FileUpload.Accepted(
-                Nonce(4),
-                Timestamp.Any,
-                "foo-bar-ref-4",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-            )
-          )
-        }
-
-        "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads()
-            )
-          ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads() +
-                FileUpload.Initiated(
-                  Nonce.Any,
-                  Timestamp.Any,
-                  "foo-bar-ref",
-                  uploadId = Some("001"),
-                  uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
-                )
-            )
-          )
-        }
-
-        "initiate new file upload when initiateNextFileUpload transition and some uploads exist already" in {
-          val fileUploads = FileUploads(files =
-            (0 until (maxFileUploadsNumber - 1))
-              .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
-          ) + FileUpload.Rejected(Nonce(9), Timestamp.Any, "foo-bar-ref-9", S3UploadError("a", "b", "c"))
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              fileUploads
-            )
-          ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              fileUploads +
-                FileUpload.Initiated(
-                  Nonce.Any,
-                  Timestamp.Any,
-                  "foo-bar-ref",
-                  uploadId = Some("001"),
-                  uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
-                )
-            )
-          )
-        }
-
-        "do nothing when initiateNextFileUpload with existing uploadId" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              nonEmptyFileUploads +
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
-            )
-          ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              nonEmptyFileUploads +
-                FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
-            )
-          )
-        }
-
-        "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
-          val fileUploads = FileUploads(files =
-            (0 until maxFileUploadsNumber)
-              .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
-          )
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              fileUploads
-            )
-          ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              fileUploads
-            )
-          )
-        }
-
-        "mark file upload as POSTED when markUploadAsPosted transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", Some("bucket-123"))) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "do nothing when markUploadAsPosted transition and already in POSTED state" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(
-            state
-          )
-        }
-
-        "overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                  FileUpload.Accepted(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  )
-                )
-              )
-            )
-          ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                  FileUpload.Posted(Nonce(4), Timestamp.Any, "foo-bar-ref-4")
-                )
-              )
-            )
-          )
-        }
-
-        "do not overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state but timestamp gap is too small" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                FileUpload.Accepted(
-                  Nonce(4),
-                  Timestamp.now,
-                  "foo-bar-ref-4",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            )
-          )
-          Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
-            state
-          )
-        }
-
-        "do nothing when markUploadAsPosted transition and none matching upload exist" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
-            state
-          )
-        }
-
-        "mark file upload as REJECTED when markUploadAsRejected transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when markUploadAsRejected(
-            S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Rejected(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
-                    S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
-                  ),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "overwrite upload status when markUploadAsRejected transition and already in REJECTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when markUploadAsRejected(
-            S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
-                  )
-                )
-              )
-            )
-          )
-        }
-
-        "overwrite upload status when markUploadAsRejected transition and already in ACCEPTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                  FileUpload.Accepted(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  )
-                )
-              )
-            )
-          ) when markUploadAsRejected(
-            S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
-                  FileUpload.Rejected(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
-                  )
-                )
-              )
-            )
-          )
-        }
-
-        "do nothing when markUploadAsRejected transition and none matching file upload found" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when markUploadAsRejected(
-            S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
-          ) should thenGo(state)
-        }
-
-        "update file upload status to ACCEPTED when positive upscanCallbackArrived transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  acceptedFileUpload,
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "update file upload status to ACCEPTED with sanitized name of the file" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = """F:\My Documents\my invoices\invoice00001_1234.pdf""",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Accepted(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "invoice00001_1234.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "do nothing when positive upscanCallbackArrived transition and none matching file upload found" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when upscanCallbackArrived(Nonce(4))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-4",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(state)
-        }
-
-        "overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Accepted(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
-                    ZonedDateTime.parse("2018-04-24T09:28:00Z"),
-                    "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
-                    "test.png",
-                    "image/png",
-                    Some(4567890)
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  acceptedFileUpload,
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "do not overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state if timestamp gap is to small" in {
-          val now = Timestamp.now
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  now,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
-                  ZonedDateTime.parse("2018-04-24T09:28:00Z"),
-                  "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
-                  "test.png",
-                  "image/png",
-                  Some(4567890)
-                ),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(state)
-        }
-
-        "overwrite upload status when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Rejected(Nonce(1), Timestamp.Any, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  acceptedFileUpload,
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "overwrite upload status when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(
-                      failureReason = UpscanNotification.QUARANTINE,
-                      message = "e.g. This file has a virus"
-                    )
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  acceptedFileUpload,
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-1",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(
-                      failureReason = UpscanNotification.QUARANTINE,
-                      message = "e.g. This file has a virus"
-                    )
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "do nothing when negative upscanCallbackArrived transition and none matching file upload found" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when upscanCallbackArrived(Nonce(4))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-4",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(state)
-        }
-
-        "overwrite upload status when negative upscanCallbackArrived transition and upload already in FAILED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(
-                      failureReason = UpscanNotification.REJECTED,
-                      message = "e.g. This file has wrong type"
-                    )
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-1",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(
-                      failureReason = UpscanNotification.QUARANTINE,
-                      message = "e.g. This file has a virus"
-                    )
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "overwrite upload status when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Accepted(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
-                    ZonedDateTime.parse("2018-04-24T09:28:00Z"),
-                    "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
-                    "test.png",
-                    "image/png",
-                    Some(4567890)
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-1",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(
-                      failureReason = UpscanNotification.QUARANTINE,
-                      message = "e.g. This file has a virus"
-                    )
-                  ),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "remove file upload when removeFileUploadByReference transition and reference exists" in {
-          Given(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
-            UploadMultipleFiles(
-              FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
-                )
-              )
-            )
-          )
-        }
-
-        "do nothing when removeFileUploadByReference transition and none file upload matches" in {
-          val state = UploadMultipleFiles(
-            FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                FileUpload.Accepted(
-                  Nonce(3),
-                  Timestamp.Any,
-                  "foo-bar-ref-3",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                ),
-                FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
-              )
-            )
-          )
-          Given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
-            mockUpscanInitiate
-          ) should thenGo(state)
-        }
+        )
       }
-
-      "at state UploadFile" should {
-        "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-2",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
+      Given(
+        ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Some(
               FileUploads(files =
                 Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
                   FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              )
-            )
-          ) when waitForFileVerification should thenGo(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-2",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              )
-            )
-          )
-        }
-
-        "go to FileUploaded when waitForFileVerification and accepted already" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-3",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              )
-            )
-          ) when waitForFileVerification should thenGo(
-            FileUploaded(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              )
-            )
-          )
-        }
-
-        "go to UploadFile when waitForFileVerification and file upload already rejected" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-4",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              )
-            )
-          ) when waitForFileVerification should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-4",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
-                  FileUpload.Accepted(
-                    Nonce(3),
-                    Timestamp.Any,
-                    "foo-bar-ref-3",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  ),
-                  FileUpload.Failed(
-                    Nonce(4),
-                    Timestamp.Any,
-                    "foo-bar-ref-4",
-                    UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                  )
-                )
-              ),
-              Some(
-                FileVerificationFailed(
-                  UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
-                )
-              )
-            )
-          )
-        }
-
-        "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            FileUploaded(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              FileUploads(files = Seq(acceptedFileUpload))
-            )
-          )
-        }
-
-        "go to UploadFile when upscanCallbackArrived and accepted, and reference matches but upload is a duplicate" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Accepted(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2020-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  )
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2020-04-24T09:32:13Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test2.png",
-                fileMimeType = "image/png",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Duplicate(
                     Nonce(1),
                     Timestamp.Any,
                     "foo-bar-ref-1",
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "test2.png"
-                  ),
-                  FileUpload.Accepted(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
                     "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2020-04-24T09:30:00Z"),
+                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                     "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
                     "test.pdf",
                     "application/pdf",
                     Some(4567890)
                   )
                 )
-              ),
-              Some(
-                DuplicateFileUpload(
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "test2.png"
-                )
               )
             )
           )
-        }
+        )
+      ) when (createCase(mockCreateCaseApi)(uidAndEori)) should thenGo(
+        CaseAlreadyExists("A1234567890")
+      )
+    }
 
-        "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-1",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.UNKNOWN,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
-                  )
-                )
-              ),
-              Some(
-                FileVerificationFailed(
-                  UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
-                )
-              )
-            )
-          )
-        }
+    "go back to AnswerImportQuestionsContactInfo" in {
+      val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+      Given(ImportQuestionsSummary(model))
+        .when(backToAnswerImportQuestionsContactInfo)
+        .thenGoes(AnswerImportQuestionsContactInfo(model))
+    }
 
-        "go to UploadFile with error when fileUploadWasRejected" in {
-          val state =
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
-            )
+    "stay when backToAnswerExportQuestionsContactInfo" in {
+      val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+      Given(ImportQuestionsSummary(model))
+        .when(backToAnswerExportQuestionsContactInfo)
+        .thenGoes(ImportQuestionsSummary(model))
+    }
 
-          Given(state) when markUploadAsRejected(
-            S3UploadError(
-              key = "foo-bar-ref-1",
-              errorCode = "a",
-              errorMessage = "b",
-              errorResource = Some("c"),
-              errorRequestId = Some("d")
-            )
-          ) should thenGo(
-            state.copy(
-              fileUploads = FileUploads(files =
-                Seq(
-                  FileUpload.Rejected(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    S3UploadError(
-                      key = "foo-bar-ref-1",
-                      errorCode = "a",
-                      errorMessage = "b",
-                      errorResource = Some("c"),
-                      errorRequestId = Some("d")
-                    )
-                  )
-                )
-              ),
-              maybeUploadError = Some(
-                FileTransmissionFailed(
-                  S3UploadError(
-                    key = "foo-bar-ref-1",
-                    errorCode = "a",
-                    errorMessage = "b",
-                    errorResource = Some("c"),
-                    errorRequestId = Some("d")
-                  )
-                )
-              )
-            )
-          )
-        }
+    "go back to ImportQuestionsMissingInformationError" in {
+      val model =
+        ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers.copy(routeType = None))
+      Given(ImportQuestionsSummary(model))
+        .when(backToImportQuestionsMissingInformationError)
+        .thenGoes(ImportQuestionsMissingInformationError(model))
+    }
 
-        "switch over to UploadMultipleFiles when toUploadMultipleFiles" in {
-          Given(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-4",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              nonEmptyFileUploads,
-              None
-            )
-          )
-            .when(toUploadMultipleFiles)
-            .thenGoes(
-              UploadMultipleFiles(
-                FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-                nonEmptyFileUploads
-              )
-            )
-        }
-
-        "go to UploadFile when initiateFileUpload and number of uploaded files below the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until (maxFileUploadsNumber - 1))
-              yield FileUpload.Accepted(
-                Nonce(i),
-                Timestamp.Any,
-                s"foo-bar-ref-$i",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-          )
-          Given(UploadMultipleFiles(hostData, fileUploads))
-            .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
-            .thenGoes(
-              UploadFile(
-                hostData,
-                "foo-bar-ref",
-                someUploadRequest(testUpscanRequest("foo")),
-                fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
-              )
-            )
-        }
-
-        "go to FileUploaded when initiateFileUpload and number of uploaded files above the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until maxFileUploadsNumber)
-              yield FileUpload.Accepted(
-                Nonce(i),
-                Timestamp.Any,
-                s"foo-bar-ref-$i",
-                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
-                "application/pdf",
-                Some(4567890)
-              )
-          )
-          Given(UploadMultipleFiles(hostData, fileUploads))
-            .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
-            .thenGoes(
-              FileUploaded(
-                hostData,
-                fileUploads
-              )
-            )
-        }
-      }
-
-      "at state WaitingForFileVerification" should {
-        "stay when waitForFileVerification and not verified yet" in {
-          val state = WaitingForFileVerification(
+    "go back to FileUploaded when backToFileUploaded and non-empty file uploads" in {
+      val model =
+        ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+      Given(ImportQuestionsSummary(model))
+        .when(backToFileUploaded)
+        .thenGoes(
+          FileUploaded(
             FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-            "foo-bar-ref-1",
-            UploadRequest(
-              href = "https://s3.bucket",
-              fields = Map(
-                "callbackUrl"     -> "https://foo.bar/callback",
-                "successRedirect" -> "https://foo.bar/success",
-                "errorRedirect"   -> "https://foo.bar/failure"
-              )
-            ),
-            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-            FileUploads(files =
-              Seq(
-                FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
-              )
-            )
+            nonEmptyFileUploads,
+            acknowledged = true
           )
-          Given(state).when(waitForFileVerification).thenNoChange
-        }
+        )
+    }
 
-        "go to UploadFile when waitForFileVerification and reference unknown" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-2",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
+    "go back to AnswerImportQuestionsContactInfo when backToFileUploaded and empty file uploads" in {
+      val model =
+        ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, None)
+      Given(ImportQuestionsSummary(model))
+        .when(backToFileUploaded)
+        .thenGoes(AnswerImportQuestionsContactInfo(model))
+    }
+  }
+
+  "at state UploadMultipleFiles" should {
+    "go back to AnswerExportQuestionsContactInfo when backToAnswerExportQuestionsContactInfo" in {
+      val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backToAnswerExportQuestionsContactInfo)
+        .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+    }
+
+    "go to Start when backToAnswerExportQuestionsContactInfo but has import answers" in {
+      val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backToAnswerExportQuestionsContactInfo)
+        .thenGoes(Start)
+    }
+
+    "go back to AnswerImportQuestionsContactInfo when backToAnswerImportQuestionsContactInfo" in {
+      val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backToAnswerImportQuestionsContactInfo)
+        .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+    }
+
+    "go to Start when backToAnswerImportQuestionsContactInfo but has export answers" in {
+      val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backToAnswerImportQuestionsContactInfo)
+        .thenGoes(Start)
+    }
+
+    "go back to AnswerExportQuestionsContactInfo when backFromFileUpload" in {
+      val model = ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.exportQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backFromFileUpload)
+        .thenGoes(AnswerExportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+    }
+
+    "go back to AnswerImportQuestionsContactInfo when backFromFileUpload" in {
+      val model = ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers)
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(model.entryDetails, model.importQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      )
+        .when(backFromFileUpload)
+        .thenGoes(AnswerImportQuestionsContactInfo(model.copy(fileUploadsOpt = Some(nonEmptyFileUploads))))
+    }
+
+    "go to ImportQuestionsSummary when non-empty file uploads and toSummary" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      ) when toSummary should thenGo(
+        ImportQuestionsSummary(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+      )
+    }
+
+    "go to ExportQuestionsSummary when non-empty file uploads and toSummary" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          nonEmptyFileUploads
+        )
+      ) when toSummary should thenGo(
+        ExportQuestionsSummary(
+          ExportQuestionsStateModel(
+            exportEntryDetails,
+            completeExportQuestionsAnswers,
+            Some(nonEmptyFileUploads)
+          )
+        )
+      )
+    }
+
+    "stay and filter accepted uploads when export and toUploadMultipleFiles transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
+            .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
+            Nonce(4),
+            Timestamp.Any,
+            "foo-bar-ref-4",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+        )
+      ) when toUploadMultipleFiles should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          nonEmptyFileUploads + FileUpload.Accepted(
+            Nonce(4),
+            Timestamp.Any,
+            "foo-bar-ref-4",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+        )
+      )
+    }
+
+    "stay and filter accepted uploads when import and toUploadMultipleFiles transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          nonEmptyFileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-2") + FileUpload
+            .Posted(Nonce.Any, Timestamp.Any, "foo-3") + FileUpload.Accepted(
+            Nonce(4),
+            Timestamp.Any,
+            "foo-bar-ref-4",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+        )
+      ) when toUploadMultipleFiles should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          nonEmptyFileUploads + FileUpload.Accepted(
+            Nonce(4),
+            Timestamp.Any,
+            "foo-bar-ref-4",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+        )
+      )
+    }
+
+    "initiate new file upload when initiateNextFileUpload transition and empty uploads" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads()
+        )
+      ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads() +
+            FileUpload.Initiated(
+              Nonce.Any,
+              Timestamp.Any,
+              "foo-bar-ref",
+              uploadId = Some("001"),
+              uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
+            )
+        )
+      )
+    }
+
+    "initiate new file upload when initiateNextFileUpload transition and some uploads exist already" in {
+      val fileUploads = FileUploads(files =
+        (0 until (maxFileUploadsNumber - 1))
+          .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+      ) + FileUpload.Rejected(Nonce(9), Timestamp.Any, "foo-bar-ref-9", S3UploadError("a", "b", "c"))
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          fileUploads
+        )
+      ) when initiateNextFileUpload("001")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          fileUploads +
+            FileUpload.Initiated(
+              Nonce.Any,
+              Timestamp.Any,
+              "foo-bar-ref",
+              uploadId = Some("001"),
+              uploadRequest = Some(someUploadRequest(testUpscanRequest("")))
+            )
+        )
+      )
+    }
+
+    "do nothing when initiateNextFileUpload with existing uploadId" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          nonEmptyFileUploads +
+            FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
+        )
+      ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          nonEmptyFileUploads +
+            FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref", uploadId = Some("101"))
+        )
+      )
+    }
+
+    "do nothing when initiateNextFileUpload and maximum number of uploads already reached" in {
+      val fileUploads = FileUploads(files =
+        (0 until maxFileUploadsNumber)
+          .map(i => FileUpload.Initiated(Nonce(i), Timestamp.Any, s"foo-bar-ref-$i", uploadId = Some(s"0$i")))
+      )
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          fileUploads
+        )
+      ) when initiateNextFileUpload("101")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          fileUploads
+        )
+      )
+    }
+
+    "mark file upload as POSTED when markUploadAsPosted transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
-                )
-              )
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
-          ) when waitForFileVerification should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-2",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
-                )
+          )
+        )
+      ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-2", Some("bucket-123"))) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "do nothing when markUploadAsPosted transition and already in POSTED state" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-1", Some("bucket-123"))) should thenGo(
+        state
+      )
+    }
+
+    "overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Accepted(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
               )
             )
           )
-        }
+        )
+      ) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Posted(Nonce(4), Timestamp.Any, "foo-bar-ref-4")
+            )
+          )
+        )
+      )
+    }
 
-        "go to FileUploaded when waitForFileVerification and file already accepted" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
+    "do not overwrite upload status when markUploadAsPosted transition and already in ACCEPTED state but timestamp gap is too small" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+            FileUpload.Accepted(
+              Nonce(4),
+              Timestamp.now,
+              "foo-bar-ref-4",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          )
+        )
+      )
+      Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
+        state
+      )
+    }
+
+    "do nothing when markUploadAsPosted transition and none matching upload exist" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when markUploadAsPosted(S3UploadSuccess("foo-bar-ref-4", Some("bucket-123"))) should thenGo(
+        state
+      )
+    }
+
+    "mark file upload as REJECTED when markUploadAsRejected transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when markUploadAsRejected(
+        S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Rejected(
+                Nonce(2),
+                Timestamp.Any,
+                "foo-bar-ref-2",
+                S3UploadError("foo-bar-ref-2", "errorCode1", "errorMessage2")
               ),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "overwrite upload status when markUploadAsRejected transition and already in REJECTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when markUploadAsRejected(
+        S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                S3UploadError("foo-bar-ref-3", "errorCode1", "errorMessage2")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "overwrite upload status when markUploadAsRejected transition and already in ACCEPTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Accepted(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            )
+          )
+        )
+      ) when markUploadAsRejected(
+        S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c")),
+              FileUpload.Rejected(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "do nothing when markUploadAsRejected transition and none matching file upload found" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when markUploadAsRejected(
+        S3UploadError("foo-bar-ref-4", "errorCode1", "errorMessage2")
+      ) should thenGo(state)
+    }
+
+    "update file upload status to ACCEPTED when positive upscanCallbackArrived transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              acceptedFileUpload,
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "update file upload status to ACCEPTED with sanitized name of the file" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = """F:\My Documents\my invoices\invoice00001_1234.pdf""",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
               FileUpload.Accepted(
                 Nonce(1),
                 Timestamp.Any,
@@ -4726,383 +3665,1311 @@ class CreateCaseJourneyModelSpec
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                "test.pdf",
+                "invoice00001_1234.pdf",
                 "application/pdf",
                 Some(4567890)
               ),
-              FileUploads(files = Seq(acceptedFileUpload))
-            )
-          ) when waitForFileVerification should thenGo(
-            FileUploaded(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              FileUploads(files = Seq(acceptedFileUpload))
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
+        )
+      )
+    }
 
-        "go to UploadFile when waitForFileVerification and file already failed" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
+    "do nothing when positive upscanCallbackArrived transition and none matching file upload found" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when upscanCallbackArrived(Nonce(4))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-4",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(state)
+    }
+
+    "overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                "test.png",
+                "image/png",
+                Some(4567890)
               ),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              acceptedFileUpload,
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "do not overwrite status when positive upscanCallbackArrived transition and file upload already in ACCEPTED state if timestamp gap is to small" in {
+      val now = Timestamp.now
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Accepted(
+              Nonce(1),
+              now,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+              ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+              "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+              "test.png",
+              "image/png",
+              Some(4567890)
+            ),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(state)
+    }
+
+    "overwrite upload status when positive upscanCallbackArrived transition and file upload already in REJECTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Rejected(Nonce(1), Timestamp.Any, "foo-bar-ref-1", S3UploadError("a", "b", "c")),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              acceptedFileUpload,
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "overwrite upload status when positive upscanCallbackArrived transition and file upload already in FAILED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
               FileUpload.Failed(
                 Nonce(1),
                 Timestamp.Any,
                 "foo-bar-ref-1",
-                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
-                  )
-                )
-              )
-            )
-          ) when waitForFileVerification should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.QUARANTINE,
+                  message = "e.g. This file has a virus"
                 )
               ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
-                  )
-                )
-              ),
-              Some(
-                FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
-              )
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
-
-        "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileReady(
-              reference = "foo-bar-ref-1",
-              downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-              uploadDetails = UpscanNotification.UploadDetails(
-                uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                fileName = "test.pdf",
-                fileMimeType = "application/pdf",
-                size = Some(4567890)
-              )
-            )
-          ) should thenGo(
-            FileUploaded(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              FileUploads(files = Seq(acceptedFileUpload))
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              acceptedFileUpload,
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
+        )
+      )
+    }
 
-        "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
+    "update file upload status to FAILED when negative upscanCallbackArrived transition" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
-            )
-          ) when upscanCallbackArrived(Nonce(1))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-1",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            UploadFile(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Failed(
-                    Nonce(1),
-                    Timestamp.Any,
-                    "foo-bar-ref-1",
-                    UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
-                  )
-                )
-              ),
-              Some(
-                FileVerificationFailed(
-                  UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
-                )
-              )
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
-
-        "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-1",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.QUARANTINE,
+                  message = "e.g. This file has a virus"
                 )
               ),
-              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
-                )
-              )
-            )
-          ) when upscanCallbackArrived(Nonce(2))(
-            UpscanFileFailed(
-              reference = "foo-bar-ref-2",
-              failureDetails = UpscanNotification.FailureDetails(
-                failureReason = UpscanNotification.QUARANTINE,
-                message = "e.g. This file has a virus"
-              )
-            )
-          ) should thenGo(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
-                )
-              ),
-              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Failed(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
-                    UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
-                  )
-                )
-              )
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
+        )
+      )
+    }
 
-        "retreat to FileUploaded when some files has been uploaded already" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
+    "do nothing when negative upscanCallbackArrived transition and none matching file upload found" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when upscanCallbackArrived(Nonce(4))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-4",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(state)
+    }
+
+    "overwrite upload status when negative upscanCallbackArrived transition and upload already in FAILED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.REJECTED,
+                  message = "e.g. This file has wrong type"
                 )
               ),
-              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Accepted(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  )
-                )
-              )
-            )
-          ) when backToFileUploaded should thenGo(
-            FileUploaded(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Accepted(
-                    Nonce(2),
-                    Timestamp.Any,
-                    "foo-bar-ref-2",
-                    "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                    ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                    "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                    "test.pdf",
-                    "application/pdf",
-                    Some(4567890)
-                  )
-                )
-              ),
-              true
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
-
-        "retreat to AnswerImportQuestionsContactInfo when none file has been uploaded and accepted yet" in {
-          Given(
-            WaitingForFileVerification(
-              FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-              "foo-bar-ref-1",
-              UploadRequest(
-                href = "https://s3.bucket",
-                fields = Map(
-                  "callbackUrl"     -> "https://foo.bar/callback",
-                  "successRedirect" -> "https://foo.bar/success",
-                  "errorRedirect"   -> "https://foo.bar/failure"
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-1",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.QUARANTINE,
+                  message = "e.g. This file has a virus"
                 )
               ),
-              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-              FileUploads(files =
-                Seq(
-                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                  FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
-                )
-              )
-            )
-          ) when backToFileUploaded should thenGo(
-            AnswerImportQuestionsContactInfo(
-              ImportQuestionsStateModel(
-                importEntryDetails,
-                completeImportQuestionsAnswers,
-                Some(
-                  FileUploads(files =
-                    Seq(
-                      FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-                      FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
-                    )
-                  )
-                )
-              )
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
             )
           )
-        }
+        )
+      )
+    }
 
-        "go to UploadFile when initiateFileUpload" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val uploadRequest = UploadRequest(
+    "overwrite upload status when negative upscanCallbackArrived transition and upload already in ACCEPTED state" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Accepted(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?0035699",
+                ZonedDateTime.parse("2018-04-24T09:28:00Z"),
+                "786f101dd52e8b2ace0dcf5ed09b1d1ba30e608938510ce46e7a5c7a4e775189",
+                "test.png",
+                "image/png",
+                Some(4567890)
+              ),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-1",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(
+                  failureReason = UpscanNotification.QUARANTINE,
+                  message = "e.g. This file has a virus"
+                )
+              ),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(3), Timestamp.Any, "foo-bar-ref-3", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "remove file upload when removeFileUploadByReference transition and reference exists" in {
+      Given(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      ) when removeFileUploadByReference("foo-bar-ref-3")(testUpscanRequest)(mockUpscanInitiate) should thenGo(
+        UploadMultipleFiles(
+          FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+            )
+          )
+        )
+      )
+    }
+
+    "do nothing when removeFileUploadByReference transition and none file upload matches" in {
+      val state = UploadMultipleFiles(
+        FileUploadHostData(exportEntryDetails, completeExportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+            FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+            FileUpload.Accepted(
+              Nonce(3),
+              Timestamp.Any,
+              "foo-bar-ref-3",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            ),
+            FileUpload.Rejected(Nonce(4), Timestamp.Any, "foo-bar-ref-4", S3UploadError("a", "b", "c"))
+          )
+        )
+      )
+      Given(state) when removeFileUploadByReference("foo-bar-ref-5")(testUpscanRequest)(
+        mockUpscanInitiate
+      ) should thenGo(state)
+    }
+  }
+
+  "at state UploadFile" should {
+    "go to WaitingForFileVerification when waitForFileVerification and not verified yet" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-2",
+          UploadRequest(
             href = "https://s3.bucket",
             fields = Map(
               "callbackUrl"     -> "https://foo.bar/callback",
               "successRedirect" -> "https://foo.bar/success",
               "errorRedirect"   -> "https://foo.bar/failure"
             )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
           )
-          val fileUploads = FileUploads(files =
+        )
+      ) when waitForFileVerification should thenGo(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-2",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "go to FileUploaded when waitForFileVerification and accepted already" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-3",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      ) when waitForFileVerification should thenGo(
+        FileUploaded(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "go to UploadFile when waitForFileVerification and file upload already rejected" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-4",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          )
+        )
+      ) when waitForFileVerification should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-4",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Initiated(Nonce(2), Timestamp.Any, "foo-bar-ref-2"),
+              FileUpload.Accepted(
+                Nonce(3),
+                Timestamp.Any,
+                "foo-bar-ref-3",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              ),
+              FileUpload.Failed(
+                Nonce(4),
+                Timestamp.Any,
+                "foo-bar-ref-4",
+                UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+              )
+            )
+          ),
+          Some(
+            FileVerificationFailed(
+              UpscanNotification.FailureDetails(UpscanNotification.REJECTED, "some failure reason")
+            )
+          )
+        )
+      )
+    }
+
+    "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        FileUploaded(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          FileUploads(files = Seq(acceptedFileUpload))
+        )
+      )
+    }
+
+    "go to UploadFile when upscanCallbackArrived and accepted, and reference matches but upload is a duplicate" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Accepted(
+                Nonce(2),
+                Timestamp.Any,
+                "foo-bar-ref-2",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2020-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2020-04-24T09:32:13Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test2.png",
+            fileMimeType = "image/png",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Duplicate(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "test2.png"
+              ),
+              FileUpload.Accepted(
+                Nonce(2),
+                Timestamp.Any,
+                "foo-bar-ref-2",
+                "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+                ZonedDateTime.parse("2020-04-24T09:30:00Z"),
+                "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+                "test.pdf",
+                "application/pdf",
+                Some(4567890)
+              )
+            )
+          ),
+          Some(
+            DuplicateFileUpload(
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "test2.png"
+            )
+          )
+        )
+      )
+    }
+
+    "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-1",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.UNKNOWN,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+              )
+            )
+          ),
+          Some(
+            FileVerificationFailed(
+              UpscanNotification.FailureDetails(UpscanNotification.UNKNOWN, "e.g. This file has a virus")
+            )
+          )
+        )
+      )
+    }
+
+    "go to UploadFile with error when fileUploadWasRejected" in {
+      val state =
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files = Seq(FileUpload.Initiated(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
+        )
+
+      Given(state) when markUploadAsRejected(
+        S3UploadError(
+          key = "foo-bar-ref-1",
+          errorCode = "a",
+          errorMessage = "b",
+          errorResource = Some("c"),
+          errorRequestId = Some("d")
+        )
+      ) should thenGo(
+        state.copy(
+          fileUploads = FileUploads(files =
+            Seq(
+              FileUpload.Rejected(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                S3UploadError(
+                  key = "foo-bar-ref-1",
+                  errorCode = "a",
+                  errorMessage = "b",
+                  errorResource = Some("c"),
+                  errorRequestId = Some("d")
+                )
+              )
+            )
+          ),
+          maybeUploadError = Some(
+            FileTransmissionFailed(
+              S3UploadError(
+                key = "foo-bar-ref-1",
+                errorCode = "a",
+                errorMessage = "b",
+                errorResource = Some("c"),
+                errorRequestId = Some("d")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "switch over to UploadMultipleFiles when toUploadMultipleFiles" in {
+      Given(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-4",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          nonEmptyFileUploads,
+          None
+        )
+      )
+        .when(toUploadMultipleFiles)
+        .thenGoes(
+          UploadMultipleFiles(
+            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+            nonEmptyFileUploads
+          )
+        )
+    }
+
+    "go to UploadFile when initiateFileUpload and number of uploaded files below the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until (maxFileUploadsNumber - 1))
+          yield FileUpload.Accepted(
+            Nonce(i),
+            Timestamp.Any,
+            s"foo-bar-ref-$i",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+      )
+      Given(UploadMultipleFiles(hostData, fileUploads))
+        .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+        .thenGoes(
+          UploadFile(
+            hostData,
+            "foo-bar-ref",
+            someUploadRequest(testUpscanRequest("foo")),
+            fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+          )
+        )
+    }
+
+    "go to FileUploaded when initiateFileUpload and number of uploaded files above the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until maxFileUploadsNumber)
+          yield FileUpload.Accepted(
+            Nonce(i),
+            Timestamp.Any,
+            s"foo-bar-ref-$i",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+      )
+      Given(UploadMultipleFiles(hostData, fileUploads))
+        .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+        .thenGoes(
+          FileUploaded(
+            hostData,
+            fileUploads
+          )
+        )
+    }
+  }
+
+  "at state WaitingForFileVerification" should {
+    "stay when waitForFileVerification and not verified yet" in {
+      val state = WaitingForFileVerification(
+        FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+        "foo-bar-ref-1",
+        UploadRequest(
+          href = "https://s3.bucket",
+          fields = Map(
+            "callbackUrl"     -> "https://foo.bar/callback",
+            "successRedirect" -> "https://foo.bar/success",
+            "errorRedirect"   -> "https://foo.bar/failure"
+          )
+        ),
+        FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+        FileUploads(files =
+          Seq(
+            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
+          )
+        )
+      )
+      Given(state).when(waitForFileVerification).thenNoChange
+    }
+
+    "go to UploadFile when waitForFileVerification and reference unknown" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-2",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files =
             Seq(
               FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
             )
           )
-          val state = WaitingForFileVerification(
-            hostData,
+        )
+      ) when waitForFileVerification should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-2",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
+            )
+          )
+        )
+      )
+    }
+
+    "go to FileUploaded when waitForFileVerification and file already accepted" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Accepted(
+            Nonce(1),
+            Timestamp.Any,
             "foo-bar-ref-1",
-            uploadRequest,
-            FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
-            fileUploads
-          )
-          Given(state)
-            .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
-            .thenGoes(UploadFile(hostData, "foo-bar-ref-1", uploadRequest, fileUploads))
-        }
-      }
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          ),
+          FileUploads(files = Seq(acceptedFileUpload))
+        )
+      ) when waitForFileVerification should thenGo(
+        FileUploaded(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          FileUploads(files = Seq(acceptedFileUpload))
+        )
+      )
+    }
 
-      "at state FileUploaded" should {
-        "go to acknowledged FileUploaded when waitForFileVerification" in {
-          val state = FileUploaded(
-            FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
-            FileUploads(files =
-              Seq(
-                FileUpload.Accepted(
-                  Nonce(1),
-                  Timestamp.Any,
-                  "foo-bar-ref-1",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              )
-            ),
-            acknowledged = false
-          )
-          Given(state)
-            .when(waitForFileVerification)
-            .thenGoes(state.copy(acknowledged = true))
-        }
-
-        "go to UploadFile when initiateFileUpload and number of uploads below the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until (maxFileUploadsNumber - 1))
-              yield FileUpload.Accepted(
-                Nonce(i),
+    "go to UploadFile when waitForFileVerification and file already failed" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Failed(
+            Nonce(1),
+            Timestamp.Any,
+            "foo-bar-ref-1",
+            UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
                 Timestamp.Any,
-                s"foo-bar-ref-$i",
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          )
+        )
+      ) when waitForFileVerification should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason")
+              )
+            )
+          ),
+          Some(
+            FileVerificationFailed(UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "some reason"))
+          )
+        )
+      )
+    }
+
+    "go to FileUploaded when upscanCallbackArrived and accepted, and reference matches" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileReady(
+          reference = "foo-bar-ref-1",
+          downloadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+          uploadDetails = UpscanNotification.UploadDetails(
+            uploadTimestamp = ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            checksum = "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            fileName = "test.pdf",
+            fileMimeType = "application/pdf",
+            size = Some(4567890)
+          )
+        )
+      ) should thenGo(
+        FileUploaded(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          FileUploads(files = Seq(acceptedFileUpload))
+        )
+      )
+    }
+
+    "go to UploadFile when upscanCallbackArrived and failed, and reference matches" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files = Seq(FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")))
+        )
+      ) when upscanCallbackArrived(Nonce(1))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-1",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        UploadFile(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUploads(files =
+            Seq(
+              FileUpload.Failed(
+                Nonce(1),
+                Timestamp.Any,
+                "foo-bar-ref-1",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+              )
+            )
+          ),
+          Some(
+            FileVerificationFailed(
+              UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+            )
+          )
+        )
+      )
+    }
+
+    "stay at WaitingForFileVerification when upscanCallbackArrived and reference doesn't match" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
+            )
+          )
+        )
+      ) when upscanCallbackArrived(Nonce(2))(
+        UpscanFileFailed(
+          reference = "foo-bar-ref-2",
+          failureDetails = UpscanNotification.FailureDetails(
+            failureReason = UpscanNotification.QUARANTINE,
+            message = "e.g. This file has a virus"
+          )
+        )
+      ) should thenGo(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Failed(
+                Nonce(2),
+                Timestamp.Any,
+                "foo-bar-ref-2",
+                UpscanNotification.FailureDetails(UpscanNotification.QUARANTINE, "e.g. This file has a virus")
+              )
+            )
+          )
+        )
+      )
+    }
+
+    "retreat to FileUploaded when some files has been uploaded already" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Accepted(
+                Nonce(2),
+                Timestamp.Any,
+                "foo-bar-ref-2",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
@@ -5110,33 +4977,19 @@ class CreateCaseJourneyModelSpec
                 "application/pdf",
                 Some(4567890)
               )
-          )
-          Given(
-            FileUploaded(
-              hostData,
-              fileUploads,
-              acknowledged = false
             )
           )
-            .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
-            .thenGoes(
-              UploadFile(
-                hostData,
-                "foo-bar-ref",
-                someUploadRequest(testUpscanRequest("foo")),
-                fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
-              )
-            )
-        }
-
-        "stay when initiateFileUpload and number of uploads above the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until maxFileUploadsNumber)
-              yield FileUpload.Accepted(
-                Nonce(i),
+        )
+      ) when backToFileUploaded should thenGo(
+        FileUploaded(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Accepted(
+                Nonce(2),
                 Timestamp.Any,
-                s"foo-bar-ref-$i",
+                "foo-bar-ref-2",
                 "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
                 ZonedDateTime.parse("2018-04-24T09:30:00Z"),
                 "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
@@ -5144,389 +4997,536 @@ class CreateCaseJourneyModelSpec
                 "application/pdf",
                 Some(4567890)
               )
-          )
-          Given(
-            FileUploaded(
-              hostData,
-              fileUploads,
-              acknowledged = false
+            )
+          ),
+          true
+        )
+      )
+    }
+
+    "retreat to AnswerImportQuestionsContactInfo when none file has been uploaded and accepted yet" in {
+      Given(
+        WaitingForFileVerification(
+          FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+          "foo-bar-ref-1",
+          UploadRequest(
+            href = "https://s3.bucket",
+            fields = Map(
+              "callbackUrl"     -> "https://foo.bar/callback",
+              "successRedirect" -> "https://foo.bar/success",
+              "errorRedirect"   -> "https://foo.bar/failure"
+            )
+          ),
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+          FileUploads(files =
+            Seq(
+              FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+              FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
             )
           )
-            .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
-            .thenNoChange
-        }
-
-        "go to UploadFile when submitedUploadAnotherFileChoice with yes and number of uploads below the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until (maxFileUploadsNumber - 1))
-              yield fileUploadAccepted.copy(reference = s"file-$i")
-          )
-          Given(
-            FileUploaded(hostData, fileUploads)
-          )
-            .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
-            .thenGoes(
-              UploadFile(
-                hostData,
-                "foo-bar-ref",
-                someUploadRequest(testUpscanRequest("foo")),
-                fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
-              )
-            )
-        }
-
-        "apply follow-up transition when submitedUploadAnotherFileChoice with yes and number of uploads above the limit" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until maxFileUploadsNumber)
-              yield fileUploadAccepted.copy(reference = s"file-$i")
-          )
-          Given(
-            FileUploaded(hostData, fileUploads)
-          )
-            .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
-            .thenGoes(
-              ImportQuestionsSummary(
-                ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
-              )
-            )
-        }
-
-        "apply follow-up transition when submitedUploadAnotherFileChoice with no" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(files =
-            for (i <- 0 until (maxFileUploadsNumber - 1))
-              yield fileUploadAccepted.copy(reference = s"file-$i")
-          )
-          Given(
-            FileUploaded(hostData, fileUploads)
-          )
-            .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(false))
-            .thenGoes(
-              ImportQuestionsSummary(
-                ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
-              )
-            )
-        }
-
-        "go to UploadFile when removeFileUploadByReference leaving no files" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = FileUploads(Seq(fileUploadAccepted))
-          Given(
-            FileUploaded(hostData, fileUploads)
-          )
-            .when(removeFileUploadByReference(fileUploadAccepted.reference)(testUpscanRequest)(mockUpscanInitiate))
-            .thenGoes(
-              UploadFile(
-                hostData,
-                "foo-bar-ref",
-                someUploadRequest(testUpscanRequest("foo")),
-                FileUploads(Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
-              )
-            )
-        }
-      }
-
-      "at state CreateCaseConfirmation" should {
-        "go to Start when start" in {
-          Given(
-            CreateCaseConfirmation(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Seq(
-                UploadedFile(
-                  "foo",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
+        )
+      ) when backToFileUploaded should thenGo(
+        AnswerImportQuestionsContactInfo(
+          ImportQuestionsStateModel(
+            importEntryDetails,
+            completeImportQuestionsAnswers,
+            Some(
+              FileUploads(files =
+                Seq(
+                  FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+                  FileUpload.Posted(Nonce(2), Timestamp.Any, "foo-bar-ref-2")
                 )
-              ),
-              TraderServicesResult("A1234567890", generatedAt),
-              CaseSLA(Some(generatedAt.plusHours(2)))
-            )
-          ) when start should thenGo(Start)
-        }
-
-        "go to clean CaseAlreadySubmitted when browser back" in {
-          Given(
-            CreateCaseConfirmation(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Seq(
-                UploadedFile(
-                  "foo",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              ),
-              TraderServicesResult("A1234567890", generatedAt),
-              CaseSLA(Some(generatedAt.plusHours(2)))
-            )
-          ) when toSummary should thenGo(CaseAlreadySubmitted)
-        }
-
-        "go to the clean EnterEntryDetails when backToEnterEntryDetails from an export end state" in {
-          Given(
-            CreateCaseConfirmation(
-              importEntryDetails,
-              completeExportQuestionsAnswers,
-              Seq(
-                UploadedFile(
-                  "foo",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              ),
-              TraderServicesResult("A1234567890", generatedAt),
-              CaseSLA(Some(generatedAt.plusHours(2)))
-            )
-          ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
-        }
-
-        "go to the clean EnterEntryDetails when backToEnterEntryDetails from an import end state" in {
-          Given(
-            CreateCaseConfirmation(
-              importEntryDetails,
-              completeImportQuestionsAnswers,
-              Seq(
-                UploadedFile(
-                  "foo",
-                  "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
-                  ZonedDateTime.parse("2018-04-24T09:30:00Z"),
-                  "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
-                  "test.pdf",
-                  "application/pdf",
-                  Some(4567890)
-                )
-              ),
-              TraderServicesResult("A1234567890", generatedAt),
-              CaseSLA(Some(generatedAt.plusHours(2)))
-            )
-          ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
-        }
-      }
-
-      "at state CaseAlreadyExists" should {
-        "go to Start when start" in {
-          Given(
-            CaseAlreadyExists("A1234567890")
-          ) when start should thenGo(Start)
-        }
-
-        "go to clean EnterEntryDetails when going back" in {
-          Given(
-            CaseAlreadyExists("A1234567890")
-          ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
-        }
-      }
-
-      "at any state" should {
-        "check model completeness in gotoSummaryIfCompleteOr" in {
-          await(model.gotoSummaryIfCompleteOr(Start)) shouldBe Start
-          await(model.gotoSummaryIfCompleteOr(EnterEntryDetails())) shouldBe EnterEntryDetails()
-          await(
-            model.gotoSummaryIfCompleteOr(
-              AnswerImportQuestionsWhichPriorityGoods(
-                ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
               )
             )
-          ) shouldBe ImportQuestionsSummary(
+          )
+        )
+      )
+    }
+
+    "go to UploadFile when initiateFileUpload" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val uploadRequest = UploadRequest(
+        href = "https://s3.bucket",
+        fields = Map(
+          "callbackUrl"     -> "https://foo.bar/callback",
+          "successRedirect" -> "https://foo.bar/success",
+          "errorRedirect"   -> "https://foo.bar/failure"
+        )
+      )
+      val fileUploads = FileUploads(files =
+        Seq(
+          FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1")
+        )
+      )
+      val state = WaitingForFileVerification(
+        hostData,
+        "foo-bar-ref-1",
+        uploadRequest,
+        FileUpload.Posted(Nonce(1), Timestamp.Any, "foo-bar-ref-1"),
+        fileUploads
+      )
+      Given(state)
+        .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+        .thenGoes(UploadFile(hostData, "foo-bar-ref-1", uploadRequest, fileUploads))
+    }
+  }
+
+  "at state FileUploaded" should {
+    "go to acknowledged FileUploaded when waitForFileVerification" in {
+      val state = FileUploaded(
+        FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers),
+        FileUploads(files =
+          Seq(
+            FileUpload.Accepted(
+              Nonce(1),
+              Timestamp.Any,
+              "foo-bar-ref-1",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          )
+        ),
+        acknowledged = false
+      )
+      Given(state)
+        .when(waitForFileVerification)
+        .thenGoes(state.copy(acknowledged = true))
+    }
+
+    "go to UploadFile when initiateFileUpload and number of uploads below the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until (maxFileUploadsNumber - 1))
+          yield FileUpload.Accepted(
+            Nonce(i),
+            Timestamp.Any,
+            s"foo-bar-ref-$i",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+      )
+      Given(
+        FileUploaded(
+          hostData,
+          fileUploads,
+          acknowledged = false
+        )
+      )
+        .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+        .thenGoes(
+          UploadFile(
+            hostData,
+            "foo-bar-ref",
+            someUploadRequest(testUpscanRequest("foo")),
+            fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+          )
+        )
+    }
+
+    "stay when initiateFileUpload and number of uploads above the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until maxFileUploadsNumber)
+          yield FileUpload.Accepted(
+            Nonce(i),
+            Timestamp.Any,
+            s"foo-bar-ref-$i",
+            "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+            ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+            "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+            "test.pdf",
+            "application/pdf",
+            Some(4567890)
+          )
+      )
+      Given(
+        FileUploaded(
+          hostData,
+          fileUploads,
+          acknowledged = false
+        )
+      )
+        .when(initiateFileUpload(testUpscanRequest)(mockUpscanInitiate))
+        .thenNoChange
+    }
+
+    "go to UploadFile when submitedUploadAnotherFileChoice with yes and number of uploads below the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until (maxFileUploadsNumber - 1))
+          yield fileUploadAccepted.copy(reference = s"file-$i")
+      )
+      Given(
+        FileUploaded(hostData, fileUploads)
+      )
+        .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+        .thenGoes(
+          UploadFile(
+            hostData,
+            "foo-bar-ref",
+            someUploadRequest(testUpscanRequest("foo")),
+            fileUploads + FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")
+          )
+        )
+    }
+
+    "apply follow-up transition when submitedUploadAnotherFileChoice with yes and number of uploads above the limit" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until maxFileUploadsNumber)
+          yield fileUploadAccepted.copy(reference = s"file-$i")
+      )
+      Given(
+        FileUploaded(hostData, fileUploads)
+      )
+        .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(true))
+        .thenGoes(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+          )
+        )
+    }
+
+    "apply follow-up transition when submitedUploadAnotherFileChoice with no" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(files =
+        for (i <- 0 until (maxFileUploadsNumber - 1))
+          yield fileUploadAccepted.copy(reference = s"file-$i")
+      )
+      Given(
+        FileUploaded(hostData, fileUploads)
+      )
+        .when(submitedUploadAnotherFileChoice(testUpscanRequest)(mockUpscanInitiate)(toSummary)(false))
+        .thenGoes(
+          ImportQuestionsSummary(
+            ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(fileUploads))
+          )
+        )
+    }
+
+    "go to UploadFile when removeFileUploadByReference leaving no files" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = FileUploads(Seq(fileUploadAccepted))
+      Given(
+        FileUploaded(hostData, fileUploads)
+      )
+        .when(removeFileUploadByReference(fileUploadAccepted.reference)(testUpscanRequest)(mockUpscanInitiate))
+        .thenGoes(
+          UploadFile(
+            hostData,
+            "foo-bar-ref",
+            someUploadRequest(testUpscanRequest("foo")),
+            FileUploads(Seq(FileUpload.Initiated(Nonce.Any, Timestamp.Any, "foo-bar-ref")))
+          )
+        )
+    }
+  }
+
+  "at state CreateCaseConfirmation" should {
+    "go to Start when start" in {
+      Given(
+        CreateCaseConfirmation(
+          importEntryDetails,
+          completeImportQuestionsAnswers,
+          Seq(
+            UploadedFile(
+              "foo",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+      ) when start should thenGo(Start)
+    }
+
+    "go to clean CaseAlreadySubmitted when browser back" in {
+      Given(
+        CreateCaseConfirmation(
+          importEntryDetails,
+          completeImportQuestionsAnswers,
+          Seq(
+            UploadedFile(
+              "foo",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+      ) when toSummary should thenGo(CaseAlreadySubmitted)
+    }
+
+    "go to the clean EnterEntryDetails when backToEnterEntryDetails from an export end state" in {
+      Given(
+        CreateCaseConfirmation(
+          importEntryDetails,
+          completeExportQuestionsAnswers,
+          Seq(
+            UploadedFile(
+              "foo",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+      ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
+    }
+
+    "go to the clean EnterEntryDetails when backToEnterEntryDetails from an import end state" in {
+      Given(
+        CreateCaseConfirmation(
+          importEntryDetails,
+          completeImportQuestionsAnswers,
+          Seq(
+            UploadedFile(
+              "foo",
+              "https://bucketName.s3.eu-west-2.amazonaws.com?1235676",
+              ZonedDateTime.parse("2018-04-24T09:30:00Z"),
+              "396f101dd52e8b2ace0dcf5ed09b1d1f030e608938510ce46e7a5c7a4e775100",
+              "test.pdf",
+              "application/pdf",
+              Some(4567890)
+            )
+          ),
+          TraderServicesResult("A1234567890", generatedAt),
+          CaseSLA(Some(generatedAt.plusHours(2)))
+        )
+      ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
+    }
+  }
+
+  "at state CaseAlreadyExists" should {
+    "go to Start when start" in {
+      Given(
+        CaseAlreadyExists("A1234567890")
+      ) when start should thenGo(Start)
+    }
+
+    "go to clean EnterEntryDetails when going back" in {
+      Given(
+        CaseAlreadyExists("A1234567890")
+      ) when backToEnterEntryDetails should thenGo(EnterEntryDetails())
+    }
+  }
+
+  "at any state" should {
+    "check model completeness in gotoSummaryIfCompleteOr" in {
+      await(model.gotoSummaryIfCompleteOr(Start)) shouldBe Start
+      await(model.gotoSummaryIfCompleteOr(EnterEntryDetails())) shouldBe EnterEntryDetails()
+      await(
+        model.gotoSummaryIfCompleteOr(
+          AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
           )
-          await(
-            model.gotoSummaryIfCompleteOr(
-              AnswerImportQuestionsWhichPriorityGoods(
-                ImportQuestionsStateModel(
-                  importEntryDetails,
-                  completeImportQuestionsAnswers.copy(contactInfo = None),
-                  Some(nonEmptyFileUploads)
-                )
-              )
-            )
-          ) shouldBe AnswerImportQuestionsWhichPriorityGoods(
+        )
+      ) shouldBe ImportQuestionsSummary(
+        ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+      )
+      await(
+        model.gotoSummaryIfCompleteOr(
+          AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(
               importEntryDetails,
               completeImportQuestionsAnswers.copy(contactInfo = None),
               Some(nonEmptyFileUploads)
             )
           )
-          await(
-            model.gotoSummaryIfCompleteOr(
-              AnswerExportQuestionsHasPriorityGoods(
-                ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
-              )
-            )
-          ) shouldBe ExportQuestionsSummary(
+        )
+      ) shouldBe AnswerImportQuestionsWhichPriorityGoods(
+        ImportQuestionsStateModel(
+          importEntryDetails,
+          completeImportQuestionsAnswers.copy(contactInfo = None),
+          Some(nonEmptyFileUploads)
+        )
+      )
+      await(
+        model.gotoSummaryIfCompleteOr(
+          AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
           )
-          await(
-            model.gotoSummaryIfCompleteOr(
-              AnswerExportQuestionsHasPriorityGoods(
-                ExportQuestionsStateModel(
-                  exportEntryDetails,
-                  completeExportQuestionsAnswers.copy(contactInfo = None),
-                  Some(nonEmptyFileUploads)
-                )
-              )
-            )
-          ) shouldBe AnswerExportQuestionsHasPriorityGoods(
+        )
+      ) shouldBe ExportQuestionsSummary(
+        ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+      )
+      await(
+        model.gotoSummaryIfCompleteOr(
+          AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(
               exportEntryDetails,
               completeExportQuestionsAnswers.copy(contactInfo = None),
               Some(nonEmptyFileUploads)
             )
           )
-        }
+        )
+      ) shouldBe AnswerExportQuestionsHasPriorityGoods(
+        ExportQuestionsStateModel(
+          exportEntryDetails,
+          completeExportQuestionsAnswers.copy(contactInfo = None),
+          Some(nonEmptyFileUploads)
+        )
+      )
+    }
 
-        "check model completeness in gotoSummaryIfCompleteOrApplyTransition" in {
-          await(model.gotoSummaryIfCompleteOrApplyTransition(Start)(start)) shouldBe Start
-          await(model.gotoSummaryIfCompleteOrApplyTransition(EnterEntryDetails())(start)) shouldBe EnterEntryDetails()
-          await(
-            model.gotoSummaryIfCompleteOrApplyTransition(
-              AnswerImportQuestionsWhichPriorityGoods(
-                ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
-              )
-            )(start)
-          ) shouldBe ImportQuestionsSummary(
+    "check model completeness in gotoSummaryIfCompleteOrApplyTransition" in {
+      await(model.gotoSummaryIfCompleteOrApplyTransition(Start)(start)) shouldBe Start
+      await(model.gotoSummaryIfCompleteOrApplyTransition(EnterEntryDetails())(start)) shouldBe EnterEntryDetails()
+      await(
+        model.gotoSummaryIfCompleteOrApplyTransition(
+          AnswerImportQuestionsWhichPriorityGoods(
             ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
           )
-          await(
-            model.gotoSummaryIfCompleteOrApplyTransition(
-              AnswerImportQuestionsWhichPriorityGoods(
-                ImportQuestionsStateModel(
-                  importEntryDetails,
-                  completeImportQuestionsAnswers.copy(contactInfo = None),
-                  Some(nonEmptyFileUploads)
-                )
-              )
-            )(start)
-          ) shouldBe Start
-          await(
-            model.gotoSummaryIfCompleteOrApplyTransition(
-              AnswerExportQuestionsHasPriorityGoods(
-                ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
-              )
-            )(start)
-          ) shouldBe ExportQuestionsSummary(
+        )(start)
+      ) shouldBe ImportQuestionsSummary(
+        ImportQuestionsStateModel(importEntryDetails, completeImportQuestionsAnswers, Some(nonEmptyFileUploads))
+      )
+      await(
+        model.gotoSummaryIfCompleteOrApplyTransition(
+          AnswerImportQuestionsWhichPriorityGoods(
+            ImportQuestionsStateModel(
+              importEntryDetails,
+              completeImportQuestionsAnswers.copy(contactInfo = None),
+              Some(nonEmptyFileUploads)
+            )
+          )
+        )(start)
+      ) shouldBe Start
+      await(
+        model.gotoSummaryIfCompleteOrApplyTransition(
+          AnswerExportQuestionsHasPriorityGoods(
             ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
           )
-          await(
-            model.gotoSummaryIfCompleteOrApplyTransition(
-              AnswerExportQuestionsHasPriorityGoods(
-                ExportQuestionsStateModel(
-                  exportEntryDetails,
-                  completeExportQuestionsAnswers.copy(contactInfo = None),
-                  Some(nonEmptyFileUploads)
-                )
-              )
-            )(start)
-          ) shouldBe Start
-        }
-
-        "match commonFileUploadStatusHandler" in {
-          val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
-          val fileUploads = nonEmptyFileUploads
-          val uploadRequest = UploadRequest(
-            href = "https://s3.bucket",
-            fields = Map(
-              "callbackUrl"     -> "https://foo.bar/callback",
-              "successRedirect" -> "https://foo.bar/success",
-              "errorRedirect"   -> "https://foo.bar/failure"
+        )(start)
+      ) shouldBe ExportQuestionsSummary(
+        ExportQuestionsStateModel(exportEntryDetails, completeExportQuestionsAnswers, Some(nonEmptyFileUploads))
+      )
+      await(
+        model.gotoSummaryIfCompleteOrApplyTransition(
+          AnswerExportQuestionsHasPriorityGoods(
+            ExportQuestionsStateModel(
+              exportEntryDetails,
+              completeExportQuestionsAnswers.copy(contactInfo = None),
+              Some(nonEmptyFileUploads)
             )
           )
+        )(start)
+      ) shouldBe Start
+    }
 
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(None)
-          )
-            .shouldBe(Start)
+    "match commonFileUploadStatusHandler" in {
+      val hostData = FileUploadHostData(importEntryDetails, completeImportQuestionsAnswers)
+      val fileUploads = nonEmptyFileUploads
+      val uploadRequest = UploadRequest(
+        href = "https://s3.bucket",
+        fields = Map(
+          "callbackUrl"     -> "https://foo.bar/callback",
+          "successRedirect" -> "https://foo.bar/success",
+          "errorRedirect"   -> "https://foo.bar/failure"
+        )
+      )
 
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadAccepted))
-          )
-            .shouldBe(FileUploaded(hostData, fileUploads))
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(None)
+      )
+        .shouldBe(Start)
 
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadPosted))
-          )
-            .shouldBe(WaitingForFileVerification(hostData, "foo-ref", uploadRequest, fileUploadPosted, fileUploads))
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadAccepted))
+      )
+        .shouldBe(FileUploaded(hostData, fileUploads))
 
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadInitiated))
-          )
-            .shouldBe(UploadFile(hostData, "foo-ref", uploadRequest, fileUploads))
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadPosted))
+      )
+        .shouldBe(WaitingForFileVerification(hostData, "foo-ref", uploadRequest, fileUploadPosted, fileUploads))
 
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadRejected))
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadInitiated))
+      )
+        .shouldBe(UploadFile(hostData, "foo-ref", uploadRequest, fileUploads))
+
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadRejected))
+      )
+        .shouldBe(
+          UploadFile(
+            hostData,
+            "foo-ref",
+            uploadRequest,
+            fileUploads,
+            Some(FileTransmissionFailed(fileUploadRejected.details))
           )
-            .shouldBe(
-              UploadFile(
-                hostData,
-                "foo-ref",
-                uploadRequest,
-                fileUploads,
-                Some(FileTransmissionFailed(fileUploadRejected.details))
+        )
+
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadFailed))
+      )
+        .shouldBe(
+          UploadFile(
+            hostData,
+            "foo-ref",
+            uploadRequest,
+            fileUploads,
+            Some(FileVerificationFailed(fileUploadFailed.details))
+          )
+        )
+
+      await(
+        model.FileUploadTransitions
+          .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
+          .apply(Some(fileUploadDuplicate))
+      )
+        .shouldBe(
+          UploadFile(
+            hostData,
+            "foo-ref",
+            uploadRequest,
+            fileUploads,
+            Some(
+              DuplicateFileUpload(
+                fileUploadDuplicate.checksum,
+                fileUploadDuplicate.existingFileName,
+                fileUploadDuplicate.duplicateFileName
               )
             )
-
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadFailed))
           )
-            .shouldBe(
-              UploadFile(
-                hostData,
-                "foo-ref",
-                uploadRequest,
-                fileUploads,
-                Some(FileVerificationFailed(fileUploadFailed.details))
-              )
-            )
-
-          await(
-            model.FileUploadTransitions
-              .commonFileUploadStatusHandler(hostData, fileUploads, "foo-ref", uploadRequest, Start)
-              .apply(Some(fileUploadDuplicate))
-          )
-            .shouldBe(
-              UploadFile(
-                hostData,
-                "foo-ref",
-                uploadRequest,
-                fileUploads,
-                Some(
-                  DuplicateFileUpload(
-                    fileUploadDuplicate.checksum,
-                    fileUploadDuplicate.existingFileName,
-                    fileUploadDuplicate.duplicateFileName
-                  )
-                )
-              )
-            )
-        }
-      }
+        )
     }
   }
 }
