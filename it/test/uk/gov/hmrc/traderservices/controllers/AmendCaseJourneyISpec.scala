@@ -37,6 +37,7 @@ import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData}
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -1568,7 +1569,7 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   trait TestMongoDBCachedAmendCaseJourneyService extends MongoDBCachedAmendCaseJourneyService
 
   // define test service capable of manipulating journey state
-  lazy val journey = new support.TestJourneyService with AmendCaseJourneyService
+  final lazy val journey = new support.TestJourneyService with AmendCaseJourneyService
   with EncryptedSessionCache[State, HeaderCarrier] {
 
     override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]

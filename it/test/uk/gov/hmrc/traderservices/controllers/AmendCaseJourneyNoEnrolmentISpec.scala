@@ -22,6 +22,8 @@ import uk.gov.hmrc.traderservices.support.TestData
 import uk.gov.hmrc.traderservices.connectors.TraderServicesResult
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import play.api.libs.ws.readableAsString 
+import play.api.libs.ws.DefaultBodyWritables.writeableOf_String
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
