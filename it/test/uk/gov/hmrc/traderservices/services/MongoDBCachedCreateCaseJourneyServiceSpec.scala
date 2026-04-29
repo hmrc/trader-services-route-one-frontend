@@ -24,7 +24,7 @@ import java.util.UUID
 
 class MongoDBCachedCreateCaseJourneyServiceSpec extends AppISpec {
 
-  lazy val service: MongoDBCachedCreateCaseJourneyService =
+  final lazy val service: MongoDBCachedCreateCaseJourneyService =
     app.injector.instanceOf[MongoDBCachedCreateCaseJourneyService]
 
   import service.model.CreateCaseJourneyState

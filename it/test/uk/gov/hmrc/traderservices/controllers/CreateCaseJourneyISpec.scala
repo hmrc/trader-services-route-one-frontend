@@ -3929,7 +3929,7 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result =
+        val result: StandaloneWSResponse =
           await(
             request("/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf")
               .get()
@@ -4042,7 +4042,7 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
   lazy val controller: CreateCaseJourneyController = app.injector.instanceOf[CreateCaseJourneyController]
 
-  lazy val journey: TestJourneyService with CreateCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] = new support.TestJourneyService with CreateCaseJourneyService
+  final lazy val journey: TestJourneyService with CreateCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] = new support.TestJourneyService with CreateCaseJourneyService
   with EncryptedSessionCache[State, HeaderCarrier] {
 
     override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]

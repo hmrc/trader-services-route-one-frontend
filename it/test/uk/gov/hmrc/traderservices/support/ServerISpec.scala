@@ -22,6 +22,8 @@ import play.api.libs.ws.ahc.StandaloneAhcWSClient
 import play.api.mvc.SessionCookieBaker
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto
 import uk.gov.hmrc.traderservices.wiring.AppConfig
+import play.api.libs.ws.DefaultBodyWritables._
+import play.api.libs.ws.DefaultBodyReadables._
 
 import java.util.UUID
 
