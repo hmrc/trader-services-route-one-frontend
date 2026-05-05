@@ -27,11 +27,12 @@ import play.api.libs.ws.DefaultBodyReadables._
 
 import java.util.UUID
 
-abstract class ServerISpec extends BaseISpec with GuiceOneServerPerSuite {
+abstract class ServerISpec extends BaseISpec with GuiceOneServerPerSuite with play.api.libs.ws.DefaultBodyReadables
+    with play.api.libs.ws.DefaultBodyWritables {
 
-  override def fakeApplication: Application = appBuilder.build()
+  override def fakeApplication(): Application = appBuilder.build()
 
-  lazy val appConfig = fakeApplication.injector.instanceOf[AppConfig]
+  lazy val appConfig = fakeApplication().injector.instanceOf[AppConfig]
   lazy val sessionCookieBaker: SessionCookieBaker = app.injector.instanceOf[SessionCookieBaker]
   lazy val sessionCookieCrypto: SessionCookieCrypto = app.injector.instanceOf[SessionCookieCrypto]
 

@@ -37,6 +37,8 @@ import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData}
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.libs.ws.JsonBodyReadables.readableAsJson
 
 import java.time.{LocalDateTime, ZonedDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,8 +48,8 @@ import TestImplicits._
 class AmendCaseJourneyISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
-  import journey.model.FileUploadState._
-  import journey.model.State._
+  import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState.*
+  import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.*
 
   val dateTime = LocalDateTime.now()
 
@@ -120,8 +122,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/case-reference-number").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
-        result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.case-reference-number.title"))
+        result.body[String] should include(htmlEscapedMessage("view.case-reference-number.heading"))
         journey.getState shouldBe EnterCaseReferenceNumber()
       }
     }
@@ -160,8 +162,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/type-of-amendment").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.type-of-amendment.title"))
-        result.body should include(htmlEscapedMessage("view.type-of-amendment.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.type-of-amendment.title"))
+        result.body[String] should include(htmlEscapedMessage("view.type-of-amendment.heading"))
         journey.getState shouldBe state
       }
     }
@@ -210,8 +212,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/write-response").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.write-response-text.title"))
-        result.body should include(htmlEscapedMessage("view.write-response-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.write-response-text.title"))
+        result.body[String] should include(htmlEscapedMessage("view.write-response-text.heading"))
         journey.getState shouldBe state
       }
     }
@@ -359,7 +361,7 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/case-already-submitted").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
+        result.body[String] should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
       }
     }
@@ -394,15 +396,15 @@ class AmendCaseJourneyISpec
             .willReturn(WireMock.aResponse.withBody(""))
         )
 
-        val result = await(request("/add/confirmation/receipt").get)
+        val result = await(request("/add/confirmation/receipt").get())
 
         result.status shouldBe 200
         result.header("Content-Disposition") shouldBe Some(
           """attachment; filename="Document_receipt_PC12010081330XGBNZJO04.html""""
         )
 
-        result.body should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
-        result.body should include(
+        result.body[String] should include(htmlEscapedMessage("view.amend-case-confirmation.heading"))
+        result.body[String] should include(
           s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
 
@@ -447,10 +449,10 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         journey.getState shouldBe state
       }
       "show the amendment review page with only additional information section from WriteResponse mode" in {
@@ -467,10 +469,10 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-        result.body should not include (htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body[String] should not include (htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         journey.getState shouldBe state
       }
       "show the amendment review page with only uploaded files section from UploadDocuments mode" in {
@@ -509,10 +511,10 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
-        result.body should not include (htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.caseReferenceNumber"))
+        result.body[String] should not include (htmlEscapedMessage("view.amend-case.summary.additionalInfo.message"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
         journey.getState shouldBe state
       }
     }
@@ -530,8 +532,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe state
       }
 
@@ -544,8 +546,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe UploadMultipleFiles(
           exampleAmendCaseModel,
           fileUploads = FileUploads()
@@ -711,8 +713,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           exampleAmendCaseModel,
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -759,8 +761,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-verification").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.waiting"))
-        result.body should include(htmlEscapedMessage("view.upload-file.waiting"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.waiting"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.waiting"))
 
         journey.getState shouldBe (
           WaitingForFileVerification(
@@ -932,25 +934,25 @@ class AmendCaseJourneyISpec
               .get()
           )
         result1.status shouldBe 200
-        result1.body shouldBe """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
+        result1.body[String] shouldBe """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
         journey.getState shouldBe state
 
         val result2 =
           await(request("/add/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
         result2.status shouldBe 200
-        result2.body shouldBe """{"reference":"2b72fe99-8adf-4edb-865e-622ae710f77c","fileStatus":"WAITING"}"""
+        result2.body[String] shouldBe """{"reference":"2b72fe99-8adf-4edb-865e-622ae710f77c","fileStatus":"WAITING"}"""
         journey.getState shouldBe state
 
         val result3 =
           await(request("/add/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf"}"""
+        result3.body[String] shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/add/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf"}"""
         journey.getState shouldBe state
 
         val result4 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
-        result4.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e2","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
+        result4.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e2","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
         journey.getState shouldBe state
 
         val result5 =
@@ -961,13 +963,13 @@ class AmendCaseJourneyISpec
         val result6 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e3/status").get())
         result6.status shouldBe 200
-        result6.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e3","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
+        result6.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e3","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
         journey.getState shouldBe state
 
         val result7 =
           await(request("/add/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e4/status").get())
         result7.status shouldBe 200
-        result7.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e4","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
+        result7.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e4","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
         journey.getState shouldBe state
       }
     }
@@ -989,8 +991,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
         journey.getState shouldBe state
       }
 
@@ -1031,8 +1033,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
         journey.getState shouldBe state
       }
 
@@ -1048,8 +1050,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "10"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "10"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "10"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "10"))
         journey.getState shouldBe state
       }
     }
@@ -1079,8 +1081,8 @@ class AmendCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.next.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.next.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.next.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.next.heading"))
         journey.getState shouldBe UploadFile(
           exampleAmendCaseModel,
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -1124,9 +1126,9 @@ class AmendCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-        result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(routes.AmendCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
 
@@ -1147,9 +1149,9 @@ class AmendCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-        result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(routes.AmendCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
 
@@ -1170,9 +1172,9 @@ class AmendCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
-        result.body should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
-        result.body should include(routes.AmendCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.amend-case.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.amend-case.summary.documents.heading"))
+        result.body[String] should include(routes.AmendCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe AmendCaseSummary(exampleAmendCaseModel.copy(fileUploads = Some(fileUploads)))
       }
     }
@@ -1202,8 +1204,8 @@ class AmendCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           exampleAmendCaseModel,
           "2b72fe99-8adf-4edb-865e-622ae710f77c",
@@ -1304,8 +1306,8 @@ class AmendCaseJourneyISpec
         val result = await(request("/add/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
         journey.getState shouldBe FileUploaded(
           exampleAmendCaseModel,
           fileUploads = FileUploads(files =
@@ -1474,8 +1476,8 @@ class AmendCaseJourneyISpec
               .get()
           )
         result.status shouldBe 500
-        result.body should include(htmlEscapedPageTitle("global.error.500.title"))
-        result.body should include(htmlEscapedMessage("global.error.500.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("global.error.500.title"))
+        result.body[String] should include(htmlEscapedMessage("global.error.500.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1503,7 +1505,7 @@ class AmendCaseJourneyISpec
           )
 
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
         journey.getState should beState(
           UploadMultipleFiles(
@@ -1527,7 +1529,7 @@ class AmendCaseJourneyISpec
               .options()
           )
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
       }
     }
@@ -1540,7 +1542,7 @@ class AmendCaseJourneyISpec
               .options()
           )
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
       }
     }
@@ -1571,11 +1573,11 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
   lazy val journey = new support.TestJourneyService with AmendCaseJourneyService
   with EncryptedSessionCache[State, HeaderCarrier] {
 
-    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository = app.injector.instanceOf[CacheRepository]
+    override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
+    override val cacheRepository = app.injector.instanceOf[CacheRepository]
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
-    override lazy val keyProviderFromContext: HeaderCarrier => KeyProvider =
+    override val keyProviderFromContext: HeaderCarrier => KeyProvider =
       hc => KeyProvider(keyProvider, None)
 
     override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)

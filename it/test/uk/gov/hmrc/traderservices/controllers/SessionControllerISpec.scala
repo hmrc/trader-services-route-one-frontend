@@ -29,7 +29,7 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       "display the timed out page" in {
         val result = await(requestWithoutJourneyId("/timedout").get())
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.timedout.title"))
+        result.body[String] should include(htmlEscapedMessage("view.timedout.title"))
       }
     }
 
@@ -54,7 +54,7 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
         givenSignOutWithContinueToFeedbackSurvey()
         val result = await(requestWithoutJourneyId("/sign-out?continueUrl=https://www.google.com").get())
         result.status shouldBe 500
-        result.body should include("Sorry, there is a problem with the service")
+        result.body[String] should include("Sorry, there is a problem with the service")
       }
     }
 
@@ -70,7 +70,7 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       "respond with an empty json body" in {
         val result = await(requestWithoutJourneyId("/keep-alive").get())
         result.status shouldBe 200
-        result.body shouldBe "{}"
+        result.body[String] shouldBe "{}"
       }
     }
   }
@@ -82,7 +82,7 @@ trait SessionControllerISpecSetup extends ServerISpec {
   override def requireEnrolmentFeature: Boolean = false
   override def requireOptionalTransportFeature: Boolean = false
 
-  override def fakeApplication: Application = appBuilder.build()
+  override def fakeApplication(): Application = appBuilder.build()
 
   def givenSignOutWithContinueToTimedOut(): Unit =
     stubFor(

@@ -45,5 +45,5 @@ trait StartPageControllerISpecSetup extends ServerISpec {
   override def requireEnrolmentFeature: Boolean = false
   override def requireOptionalTransportFeature: Boolean = false
 
-  override def fakeApplication: Application = appBuilder.build()
+  override def fakeApplication(): Application = appBuilder.build()
 }

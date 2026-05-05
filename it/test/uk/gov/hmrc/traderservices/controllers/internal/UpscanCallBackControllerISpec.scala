@@ -24,6 +24,7 @@ import uk.gov.hmrc.traderservices.support.TestData
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.models._
 import uk.gov.hmrc.traderservices.utils.SHA256
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global

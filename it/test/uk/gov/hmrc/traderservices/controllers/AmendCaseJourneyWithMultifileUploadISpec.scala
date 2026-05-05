@@ -26,8 +26,8 @@ import java.time.LocalDateTime
 class AmendCaseJourneyWithMultifileUploadISpec
     extends AmendCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
-  import journey.model.FileUploadState._
-  import journey.model.State._
+  import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState.*
+  import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.State.*
 
   val dateTime = LocalDateTime.now()
 
