@@ -44,7 +44,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         )
         result.status shouldBe 200
         journey.getState shouldBe Start
-        result.body should include("Change the language to English")
+        result.body[String] should include("Change the language to English")
       }
     }
 
@@ -62,7 +62,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         )
         result.status shouldBe 200
         journey.getState shouldBe Start
-        result.body should include("Newid yr iaith ir Gymraeg")
+        result.body[String] should include("Newid yr iaith ir Gymraeg")
       }
     }
 
@@ -80,7 +80,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
         )
         result.status shouldBe 200
         journey.getState shouldBe Start
-        result.body should include("Newid yr iaith ir Gymraeg")
+        result.body[String] should include("Newid yr iaith ir Gymraeg")
       }
     }
   }

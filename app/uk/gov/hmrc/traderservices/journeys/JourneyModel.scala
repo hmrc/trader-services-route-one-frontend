@@ -46,7 +46,7 @@ trait JourneyModel {
 
     /** Converts merger into modification by partially applying donor state parameter.
       */
-    def withState(state: State): S => S = { s: S =>
+    def withState(state: State): S => S = { (s: S) =>
       if (apply.isDefinedAt((s, state))) apply((s, state))
       else s
     }

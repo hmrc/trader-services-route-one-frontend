@@ -43,7 +43,7 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
         (__ \ "uploadRequest").write[UploadRequest] and
         (__ \ "fileUploads").write[FileUploads] and
         (__ \ "maybeUploadError").writeNullable[FileUploadError]
-    )(unlift(UploadFile.unapply))
+    )(o => Tuple.fromProductTyped(o))
   )
 
   lazy val waitingForFileVerificationFormat = Format(
@@ -60,7 +60,7 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
         (__ \ "uploadRequest").write[UploadRequest] and
         (__ \ "currentFileUpload").write[FileUpload] and
         (__ \ "fileUploads").write[FileUploads]
-    )(unlift(WaitingForFileVerification.unapply))
+    )(o => Tuple.fromProductTyped(o))
   )
 
   lazy val fileUploadedFormat = Format(
@@ -73,7 +73,7 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
       (__ \ "hostData").write[model.FileUploadHostData](fileUploadHostDataFormat) and
         (__ \ "fileUploads").write[FileUploads] and
         (__ \ "acknowledged").write[Boolean]
-    )(unlift(FileUploaded.unapply))
+    )(o => Tuple.fromProductTyped(o))
   )
 
   lazy val uploadMultipleFilesFormat = Format(
@@ -84,7 +84,7 @@ abstract class FileUploadJourneyStateFormats[M <: FileUploadJourneyModelMixin](v
     (
       (__ \ "hostData").write[model.FileUploadHostData](fileUploadHostDataFormat) and
         (__ \ "fileUploads").write[FileUploads]
-    )(unlift(UploadMultipleFiles.unapply))
+    )(o => Tuple.fromProductTyped(o))
   )
 
 }

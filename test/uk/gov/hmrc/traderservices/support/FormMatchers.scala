@@ -46,11 +46,15 @@ trait FormMatchers {
         else
           MatchResult(
             false,
-            s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${if (unexpected.nonEmpty)
-                s" Unexpected: ${unexpected.mkString(" and ")}."
-              else ""}${if (unfulfilled.nonEmpty)
-                s" Unfulfilled: ${unfulfilled.mkString(" and ")}."
-              else ""}",
+            s"Only ${expectedErrors.size} error(s) has been expected but got ${errors.size} error(s).${
+                if (unexpected.nonEmpty)
+                  s" Unexpected: ${unexpected.mkString(" and ")}."
+                else ""
+              }${
+                if (unfulfilled.nonEmpty)
+                  s" Unfulfilled: ${unfulfilled.mkString(" and ")}."
+                else ""
+              }",
             s""
           )
       }

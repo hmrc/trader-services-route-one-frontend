@@ -105,7 +105,7 @@ trait TraderServicesApiConnectorISpecSetup extends AppISpec with TraderServicesA
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  override def fakeApplication: Application = appBuilder.build()
+  override def fakeApplication(): Application = appBuilder.build()
 
   lazy val connector: TraderServicesApiConnector =
     app.injector.instanceOf[TraderServicesApiConnector]

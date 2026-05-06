@@ -43,7 +43,7 @@ trait WireMockSupport extends BeforeAndAfterAll with BeforeAndAfterEach {
   val wireMockBaseUrlAsString = s"http://$wireMockHost:$wireMockPort"
   val wireMockBaseUrl = new URL(wireMockBaseUrlAsString)
 
-  protected implicit val implicitWireMockBaseUrl = WireMockBaseUrl(wireMockBaseUrl)
+  protected implicit val implicitWireMockBaseUrl: WireMockBaseUrl = WireMockBaseUrl(wireMockBaseUrl)
 
   protected def basicWireMockConfig(): WireMockConfiguration = wireMockConfig()
 

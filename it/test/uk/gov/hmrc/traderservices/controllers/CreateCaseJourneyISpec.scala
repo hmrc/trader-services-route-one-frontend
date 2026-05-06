@@ -38,6 +38,8 @@ import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, EncryptedSessionCache, KeyProvider}
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import play.api.libs.ws.JsonBodyReadables.readableAsJson
 
 import java.time.temporal.{ChronoField, ChronoUnit}
 import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
@@ -128,8 +130,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
-        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
+        result.body[String] should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
         journey.getState shouldBe ChooseNewOrExistingCase()
       }
     }
@@ -142,8 +144,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new-or-existing").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
-        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.new-or-existing-case.title"))
+        result.body[String] should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
         journey.getState shouldBe ChooseNewOrExistingCase()
       }
     }
@@ -165,8 +167,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
-        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterEntryDetails()
       }
 
@@ -186,8 +188,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
-        result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.case-reference-number.title"))
+        result.body[String] should include(htmlEscapedMessage("view.case-reference-number.heading"))
         journey.getState shouldBe TurnToAmendCaseJourney(true)
       }
 
@@ -208,8 +210,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.case-reference-number.title"))
-        result.body should include(htmlEscapedMessage("view.case-reference-number.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.case-reference-number.title"))
+        result.body[String] should include(htmlEscapedMessage("view.case-reference-number.heading"))
         journey.getState shouldBe TurnToAmendCaseJourney(false)
       }
 
@@ -224,8 +226,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new-or-existing").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.new-or-existing-case.title"))
-        result.body should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.new-or-existing-case.title"))
+        result.body[String] should include(htmlEscapedMessage("view.new-or-existing-case.heading"))
         journey.getState shouldBe ChooseNewOrExistingCase()
       }
     }
@@ -238,8 +240,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
-        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterEntryDetails()
       }
 
@@ -257,10 +259,10 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
-        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
-        result.body should (include("235") and include("A11111X"))
-        result.body should (include(s"$y") and include(f"$m%02d") and include(f"$d%02d"))
+        result.body[String] should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.entry-details.heading"))
+        result.body[String] should (include("235") and include("A11111X"))
+        result.body[String] should (include(s"$y") and include(f"$m%02d") and include(f"$d%02d"))
         journey.getState shouldBe EnterEntryDetails(
           Some(EntryDetails(EPU(235), EntryNumber("A11111X"), today)),
           Some(ExportQuestions())
@@ -292,8 +294,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/entry-details").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.entry-details.title"))
-        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.entry-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterEntryDetails()
       }
     }
@@ -319,8 +321,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRequestType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -372,8 +374,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/entry-details").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.entry-details.title"))
-        result.body should include(htmlEscapedMessage("view.entry-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.entry-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.entry-details.heading"))
         journey.getState shouldBe EnterEntryDetails()
       }
     }
@@ -392,8 +394,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.requestType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -420,8 +422,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe AnswerExportQuestionsRouteType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -445,8 +447,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/request-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.requestType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.requestType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.requestType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -465,8 +467,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.routeType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -493,8 +495,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsHasPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -524,8 +526,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -557,8 +559,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe AnswerExportQuestionsReason(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -585,8 +587,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/route-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.routeType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.routeType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.routeType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -604,8 +606,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -632,8 +634,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerExportQuestionsWhichPriorityGoods(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -670,8 +672,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("A11111X"), today),
@@ -702,8 +704,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/has-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -722,8 +724,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.whichPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -750,8 +752,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe AnswerExportQuestionsFreightType(
           ExportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("X11111X"), today),
@@ -779,8 +781,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/which-priority-goods").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.whichPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.whichPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -803,8 +805,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.freightType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -835,8 +837,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -876,8 +878,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsMandatoryVesselInfo(
           ExportQuestionsStateModel(
@@ -911,8 +913,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-type").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.freightType.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.freightType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.freightType.heading"))
 
         journey.getState shouldBe state
       }
@@ -938,8 +940,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-information-required").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
     }
@@ -964,8 +966,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-information-required").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1049,8 +1051,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-information-required").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe state
       }
@@ -1075,8 +1077,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-information").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1117,8 +1119,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -1166,8 +1168,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
@@ -1203,8 +1205,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/transport-information").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.vessel-details.heading"))
 
         journey.getState shouldBe state
       }
@@ -1225,8 +1227,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/contact-information").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
         journey.getState shouldBe AnswerExportQuestionsContactInfo(
           ExportQuestionsStateModel(
             EntryDetails(EPU(235), EntryNumber("111111X"), today),
@@ -1268,8 +1270,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
 
         journey.getState shouldBe UploadFile(
           hostData = FileUploadHostData(
@@ -1328,8 +1330,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/contact-information").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("view.export-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("view.export-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.contactInfo.heading"))
 
         journey.getState shouldBe state
       }
@@ -1347,9 +1349,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe state
       }
     }
@@ -1368,8 +1370,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/request-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.requestType.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.requestType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.requestType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1399,8 +1401,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe AnswerImportQuestionsRouteType(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
@@ -1424,8 +1426,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/route-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.routeType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.routeType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1452,8 +1454,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsHasPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
@@ -1485,8 +1487,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
@@ -1518,8 +1520,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe AnswerImportQuestionsReason(
           ImportQuestionsStateModel(
             EntryDetails(EPU(444), EntryNumber("011111X"), today),
@@ -1549,8 +1551,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/export/reason").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.export-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1573,8 +1575,8 @@ class CreateCaseJourneyISpec
         val payload = Map("reasonText" -> "")
         val result = await(request("/new/export/reason").post(payload))
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1597,8 +1599,8 @@ class CreateCaseJourneyISpec
 
         result.status shouldBe 200
 
-        result.body should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("form.export-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.export-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1625,8 +1627,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1648,8 +1650,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/reason").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("form.import-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1672,8 +1674,8 @@ class CreateCaseJourneyISpec
         val payload = Map("reasonText" -> "")
         val result = await(request("/new/import/reason").post(payload))
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1695,8 +1697,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/reason").post(payload))
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
-        result.body should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
+        result.body[String] should include(htmlEscapedPageTitleWithError("form.import-questions.reason-text.title"))
+        result.body[String] should include(htmlEscapedMessage("form.import-questions.reason-text.heading"))
         journey.getState shouldBe state
       }
 
@@ -1723,8 +1725,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1743,8 +1745,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/has-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.hasPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1771,8 +1773,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe AnswerImportQuestionsWhichPriorityGoods(
           ImportQuestionsStateModel(
             EntryDetails(EPU(101), EntryNumber("811111X"), today),
@@ -1806,8 +1808,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
             EntryDetails(EPU(100), EntryNumber("711111X"), today),
@@ -1835,8 +1837,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/which-priority-goods").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.whichPriorityGoods.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.whichPriorityGoods.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1863,8 +1865,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe AnswerImportQuestionsALVS(
           ImportQuestionsStateModel(
             EntryDetails(EPU(236), EntryNumber("011111X"), today),
@@ -1892,8 +1894,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/automatic-licence-verification").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.hasALVS.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.hasALVS.heading"))
         journey.getState shouldBe state
       }
     }
@@ -1921,12 +1923,12 @@ class CreateCaseJourneyISpec
           )
 
           result.status shouldBe 200
-          result.body should include(
+          result.body[String] should include(
             htmlEscapedMessage("view.import-questions.freightType.title") + " - " + htmlEscapedMessage(
               "site.serviceName"
             ) + " - " + htmlEscapedMessage("site.govuk")
           )
-          result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
+          result.body[String] should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
           journey.getState shouldBe AnswerImportQuestionsFreightType(
             ImportQuestionsStateModel(
               EntryDetails(EPU(235), EntryNumber("011111X"), today),
@@ -1957,8 +1959,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/transport-type").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.freightType.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.freightType.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.freightType.heading"))
         journey.getState shouldBe state
       }
     }
@@ -2059,8 +2061,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/transport-information").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.vessel-details.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.vessel-details.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.vessel-details.heading"))
         journey.getState shouldBe state
       }
     }
@@ -2258,8 +2260,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/contact-information").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.contactInfo.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.contactInfo.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.contactInfo.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.contactInfo.heading"))
         journey.getState shouldBe state
       }
     }
@@ -2299,8 +2301,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
 
         journey.getState shouldBe UploadFile(
           hostData = FileUploadHostData(
@@ -2349,9 +2351,9 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/import/check-your-answers").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe state
       }
     }
@@ -2394,8 +2396,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result.body[String] should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.exportEntryDetails,
@@ -2464,8 +2466,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result.body[String] should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CreateCaseConfirmation(
           TestData.importEntryDetails,
@@ -2518,8 +2520,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.missing-information.title"))
-        result.body should include(htmlEscapedMessage("view.missing-information.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.missing-information.title"))
+        result.body[String] should include(htmlEscapedMessage("view.missing-information.heading"))
         verifyCreateCaseRequestHappened(0)
         journey.getState shouldBe ExportQuestionsMissingInformationError(model)
       }
@@ -2545,8 +2547,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.missing-information.title"))
-        result.body should include(htmlEscapedMessage("view.missing-information.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.missing-information.title"))
+        result.body[String] should include(htmlEscapedMessage("view.missing-information.heading"))
         verifyCreateCaseRequestHappened(0)
         journey.getState shouldBe ImportQuestionsMissingInformationError(model)
       }
@@ -2570,12 +2572,12 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
-        result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
-        result.body should include(htmlEscapedMessage("common.feedback.title"))
-        result.body should include(htmlEscapedMessage("common.feedback.p1"))
-        result.body should include(htmlEscapedMessage("common.feedback.link"))
-        result.body should include(htmlEscapedMessage("common.feedback.p2"))
+        result.body[String] should include(htmlEscapedPageTitle("view.case-already-exists.title"))
+        result.body[String] should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.title"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.link"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.p2"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
       }
@@ -2599,12 +2601,12 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.case-already-exists.title"))
-        result.body should include(htmlEscapedMessage("view.case-already-exists.heading"))
-        result.body should include(htmlEscapedMessage("common.feedback.title"))
-        result.body should include(htmlEscapedMessage("common.feedback.p1"))
-        result.body should include(htmlEscapedMessage("common.feedback.link"))
-        result.body should include(htmlEscapedMessage("common.feedback.p2"))
+        result.body[String] should include(htmlEscapedPageTitle("view.case-already-exists.title"))
+        result.body[String] should include(htmlEscapedMessage("view.case-already-exists.heading"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.title"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.p1"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.link"))
+        result.body[String] should include(htmlEscapedMessage("common.feedback.p2"))
         verifyCreateCaseRequestHappened(1)
         journey.getState shouldBe CaseAlreadyExists("dummy-case-reference-number")
       }
@@ -2633,12 +2635,12 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result = await(request("/new/confirmation").get)
+        val result = await(request("/new/confirmation").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
-        result.body should include(
+        result.body[String] should include(htmlEscapedPageTitle("view.create-case-confirmation.title"))
+        result.body[String] should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body[String] should include(
           s"${htmlEscapedMessage("view.create-case-confirmation.date")} ${generatedAt.ddMMYYYYAtTimeFormat}"
         )
 
@@ -2675,8 +2677,8 @@ class CreateCaseJourneyISpec
         )
 
         result1.status shouldBe 200
-        result1.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
-        result1.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
+        result1.body[String] should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
+        result1.body[String] should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
         val result2 = await(
           request("/new/import/check-your-answers")
@@ -2686,8 +2688,8 @@ class CreateCaseJourneyISpec
         )
 
         result2.status shouldBe 200
-        result2.body should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
-        result2.body should include(htmlEscapedMessage("view.case-already-submitted.heading"))
+        result2.body[String] should include(htmlEscapedPageTitle("view.case-already-submitted.title"))
+        result2.body[String] should include(htmlEscapedMessage("view.case-already-submitted.heading"))
 
         journey.getState shouldBe CaseAlreadySubmitted
       }
@@ -2722,15 +2724,15 @@ class CreateCaseJourneyISpec
             .willReturn(WireMock.aResponse.withBody(""))
         )
 
-        val result = await(request("/new/confirmation/receipt").get)
+        val result = await(request("/new/confirmation/receipt").get())
 
         result.status shouldBe 200
         result.header("Content-Disposition") shouldBe Some(
           """attachment; filename="Document_receipt_Z00000Z.html""""
         )
 
-        result.body should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
-        result.body should include(
+        result.body[String] should include(htmlEscapedMessage("view.create-case-confirmation.heading"))
+        result.body[String] should include(
           s"${htmlEscapedMessage("receipt.documentsReceivedOn", generatedAt.ddMMYYYYAtTimeFormat)}"
         )
 
@@ -2751,8 +2753,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe state
       }
 
@@ -2768,8 +2770,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe state
       }
 
@@ -2784,8 +2786,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe UploadMultipleFiles(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2803,8 +2805,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/upload-files").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
         journey.getState shouldBe UploadMultipleFiles(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads()
@@ -2973,8 +2975,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -3015,8 +3017,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-upload").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -3063,8 +3065,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-verification").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.waiting"))
-        result.body should include(htmlEscapedMessage("view.upload-file.waiting"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.waiting"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.waiting"))
 
         journey.getState shouldBe WaitingForFileVerification(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
@@ -3231,25 +3233,25 @@ class CreateCaseJourneyISpec
               .get()
           )
         result1.status shouldBe 200
-        result1.body shouldBe """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
+        result1.body[String] shouldBe """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d","fileStatus":"NOT_UPLOADED","uploadRequest":{"href":"https://s3.amazonaws.com/bucket/123abc","fields":{"foo1":"bar1"}}}"""
         journey.getState shouldBe state
 
         val result2 =
           await(request("/new/file-verification/2b72fe99-8adf-4edb-865e-622ae710f77c/status").get())
         result2.status shouldBe 200
-        result2.body shouldBe """{"reference":"2b72fe99-8adf-4edb-865e-622ae710f77c","fileStatus":"WAITING"}"""
+        result2.body[String] shouldBe """{"reference":"2b72fe99-8adf-4edb-865e-622ae710f77c","fileStatus":"WAITING"}"""
         journey.getState shouldBe state
 
         val result3 =
           await(request("/new/file-verification/f029444f-415c-4dec-9cf2-36774ec63ab8/status").get())
         result3.status shouldBe 200
-        result3.body shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf"}"""
+        result3.body[String] shouldBe """{"reference":"f029444f-415c-4dec-9cf2-36774ec63ab8","fileStatus":"ACCEPTED","fileMimeType":"application/pdf","fileName":"test.pdf","fileSize":4567890,"previewUrl":"/send-documents-for-customs-check/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf"}"""
         journey.getState shouldBe state
 
         val result4 =
           await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e2/status").get())
         result4.status shouldBe 200
-        result4.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e2","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
+        result4.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e2","fileStatus":"FAILED","errorMessage":"The selected file contains a virus - upload a different one"}"""
         journey.getState shouldBe state
 
         val result5 =
@@ -3260,13 +3262,13 @@ class CreateCaseJourneyISpec
         val result6 =
           await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e3/status").get())
         result6.status shouldBe 200
-        result6.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e3","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
+        result6.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e3","fileStatus":"REJECTED","errorMessage":"The selected file could not be uploaded"}"""
         journey.getState shouldBe state
 
         val result7 =
           await(request("/new/file-verification/4b1e15a4-4152-4328-9448-4924d9aee6e4/status").get())
         result7.status shouldBe 200
-        result7.body shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e4","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
+        result7.body[String] shouldBe """{"reference":"4b1e15a4-4152-4328-9448-4924d9aee6e4","fileStatus":"DUPLICATE","errorMessage":"The selected file has already been uploaded"}"""
         journey.getState shouldBe state
       }
     }
@@ -3284,8 +3286,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
         journey.getState shouldBe state
       }
 
@@ -3326,8 +3328,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "2"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "2"))
         journey.getState shouldBe state
       }
 
@@ -3343,8 +3345,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-uploaded").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "10"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "10"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.plural.title", "10"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.plural.heading", "10"))
         journey.getState shouldBe state
       }
     }
@@ -3375,8 +3377,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.next.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.next.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.next.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.next.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.exportEntryDetails, TestData.fullExportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -3425,8 +3427,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.next.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.next.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.next.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.next.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -3471,9 +3473,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ExportQuestionsSummary(
           ExportQuestionsStateModel(
             TestData.exportEntryDetails,
@@ -3501,9 +3503,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ImportQuestionsSummary(
           ImportQuestionsStateModel(
             TestData.importEntryDetails,
@@ -3531,9 +3533,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ExportQuestionsSummary(
           ExportQuestionsStateModel(
             TestData.exportEntryDetails,
@@ -3561,9 +3563,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ImportQuestionsSummary(
           ImportQuestionsStateModel(
             TestData.importEntryDetails,
@@ -3591,9 +3593,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ExportQuestionsSummary(
           ExportQuestionsStateModel(
             TestData.exportEntryDetails,
@@ -3621,9 +3623,9 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showFileUpload.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showFileUpload.url)
         journey.getState shouldBe ImportQuestionsSummary(
           ImportQuestionsStateModel(
             TestData.importEntryDetails,
@@ -3661,8 +3663,8 @@ class CreateCaseJourneyISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-file.first.title"))
-        result.body should include(htmlEscapedMessage("view.upload-file.first.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-file.first.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-file.first.heading"))
         journey.getState shouldBe UploadFile(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           "2b72fe99-8adf-4edb-865e-622ae710f77c",
@@ -3764,8 +3766,8 @@ class CreateCaseJourneyISpec
         val result = await(request("/new/file-uploaded/11370e18-6e24-453e-b45a-76d3e32ea33d/remove").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
-        result.body should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
+        result.body[String] should include(htmlEscapedPageTitle("view.file-uploaded.singular.title", "1"))
+        result.body[String] should include(htmlEscapedMessage("view.file-uploaded.singular.heading", "1"))
         journey.getState shouldBe FileUploaded(
           FileUploadHostData(TestData.importEntryDetails, TestData.fullImportQuestions(dateTimeOfArrival)),
           fileUploads = FileUploads(files =
@@ -3929,14 +3931,14 @@ class CreateCaseJourneyISpec
         journey.setState(state)
         givenAuthorisedForEnrolment(Enrolment("HMRC-XYZ", "EORINumber", "foo"))
 
-        val result =
+        val result: StandaloneWSResponse =
           await(
             request("/new/file-uploaded/f029444f-415c-4dec-9cf2-36774ec63ab8/test.pdf")
               .get()
           )
         result.status shouldBe 500
-        result.body should include(htmlEscapedPageTitle("global.error.500.title"))
-        result.body should include(htmlEscapedMessage("global.error.500.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("global.error.500.title"))
+        result.body[String] should include(htmlEscapedMessage("global.error.500.heading"))
         journey.getState shouldBe state
       }
     }
@@ -3964,7 +3966,7 @@ class CreateCaseJourneyISpec
           )
 
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
         journey.getState should beState(
           UploadMultipleFiles(
@@ -3988,7 +3990,7 @@ class CreateCaseJourneyISpec
               .options()
           )
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
       }
     }
@@ -4001,7 +4003,7 @@ class CreateCaseJourneyISpec
               .options()
           )
         result.status shouldBe 201
-        result.body.isEmpty shouldBe true
+        result.body[String].isEmpty shouldBe true
         result.headerValues(HeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN) shouldBe Seq("*")
       }
     }
@@ -4014,7 +4016,7 @@ class CreateCaseJourneyISpec
         val result = await(request("/foo").get())
 
         result.status shouldBe 404
-        result.body should include("Page not found")
+        result.body[String] should include("Page not found")
         journey.getState shouldBe state
       }
     }
@@ -4042,14 +4044,14 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
   lazy val controller: CreateCaseJourneyController = app.injector.instanceOf[CreateCaseJourneyController]
 
-  lazy val journey: TestJourneyService with CreateCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] = new support.TestJourneyService with CreateCaseJourneyService
+  final lazy val journey: TestJourneyService with CreateCaseJourneyService with EncryptedSessionCache[State, HeaderCarrier] = new support.TestJourneyService with CreateCaseJourneyService
   with EncryptedSessionCache[State, HeaderCarrier] {
 
-    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository: CacheRepository = app.injector.instanceOf[CacheRepository]
+    override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
+    override val cacheRepository: CacheRepository = app.injector.instanceOf[CacheRepository]
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
-    override lazy val keyProviderFromContext: HeaderCarrier => KeyProvider =
+    override val keyProviderFromContext: HeaderCarrier => KeyProvider =
       _ => KeyProvider(keyProvider, None)
 
     override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)

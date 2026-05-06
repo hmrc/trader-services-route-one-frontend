@@ -143,8 +143,8 @@ class IgnoringSessionStateServiceISpec extends SessionStateServiceISpecSetup {
       Duration("1 minute"),
       new CurrentTimestampSupport
     ) {
-      override def ensureIndexes: Future[Seq[String]] = Future.successful(Seq.empty)
-      override def ensureSchema: Future[Unit] = Future.successful(())
+      override def ensureIndexes(): Future[Seq[String]] = Future.successful(Seq.empty)
+      override def ensureSchema(): Future[Unit] = Future.successful(())
       override def findById(cacheId: String): Future[Option[CacheItem]] = Future.successful(None)
       override def get[A: Reads](cacheId: String)(dataKey: DataKey[A]): Future[Option[A]] = Future.successful(None)
       override def put[A: Writes](cacheId: String)(dataKey: DataKey[A], data: A): Future[CacheItem] =
@@ -224,8 +224,8 @@ class ForgetfulSessionStateServiceISpec extends SessionStateServiceISpecSetup {
       Duration("1 minute"),
       new CurrentTimestampSupport
     ) {
-      override def ensureIndexes: Future[Seq[String]] = Future.successful(Seq.empty)
-      override def ensureSchema: Future[Unit] = Future.successful(())
+      override def ensureIndexes(): Future[Seq[String]] = Future.successful(Seq.empty)
+      override def ensureSchema(): Future[Unit] = Future.successful(())
       override def findById(cacheId: String): Future[Option[CacheItem]] =
         Future.successful(Some(CacheItem("foo", Json.obj(), Instant.now(), Instant.now())))
       override def get[A: Reads](cacheId: String)(dataKey: DataKey[A]): Future[Option[A]] = Future.successful(None)
@@ -317,8 +317,8 @@ class InvalidSessionStateServiceISpec extends SessionStateServiceISpecSetup {
       Duration("1 minute"),
       new CurrentTimestampSupport
     ) {
-      override def ensureIndexes: Future[Seq[String]] = Future.successful(Seq.empty)
-      override def ensureSchema: Future[Unit] = Future.successful(())
+      override def ensureIndexes(): Future[Seq[String]] = Future.successful(Seq.empty)
+      override def ensureSchema(): Future[Unit] = Future.successful(())
       override def findById(cacheId: String): Future[Option[CacheItem]] =
         Future.successful(
           Some(CacheItem("foo", Json.obj("TestJourney" -> encryptedState), Instant.now(), Instant.now()))
@@ -413,8 +413,8 @@ class BrokenSessionStateServiceISpec extends SessionStateServiceISpecSetup {
       Duration("1 minute"),
       new CurrentTimestampSupport
     ) {
-      override def ensureIndexes: Future[Seq[String]] = Future.successful(Seq.empty)
-      override def ensureSchema: Future[Unit] = Future.successful(())
+      override def ensureIndexes(): Future[Seq[String]] = Future.successful(Seq.empty)
+      override def ensureSchema(): Future[Unit] = Future.successful(())
       override def findById(cacheId: String): Future[Option[CacheItem]] = Future.failed(new BrokenServiceException)
       override def get[A: Reads](cacheId: String)(dataKey: DataKey[A]): Future[Option[A]] =
         Future.failed(new BrokenServiceException)
@@ -521,14 +521,14 @@ trait SessionStateServiceISpecSetup extends AppISpec {
     }
 
   // define test service capable of manipulating journey state
-  lazy val service = new EncryptedSessionCache[Int, String] {
+  lazy val service: EncryptedSessionCache[Int, String] with TestService = new EncryptedSessionCache[Int, String] with TestService {
 
     override val journeyKey: String = "TestJourney"
 
-    override lazy val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
-    override lazy val cacheRepository = SessionStateServiceISpecSetup.this.cacheRepository
+    override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
+    override val cacheRepository = SessionStateServiceISpecSetup.this.cacheRepository
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
-    override lazy val keyProviderFromContext: String => KeyProvider = _ => keyProvider
+    override val keyProviderFromContext: String => KeyProvider = _ => keyProvider
     override val stateFormats: Format[Int] = SessionStateServiceISpecSetup.this.stateFormats
     override def getJourneyId(journeyId: String): Option[String] = Option(journeyId)
     override val default: Int = 0
@@ -552,6 +552,16 @@ trait SessionStateServiceISpecSetup extends AppISpec {
     def setState(state: Int)(implicit rc: String): Future[Int] = super.save((state, Nil)).map(_._1)
 
   }
+
+  trait TestService {
+  def apply(f: Int => Int)(implicit rc: String): Future[Int]
+  def get(implicit rc: String): Future[Option[(Int, List[Int])]]
+  def set(stateAndBreadcrumbs: (Int, List[Int]))(implicit rc: String): Future[(Int, List[Int])]
+  def getState(implicit rc: String): Future[Option[Int]]
+  def setState(state: Int)(implicit rc: String): Future[Int]
+  def clear(implicit rc: String, ec: ExecutionContext): Future[Unit]
+}
+
 
   object SimpleDecimalFormat {
 

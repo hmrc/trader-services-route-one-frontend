@@ -23,6 +23,8 @@ import org.scalatest.OptionValues
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result
+import play.api.libs.ws.JsonBodyReadables._
+import play.api.libs.ws.JsonBodyWritables._
 
 import java.nio.charset.Charset
 import scala.concurrent.ExecutionContext.Implicits.global

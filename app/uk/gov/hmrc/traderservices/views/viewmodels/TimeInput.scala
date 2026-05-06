@@ -67,6 +67,6 @@ object TimeInput {
         (__ \ "classes").write[String] and
         (__ \ "attributes").write[Map[String, String]] and
         (__ \ "showSelectPeriod").write[Boolean]
-    )(unlift(TimeInput.unapply))
+    )(o => Tuple.fromProductTyped(o))
 
 }

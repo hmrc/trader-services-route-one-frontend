@@ -36,13 +36,13 @@ import scala.reflect.ClassTag
   *
   * @example
   *
-  * given(State_A) .when(transition) .thenGoes(State_B)
+  * Given(State_A) .when(transition) .thenGoes(State_B)
   *
-  * given(State_A) .when(transition) .thenMatches { case State_B(...) => }
+  * Given(State_A) .when(transition) .thenMatches { case State_B(...) => }
   *
-  * given(State_A) .when(transition) .thenNoChange
+  * Given(State_A) .when(transition) .thenNoChange
   *
-  * given(State_A) .when(transition) .thenFailsWith[SomeExceptionType]
+  * Given(State_A) .when(transition) .thenFailsWith[SomeExceptionType]
   */
 trait JourneyModelSpec extends TestJourneyService {
   self: Matchers with BeforeAndAfterAll with Informing =>
@@ -65,10 +65,10 @@ trait JourneyModelSpec extends TestJourneyService {
     Await.result(future, timeout)
 
   /** Assumption about the initial state of journey. */
-  case class given[S <: State: ClassTag](initialState: S, breadcrumbs: List[State] = Nil) {
+  case class Given[S <: State: ClassTag](initialState: S, breadcrumbs: List[State] = Nil) {
 
-    final def withBreadcrumbs(breadcrumbs: State*): given[S] =
-      given(initialState, breadcrumbs.toList)
+    final def withBreadcrumbs(breadcrumbs: State*): Given[S] =
+      Given(initialState, breadcrumbs.toList)
 
     final def when(transition: Transition[State]): When = {
       Option(initialState) match {
@@ -215,9 +215,8 @@ trait JourneyModelSpec extends TestJourneyService {
     }
 
   // Delete the temp file
-  override def afterAll() {
+  override def afterAll(): Unit =
     info(s"Test suite executed ${getCounter()} state transitions in total.")
-  }
 
   private def nameOf(state: State): String = {
     val className = state.getClass.getName

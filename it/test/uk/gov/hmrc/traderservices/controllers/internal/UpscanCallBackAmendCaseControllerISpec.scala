@@ -17,16 +17,17 @@
 package uk.gov.hmrc.traderservices.controllers.internal
 
 import play.api.http.{HeaderNames, MimeTypes}
-import play.api.libs.json._
+import play.api.libs.json.*
 import uk.gov.hmrc.traderservices.controllers.AmendCaseJourneyISpecSetup
 import uk.gov.hmrc.traderservices.stubs.UpscanInitiateStubs
-import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.models.*
 import uk.gov.hmrc.traderservices.utils.SHA256
+import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 
 import java.time.ZonedDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 class UpscanCallBackAmendCaseControllerISpec extends AmendCaseJourneyISpecSetup with UpscanInitiateStubs {
-  import journey.model.FileUploadState._
+  import uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState.*
 
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = true
@@ -59,7 +60,7 @@ class UpscanCallBackAmendCaseControllerISpec extends AmendCaseJourneyISpecSetup 
 
       result.status shouldBe 400
       journey.getState should beState(
-        UploadMultipleFiles(
+        uk.gov.hmrc.traderservices.journeys.AmendCaseJourneyModel.FileUploadState.UploadMultipleFiles(
           exampleAmendCaseModel,
           FileUploads(files =
             Seq(

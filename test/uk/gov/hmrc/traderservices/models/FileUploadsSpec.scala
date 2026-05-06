@@ -167,7 +167,7 @@ class FileUploadsSpec extends UnitSpec {
         case _                                   => "foo"
       }) shouldBe "Chrysanthemum.jpg"
 
-      ("""C:\Users\Public\Pictures\Sample \u1213Pictures\C\u1213hrysanthemum.jpg""" match {
+      ("C:\\Users\\Public\\Pictures\\Sample \u1213Pictures\\C\u1213hrysanthemum.jpg" match {
         case FileUpload.isWindowPathHaving(name) => name
         case _                                   => "foo"
       }) shouldBe "C\u1213hrysanthemum.jpg"
@@ -210,10 +210,10 @@ class FileUploadsSpec extends UnitSpec {
         """C:\Users\Public\Pictures\Sample \u1213Pictures\Chrysanthemum.jpg"""
       ) shouldBe "Chrysanthemum.jpg"
       FileUpload.sanitizeFileName(
-        """C:\Users\Public\Pictures\Sample \u1213Pictures\Chrysanthemum\u1213jpg"""
+        "C:\\Users\\Public\\Pictures\\Sample \u1213Pictures\\Chrysanthemum\u1213jpg"
       ) shouldBe "Chrysanthemum\u1213jpg"
       FileUpload.sanitizeFileName(
-        """C:\Users\Public\Pictures\Sample \u1213Pictures\0000Chry*[(anth]?)emum\u1213jpg"""
+        "C:\\Users\\Public\\Pictures\\Sample \u1213Pictures\\0000Chry*[(anth]?)emum\u1213jpg"
       ) shouldBe "0000Chry*[(anth]?)emum\u1213jpg"
     }
 

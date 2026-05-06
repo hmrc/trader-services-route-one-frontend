@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import org.scalatest.matchers.must.Matchers.convertToAnyMustWrapper
+import org.scalatest.matchers.must.Matchers.mustBe
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper._
 
 import java.time.LocalDateTime
@@ -42,12 +42,12 @@ class CommonUtilsHelperSpec extends UnitSpec {
 
     "format datetime using english localization" in {
       implicit val m: Messages = MessagesImpl(Lang("en"), messagesApi)
-      LocalDateTime.parse("2021-03-25T16:01").ddMMYYYYAtTimeFormat shouldBe "25 March 2021 at 16:01"
+      LocalDateTime.parse("2021-03-25T16:01").ddMMYYYYAtTimeFormat mustBe "25 March 2021 at 16:01"
     }
 
     "format datetime using welsh localization" in {
       implicit val m: Messages = MessagesImpl(Lang("cy"), messagesApi)
-      LocalDateTime.parse("2021-03-25T16:01").ddMMYYYYAtTimeFormat shouldBe "25 Mawrth 2021 am 16:01"
+      LocalDateTime.parse("2021-03-25T16:01").ddMMYYYYAtTimeFormat mustBe "25 Mawrth 2021 am 16:01"
     }
 
     "foldNonEmpty should work correctly for non-empty strings" in {

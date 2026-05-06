@@ -23,6 +23,8 @@ import uk.gov.hmrc.traderservices.connectors.TraderServicesUpdateCaseRequest
 import play.api.libs.json.Json
 import uk.gov.hmrc.traderservices.models._
 import play.api.libs.json.Writes
+import java.text.Format
+import play.api.libs.json.OFormat
 
 object JourneyLog {
 
@@ -181,7 +183,7 @@ object JourneyLog {
     val formatExportCreateCaseLog = Json.format[ExportCreateCaseLog]
     val formatImportCreateCaseLog = Json.format[ImportCreateCaseLog]
 
-    implicit val writer = Writes.apply[CreateCaseLog] {
+    implicit val writer: Writes[CreateCaseLog] = Writes.apply[CreateCaseLog] {
       case l: ExportCreateCaseLog => formatExportCreateCaseLog.writes(l)
       case l: ImportCreateCaseLog => formatImportCreateCaseLog.writes(l)
     }
@@ -247,7 +249,7 @@ object JourneyLog {
         }
       )
 
-    implicit val formatUpdateCaseLog = Json.format[UpdateCaseLog]
+    implicit val formatUpdateCaseLog: OFormat[UpdateCaseLog] = Json.format[UpdateCaseLog]
   }
 
   final def logCreateCase(

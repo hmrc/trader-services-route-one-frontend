@@ -31,8 +31,8 @@ import TestImplicits._
 class CreateCaseJourneyWithMultfileUploadISpec
     extends CreateCaseJourneyISpecSetup with TraderServicesApiStubs with UpscanInitiateStubs {
 
-  import journey.model.CreateCaseJourneyState._
-  import journey.model.FileUploadState._
+  import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
+  import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadState._
 
   def uploadMultipleFilesFeature: Boolean = true
   def requireEnrolmentFeature: Boolean = true
@@ -73,9 +73,9 @@ class CreateCaseJourneyWithMultfileUploadISpec
           await(requestWithCookies("/new/export/check-your-answers", controller.COOKIE_JSENABLED -> "true").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.export-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showUploadMultipleFiles.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.export-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.export-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showUploadMultipleFiles.url)
         journey.getState shouldBe state
       }
     }
@@ -113,9 +113,9 @@ class CreateCaseJourneyWithMultfileUploadISpec
           await(requestWithCookies("/new/import/check-your-answers", controller.COOKIE_JSENABLED -> "true").get())
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
-        result.body should include(htmlEscapedMessage("view.import-questions.summary.heading"))
-        result.body should include(routes.CreateCaseJourneyController.showUploadMultipleFiles.url)
+        result.body[String] should include(htmlEscapedPageTitle("view.import-questions.summary.title"))
+        result.body[String] should include(htmlEscapedMessage("view.import-questions.summary.heading"))
+        result.body[String] should include(routes.CreateCaseJourneyController.showUploadMultipleFiles.url)
         journey.getState shouldBe state
       }
     }
@@ -211,8 +211,8 @@ class CreateCaseJourneyWithMultfileUploadISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
 
         journey.getState shouldBe UploadMultipleFiles(
           hostData = FileUploadHostData(
@@ -265,8 +265,8 @@ class CreateCaseJourneyWithMultfileUploadISpec
         )
 
         result.status shouldBe 200
-        result.body should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
-        result.body should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
+        result.body[String] should include(htmlEscapedPageTitle("view.upload-multiple-files.title"))
+        result.body[String] should include(htmlEscapedMessage("view.upload-multiple-files.heading"))
 
         journey.getState shouldBe UploadMultipleFiles(
           hostData = FileUploadHostData(
