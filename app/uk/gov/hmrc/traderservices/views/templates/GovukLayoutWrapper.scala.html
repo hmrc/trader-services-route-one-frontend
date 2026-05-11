@@ -74,10 +74,7 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit requestHeader: RequestHeade
 }
 
 @beforeContentBlock = {
-@languageSelection(
-    appConfig.languageMap,
-    appConfig.routeToSwitchLanguage
-)
+
 @if(backLink.isDefined) {
     @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
 }
@@ -103,7 +100,8 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit requestHeader: RequestHeade
         signOutUrl = if(timeout) Some(routes.SignOutController.signOut().url) else None,
         phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
         userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
-        displayHmrcBanner = false
+        displayHmrcBanner = false,
+        isWelshTranslationAvailable = true
     )),
     footerBlock = Some(hmrcStandardFooter())
 )(content)
