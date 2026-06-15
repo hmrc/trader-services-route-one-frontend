@@ -65,6 +65,8 @@ export default class ErrorManager {
     error.errorSummaryRow.remove();
 
     inputContainer.classList.remove(this.classes.inputContainerError);
+    this.removeDescribedBy(input, error.errorMessage.id);
+    input.removeAttribute('aria-invalid');
 
     delete this.errors[inputId];
 
@@ -81,10 +83,13 @@ export default class ErrorManager {
     const label = this.getLabel(inputContainer);
 
     const errorMessage = parseHtml(this.errorMessageTpl, {
+      inputId: inputId,
       errorMessage: message
     });
 
     inputContainer.classList.add(this.classes.inputContainerError);
+    this.addDescribedBy(input, errorMessage.id);
+    input.setAttribute('aria-invalid', 'true');
 
     label.after(errorMessage);
 
@@ -130,5 +135,29 @@ export default class ErrorManager {
 
   private getLabel(container: HTMLElement): HTMLLabelElement {
     return container.querySelector(`.${this.classes.label}`);
+  }
+
+  private addDescribedBy(input: HTMLElement, targetId: string): void {
+    const currentValue = input.getAttribute('aria-describedby') || '';
+    const describedByIds = currentValue.split(/\s+/).filter(Boolean);
+
+    if (!describedByIds.includes(targetId)) {
+      describedByIds.push(targetId);
+      input.setAttribute('aria-describedby', describedByIds.join(' '));
+    }
+  }
+
+  private removeDescribedBy(input: HTMLElement, targetId: string): void {
+    const currentValue = input.getAttribute('aria-describedby') || '';
+    const describedByIds = currentValue
+      .split(/\s+/)
+      .filter(Boolean)
+      .filter((id) => id !== targetId);
+
+    if (describedByIds.length > 0) {
+      input.setAttribute('aria-describedby', describedByIds.join(' '));
+    } else {
+      input.removeAttribute('aria-describedby');
+    }
   }
 }

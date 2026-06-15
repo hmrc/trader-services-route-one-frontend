@@ -96,7 +96,7 @@ describe('Multi File Upload component', () => {
           </script>
 
           <script type="text/x-template" id="error-manager-message-tpl">
-            <span class="govuk-error-message">
+            <span id="{inputId}-error" class="govuk-error-message">
               <span class="multi-file-upload__error-message">{errorMessage}</span>
             </span>
           </script>
