@@ -27,7 +27,7 @@ describe('ErrorManager tool', () => {
           </script>
 
           <script type="text/x-template" id="error-manager-message-tpl">
-            <span class="govuk-error-message">
+            <span id="{inputId}-error" class="govuk-error-message">
               <span class="multi-file-upload__error-message">{errorMessage}</span>
             </span>
           </script>
@@ -77,6 +77,14 @@ describe('ErrorManager tool', () => {
 
             expect(item.querySelector('.govuk-error-message').textContent.trim()).toEqual('message');
           });
+
+          it('Then the field references its error message', () => {
+            expect(document.getElementById('input').getAttribute('aria-describedby')).toEqual('input-error');
+          });
+
+          it('Then the field is marked as invalid', () => {
+            expect(document.getElementById('input').getAttribute('aria-invalid')).toEqual('true');
+          });
         });
 
         describe('And an error is already added to the field', () => {
@@ -113,6 +121,14 @@ describe('ErrorManager tool', () => {
 
             it('Then the error gets removed from the field', () => {
               expect(document.querySelector('#item .govuk-error-message')).toEqual(null);
+            });
+
+            it('Then the field no longer references the error message', () => {
+              expect(document.getElementById('input').hasAttribute('aria-describedby')).toEqual(false);
+            });
+
+            it('Then the field is no longer marked as invalid', () => {
+              expect(document.getElementById('input').hasAttribute('aria-invalid')).toEqual(false);
             });
 
             it('Then the summary gets detached from DOM', () => {
