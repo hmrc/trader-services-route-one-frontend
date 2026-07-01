@@ -15,10 +15,11 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.{Header, HmrcHeader}
 
 @this(
   govukTemplate: GovukTemplate,
-  govukHeader: GovukHeader,
+  hmrcHeader: HmrcHeader,
   govukFooter: GovukFooter,
   govukBackLink: GovukBackLink,
   govukSkipLink: GovukSkipLink
@@ -39,10 +40,10 @@
 
 @headerDefault = {
   @headerBlock.getOrElse {
-    @govukHeader(Header(
-      homepageUrl = Some("https://www.gov.uk/"),
+    @hmrcHeader(Header(
+      homepageUrl = "https://www.gov.uk/",
       productName = Some(messages("service.name")),
-      containerClasses = None))
+      ))
   }
 }
 @skipLink = {
