@@ -18,13 +18,13 @@ package uk.gov.hmrc.traderservices.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Format
-import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyModel, AmendCaseJourneyStateFormats, State}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.Config
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
 
 trait AmendCaseJourneyService extends SessionStateService {
 
@@ -55,13 +55,12 @@ trait AmendCaseJourneyServiceWithHeaderCarrier extends AmendCaseJourneyService
 case class MongoDBCachedAmendCaseJourneyService @Inject() (
   cacheRepository: CacheRepository,
   config: Config,
-  applicationCrypto: ApplicationCrypto,
   appConfig: AppConfig,
   actorSystem: ActorSystem
 ) extends EncryptedSessionCache[State, HeaderCarrier] with SessionStateService
     with AmendCaseJourneyServiceWithHeaderCarrier {
 
-  override val root = model.root
+  override val root: State = model.root
   override val default: State = root
 
   override val stateFormats: Format[State] = AmendCaseJourneyStateFormats.formats
@@ -71,8 +70,9 @@ case class MongoDBCachedAmendCaseJourneyService @Inject() (
 
   final val baseKeyProvider: KeyProvider = KeyProvider(config)
 
-  override final val keyProviderFromContext: HeaderCarrier => KeyProvider =
-    hc => KeyProvider(baseKeyProvider, None)
+  override final val legacyKeyProvider: KeyProvider = KeyProvider(baseKeyProvider, None)
 
   override val trace: Boolean = appConfig.traceFSM
+
+  override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesCryptoFromConfig("json.encryption", config)
 }

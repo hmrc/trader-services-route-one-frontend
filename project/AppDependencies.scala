@@ -12,10 +12,9 @@ object AppDependencies {
     "uk.gov.hmrc"                   %% s"bootstrap-frontend-play-$playVersion"    % bootstrapVersion,
     "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "13.9.0",
     "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % "2.12.0",
-    "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "8.4.0",
-    "com.googlecode.libphonenumber" % "libphonenumber"                            % "8.13.47",
-    "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.19.0",
-    "commons-codec"                 % "commons-codec"                             % "1.10"
+    "com.googlecode.libphonenumber" % "libphonenumber"                            % "9.0.34",
+    "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.22.0",
+    "commons-codec"                 % "commons-codec"                             % "1.22.0"
   ) ++ mailDependencies
 
   val testDeps: Seq[ModuleID] = (Seq(
@@ -23,7 +22,7 @@ object AppDependencies {
     "org.scalatestplus"      %% "scalacheck-1-17"                          % "3.2.18.0",
     "com.vladsch.flexmark"   %  "flexmark-all"                             % "0.64.8",
     "org.scalameta"          %% "munit"                                    % "0.7.29",
-    "org.scalacheck"         %% "scalacheck"                               % "1.18.1"
+    "org.scalacheck"         %% "scalacheck"                               % "1.19.0"
   ) ++ mailDependencies).map(_ % Test)
 
   def apply(): Seq[ModuleID] = compileDeps ++ testDeps
