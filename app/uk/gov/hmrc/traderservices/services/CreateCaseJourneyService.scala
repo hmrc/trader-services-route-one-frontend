@@ -75,5 +75,5 @@ case class MongoDBCachedCreateCaseJourneyService @Inject() (
 
   override val trace: Boolean = appConfig.traceFSM
 
-  override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesCryptoFromConfig("json.encryption", config)
+  override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesGcmCryptoFromConfig("json.encryption", config)
 }
