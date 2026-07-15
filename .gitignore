@@ -1,5 +1,6 @@
 .*
 
+!.nvmrc
 !.eslintrc
 !.gitignore
 !.scalafmt.conf
