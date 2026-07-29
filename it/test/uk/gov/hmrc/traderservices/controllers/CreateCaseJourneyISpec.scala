@@ -20,20 +20,20 @@ import org.apache.pekko.actor.ActorSystem
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.typesafe.config.Config
 import play.api.http.HeaderNames
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.{DefaultWSCookie, StandaloneWSRequest, StandaloneWSResponse}
-import play.api.mvc._
+import play.api.mvc.*
 import play.api.test.FakeRequest
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData, TestJourneyService, UnitSpec}
-import uk.gov.hmrc.crypto.PlainText
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, PlainText, SymmetricCryptoFactory}
 import uk.gov.hmrc.http.{Authorization, HeaderCarrier, SessionId, SessionKeys}
 import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServicesResult}
-import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState._
+import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.CreateCaseJourneyState.*
 import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHostData
 import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyStateFormats, State}
-import uk.gov.hmrc.traderservices.models._
+import uk.gov.hmrc.traderservices.models.*
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, EncryptedSessionCache, KeyProvider}
 import uk.gov.hmrc.traderservices.utils.SHA256
@@ -46,7 +46,8 @@ import java.time.{LocalDate, LocalDateTime, ZonedDateTime}
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
-import TestImplicits._
+import TestImplicits.*
+
 import scala.concurrent.Future
 
 class CreateCaseJourneyISpec
@@ -4051,14 +4052,13 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
     override val cacheRepository: CacheRepository = app.injector.instanceOf[CacheRepository]
     lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
-    override val keyProviderFromContext: HeaderCarrier => KeyProvider =
-      _ => KeyProvider(keyProvider, None)
-
     override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)
 
     override val stateFormats: Format[State] = CreateCaseJourneyStateFormats.formats
     override val root: State = model.root
     override val default: State = root
+    override val legacyKeyProvider: KeyProvider = KeyProvider(keyProvider, None)
+    override val crypto: Encrypter & Decrypter =SymmetricCryptoFactory.aesGcmCrypto("UrI5kMAs7ewjByGBXD2+5+v3GZdCzutjTe07g37xc2M=")
   }
 
   final def fakeRequest(cookies: Cookie*)(implicit
