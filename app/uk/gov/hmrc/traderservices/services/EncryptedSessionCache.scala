@@ -19,6 +19,7 @@ package uk.gov.hmrc.traderservices.services
 import org.apache.pekko.actor.ActorSystem
 import play.api.Logger
 import play.api.libs.json.{Format, JsString, JsValue, Json}
+import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, SymmetricCryptoFactory}
 import uk.gov.hmrc.traderservices.journeys.Transition
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import uk.gov.hmrc.traderservices.utils.IdentityUtils
@@ -35,7 +36,8 @@ trait EncryptedSessionCache[A, C] {
   val cacheRepository: CacheRepository
   val stateFormats: Format[A]
   def getJourneyId(context: C): Option[String]
-  val keyProviderFromContext: C => KeyProvider
+  val legacyKeyProvider: KeyProvider
+  val crypto: Encrypter & Decrypter
   val default: A
 
   def updateBreadcrumbs(
@@ -67,7 +69,7 @@ trait EncryptedSessionCache[A, C] {
   }
 
   final def encrypt(state: A, breadcrumbs: List[A])(implicit context: C): JsValue =
-    JsString(Encryption.encrypt(PersistentState(state, breadcrumbs), keyProviderFromContext(context)))
+    JsString(Encryption.encrypt(PersistentState(state, breadcrumbs), crypto).value)
 
   final def currentSessionState(implicit
     context: C,
@@ -78,11 +80,10 @@ trait EncryptedSessionCache[A, C] {
   final def updateSessionState(
     transition: Transition[A]
   )(implicit context: C, ec: ExecutionContext): Future[(A, List[A])] = {
-    val keyProvider = keyProviderFromContext(context)
-    val defaultValue = Encryption.encrypt(PersistentState(default, Nil), keyProvider)
+    val defaultValue = Encryption.encrypt(PersistentState(default, Nil), crypto)
     cache
-      .modify(defaultValue) { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](encrypted, keyProvider)
+      .modify(defaultValue.value) { encrypted =>
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
         val (state, breadcrumbs) = (entry.state, entry.breadcrumbs)
         transition.apply
           .applyOrElse(
@@ -90,17 +91,16 @@ trait EncryptedSessionCache[A, C] {
             (_: A) => Future.successful(state)
           )
           .map { endState =>
-            Encryption.encrypt(
-              PersistentState(
-                endState,
-                updateBreadcrumbs(endState, state, breadcrumbs)
-              ),
-              keyProvider
-            )
+            Encryption
+              .encrypt(
+                PersistentState(endState, updateBreadcrumbs(endState, state, breadcrumbs)),
+                crypto
+              )
+              .value
           }
       }
       .map { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](encrypted, keyProvider)
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
         val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
         if (trace) {
           logger.debug("-" + stateAndBreadcrumbs._2.length + "-" * 32)
@@ -119,23 +119,20 @@ trait EncryptedSessionCache[A, C] {
   final def fetch(implicit
     context: C,
     ec: ExecutionContext
-  ): Future[Option[(A, List[A])]] = {
-    val keyProvider = keyProviderFromContext(context)
+  ): Future[Option[(A, List[A])]] =
     cache.fetch
       .map(_.map { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](encrypted, keyProvider)
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
         (entry.state, entry.breadcrumbs)
       })
-  }
 
   final def save(
     stateAndBreadcrumbs: (A, List[A])
   )(implicit context: C, ec: ExecutionContext): Future[(A, List[A])] = {
-    val keyProvider = keyProviderFromContext(context)
     val entry = PersistentState(stateAndBreadcrumbs._1, stateAndBreadcrumbs._2)
-    val encrypted = Encryption.encrypt(entry, keyProvider)
+    val encrypted = Encryption.encrypt(entry, crypto)
     cache
-      .save(encrypted)
+      .save(encrypted.value)
       .map { _ =>
         if (trace) {
           logger.debug("-" + stateAndBreadcrumbs._2.length + "-" * 32)

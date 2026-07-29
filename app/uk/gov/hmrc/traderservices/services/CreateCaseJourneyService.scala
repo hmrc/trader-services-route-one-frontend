@@ -18,19 +18,19 @@ package uk.gov.hmrc.traderservices.services
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Format
-import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyModel, CreateCaseJourneyStateFormats, State}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.traderservices.wiring.AppConfig
 import uk.gov.hmrc.traderservices.repository.CacheRepository
 import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.Config
+import uk.gov.hmrc.crypto.{Decrypter, Encrypter, SymmetricCryptoFactory}
 
 trait CreateCaseJourneyService extends SessionStateService {
 
   val journeyKey = "CreateCaseJourney"
 
-  val model = CreateCaseJourneyModel
+  val model: CreateCaseJourneyModel.type = CreateCaseJourneyModel
 
   // do not keep errors or transient states in the journey history
   override val breadcrumbsRetentionStrategy: Breadcrumbs => Breadcrumbs =
@@ -56,12 +56,11 @@ case class MongoDBCachedCreateCaseJourneyService @Inject() (
   cacheRepository: CacheRepository,
   config: Config,
   appConfig: AppConfig,
-  actorSystem: ActorSystem,
-  applicationCrypto: ApplicationCrypto
+  actorSystem: ActorSystem
 ) extends EncryptedSessionCache[State, HeaderCarrier] with SessionStateService
     with CreateCaseJourneyServiceWithHeaderCarrier {
 
-  override val root = model.root
+  override val root: State = model.root
   override val default: State = root
 
   override val stateFormats: Format[State] =
@@ -72,8 +71,9 @@ case class MongoDBCachedCreateCaseJourneyService @Inject() (
 
   final val baseKeyProvider: KeyProvider = KeyProvider(config)
 
-  override final val keyProviderFromContext: HeaderCarrier => KeyProvider =
-    hc => KeyProvider(baseKeyProvider, None)
+  override final val legacyKeyProvider: KeyProvider = KeyProvider(baseKeyProvider, None)
 
   override val trace: Boolean = appConfig.traceFSM
+
+  override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesGcmCryptoFromConfig("json.encryption", config)
 }
