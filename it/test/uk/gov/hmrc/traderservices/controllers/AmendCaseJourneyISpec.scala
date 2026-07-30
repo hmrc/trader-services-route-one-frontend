@@ -31,7 +31,7 @@ import uk.gov.hmrc.traderservices.connectors.{FileTransferResult, TraderServices
 import uk.gov.hmrc.traderservices.journeys.{AmendCaseJourneyStateFormats, State}
 import uk.gov.hmrc.traderservices.models.*
 import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, EncryptedSessionCache, KeyProvider, MongoDBCachedAmendCaseJourneyService}
+import uk.gov.hmrc.traderservices.services.{AmendCaseJourneyService, EncryptedSessionCache, MongoDBCachedAmendCaseJourneyService}
 import uk.gov.hmrc.traderservices.stubs.{TraderServicesApiStubs, UpscanInitiateStubs}
 import uk.gov.hmrc.traderservices.support
 import uk.gov.hmrc.traderservices.support.{ServerISpec, StateMatchers, TestData}
@@ -1575,14 +1575,12 @@ trait AmendCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
     override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
     override val cacheRepository = app.injector.instanceOf[CacheRepository]
-    lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
     def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)
 
     override val stateFormats: Format[State] = AmendCaseJourneyStateFormats.formats
     override val root: State = model.root
     override val default: State = root
-    override val legacyKeyProvider: KeyProvider = KeyProvider(keyProvider, None)
     override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesGcmCrypto("UrI5kMAs7ewjByGBXD2+5+v3GZdCzutjTe07g37xc2M=")
   }
 

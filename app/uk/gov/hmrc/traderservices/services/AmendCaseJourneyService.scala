@@ -68,10 +68,6 @@ case class MongoDBCachedAmendCaseJourneyService @Inject() (
   def getJourneyId(hc: HeaderCarrier): Option[String] =
     hc.extraHeaders.find(_._1 == journeyKey).map(_._2)
 
-  final val baseKeyProvider: KeyProvider = KeyProvider(config)
-
-  override final val legacyKeyProvider: KeyProvider = KeyProvider(baseKeyProvider, None)
-
   override val trace: Boolean = appConfig.traceFSM
 
   override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesGcmCryptoFromConfig("json.encryption", config)

@@ -26,7 +26,7 @@ import uk.gov.hmrc.mongo.{CurrentTimestampSupport, MongoComponent}
 import uk.gov.hmrc.mongo.cache.{CacheItem, DataKey}
 import uk.gov.hmrc.traderservices.journeys.Transition
 import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{EncryptedSessionCache, KeyProvider}
+import uk.gov.hmrc.traderservices.services.{EncryptedSessionCache}
 
 import java.time.Instant
 import java.util.UUID
@@ -528,7 +528,6 @@ trait SessionStateServiceISpecSetup extends AppISpec {
 
     override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
     override val cacheRepository = SessionStateServiceISpecSetup.this.cacheRepository
-    lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
     override val stateFormats: Format[Int] = SessionStateServiceISpecSetup.this.stateFormats
     override def getJourneyId(journeyId: String): Option[String] = Option(journeyId)
     override val default: Int = 0
@@ -551,7 +550,6 @@ trait SessionStateServiceISpecSetup extends AppISpec {
     def getState(implicit rc: String): Future[Option[Int]] = currentSessionState.map(_.map(_._1))
     def setState(state: Int)(implicit rc: String): Future[Int] = super.save((state, Nil)).map(_._1)
 
-    override val legacyKeyProvider: KeyProvider = keyProvider
     override val crypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesGcmCrypto("UrI5kMAs7ewjByGBXD2+5+v3GZdCzutjTe07g37xc2M=")
   }
 
