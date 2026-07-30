@@ -35,7 +35,7 @@ import uk.gov.hmrc.traderservices.journeys.CreateCaseJourneyModel.FileUploadHost
 import uk.gov.hmrc.traderservices.journeys.{CreateCaseJourneyStateFormats, State}
 import uk.gov.hmrc.traderservices.models.*
 import uk.gov.hmrc.traderservices.repository.CacheRepository
-import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, EncryptedSessionCache, KeyProvider}
+import uk.gov.hmrc.traderservices.services.{CreateCaseJourneyService, EncryptedSessionCache}
 import uk.gov.hmrc.traderservices.utils.SHA256
 import uk.gov.hmrc.traderservices.views.CommonUtilsHelper.DateTimeUtilities
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
@@ -4050,14 +4050,12 @@ trait CreateCaseJourneyISpecSetup extends ServerISpec with StateMatchers {
 
     override val actorSystem: ActorSystem = app.injector.instanceOf[ActorSystem]
     override val cacheRepository: CacheRepository = app.injector.instanceOf[CacheRepository]
-    lazy val keyProvider: KeyProvider = KeyProvider(app.injector.instanceOf[Config])
 
     override def getJourneyId(hc: HeaderCarrier): Option[String] = hc.sessionId.map(_.value).map(SHA256.compute)
 
     override val stateFormats: Format[State] = CreateCaseJourneyStateFormats.formats
     override val root: State = model.root
     override val default: State = root
-    override val legacyKeyProvider: KeyProvider = KeyProvider(keyProvider, None)
     override val crypto: Encrypter & Decrypter =SymmetricCryptoFactory.aesGcmCrypto("UrI5kMAs7ewjByGBXD2+5+v3GZdCzutjTe07g37xc2M=")
   }
 

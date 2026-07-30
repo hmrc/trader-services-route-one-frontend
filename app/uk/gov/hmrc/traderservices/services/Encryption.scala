@@ -26,13 +26,10 @@ object Encryption {
   def encrypt[T: Writes](value: T, encrypter: Encrypter): Crypted =
     encrypter.encrypt(PlainText(Json.stringify(Json.toJson(value))))
 
-  def decrypt[T](crypted: Crypted, crypto: Decrypter, keyProvider: KeyProvider)(implicit reads: Reads[T]): T =
-    decryptGcm(crypted, crypto)
-      .orElse(Try(LegacyEncryption.decryptLegacy(crypted.value, keyProvider)).toOption)
+  def decrypt[T](crypted: Crypted, decrypter: Decrypter)(implicit reads: Reads[T]): T =
+    Try(decrypter.decrypt(crypted).value).toOption
+      .map { decrypted =>
+        Json.parse(decrypted).as[T]
+      }
       .getOrElse(throw new SecurityException("Failed decrypting data"))
-
-  private def decryptGcm[T](crypted: Crypted, decrypter: Decrypter)(implicit reads: Reads[T]): Option[T] =
-    Try(decrypter.decrypt(crypted).value).toOption.map { decrypted =>
-      Json.parse(decrypted).as[T]
-    }
 }

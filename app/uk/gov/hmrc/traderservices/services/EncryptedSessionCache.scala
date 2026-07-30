@@ -36,7 +36,6 @@ trait EncryptedSessionCache[A, C] {
   val cacheRepository: CacheRepository
   val stateFormats: Format[A]
   def getJourneyId(context: C): Option[String]
-  val legacyKeyProvider: KeyProvider
   val crypto: Encrypter & Decrypter
   val default: A
 
@@ -83,7 +82,7 @@ trait EncryptedSessionCache[A, C] {
     val defaultValue = Encryption.encrypt(PersistentState(default, Nil), crypto)
     cache
       .modify(defaultValue.value) { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto)
         val (state, breadcrumbs) = (entry.state, entry.breadcrumbs)
         transition.apply
           .applyOrElse(
@@ -100,7 +99,7 @@ trait EncryptedSessionCache[A, C] {
           }
       }
       .map { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto)
         val stateAndBreadcrumbs = (entry.state, entry.breadcrumbs)
         if (trace) {
           logger.debug("-" + stateAndBreadcrumbs._2.length + "-" * 32)
@@ -122,7 +121,7 @@ trait EncryptedSessionCache[A, C] {
   ): Future[Option[(A, List[A])]] =
     cache.fetch
       .map(_.map { encrypted =>
-        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto, legacyKeyProvider)
+        val entry = Encryption.decrypt[PersistentState](Crypted(encrypted), crypto)
         (entry.state, entry.breadcrumbs)
       })
 
