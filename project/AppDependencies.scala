@@ -21,7 +21,6 @@ object AppDependencies {
   val testDeps: Seq[ModuleID] = (Seq(
     "uk.gov.hmrc"            %% s"bootstrap-test-play-$playVersion"        % bootstrapVersion,
     "org.scalatestplus"      %% "scalacheck-1-17"                          % "3.2.18.0",
-    "com.vladsch.flexmark"   %  "flexmark-all"                             % "0.64.8",
     "org.scalameta"          %% "munit"                                    % "0.7.29",
     "org.scalacheck"         %% "scalacheck"                               % "1.19.0"
   ) ++ mailDependencies).map(_ % Test)
