@@ -20,7 +20,7 @@ import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.pattern.after
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.play.http.logging.Mdc
+import uk.gov.hmrc.mdc.Mdc
 import play.api.Logger
 import scala.util.Try
 import scala.util.Success
