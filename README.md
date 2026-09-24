@@ -30,6 +30,27 @@ It should then be listening on port 9379
 
     browse http://localhost:9379/send-documents-for-customs-check
 
+## ⚠️ Dependency Security Notice
+
+**Please take care when updating the ESLint dependency or regenerating `package-lock.json`.**
+
+This project currently uses the following dependency chain:
+
+```text
+eslint@8.6.0
+└── file-entry-cache@6.0.1
+    └── flat-cache@3.2.0
+        └── keyv@4.5.4
+```
+
+A supply-chain compromise has been reported affecting **`keyv@6.0.0`** and other packages in the Keyv/Cacheable namespace.
+
+The current dependency tree uses **`keyv@4.5.4`**, which is not the affected version identified in the advisory.
+
+When upgrading ESLint or regenerating/updating dependencies, **verify that an affected version of `keyv`, `flat-cache`, or `file-entry-cache` has not been introduced**.
+
+For more information, see the [Socket security advisory](https://socket.dev/blog/popular-npm-packages-in-the-keyv-and-cacheable-namespaces-compromised-in-active-supply-chain).
+
 ## Other related Route1 services:
 - Backend service: [trader-services-route-one](https://github.com/hmrc/trader-services-route-one)
 - Stubs: [trader-services-route-one-stub](https://github.com/hmrc/trader-services-route-one-stub/)
