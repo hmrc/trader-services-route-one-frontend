@@ -13,7 +13,6 @@ object AppDependencies {
     "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "13.14.0",
     "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % "2.14.0",
     "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "8.4.0",
-    "com.googlecode.libphonenumber" % "libphonenumber"                            % "9.0.40",
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.22.3.1",
     "commons-codec"                 % "commons-codec"                             % "1.22.1"
   ) ++ mailDependencies

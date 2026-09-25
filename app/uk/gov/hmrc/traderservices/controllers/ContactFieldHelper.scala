@@ -16,28 +16,26 @@
 
 package uk.gov.hmrc.traderservices.controllers
 
-import com.google.i18n.phonenumbers.{NumberParseException, PhoneNumberUtil}
 import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
 
 object ContactFieldHelper {
 
-  val allowedSpecialNumberCharacterSet = Set(' ', '-', '(', ')')
+  private val allowedSpecialNumberCharacterSet = Set(' ', '-', '(', ')')
 
   def contactNumber(errorMessage: String = "error.contactNumber"): Constraint[String] =
     Constraint[String]("constraint.contactNumber") { phoneNum =>
-      if (phoneNum == null) Invalid(ValidationError(errorMessage))
-      else if (phoneNum.trim.isEmpty) Invalid(ValidationError(errorMessage))
-      else
-        try {
-          val phoneNumberUtil = PhoneNumberUtil.getInstance()
-          val sequenceToNumber = phoneNumberUtil.parse(phoneNum, "GB")
-          if (!phoneNum.forall(_.isDigit)) Invalid(ValidationError(errorMessage))
-          else if (phoneNum.length != 11) Invalid(ValidationError(errorMessage))
-          else if (phoneNumberUtil.isValidNumber(sequenceToNumber)) Valid
-          else Invalid(ValidationError(errorMessage))
-        } catch {
-          case _: NumberParseException => Invalid(ValidationError(errorMessage))
+      val UkPhoneRegex = """^0\d{10}$""".r
+
+      if (phoneNum == null || phoneNum.trim.isEmpty) {
+        Invalid(ValidationError(errorMessage))
+      } else if (phoneNum.forall(_ == phoneNum.head)) {
+        Invalid(ValidationError(errorMessage))
+      } else {
+        phoneNum match {
+          case UkPhoneRegex() => Valid
+          case _              => Invalid(ValidationError(errorMessage))
         }
+      }
     }
 
   def normaliseNumber(phoneNum: String): String = {
