@@ -46,7 +46,7 @@ class UserResearchBannerSpec extends UnitSpec with BeforeAndAfterAll {
     application
   }
 
-  private lazy val enabledApp  = appWith(bannerEnabled = true)
+  private lazy val enabledApp = appWith(bannerEnabled = true)
   private lazy val disabledApp = appWith(bannerEnabled = false)
 
   private def messagesFor(application: Application, lang: String): Messages =
