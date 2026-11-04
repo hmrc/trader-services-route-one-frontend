@@ -44,6 +44,7 @@ trait StartPageControllerISpecSetup extends ServerISpec {
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = false
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   override def fakeApplication(): Application = appBuilder.build()
 }

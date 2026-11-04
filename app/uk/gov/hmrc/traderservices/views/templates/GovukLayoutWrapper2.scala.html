@@ -22,7 +22,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardFooter
 @import views.html.helper.CSPNonce
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
-@import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.userresearchbanner.UserResearchBanner
 
 @this(
         govukLayout2: GovukLayout2,
@@ -44,11 +44,12 @@
         refresh: Int = 0,
         mainClasses: Option[String] = Some("govuk-main-wrapper--auto-spacing"),
         mainContentClasses: String = "govuk-grid-column-two-thirds",
-        hasPrintReceipt: Boolean = false
+        hasPrintReceipt: Boolean = false,
+        displayUserResearchBanner: Boolean = true
 )(contentBlock: Html)(implicit request: RequestHeader, messages: Messages)
 
 @head = {
-@hmrcTrackingConsentSnippet()
+    @hmrcTrackingConsentSnippet()
     <meta name="format-detection" content="telephone=no">
         <!--[if lte IE 8]><link href='
 @controllers.routes.Assets.versioned("stylesheets/application-ie-8.css")
@@ -58,41 +59,47 @@
     type="text/css" />
         <!--<![endif]-->
 
-@if(hasPrintReceipt) {
-    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print-receipt.css")' type="text/css" media="print" />
-} else {
-    <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css" media="print" />
-}
+    @if(hasPrintReceipt) {
+        <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print-receipt.css")' type="text/css" media="print" />
+    } else {
+        <link rel="stylesheet" href='@controllers.routes.Assets.versioned("stylesheets/print.css")' type="text/css" media="print" />
+    }
 
-@if(refresh > 0) {
-    <noscript>
-        <meta http-equiv="refresh" content="@refresh"/>
-    </noscript>
-}
+    @if(refresh > 0) {
+        <noscript>
+            <meta http-equiv="refresh" content="@refresh"/>
+        </noscript>
+    }
 
-@if(timeout) {
-    <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
-    data-language="@messages.lang.language"
-    data-message="@messages("view.timedout.dialog.message")"
-    data-message-suffix=""
-    data-timeout="@appConfig.timeout"
-    data-countdown="@appConfig.countdown"
-    data-keep-alive-url="@routes.SessionController.keepAlive"
-    data-sign-out-url="@{
-        appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout().url
-    }"/>
-}
+    @if(timeout) {
+        <meta name="hmrc-timeout-dialog" content="hmrc-timeout-dialog"
+        data-language="@messages.lang.language"
+        data-message="@messages("view.timedout.dialog.message")"
+        data-message-suffix=""
+        data-timeout="@appConfig.timeout"
+        data-countdown="@appConfig.countdown"
+        data-keep-alive-url="@routes.SessionController.keepAlive"
+        data-sign-out-url="@{
+            appConfig.baseExternalCallbackUrl + routes.SignOutController.signOutTimeout().url
+        }"/>
+    }
 }
 
 @scripts = {
     <script @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
 }
 
+@userResearchBanner = @{
+    Option.when(displayUserResearchBanner && appConfig.userResearchBannerEnabled)(
+    UserResearchBanner(url = appConfig.userResearchBannerUrl)
+    )
+}
+
 @beforeContentBlock = {
 
-@if(backLink.isDefined) {
-    @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
-}
+    @if(backLink.isDefined) {
+        @govukBackLink(BackLink(href = backLink.get, content = Text(messages("site.back")), attributes = Map("id" -> "back-link")))
+    }
 }
 
 @content = {
@@ -116,7 +123,7 @@
         serviceUrl = Some(routes.CreateCaseJourneyController.showStart.url),
         signOutUrl = if(timeout) Some(routes.SignOutController.signOut().url) else None,
         phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
-        userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
+        userResearchBanner = userResearchBanner,
         displayHmrcBanner = false,
         isWelshTranslationAvailable = true
     )),

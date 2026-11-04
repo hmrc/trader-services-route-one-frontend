@@ -36,6 +36,7 @@ class UpscanCallBackControllerISpec extends CreateCaseJourneyISpecSetup with Ups
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = true
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   "POST /callback-from-upscan/new/journey/:journeyId" should {
     "return 400 if callback body invalid" in {

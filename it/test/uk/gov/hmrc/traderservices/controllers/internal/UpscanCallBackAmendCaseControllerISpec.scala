@@ -32,6 +32,7 @@ class UpscanCallBackAmendCaseControllerISpec extends AmendCaseJourneyISpecSetup 
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = true
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   "POST /callback-from-upscan/add/journey/:journeyId" should {
     "return 400 if callback body invalid" in {

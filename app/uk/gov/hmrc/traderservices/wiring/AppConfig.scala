@@ -17,7 +17,7 @@
 package uk.gov.hmrc.traderservices.wiring
 
 import com.google.inject.ImplementedBy
-import play.api.i18n.Lang
+import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{Call, RequestHeader}
 import uk.gov.hmrc.play.bootstrap.binders.SafeRedirectUrl
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -67,9 +67,10 @@ trait AppConfig {
   def betaFeedbackUrl(implicit request: RequestHeader): String =
     s"$contactHost/contact/beta-feedback?service=$contactFormServiceIdentifier&backUrl=$requestUri"
 
+  def userResearchBannerUrl(implicit messages: Messages): String
+
   val signOutUrl: String
 
-  val researchBannerUrl: String
   val fileFormats: AppConfig.FileFormats
 
   val traceFSM: Boolean = false
@@ -84,6 +85,7 @@ trait AppConfig {
   val workingHourEnd: Int
   val requireOptionalTransportFeature: Boolean
 
+  val userResearchBannerEnabled: Boolean
 }
 
 class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
@@ -129,10 +131,12 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
   override val exitSurveyUrl = s"$exitSurveyBaseUrl/$contactFormServiceIdentifier"
 
   override val signOutUrl: String = config.getString("urls.signOut")
-  override val researchBannerUrl: String = config.getString("urls.researchBanner")
 
   override val timeout: Int = config.getInt("session.timeoutSeconds")
   override val countdown: Int = config.getInt("session.countdownInSeconds")
+
+  override def userResearchBannerUrl(implicit messages: Messages): String =
+    config.getString(s"urls.user-research-banner-${messages.lang.code}")
 
   val fileFormats: AppConfig.FileFormats = AppConfig.FileFormats(
     maxFileSizeMb = config.getInt("file-formats.max-file-size-mb"),
@@ -148,6 +152,8 @@ class AppConfigImpl @Inject() (config: ServicesConfig) extends AppConfig {
 
   override val workingHourStart: Int = config.getInt("features.workingHours.start")
   override val workingHourEnd: Int = config.getInt("features.workingHours.end")
+
+  override val userResearchBannerEnabled: Boolean = config.getBoolean("features.user-research-banner")
 
   override val govukStartUrl: String = config.getString("govuk.start.url")
 }

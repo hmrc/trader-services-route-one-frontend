@@ -42,6 +42,7 @@ class CreateCaseJourneyNoEnrolmentISpec
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = false
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   "CreateCaseJourneyController with no enrolment checks" when {
     "GET /send-documents-for-customs-check/" should {
