@@ -41,6 +41,7 @@ abstract class BaseISpec
   def uploadMultipleFilesFeature: Boolean
   def requireEnrolmentFeature: Boolean
   def requireOptionalTransportFeature: Boolean
+  def userResearchBannerEnabled: Boolean
 
   protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -63,7 +64,8 @@ abstract class BaseISpec
               wireMockPort,
               uploadMultipleFilesFeature,
               requireEnrolmentFeature,
-              requireOptionalTransportFeature
+              requireOptionalTransportFeature,
+              userResearchBannerEnabled
             )
           )
       )

@@ -37,6 +37,7 @@ class CreateCaseJourneyWithMultfileUploadISpec
   def uploadMultipleFilesFeature: Boolean = true
   def requireEnrolmentFeature: Boolean = true
   def requireOptionalTransportFeature: Boolean = false
+  def userResearchBannerEnabled: Boolean = false
 
   "CreateCaseJourneyController" when {
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.hmrcfrontend.views.Aliases.UserResearchBanner
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.userresearchbanner.UserResearchBanner
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.{HmrcReportTechnicalIssueHelper, HmrcStandardFooter, HmrcStandardHeader, HmrcTrackingConsentSnippet}
 @import uk.gov.hmrc.traderservices.controllers.routes
@@ -35,7 +35,7 @@
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
-None, refresh: Int = 0)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
+None, refresh: Int = 0, displayUserResearchBanner: Boolean = false)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @head = {
 @hmrcTrackingConsentSnippet()
@@ -73,6 +73,12 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit requestHeader: RequestHeade
     <script  @CSPNonce.attr src='@controllers.routes.Assets.versioned("javascripts/application.min.js")'></script>
 }
 
+@userResearchBanner = @{
+    Option.when(displayUserResearchBanner && appConfig.userResearchBannerEnabled)(
+    UserResearchBanner(url = appConfig.userResearchBannerUrl)
+    )
+}
+
 @beforeContentBlock = {
 
 @if(backLink.isDefined) {
@@ -99,7 +105,7 @@ None, refresh: Int = 0)(contentBlock: Html)(implicit requestHeader: RequestHeade
         serviceUrl = Some(routes.CreateCaseJourneyController.showStart.url),
         signOutUrl = if(timeout) Some(routes.SignOutController.signOut().url) else None,
         phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
-        userResearchBanner = Some(UserResearchBanner(url = appConfig.researchBannerUrl)),
+        userResearchBanner = userResearchBanner,
         displayHmrcBanner = false,
         isWelshTranslationAvailable = true
     )),

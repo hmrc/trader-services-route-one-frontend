@@ -34,6 +34,7 @@ class AmendCaseJourneyWithMultifileUploadISpec
   override def uploadMultipleFilesFeature: Boolean = true
   override def requireEnrolmentFeature: Boolean = true
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   "AmendCaseJourneyController" when {
 

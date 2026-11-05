@@ -27,6 +27,7 @@ class LanguageSwitchControllerISpec extends CreateCaseJourneyISpecSetup {
   override def uploadMultipleFilesFeature: Boolean = false
   override def requireEnrolmentFeature: Boolean = true
   override def requireOptionalTransportFeature: Boolean = false
+  override def userResearchBannerEnabled: Boolean = false
 
   "LanguageSwitchController" when {
 

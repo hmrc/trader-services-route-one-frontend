@@ -10,7 +10,7 @@ object AppDependencies {
 
   lazy val compileDeps: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"                   %% s"bootstrap-frontend-play-$playVersion"    % bootstrapVersion,
-    "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "13.14.0",
+    "uk.gov.hmrc"                   %% s"play-frontend-hmrc-play-$playVersion"    % "13.16.0",
     "uk.gov.hmrc.mongo"             %% s"hmrc-mongo-play-$playVersion"            % "2.14.0",
     "uk.gov.hmrc"                   %% s"crypto-json-play-$playVersion"           % "8.4.0",
     "com.fasterxml.jackson.module"  %% "jackson-module-scala"                     % "2.22.3.1",
