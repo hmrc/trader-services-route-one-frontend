@@ -35,7 +35,7 @@
 )
 
 @(pageTitle: Option[String] = None, timeout: Boolean = true, js: Option[Html] = None, backLink: Option[String] =
-None, refresh: Int = 0, displayUserResearchBanner: Boolean = true)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
+None, refresh: Int = 0, displayUserResearchBanner: Boolean = false)(contentBlock: Html)(implicit requestHeader: RequestHeader, messages: Messages)
 
 @head = {
 @hmrcTrackingConsentSnippet()
