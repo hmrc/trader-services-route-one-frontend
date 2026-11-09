@@ -91,7 +91,7 @@
 
 @userResearchBanner = @{
     Option.when(displayUserResearchBanner && appConfig.userResearchBannerEnabled)(
-    UserResearchBanner(url = appConfig.userResearchBannerUrl)
+    UserResearchBanner(url = appConfig.userResearchBannerUrl, hideCloseButton = true)
     )
 }
 
