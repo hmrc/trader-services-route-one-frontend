@@ -65,6 +65,7 @@ class ErrorHandler @Inject() (
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
     exception match {
       case TraderServicesAmendApiError(ex) =>
+        //TODO add coverage exclusion here
         logger.warn(
           """
             |
