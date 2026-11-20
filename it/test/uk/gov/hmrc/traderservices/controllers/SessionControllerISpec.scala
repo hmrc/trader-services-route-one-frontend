@@ -49,6 +49,16 @@ class SessionControllerISpec extends SessionControllerISpecSetup() {
       }
     }
 
+    //TODO
+    "user enters on signout link with redirect url which is relative" should {
+      "will be on the page TODO" in {
+        givenSignOutWithContinueToFeedbackSurvey()
+        val result = await(requestWithoutJourneyId("/sign-out?continueUrl=/test/test").get())
+        result.status shouldBe 200
+        result.body[String] should include("TODO")
+      }
+    }
+
     "user enters on signout link with redirect url which is non relative" should {
       "will be on the error page for internal server error" in {
         givenSignOutWithContinueToFeedbackSurvey()
